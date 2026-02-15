@@ -177,7 +177,14 @@ Flags:
   --fuzzy             Include fuzzy translations
   --api-key string    API key (overrides stored credentials)
   --base-url string   Custom endpoint URL (for custom-openai)
+  --proxy string      HTTP/HTTPS proxy URL (e.g., http://proxy:8080)
+  --timeout duration  Request timeout (default: 60s)
 ```
+
+**Note on geographic restrictions:** If you're in a region where some AI providers are blocked, you can:
+- Use `--proxy` flag to route requests through a proxy server
+- Try alternative providers (Gemini, Ollama, custom endpoints)
+- Set environment variable: `export HTTPS_PROXY=http://your-proxy:port`
 
 ### `lokit auth`
 

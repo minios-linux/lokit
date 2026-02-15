@@ -122,6 +122,7 @@ TECHNICAL REQUIREMENTS:
 - Preserve all format specifiers exactly as-is (%s, %d, etc.).
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
 - Keep brand names unchanged (MiniOS, Debian, Ubuntu, Linux, etc.).
+- CRITICAL: Properly escape ALL backslashes in JSON strings. Groff sequences like \[dq] MUST be escaped as \\[dq] in JSON.
 - Return ONLY the JSON array, no explanations or markdown code blocks.`
 
 // ---------------------------------------------------------------------------
@@ -1010,6 +1011,23 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 				}
 				continue
 			}
+			
+			// Special handling for 403 Forbidden - usually geographic restrictions or no subscription
+			if resp.StatusCode == http.StatusForbidden {
+				return "", fmt.Errorf("Copilot API returned 403 Forbidden: access denied\n\n" +
+					"Common causes:\n" +
+					"  1. Geographic restrictions - GitHub Copilot may be blocked in your region\n" +
+					"  2. No active Copilot subscription ($10/month or free for students/OSS maintainers)\n" +
+					"  3. Invalid or expired authentication token\n\n" +
+					"Solutions:\n" +
+					"  - Re-authenticate: lokit auth logout --provider copilot && lokit auth login --provider copilot\n" +
+					"  - Use proxy/VPN if geographic restrictions apply\n" +
+					"  - Try alternative providers that may work in your region:\n" +
+					"      lokit auth login --provider gemini      (Google, 60 req/min free)\n" +
+					"      lokit auth login --provider google      (Google AI Studio)\n" +
+					"      lokit translate --provider ollama --model llama3.2  (local, no restrictions)")
+			}
+			
 			return "", fmt.Errorf("Copilot API returned status %d: %s", resp.StatusCode, truncate(string(respBody), 500))
 		}
 
@@ -1238,6 +1256,79 @@ func callGeminiOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 // ---------------------------------------------------------------------------
 
 var markdownCodeBlock = regexp.MustCompile("(?s)```(?:json)?\\s*(.*?)\\s*```")
+var groffEscapePattern = regexp.MustCompile(`(\\\[(?:dq|aq|co|lq|rq|oq|cq|em|en|ha|ti|bu|de|ps|ts|Fo|Fc|Po|Pc|rs)\])`)
+
+// fixGroffEscapesInJSON properly escapes backslashes in groff escape sequences
+// within JSON strings. AI models sometimes return groff sequences like \[dq]
+// without properly escaping the backslash, which breaks JSON parsing.
+//
+// We need to find groff sequences inside JSON string values and ensure they're
+// properly escaped: \[dq] -> \\[dq]
+func fixGroffEscapesInJSON(jsonContent string) string {
+	// This is a simplified approach: find all groff escape sequences and
+	// ensure backslash is doubled. We need to be careful to only process
+	// sequences that are inside JSON strings.
+	
+	// Pattern matches common groff sequences: \[xx] where xx is 2-letter code
+	// We look for: \[dq] \[aq] \[co] \[lq] \[rq] \[em] etc.
+	// and make sure they're properly escaped for JSON
+	
+	// Replace \[ with \\[ but only if not already escaped
+	// This handles the case where AI returns:\[dq] instead of \\[dq]
+	result := jsonContent
+	
+	// Find all occurrences and check if they need escaping
+	// We'll use a simple approach: within JSON strings (between quotes),
+	// replace single backslash with double backslash
+	
+	// More robust: find "string values" in JSON and fix backslashes inside them
+	var fixed strings.Builder
+	inQuote := false
+	escaped := false
+	
+	for i := 0; i < len(result); i++ {
+		c := result[i]
+		
+		if c == '"' && !escaped {
+			inQuote = !inQuote
+			fixed.WriteByte(c)
+			escaped = false
+			continue
+		}
+		
+		if inQuote && c == '\\' && !escaped {
+			// Check if this is a groff escape sequence
+			if i+1 < len(result) && result[i+1] == '[' {
+				// Look ahead to see if it's a groff sequence like \[dq]
+				if i+4 < len(result) && result[i+4] == ']' {
+					// It's a groff sequence, need to double the backslash
+					fixed.WriteString("\\\\")
+					escaped = false
+					continue
+				}
+			}
+			// Check for other valid JSON escape sequences
+			if i+1 < len(result) {
+				next := result[i+1]
+				if next == '"' || next == '\\' || next == '/' || next == 'b' || 
+				   next == 'f' || next == 'n' || next == 'r' || next == 't' || next == 'u' {
+					// Valid JSON escape, keep as-is
+					fixed.WriteByte(c)
+					escaped = true
+					continue
+				}
+			}
+			fixed.WriteByte(c)
+			escaped = true
+			continue
+		}
+		
+		fixed.WriteByte(c)
+		escaped = false
+	}
+	
+	return fixed.String()
+}
 
 // parseTranslations extracts a JSON array of strings from the AI response text.
 func parseTranslations(content string, expected int) ([]string, error) {
@@ -1254,6 +1345,11 @@ func parseTranslations(content string, expected int) ([]string, error) {
 	if startIdx >= 0 && endIdx > startIdx {
 		content = content[startIdx : endIdx+1]
 	}
+
+	// Fix common groff/man escape sequences that break JSON parsing
+	// AI models sometimes don't properly escape backslashes in JSON strings
+	// containing groff sequences like \[dq], \[aq], \[co], etc.
+	content = fixGroffEscapesInJSON(content)
 
 	var translations []string
 	if err := json.Unmarshal([]byte(content), &translations); err != nil {

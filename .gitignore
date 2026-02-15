@@ -37,3 +37,6 @@ Thumbs.db
 auth.json
 *.key
 *.pem
+
+# Test/example projects
+minios-live/
