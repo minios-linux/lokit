@@ -250,6 +250,41 @@ lokit auth custom-openai --api-key YOUR_KEY --base-url https://api.example.com/v
 lokit translate --provider custom-openai
 ```
 
+## GitHub Actions & Releases
+
+### Automated Workflows
+
+This project uses GitHub Actions for continuous integration and automated releases:
+
+- **CI Workflow** — Runs on every push and PR
+  - Tests code on Linux
+  - Builds for multiple platforms (Linux, macOS, Windows)
+  - Checks code formatting and runs `go vet`
+
+- **Release Workflow** — Triggered by version tags
+  - Builds binaries for all supported platforms
+  - Creates GitHub release with changelog
+  - Attaches binary archives automatically
+
+### Creating a Release
+
+To create a new release:
+
+```bash
+# Tag your commit
+git tag v0.2.0
+
+# Push the tag to GitHub
+git push origin v0.2.0
+```
+
+The Release workflow will automatically:
+1. Build binaries for Linux, macOS, and Windows
+2. Create release notes from git commits
+3. Upload all binaries as release assets
+
+View releases at: https://github.com/minios-linux/lokit/releases
+
 ## Development
 
 Built with Go 1.23+, using:
