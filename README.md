@@ -1,25 +1,37 @@
 # lokit — Localization Kit
 
-**lokit** is a modern gettext PO file manager with AI-powered translation support. It simplifies the workflow of extracting, managing, and translating localization files for software projects and documentation.
+**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, and simple JSON formats — either auto-detected or configured via `.lokit.yaml`.
 
 ## Features
 
-- 🚀 **Auto-detection** of project structure (flat, nested, po4a, i18next)
-- 🤖 **AI-powered translation** with multiple provider support
-- 🔄 **Smart PO file management** — extract, merge, update
-- 📊 **Translation statistics** and progress tracking
-- 🔐 **Native OAuth support** for GitHub Copilot and Gemini
-- 🌍 **Multiple formats** — gettext PO, po4a documentation, i18next JSON
+- 🔧 **Multi-target config** — `.lokit.yaml` for complex projects with multiple translation types
+- 🚀 **Auto-detection** — works without config for simple projects (flat PO, nested PO, po4a, i18next)
+- 🤖 **AI translation** — 7 providers including free GitHub Copilot and Gemini
+- 📊 **Translation statistics** — per-target progress tracking
+- 🔄 **Smart PO management** — extract, merge, update with `xgettext` and `msgmerge`
+- 🔐 **Native OAuth** — GitHub Copilot (device code) and Gemini (browser)
+- ⚡ **Parallel translation** — concurrent API requests with configurable chunking
+
+## Supported Formats
+
+| Format | Extension | Use case |
+|--------|-----------|----------|
+| **gettext** | `.po` / `.pot` | Source code strings (shell, Python, C) |
+| **po4a** | `.po` + `po4a.cfg` | Documentation / manpages |
+| **i18next** | `.json` (`_meta`) | Web apps with i18next |
+| **json** | `.json` (`translations`) | Simple JSON key-value translations |
 
 ## Supported AI Providers
 
-- **GitHub Copilot** — Native OAuth integration (free for subscribers)
-- **Gemini Code Assist** — Browser OAuth (free)
-- **Google AI (Gemini)** — API key required
-- **Groq** — API key required
-- **OpenCode** — Multi-format dispatcher
-- **Ollama** — Local server
-- **Custom OpenAI** — Any OpenAI-compatible endpoint
+| Provider | Auth | Free tier |
+|----------|------|-----------|
+| **GitHub Copilot** | OAuth (device code) | ✅ with GitHub account |
+| **Gemini Code Assist** | OAuth (browser) | ✅ 60 req/min |
+| **Google AI (Gemini)** | API key | ✅ limited |
+| **Groq** | API key | ✅ limited |
+| **OpenCode** | API key | — |
+| **Ollama** | none (local) | ✅ |
+| **Custom OpenAI** | API key | depends |
 
 ## Installation
 
@@ -29,19 +41,6 @@
 git clone https://github.com/minios-linux/lokit.git
 cd lokit
 make build
-```
-
-This builds the binary with version information embedded. You can also use:
-
-```bash
-# Just build (no version info)
-go build
-
-# Build and install to $GOPATH/bin
-make install
-
-# Build with custom version
-VERSION=1.0.0 make build
 ```
 
 ### Using go install
@@ -58,245 +57,292 @@ lokit version
 
 ## Quick Start
 
-### 1. Check project status
+### Simple project (auto-detection)
 
 ```bash
+# Check project structure
 lokit status
-```
 
-Shows detected project structure, languages, and translation progress.
-
-### 2. Initialize translations
-
-```bash
+# Extract strings and create PO files
 lokit init
-```
 
-Extracts translatable strings and creates/updates PO files.
+# Authenticate
+lokit auth login --provider copilot
 
-### 3. Authenticate with AI provider
-
-```bash
-# GitHub Copilot (recommended)
-lokit auth copilot
-
-# Or Gemini Code Assist
-lokit auth gemini
-
-# Or use API key
-lokit auth google --api-key YOUR_API_KEY
-```
-
-### 4. Translate
-
-```bash
 # Translate all languages
-lokit translate --provider copilot
-
-# Translate specific language
-lokit translate --provider copilot --lang ru
-
-# Force retranslation
-lokit translate --provider copilot --force
+lokit translate --provider copilot --model gpt-4.1
 ```
 
-## Project Structure Support
+### Complex project (`.lokit.yaml`)
 
-### Gettext Projects (Code)
+Create a `.lokit.yaml` in the project root:
 
-**Flat structure:**
-```
-po/
-  ├── ru.po
-  ├── cs.po
-  └── de.po
-```
+```yaml
+languages: [de, es, fr, ru]
+source_lang: en
 
-**Nested structure:**
-```
-po/
-  ├── ru/
-  │   └── messages.po
-  ├── cs/
-  │   └── messages.po
-  └── de/
-      └── messages.po
-```
+targets:
+  - name: app
+    type: gettext
+    po_dir: po
 
-### po4a Projects (Documentation)
+  - name: docs
+    type: po4a
+    root: manpages
+    po4a_config: po4a.cfg
 
-```
-po/
-  ├── po4a.conf
-  ├── ru.po
-  └── cs.po
+  - name: website
+    type: i18next
+    root: submodules/site
+    translations_dir: public/translations
+    languages: [de, es, fr, pt-BR, ru]
 ```
 
-### i18next Projects (JSON)
+Then:
 
+```bash
+lokit status        # Shows all targets with stats
+lokit translate --provider copilot --model gpt-4o  # Translates everything
 ```
-translations/
-  ├── en/
-  │   └── translation.json
-  └── ru/
-      └── translation.json
+
+## Configuration File (`.lokit.yaml`)
+
+When `.lokit.yaml` exists, lokit uses it as the sole source of truth — no auto-detection.
+
+### Schema
+
+```yaml
+# Default languages for all targets
+languages: [de, es, fr, id, it, pt, pt_BR, ru]
+
+# Source language (default: en)
+source_lang: en
+
+# Translation targets
+targets:
+  - name: my-app              # Display name (required)
+    type: gettext              # Type: gettext | po4a | i18next | json (required)
+    root: .                    # Working directory relative to config (default: .)
+
+    # --- gettext options ---
+    po_dir: po                 # PO directory relative to root (default: po)
+    pot_file: po/messages.pot  # POT template path (default: po/messages.pot)
+    sources: [src/**/*.sh]     # Source globs for xgettext
+    keywords: [_, N_, gettext] # xgettext keywords
+
+    # --- po4a options ---
+    po4a_config: po4a.cfg      # po4a config path relative to root
+
+    # --- i18next / json options ---
+    translations_dir: public/translations  # JSON directory (default: public/translations)
+    recipes_dir: data/recipes              # Per-recipe translations (i18next)
+    blog_dir: data/blog                    # Blog post translations (i18next)
+
+    # --- overrides ---
+    languages: [de, es, fr]    # Override global language list
+    source_lang: en            # Override source language
+    prompt: "Custom prompt"    # Override system prompt for AI
 ```
+
+### Target types
+
+**gettext** — For code translation (shell, Python, C). Reads `.pot` templates, translates to `.po` files.
+
+**po4a** — For documentation (manpages, Markdown). Works with `po4a.cfg` and its PO directory.
+
+**i18next** — For web applications using i18next. JSON files with `_meta` block.
+
+**json** — For simple JSON translations. JSON files with `translations` block.
 
 ## Commands
 
-### `lokit version`
-
-Display version information:
-```bash
-lokit version
-```
-
-Shows version, commit hash, and build date.
-
 ### `lokit status`
 
-Display project information and translation statistics.
+Shows project info and translation statistics. With `.lokit.yaml`, displays per-target stats.
+
+```bash
+lokit status                    # Current directory
+lokit status --root ./my-project  # Specific project
+```
 
 ### `lokit init`
 
-Extract translatable strings and create/update PO files:
-- Runs `xgettext` to extract strings from source code
-- Creates or updates PO files using `msgmerge`
-- Detects project structure automatically
+Extracts translatable strings and creates/updates PO files:
+
+```bash
+lokit init                     # All languages
+lokit init --lang ru,de        # Specific languages
+```
+
+- Runs `xgettext` for code projects
+- Runs `po4a --no-translations` for po4a projects
+- Creates PO from POT template using `msginit`/`msgmerge`
+- Idempotent — safe to run repeatedly
 
 ### `lokit translate`
 
-Translate PO files using AI:
+Translates using AI:
+
 ```bash
-lokit translate [flags]
+lokit translate --provider copilot --model gpt-4o
 
-Flags:
-  --provider string   AI provider (copilot, gemini, google, groq, ollama, custom-openai)
-  --lang string       Specific language to translate (default: all)
-  --force             Force retranslation of already translated strings
-  --fuzzy             Include fuzzy translations
-  --api-key string    API key (overrides stored credentials)
-  --base-url string   Custom endpoint URL (for custom-openai)
-  --proxy string      HTTP/HTTPS proxy URL (e.g., http://proxy:8080)
-  --timeout duration  Request timeout (default: 60s)
+# All flags:
+  --provider string         AI provider (required)
+  --model string            Model name (required)
+  --lang string             Languages (comma-separated, default: all untranslated)
+  --parallel                Enable parallel translation
+  --max-concurrent int      Max concurrent tasks (default: 3)
+  --chunk-size int          Entries per API request (0 = all at once)
+  --retranslate             Re-translate already translated entries
+  --fuzzy                   Translate fuzzy entries (default: true)
+  --dry-run                 Show what would be translated
+  --prompt string           Custom system prompt ({{targetLang}} placeholder)
+  --proxy string            HTTP/HTTPS proxy URL
+  --api-key string          API key (or LOKIT_API_KEY env)
+  --base-url string         Custom API endpoint
+  --timeout duration        Request timeout (0 = provider default)
+  --max-retries int         Retries on rate limit (default: 3)
+  --request-delay duration  Delay between parallel tasks
+  --verbose                 Detailed logging
 ```
-
-**Note on geographic restrictions:** If you're in a region where some AI providers are blocked, you can:
-- Use `--proxy` flag to route requests through a proxy server
-- Try alternative providers (Gemini, Ollama, custom endpoints)
-- Set environment variable: `export HTTPS_PROXY=http://your-proxy:port`
 
 ### `lokit auth`
 
-Manage provider authentication:
+Manage provider credentials:
+
 ```bash
-# Login (starts OAuth flow)
-lokit auth copilot
-lokit auth gemini
+# Interactive login
+lokit auth login
 
-# Set API key
-lokit auth google --api-key YOUR_KEY
-lokit auth groq --api-key YOUR_KEY
+# Specific provider
+lokit auth login --provider copilot
+lokit auth login --provider google
 
-# Check status
-lokit auth status
+# List stored credentials
+lokit auth list
 
-# Logout
-lokit auth logout copilot
+# Remove credentials
+lokit auth logout --provider copilot
+lokit auth logout                      # Remove all
 ```
 
-## Configuration
+### `lokit version`
 
-Credentials are stored securely in:
-```
-~/.local/share/lokit/auth.json
-```
-
-(Respects `$XDG_DATA_HOME` if set)
-
-File permissions: `0600` (owner read/write only)
-
-## Credential Lookup Order
-
-For API keys:
-1. `--api-key` flag (highest priority)
-2. `LOKIT_API_KEY` environment variable
-3. Stored credentials in `auth.json`
+Show version, commit hash, and build date.
 
 ## Examples
 
-### Translate with GitHub Copilot
+### Translate a monorepo with submodules
 
-```bash
-# First time: authenticate
-lokit auth copilot
+```yaml
+# .lokit.yaml
+languages: [de, es, fr, id, it, pt, pt_BR, ru]
+targets:
+  - name: scripts
+    type: gettext
+    po_dir: po
 
-# Translate all languages
-lokit translate --provider copilot
+  - name: manpages
+    type: po4a
+    root: manpages
+    po4a_config: po4a.cfg
 
-# Translate only Russian
-lokit translate --provider copilot --lang ru
+  - name: cli-tool
+    type: gettext
+    root: submodules/my-tool
+    po_dir: po
 ```
 
-### Use Ollama locally
+```bash
+lokit translate --provider copilot --model gpt-4o --parallel --max-concurrent 10
+```
+
+### Parallel translation with proxy
 
 ```bash
-# Make sure Ollama is running locally
-# Default endpoint: http://localhost:11434
+lokit translate \
+  --provider copilot --model gpt-4.1 \
+  --parallel --max-concurrent 10 --chunk-size 50 \
+  --proxy "http://proxy:8080"
+```
 
-lokit translate --provider ollama
+### Translate specific languages
+
+```bash
+lokit translate --provider copilot --model gpt-4o --lang ru,de
+```
+
+### Use local Ollama
+
+```bash
+lokit translate --provider ollama --model llama3
 ```
 
 ### Custom OpenAI endpoint
 
 ```bash
-# Authenticate with custom endpoint
-lokit auth custom-openai --api-key YOUR_KEY --base-url https://api.example.com/v1
-
-# Translate
-lokit translate --provider custom-openai
+lokit auth login --provider custom-openai --api-key YOUR_KEY --base-url https://api.example.com/v1
+lokit translate --provider custom-openai --model my-model
 ```
+
+### Dry run
+
+```bash
+lokit translate --provider copilot --model gpt-4o --dry-run
+```
+
+## Credential Storage
+
+Credentials are stored in:
+
+```
+~/.local/share/lokit/auth.json
+```
+
+Respects `$XDG_DATA_HOME`. File permissions: `0600`.
+
+**Lookup order** (highest → lowest):
+1. `--api-key` flag
+2. `LOKIT_API_KEY` environment variable
+3. Stored credentials in `auth.json`
+
+## Project Structure Support
+
+Without `.lokit.yaml`, lokit auto-detects:
+
+**Flat PO** — `po/*.po` (shell/Python gettext)
+
+**Nested PO** — `po/<lang>/*.po` (C/large projects)
+
+**po4a** — `po4a.cfg` + `po/<lang>/*.po` (documentation)
+
+**i18next** — `translations/<lang>.json` or `public/translations/<lang>.json`
 
 ## GitHub Actions & Releases
 
-### Automated Workflows
+### CI/CD Workflows
 
-This project uses GitHub Actions for continuous integration and automated releases:
-
-- **CI Workflow** — Runs on every push and PR
-  - Tests code on Linux
-  - Builds for multiple platforms (Linux, macOS, Windows)
-  - Checks code formatting and runs `go vet`
-
-- **Release Workflow** — Triggered by version tags
-  - Builds binaries for all supported platforms
-  - Creates GitHub release with changelog
-  - Attaches binary archives automatically
+- **CI** — Tests, builds, and lints on every push/PR
+- **Release** — Builds multi-platform binaries on version tags
 
 ### Creating a Release
 
-To create a new release:
-
 ```bash
-# Tag your commit
 git tag v0.2.0
-
-# Push the tag to GitHub
 git push origin v0.2.0
 ```
 
-The Release workflow will automatically:
-1. Build binaries for Linux, macOS, and Windows
-2. Create release notes from git commits
-3. Upload all binaries as release assets
+Automated build for Linux, macOS, and Windows with binary uploads.
 
-View releases at: https://github.com/minios-linux/lokit/releases
+View releases: https://github.com/minios-linux/lokit/releases
 
 ## Development
 
-Built with Go 1.23+, using:
+Built with Go 1.23+:
+
 - [cobra](https://github.com/spf13/cobra) — CLI framework
-- Native OAuth implementations for GitHub Copilot and Gemini
+- [yaml.v3](https://gopkg.in/yaml.v3) — YAML config parsing
+- Native OAuth for GitHub Copilot and Gemini
 
 ## License
 

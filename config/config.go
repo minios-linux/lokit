@@ -43,7 +43,7 @@ type Project struct {
 	Name string
 	// Version from debian/changelog or fallback.
 	Version string
-	// PODir is the directory containing .po files.
+	// PODir is the directory containing .po files (primary, usually code).
 	PODir string
 	// POTFile is the path to the .pot template file.
 	POTFile string
@@ -87,35 +87,40 @@ type Project struct {
 // POPath returns the resolved path to the .po file for a given language.
 // Works for flat, nested, and po4a structures.
 func (p *Project) POPath(lang string) string {
-	switch p.POStructure {
+	return resolvePOPath(p.PODir, p.POStructure, p.Name, lang, &p.nestedPOFiles)
+}
+
+// resolvePOPath resolves the .po file path for a given language, directory, and structure.
+func resolvePOPath(poDir string, structure POStructure, projectName, lang string, cache *map[string]string) string {
+	switch structure {
 	case POStructureFlat:
-		return filepath.Join(p.PODir, lang+".po")
+		return filepath.Join(poDir, lang+".po")
 	case POStructureNested, POStructurePo4a:
 		// Check cache first
-		if p.nestedPOFiles != nil {
-			if path, ok := p.nestedPOFiles[lang]; ok {
+		if *cache != nil {
+			if path, ok := (*cache)[lang]; ok {
 				return path
 			}
 		}
 		// Search for .po file in language subdirectory
-		langDir := filepath.Join(p.PODir, lang)
+		langDir := filepath.Join(poDir, lang)
 		if entries, err := os.ReadDir(langDir); err == nil {
 			for _, entry := range entries {
 				if strings.HasSuffix(entry.Name(), ".po") && !entry.IsDir() {
 					path := filepath.Join(langDir, entry.Name())
 					// Cache the result
-					if p.nestedPOFiles == nil {
-						p.nestedPOFiles = make(map[string]string)
+					if *cache == nil {
+						*cache = make(map[string]string)
 					}
-					p.nestedPOFiles[lang] = path
+					(*cache)[lang] = path
 					return path
 				}
 			}
 		}
 		// Fallback: return expected path using project name
-		return filepath.Join(p.PODir, lang, p.Name+".po")
+		return filepath.Join(poDir, lang, projectName+".po")
 	default:
-		return filepath.Join(p.PODir, lang+".po")
+		return filepath.Join(poDir, lang+".po")
 	}
 }
 
@@ -204,6 +209,14 @@ func Detect(rootDir string) *Project {
 	// Auto-detect languages from existing .po files
 	p.Languages = p.detectLanguagesWithStructure()
 
+	// For docs/po4a projects: try to get languages from po4a.cfg
+	if p.Po4aConfig != "" && len(p.Languages) == 0 {
+		po4aLangs := parsePo4aLangs(p.Po4aConfig)
+		if len(po4aLangs) > 0 {
+			p.Languages = po4aLangs
+		}
+	}
+
 	// Auto-detect POT file
 	p.POTFile = p.POTPathResolved()
 
@@ -235,7 +248,7 @@ func (p *Project) detectProjectType(rootDir string) {
 			p.Po4aConfig = cfgPath
 			p.ManpagesDir = filepath.Dir(cfgPath)
 			hasDocs = true
-			// If we don't have code po/ directory, use manpages/po/ instead
+			// If we don't have code po/ directory, use docs po/ as primary
 			if !hasCode {
 				p.PODir = filepath.Join(p.ManpagesDir, "po")
 				p.POStructure = POStructurePo4a
@@ -259,7 +272,6 @@ func (p *Project) detectProjectType(rootDir string) {
 			poDir := filepath.Join(dir, "po")
 			if info2, err := os.Stat(poDir); err == nil && info2.IsDir() {
 				hasDocs = true
-				// Only use manpages/po if we don't have code po/ directory
 				if !hasCode && p.POStructure == POStructureUnknown {
 					p.PODir = poDir
 					p.POStructure = detectPOStructure(poDir)

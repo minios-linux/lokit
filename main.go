@@ -157,6 +157,17 @@ and per-language translation progress. Does not modify any files.`,
 }
 
 func runStatus() {
+	// Check for .lokit.yaml
+	lf, err := config.LoadLokitFile(rootDir)
+	if err != nil {
+		logError("Config error: %v", err)
+		os.Exit(1)
+	}
+	if lf != nil {
+		runStatusWithConfig(lf)
+		return
+	}
+
 	proj := config.Detect(rootDir)
 
 	// Project info header
@@ -232,7 +243,6 @@ func runStatus() {
 	// i18next projects have their own stats path
 	if proj.Type == config.ProjectTypeI18Next {
 		showI18NextStats(proj)
-		printSuggestedCommands(proj)
 		return
 	}
 
@@ -245,12 +255,206 @@ func runStatus() {
 		} else {
 			logInfo("No POT template found. Run 'lokit init' to extract strings.")
 		}
-		printSuggestedCommands(proj)
 		return
 	}
 
 	showStatsTable(proj, potPath)
-	printSuggestedCommands(proj)
+}
+
+// runStatusWithConfig shows multi-target status from .lokit.yaml.
+func runStatusWithConfig(lf *config.LokitFile) {
+	absRoot, _ := filepath.Abs(rootDir)
+
+	fmt.Fprintf(os.Stderr, "\n%sProject (.lokit.yaml)%s\n", colorBlue, colorReset)
+	fmt.Fprintln(os.Stderr, strings.Repeat("─", 60))
+	fmt.Fprintf(os.Stderr, "  Root:        %s\n", absRoot)
+	fmt.Fprintf(os.Stderr, "  Source lang: %s\n", lf.SourceLang)
+
+	if len(lf.Languages) > 0 {
+		fmt.Fprintf(os.Stderr, "  Languages:   %s\n", strings.Join(lf.Languages, ", "))
+	}
+	fmt.Fprintf(os.Stderr, "  Targets:     %d\n", len(lf.Targets))
+	fmt.Fprintln(os.Stderr)
+
+	resolved, err := lf.Resolve(rootDir)
+	if err != nil {
+		logError("Config resolve error: %v", err)
+		os.Exit(1)
+	}
+
+	for _, rt := range resolved {
+		langs := filterOutLang(rt.Languages, rt.Target.SourceLang)
+
+		fmt.Fprintf(os.Stderr, "%s━━━ %s (%s) ━━━%s\n", colorBlue, rt.Target.Name, rt.Target.Type, colorReset)
+
+		if rt.Target.Root != "." {
+			fmt.Fprintf(os.Stderr, "  Root:       %s\n", rt.Target.Root)
+		}
+
+		if len(langs) > 0 {
+			fmt.Fprintf(os.Stderr, "  Languages:  %s\n", strings.Join(langs, ", "))
+		} else {
+			fmt.Fprintf(os.Stderr, "  Languages:  %snone detected%s\n", colorYellow, colorReset)
+		}
+
+		switch rt.Target.Type {
+		case config.TargetTypeGettext:
+			showConfigGettextStats(rt, langs)
+		case config.TargetTypePo4a:
+			showConfigPo4aStats(rt, langs)
+		case config.TargetTypeI18Next, config.TargetTypeJSON:
+			showConfigI18NextStats(rt, langs)
+		}
+
+		fmt.Fprintln(os.Stderr)
+	}
+}
+
+// showConfigGettextStats shows translation stats for a gettext target.
+func showConfigGettextStats(rt config.ResolvedTarget, langs []string) {
+	potPath := rt.AbsPOTFile()
+
+	potTotal := 0
+	if potPO, err := po.ParseFile(potPath); err == nil {
+		for _, e := range potPO.Entries {
+			if e.MsgID != "" && !e.Obsolete {
+				potTotal++
+			}
+		}
+	}
+
+	if potTotal == 0 {
+		fmt.Fprintf(os.Stderr, "  POT:        %snot found%s (run 'lokit init')\n", colorYellow, colorReset)
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, "  POT:        %s (%d strings)\n", potPath, potTotal)
+	fmt.Fprintf(os.Stderr, "\n  %-10s %-12s %-10s %-10s %-8s\n", "Lang", "Translated", "Fuzzy", "Untrans.", "Percent")
+	fmt.Fprintln(os.Stderr, "  "+strings.Repeat("─", 52))
+
+	for _, lang := range langs {
+		poPath := rt.POPath(lang)
+		poFile, err := po.ParseFile(poPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  %-10s %-12s %-10s %-10s %-8s\n", lang, "missing", "-", "-", "-")
+			continue
+		}
+
+		_, translated, fuzzy, untranslated := poFile.Stats()
+		percent := 0
+		if potTotal > 0 {
+			percent = translated * 100 / potTotal
+		}
+
+		fmt.Fprintf(os.Stderr, "  %-10s %-12d %-10d %-10d %d%%\n", lang, translated, fuzzy, untranslated, percent)
+	}
+
+	fmt.Fprintln(os.Stderr, "  "+strings.Repeat("─", 52))
+	fmt.Fprintf(os.Stderr, "  Total strings: %d\n", potTotal)
+}
+
+// showConfigPo4aStats shows translation stats for a po4a target.
+func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
+	cfgPath := rt.AbsPo4aConfig()
+	fmt.Fprintf(os.Stderr, "  po4a cfg:   %s\n", cfgPath)
+
+	for _, lang := range langs {
+		poPath := rt.DocsPOPath(lang)
+		catalog, err := po.ParseFile(poPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  %s: %smissing%s\n", lang, colorYellow, colorReset)
+			continue
+		}
+
+		total, translated, fuzzy, _ := catalog.Stats()
+		percent := 0
+		if total > 0 {
+			percent = (translated * 100) / total
+		}
+
+		statusColor := colorGreen
+		if percent < 50 {
+			statusColor = colorRed
+		} else if percent < 100 {
+			statusColor = colorYellow
+		}
+
+		fmt.Fprintf(os.Stderr, "  %s%s%s: %d%% (%d/%d translated",
+			statusColor, lang, colorReset, percent, translated, total)
+		if fuzzy > 0 {
+			fmt.Fprintf(os.Stderr, ", %d fuzzy", fuzzy)
+		}
+		fmt.Fprintf(os.Stderr, ")\n")
+	}
+}
+
+// showConfigI18NextStats shows translation stats for an i18next/json target.
+func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	fmt.Fprintf(os.Stderr, "  Trans dir:  %s\n", transDir)
+
+	srcPath := filepath.Join(transDir, rt.Target.SourceLang+".json")
+	srcFile, err := i18next.ParseFile(srcPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  Source:     %snot found%s (%s)\n", colorYellow, colorReset, srcPath)
+		return
+	}
+	srcKeys := len(srcFile.Translations)
+	fmt.Fprintf(os.Stderr, "  Source keys: %d (%s)\n", srcKeys, rt.Target.SourceLang)
+
+	fmt.Fprintf(os.Stderr, "\n  %-10s %-12s %-12s %-8s\n", "Lang", "Translated", "Untrans.", "Percent")
+	fmt.Fprintln(os.Stderr, "  "+strings.Repeat("─", 44))
+
+	for _, lang := range langs {
+		filePath := filepath.Join(transDir, lang+".json")
+		file, err := i18next.ParseFile(filePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  %-10s %-12s %-12s %-8s\n", lang, "missing", "-", "-")
+			continue
+		}
+
+		total, translated, untranslated := file.Stats()
+		percent := 0
+		if total > 0 {
+			percent = translated * 100 / total
+		}
+
+		langName := ""
+		if meta, ok := i18next.LangMeta[lang]; ok {
+			langName = " " + meta.Flag
+		}
+		fmt.Fprintf(os.Stderr, "  %-10s %-12d %-12d %d%%%s\n", lang, translated, untranslated, percent, langName)
+	}
+
+	fmt.Fprintln(os.Stderr, "  "+strings.Repeat("─", 44))
+
+	// Blog post stats
+	if rt.Target.BlogDir != "" {
+		blogDir := filepath.Join(rt.AbsRoot, rt.Target.BlogDir)
+		slugs, err := i18next.BlogPostSlugs(blogDir)
+		if err == nil && len(slugs) > 0 {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintf(os.Stderr, "  %sBlog Posts%s (%d posts)\n", colorBlue, colorReset, len(slugs))
+
+			for _, lang := range langs {
+				translated := 0
+				for _, slug := range slugs {
+					transPath := i18next.BlogTranslationPath(blogDir, slug, lang)
+					if _, err := os.Stat(transPath); err == nil {
+						translated++
+					}
+				}
+				statusColor := colorGreen
+				if translated == 0 {
+					statusColor = colorRed
+				} else if translated < len(slugs) {
+					statusColor = colorYellow
+				}
+				fmt.Fprintf(os.Stderr, "  %s%s%s: %d/%d posts translated\n",
+					statusColor, lang, colorReset, translated, len(slugs))
+			}
+		}
+	}
 }
 
 func showStatsTable(proj *config.Project, potPath string) {
@@ -492,59 +696,6 @@ func showBlogTransStats(proj *config.Project) {
 			}
 		}
 		fmt.Fprintf(os.Stderr, "  %s: %d/%d posts translated\n", lang, translated, len(slugs))
-	}
-}
-
-func printSuggestedCommands(proj *config.Project) {
-	fmt.Fprintf(os.Stderr, "%sSuggested Commands%s\n", colorBlue, colorReset)
-	fmt.Fprintln(os.Stderr, strings.Repeat("─", 60))
-	fmt.Fprintln(os.Stderr)
-
-	switch proj.Type {
-	case config.ProjectTypeCode:
-		fmt.Fprintf(os.Stderr, "  # Prepare translation files (extract + create/update PO)\n")
-		fmt.Fprintf(os.Stderr, "  lokit init\n\n")
-		fmt.Fprintf(os.Stderr, "  # Translate using AI (auto-inits if needed)\n")
-		fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o\n\n")
-		fmt.Fprintf(os.Stderr, "  # Translate specific language\n")
-		fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o --lang ru\n\n")
-
-	case config.ProjectTypeDocs:
-		if proj.POStructure == config.POStructurePo4a {
-			fmt.Fprintf(os.Stderr, "  # Update POT and PO files (po4a)\n")
-			fmt.Fprintf(os.Stderr, "  lokit init\n\n")
-		}
-		fmt.Fprintf(os.Stderr, "  # Translate using AI\n")
-		fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o\n\n")
-		fmt.Fprintf(os.Stderr, "  # Translate specific language\n")
-		fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o --lang ru\n\n")
-
-	case config.ProjectTypeMixed:
-		fmt.Fprintf(os.Stderr, "  # Prepare translation files\n")
-		fmt.Fprintf(os.Stderr, "  lokit init\n\n")
-		fmt.Fprintf(os.Stderr, "  # Translate all languages\n")
-		fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o\n\n")
-
-	case config.ProjectTypeI18Next:
-		fmt.Fprintf(os.Stderr, "  # Translate UI strings using AI\n")
-		fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o\n\n")
-		fmt.Fprintf(os.Stderr, "  # Translate specific language\n")
-		fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o --lang ru\n\n")
-		if proj.RecipeTransDir != "" {
-			fmt.Fprintf(os.Stderr, "  # Translate with recipes\n")
-			fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o --recipes\n\n")
-		}
-		if proj.BlogPostsDir != "" {
-			fmt.Fprintf(os.Stderr, "  # Translate blog posts\n")
-			fmt.Fprintf(os.Stderr, "  lokit translate --provider copilot --model gpt-4o --blog\n\n")
-		}
-
-	default:
-		fmt.Fprintf(os.Stderr, "  # No translatable content detected.\n")
-		fmt.Fprintf(os.Stderr, "  # Make sure your project has:\n")
-		fmt.Fprintf(os.Stderr, "  #   - Source files with _(), N_() calls, or\n")
-		fmt.Fprintf(os.Stderr, "  #   - po/ directory with .po files, or\n")
-		fmt.Fprintf(os.Stderr, "  #   - po4a.cfg file\n\n")
 	}
 }
 
@@ -916,7 +1067,6 @@ func runInitCode(proj *config.Project) {
 func newTranslateCmd() *cobra.Command {
 	var (
 		// Target selection
-		poDir string
 		langs string
 
 		// Provider selection
@@ -932,8 +1082,6 @@ func newTranslateCmd() *cobra.Command {
 		prompt      string
 		verbose     bool
 		dryRun      bool
-		recipes     bool
-		blog        bool
 
 		// Parallelization
 		parallel      bool
@@ -971,13 +1119,12 @@ Examples:
   lokit translate --provider copilot --model gpt-4o --dry-run`,
 		Run: func(cmd *cobra.Command, args []string) {
 			runTranslate(translateArgs{
-				poDir: poDir, langs: langs,
+				langs: langs,
 				provider: provider, apiKey: apiKey, model: model,
 				baseURL:   baseURL,
 				chunkSize: chunkSize, retranslate: retranslate,
 				fuzzy: fuzzy, prompt: prompt, verbose: verbose,
-				dryRun: dryRun, parallel: parallel, recipes: recipes,
-				blog:          blog,
+				dryRun: dryRun, parallel: parallel,
 				maxConcurrent: maxConcurrent, requestDelay: requestDelay,
 				timeout: timeout, proxy: proxy, maxRetries: maxRetries,
 			})
@@ -1000,8 +1147,6 @@ Examples:
 	cmd.Flags().StringVar(&prompt, "prompt", "", "Custom system prompt (use {{targetLang}} placeholder)")
 	cmd.Flags().BoolVar(&verbose, "verbose", false, "Enable detailed logging")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show what would be translated without calling AI")
-	cmd.Flags().BoolVar(&recipes, "recipes", false, "Also translate per-recipe JSON files (i18next projects)")
-	cmd.Flags().BoolVar(&blog, "blog", false, "Also translate blog post Markdown files (i18next projects)")
 
 	// Parallelization
 	cmd.Flags().BoolVar(&parallel, "parallel", false, "Enable parallel translation")
@@ -1012,10 +1157,6 @@ Examples:
 	cmd.Flags().DurationVar(&timeout, "timeout", 0, "Request timeout (0 = provider default)")
 	cmd.Flags().StringVar(&proxy, "proxy", "", "HTTP/HTTPS proxy URL")
 	cmd.Flags().IntVar(&maxRetries, "max-retries", 3, "Maximum retries on rate limit (429)")
-
-	// Hidden overrides
-	cmd.Flags().StringVar(&poDir, "po-dir", "", "Directory with .po files")
-	_ = cmd.Flags().MarkHidden("po-dir")
 
 	// Provider completion
 	_ = cmd.RegisterFlagCompletionFunc("provider", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -1053,14 +1194,12 @@ Examples:
 }
 
 type translateArgs struct {
-	poDir, langs                     string
+	langs                            string
 	provider, apiKey, model, baseURL string
 	chunkSize                        int
 	retranslate, fuzzy               bool
 	prompt                           string
 	verbose, dryRun, parallel        bool
-	recipes                          bool
-	blog                             bool
 	maxConcurrent                    int
 	requestDelay, timeout            time.Duration
 	proxy                            string
@@ -1068,11 +1207,18 @@ type translateArgs struct {
 }
 
 func runTranslate(a translateArgs) {
-	proj := config.Detect(rootDir)
-
-	if a.poDir != "" {
-		proj.PODir = a.poDir
+	// Check for .lokit.yaml config file
+	lf, err := config.LoadLokitFile(rootDir)
+	if err != nil {
+		logError("Config error: %v", err)
+		os.Exit(1)
 	}
+	if lf != nil {
+		runTranslateWithConfig(lf, a)
+		return
+	}
+
+	proj := config.Detect(rootDir)
 
 	// Resolve API key from flag, environment, or credentials store
 	key := a.apiKey
@@ -1128,9 +1274,6 @@ func runTranslate(a translateArgs) {
 		}
 		// Re-detect project after extraction (POT now exists, po/ may have been created)
 		proj = config.Detect(rootDir)
-		if a.poDir != "" {
-			proj.PODir = a.poDir
-		}
 	}
 
 	// Determine which languages to translate
@@ -1292,7 +1435,7 @@ func runTranslate(a translateArgs) {
 	}
 
 	// Run translation
-	err := translate.TranslateAll(ctx, langTasks, opts)
+	err = translate.TranslateAll(ctx, langTasks, opts)
 	if err != nil {
 		if ctx.Err() != nil {
 			logWarning("Translation interrupted, partial progress saved")
@@ -1303,6 +1446,409 @@ func runTranslate(a translateArgs) {
 	}
 
 	logSuccess("Translation complete!")
+}
+
+// ---------------------------------------------------------------------------
+// .lokit.yaml multi-target translate
+// ---------------------------------------------------------------------------
+
+func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
+	// Resolve API key
+	key := a.apiKey
+	if key == "" {
+		key = os.Getenv("LOKIT_API_KEY")
+	}
+	if key == "" {
+		key = credentials.GetAPIKey(a.provider)
+	}
+
+	if a.provider == "" {
+		logError("No provider specified. Use --provider to choose an AI translation service.\n\n" +
+			"Example: lokit translate --provider copilot --model gpt-4o")
+		os.Exit(1)
+	}
+
+	prov := resolveProvider(a.provider, a.baseURL, key, a.model, a.proxy, a.timeout)
+	if err := validateProvider(prov, key); err != nil {
+		logError("%v", err)
+		os.Exit(1)
+	}
+
+	resolved, err := lf.Resolve(rootDir)
+	if err != nil {
+		logError("Config resolve error: %v", err)
+		os.Exit(1)
+	}
+
+	if len(resolved) == 0 {
+		logError("No targets defined in .lokit.yaml")
+		os.Exit(1)
+	}
+
+	// Setup signal handling
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt)
+	go func() {
+		<-sigCh
+		logWarning("Interrupted, saving progress...")
+		cancel()
+	}()
+
+	// Filter target languages
+	var langFilter []string
+	if a.langs != "" {
+		langFilter = strings.Split(a.langs, ",")
+	}
+
+	hadErrors := false
+
+	for _, rt := range resolved {
+		if ctx.Err() != nil {
+			break
+		}
+
+		// Determine languages for this target
+		targetLangs := rt.Languages
+		if len(langFilter) > 0 {
+			targetLangs = intersectLanguages(targetLangs, langFilter)
+		}
+
+		// Filter out source language
+		targetLangs = filterOutLang(targetLangs, rt.Target.SourceLang)
+
+		if len(targetLangs) == 0 {
+			logInfo("[%s] No languages to translate, skipping", rt.Target.Name)
+			continue
+		}
+
+		fmt.Fprintf(os.Stderr, "\n%s━━━ %s (%s) ━━━%s\n", colorBlue, rt.Target.Name, rt.Target.Type, colorReset)
+
+		switch rt.Target.Type {
+		case config.TargetTypeGettext:
+			if err := translateGettextTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError("[%s] %v", rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		case config.TargetTypePo4a:
+			if err := translatePo4aTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError("[%s] %v", rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		case config.TargetTypeI18Next:
+			if err := translateI18NextTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError("[%s] %v", rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		case config.TargetTypeJSON:
+			if err := translateJSONTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError("[%s] %v", rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		default:
+			logWarning("[%s] Unknown target type %q, skipping", rt.Target.Name, rt.Target.Type)
+		}
+	}
+
+	if hadErrors {
+		logError("Translation completed with errors")
+		os.Exit(1)
+	}
+	logSuccess("All targets translated!")
+}
+
+// translateGettextTarget translates a single gettext PO target.
+func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	poDir := rt.AbsPODir()
+	potPath := rt.AbsPOTFile()
+
+	logInfo("Provider: %s (%s), Model: %s", prov.Name, prov.ID, prov.Model)
+	if a.parallel {
+		logInfo("Parallel: enabled, max concurrent: %d", a.maxConcurrent)
+	}
+	if a.chunkSize > 0 {
+		logInfo("Chunk size: %d", a.chunkSize)
+	}
+	logInfo("PO dir: %s", poDir)
+	logInfo("Translating: %s", strings.Join(langs, ", "))
+
+	if a.dryRun {
+		for _, lang := range langs {
+			poPath := rt.POPath(lang)
+			if poFile, err := po.ParseFile(poPath); err == nil {
+				untranslated := poFile.UntranslatedEntries()
+				langName := po.LangNameNative(lang)
+				logInfo("%s (%s): %d strings to translate", lang, langName, len(untranslated))
+			} else {
+				logInfo("%s: PO file not found, will be created", lang)
+			}
+		}
+		return nil
+	}
+
+	// Determine parallel mode
+	parallelMode := translate.ParallelSequential
+	if a.parallel {
+		parallelMode = translate.ParallelFullParallel
+	}
+
+	opts := translate.Options{
+		Provider:            prov,
+		ChunkSize:           a.chunkSize,
+		ParallelMode:        parallelMode,
+		MaxConcurrent:       a.maxConcurrent,
+		RequestDelay:        a.requestDelay,
+		Timeout:             a.timeout,
+		MaxRetries:          a.maxRetries,
+		RetranslateExisting: a.retranslate,
+		TranslateFuzzy:      a.fuzzy,
+		SystemPrompt:        a.prompt,
+		Verbose:             a.verbose,
+		OnProgress: func(lang string, done, total int) {
+			logInfo("  %s: %d/%d", lang, done, total)
+		},
+		OnLog: func(format string, args ...any) {
+			logInfo(format, args...)
+		},
+		OnError: func(format string, args ...any) {
+			logError(format, args...)
+		},
+	}
+
+	// Override prompt from target config
+	if rt.Target.Prompt != "" && opts.SystemPrompt == "" {
+		opts.SystemPrompt = rt.Target.Prompt
+	}
+
+	// Build project-like config for POT creation
+	proj := &config.Project{
+		Name:        rt.Target.Name,
+		PODir:       poDir,
+		POTFile:     potPath,
+		POStructure: config.POStructureFlat,
+		Languages:   langs,
+	}
+
+	// Load PO files, auto-creating from POT if missing
+	var langTasks []translate.LangTask
+	for _, lang := range langs {
+		poPath := rt.POPath(lang)
+		poFile, err := po.ParseFile(poPath)
+		if err != nil {
+			if !fileExists(poPath) {
+				poFile = createPOFromPOT(proj, lang, poPath)
+				if poFile == nil {
+					continue
+				}
+			} else {
+				logError("Reading %s: %v", poPath, err)
+				continue
+			}
+		}
+
+		// Skip if already fully translated (unless retranslate)
+		if !a.retranslate {
+			untranslated := poFile.UntranslatedEntries()
+			fuzzyEntries := poFile.FuzzyEntries()
+			if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
+				continue
+			}
+		}
+
+		langTasks = append(langTasks, translate.LangTask{
+			Lang:   lang,
+			POFile: poFile,
+			POPath: poPath,
+		})
+	}
+
+	if len(langTasks) == 0 {
+		logSuccess("[%s] All translations complete!", rt.Target.Name)
+		return nil
+	}
+
+	return translate.TranslateAll(ctx, langTasks, opts)
+}
+
+// translatePo4aTarget translates documentation PO files managed by po4a.
+func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	cfgPath := rt.AbsPo4aConfig()
+	cfgDir := filepath.Dir(cfgPath)
+	poDir := filepath.Join(cfgDir, "po")
+
+	logInfo("Provider: %s (%s), Model: %s", prov.Name, prov.ID, prov.Model)
+	logInfo("po4a config: %s", cfgPath)
+	logInfo("PO dir: %s", poDir)
+	logInfo("Translating: %s", strings.Join(langs, ", "))
+
+	if a.dryRun {
+		for _, lang := range langs {
+			poPath := rt.DocsPOPath(lang)
+			if poFile, err := po.ParseFile(poPath); err == nil {
+				untranslated := poFile.UntranslatedEntries()
+				langName := po.LangNameNative(lang)
+				logInfo("%s (%s): %d strings to translate", lang, langName, len(untranslated))
+			} else {
+				logInfo("%s: PO file not found at %s", lang, poPath)
+			}
+		}
+		return nil
+	}
+
+	parallelMode := translate.ParallelSequential
+	if a.parallel {
+		parallelMode = translate.ParallelFullParallel
+	}
+
+	opts := translate.Options{
+		Provider:            prov,
+		ChunkSize:           a.chunkSize,
+		ParallelMode:        parallelMode,
+		MaxConcurrent:       a.maxConcurrent,
+		RequestDelay:        a.requestDelay,
+		Timeout:             a.timeout,
+		MaxRetries:          a.maxRetries,
+		RetranslateExisting: a.retranslate,
+		TranslateFuzzy:      a.fuzzy,
+		SystemPrompt:        a.prompt,
+		Verbose:             a.verbose,
+		OnProgress: func(lang string, done, total int) {
+			logInfo("  %s: %d/%d", lang, done, total)
+		},
+		OnLog: func(format string, args ...any) {
+			logInfo(format, args...)
+		},
+		OnError: func(format string, args ...any) {
+			logError(format, args...)
+		},
+	}
+
+	// Use docs-specific prompt
+	if opts.SystemPrompt == "" {
+		opts.SystemPrompt = translate.DocsSystemPrompt
+		logInfo("Using documentation-specific translation prompt (groff/man markup preservation)")
+	}
+	if rt.Target.Prompt != "" && a.prompt == "" {
+		opts.SystemPrompt = rt.Target.Prompt
+	}
+
+	// Collect PO files for each language
+	var langTasks []translate.LangTask
+	for _, lang := range langs {
+		poPath := rt.DocsPOPath(lang)
+		poFile, err := po.ParseFile(poPath)
+		if err != nil {
+			if !fileExists(poPath) {
+				logWarning("[%s] No PO file for %s at %s, skipping (run po4a first)", rt.Target.Name, lang, poPath)
+				continue
+			}
+			logError("Reading %s: %v", poPath, err)
+			continue
+		}
+
+		// Skip if already fully translated (unless retranslate)
+		if !a.retranslate {
+			untranslated := poFile.UntranslatedEntries()
+			fuzzyEntries := poFile.FuzzyEntries()
+			if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
+				continue
+			}
+		}
+
+		langTasks = append(langTasks, translate.LangTask{
+			Lang:   lang,
+			POFile: poFile,
+			POPath: poPath,
+		})
+	}
+
+	if len(langTasks) == 0 {
+		logSuccess("[%s] All translations complete!", rt.Target.Name)
+		return nil
+	}
+
+	return translate.TranslateAll(ctx, langTasks, opts)
+}
+
+// translateI18NextTarget translates i18next JSON files.
+func translateI18NextTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	transDir := rt.AbsTranslationsDir()
+
+	logInfo("Provider: %s (%s), Model: %s", prov.Name, prov.ID, prov.Model)
+	logInfo("Translations dir: %s", transDir)
+	logInfo("Translating: %s", strings.Join(langs, ", "))
+
+	// Build a Project-like structure for reuse with existing i18next code
+	proj := &config.Project{
+		Name:       rt.Target.Name,
+		Type:       config.ProjectTypeI18Next,
+		I18NextDir: transDir,
+		SourceLang: rt.Target.SourceLang,
+		Languages:  langs,
+	}
+
+	if rt.Target.RecipesDir != "" {
+		proj.RecipeTransDir = filepath.Join(rt.AbsRoot, rt.Target.RecipesDir)
+	}
+	if rt.Target.BlogDir != "" {
+		proj.BlogPostsDir = filepath.Join(rt.AbsRoot, rt.Target.BlogDir)
+	}
+
+	runTranslateI18Next(proj, prov, a)
+	return nil
+}
+
+// translateJSONTarget translates simple JSON translation files { "translations": {...} }.
+func translateJSONTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	transDir := rt.AbsTranslationsDir()
+
+	logInfo("Provider: %s (%s), Model: %s", prov.Name, prov.ID, prov.Model)
+	logInfo("Translations dir: %s", transDir)
+	logInfo("Translating: %s", strings.Join(langs, ", "))
+
+	// JSON targets can use the same i18next code path since the format is compatible
+	proj := &config.Project{
+		Name:       rt.Target.Name,
+		Type:       config.ProjectTypeI18Next,
+		I18NextDir: transDir,
+		SourceLang: rt.Target.SourceLang,
+		Languages:  langs,
+	}
+
+	runTranslateI18Next(proj, prov, a)
+	return nil
+}
+
+// intersectLanguages returns the intersection of two language lists.
+func intersectLanguages(available, filter []string) []string {
+	filterMap := make(map[string]bool)
+	for _, l := range filter {
+		filterMap[strings.TrimSpace(l)] = true
+	}
+	var result []string
+	for _, l := range available {
+		if filterMap[l] {
+			result = append(result, l)
+		}
+	}
+	return result
+}
+
+// filterOutLang removes a specific language from a list.
+func filterOutLang(langs []string, exclude string) []string {
+	var result []string
+	for _, l := range langs {
+		if l != exclude {
+			result = append(result, l)
+		}
+	}
+	return result
 }
 
 // ---------------------------------------------------------------------------
@@ -1351,7 +1897,10 @@ func runTranslateI18Next(proj *config.Project, prov translate.Provider, a transl
 	}
 	targetLangs = filtered
 
-	if len(targetLangs) == 0 && !a.recipes && !a.blog {
+	hasBlog := proj.BlogPostsDir != ""
+	hasRecipes := proj.RecipeTransDir != ""
+
+	if len(targetLangs) == 0 && !hasRecipes && !hasBlog {
 		logSuccess("All UI translations are complete!")
 		return
 	}
@@ -1398,7 +1947,7 @@ func runTranslateI18Next(proj *config.Project, prov translate.Provider, a transl
 			}
 			logInfo("%s (%s): %d strings to translate", lang, langName, count)
 		}
-		if a.recipes && proj.RecipeTransDir != "" {
+		if hasRecipes {
 			for _, lang := range targetLangs {
 				langDir := proj.RecipeTransPath(lang)
 				if langDir == "" {
@@ -1422,7 +1971,7 @@ func runTranslateI18Next(proj *config.Project, prov translate.Provider, a transl
 				logInfo("%s: %d recipe files need translation", lang, untranslated)
 			}
 		}
-		if a.blog && proj.BlogPostsDir != "" {
+		if hasBlog {
 			slugs, err := i18next.BlogPostSlugs(proj.BlogPostsDir)
 			if err != nil || len(slugs) == 0 {
 				logInfo("No blog posts found in %s", proj.BlogPostsDir)
@@ -1540,8 +2089,8 @@ func runTranslateI18Next(proj *config.Project, prov translate.Provider, a transl
 		}
 	}
 
-	// Translate recipes if requested
-	if a.recipes && proj.RecipeTransDir != "" {
+	// Translate recipes
+	if hasRecipes {
 		logInfo("Translating recipe metadata...")
 
 		recipeOpts := opts
@@ -1629,8 +2178,8 @@ func runTranslateI18Next(proj *config.Project, prov translate.Provider, a transl
 		}
 	}
 
-	// Translate blog posts if requested
-	if a.blog && proj.BlogPostsDir != "" {
+	// Translate blog posts
+	if hasBlog {
 		logInfo("Translating blog posts...")
 
 		blogOpts := opts
