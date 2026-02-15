@@ -349,11 +349,15 @@ func (r *rateLimitState) waitIfPaused(ctx context.Context) error {
 func makeHTTPClient(proxyURL string, timeout time.Duration) *http.Client {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 
+	// Support both --proxy flag and HTTP_PROXY/HTTPS_PROXY env vars
 	if proxyURL != "" {
 		parsed, err := url.Parse(proxyURL)
 		if err == nil {
 			transport.Proxy = http.ProxyURL(parsed)
 		}
+	} else {
+		// Use http.ProxyFromEnvironment to read HTTP_PROXY/HTTPS_PROXY/http_proxy/https_proxy
+		transport.Proxy = http.ProxyFromEnvironment
 	}
 
 	return &http.Client{
@@ -1259,35 +1263,18 @@ var markdownCodeBlock = regexp.MustCompile("(?s)```(?:json)?\\s*(.*?)\\s*```")
 var groffEscapePattern = regexp.MustCompile(`(\\\[(?:dq|aq|co|lq|rq|oq|cq|em|en|ha|ti|bu|de|ps|ts|Fo|Fc|Po|Pc|rs)\])`)
 
 // fixGroffEscapesInJSON properly escapes backslashes in groff escape sequences
-// within JSON strings. AI models sometimes return groff sequences like \[dq]
-// without properly escaping the backslash, which breaks JSON parsing.
+// and other invalid escape sequences within JSON strings. AI models sometimes 
+// return sequences like \[dq], \&, \m without properly escaping the backslash.
 //
-// We need to find groff sequences inside JSON string values and ensure they're
-// properly escaped: \[dq] -> \\[dq]
+// We need to find invalid escape sequences inside JSON string values and ensure 
+// the backslashes are properly escaped: \& -> \\&, \[dq] -> \\[dq]
 func fixGroffEscapesInJSON(jsonContent string) string {
-	// This is a simplified approach: find all groff escape sequences and
-	// ensure backslash is doubled. We need to be careful to only process
-	// sequences that are inside JSON strings.
-	
-	// Pattern matches common groff sequences: \[xx] where xx is 2-letter code
-	// We look for: \[dq] \[aq] \[co] \[lq] \[rq] \[em] etc.
-	// and make sure they're properly escaped for JSON
-	
-	// Replace \[ with \\[ but only if not already escaped
-	// This handles the case where AI returns:\[dq] instead of \\[dq]
-	result := jsonContent
-	
-	// Find all occurrences and check if they need escaping
-	// We'll use a simple approach: within JSON strings (between quotes),
-	// replace single backslash with double backslash
-	
-	// More robust: find "string values" in JSON and fix backslashes inside them
 	var fixed strings.Builder
 	inQuote := false
 	escaped := false
 	
-	for i := 0; i < len(result); i++ {
-		c := result[i]
+	for i := 0; i < len(jsonContent); i++ {
+		c := jsonContent[i]
 		
 		if c == '"' && !escaped {
 			inQuote = !inQuote
@@ -1297,34 +1284,32 @@ func fixGroffEscapesInJSON(jsonContent string) string {
 		}
 		
 		if inQuote && c == '\\' && !escaped {
-			// Check if this is a groff escape sequence
-			if i+1 < len(result) && result[i+1] == '[' {
-				// Look ahead to see if it's a groff sequence like \[dq]
-				if i+4 < len(result) && result[i+4] == ']' {
-					// It's a groff sequence, need to double the backslash
-					fixed.WriteString("\\\\")
-					escaped = false
-					continue
-				}
-			}
-			// Check for other valid JSON escape sequences
-			if i+1 < len(result) {
-				next := result[i+1]
-				if next == '"' || next == '\\' || next == '/' || next == 'b' || 
-				   next == 'f' || next == 'n' || next == 'r' || next == 't' || next == 'u' {
-					// Valid JSON escape, keep as-is
+			// Check if next character forms a valid JSON escape sequence
+			if i+1 < len(jsonContent) {
+				next := jsonContent[i+1]
+				// Valid JSON escapes: \" \\ \/ \b \f \n \r \t \uXXXX
+				if next == '"' || next == '\\' || next == '/' || 
+				   next == 'b' || next == 'f' || next == 'n' || 
+				   next == 'r' || next == 't' || next == 'u' {
+					// Valid JSON escape sequence, keep as-is
 					fixed.WriteByte(c)
 					escaped = true
 					continue
 				}
+				// Invalid escape sequence - backslash needs to be doubled
+				// Examples: \&, \m, \[dq], etc.
+				fixed.WriteString("\\\\")
+				escaped = false
+				continue
 			}
-			fixed.WriteByte(c)
-			escaped = true
+			// Backslash at end of string - escape it
+			fixed.WriteString("\\\\")
+			escaped = false
 			continue
 		}
 		
 		fixed.WriteByte(c)
-		escaped = false
+		escaped = (c == '\\' && !escaped)
 	}
 	
 	return fixed.String()

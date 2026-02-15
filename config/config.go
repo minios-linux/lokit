@@ -215,6 +215,14 @@ func (p *Project) detectProjectType(rootDir string) {
 	hasCode := false
 	hasDocs := false
 
+	// Check for code PO directory (standard po/ at root) - PRIORITY for code projects
+	codePODir := filepath.Join(rootDir, "po")
+	if info, err := os.Stat(codePODir); err == nil && info.IsDir() {
+		p.PODir = codePODir
+		p.POStructure = detectPOStructure(codePODir)
+		hasCode = true
+	}
+
 	// Check for po4a.cfg (documentation project)
 	po4aCfgPaths := []string{
 		filepath.Join(rootDir, "po4a.cfg"),
@@ -225,10 +233,13 @@ func (p *Project) detectProjectType(rootDir string) {
 	for _, cfgPath := range po4aCfgPaths {
 		if _, err := os.Stat(cfgPath); err == nil {
 			p.Po4aConfig = cfgPath
-			p.POStructure = POStructurePo4a
 			p.ManpagesDir = filepath.Dir(cfgPath)
-			p.PODir = filepath.Join(p.ManpagesDir, "po")
 			hasDocs = true
+			// If we don't have code po/ directory, use manpages/po/ instead
+			if !hasCode {
+				p.PODir = filepath.Join(p.ManpagesDir, "po")
+				p.POStructure = POStructurePo4a
+			}
 			break
 		}
 	}
@@ -244,11 +255,12 @@ func (p *Project) detectProjectType(rootDir string) {
 			if p.ManpagesDir == "" {
 				p.ManpagesDir = dir
 			}
-			// Check if it has po/ subdirectory
+			// Check if it has po/ subdirectory (docs)
 			poDir := filepath.Join(dir, "po")
 			if info2, err := os.Stat(poDir); err == nil && info2.IsDir() {
 				hasDocs = true
-				if p.POStructure == POStructureUnknown {
+				// Only use manpages/po if we don't have code po/ directory
+				if !hasCode && p.POStructure == POStructureUnknown {
 					p.PODir = poDir
 					p.POStructure = detectPOStructure(poDir)
 				}
@@ -267,19 +279,6 @@ func (p *Project) detectProjectType(rootDir string) {
 		if info, err := os.Stat(dir); err == nil && info.IsDir() {
 			p.DocsDir = dir
 			break
-		}
-	}
-
-	// Check for code PO directory (standard po/ at root)
-	codePODir := filepath.Join(rootDir, "po")
-	if info, err := os.Stat(codePODir); err == nil && info.IsDir() {
-		if p.POStructure == POStructureUnknown {
-			p.PODir = codePODir
-			p.POStructure = detectPOStructure(codePODir)
-			hasCode = true
-		} else if p.PODir != codePODir {
-			// We have both po/ (code) and manpages/po/ (docs)
-			hasCode = true
 		}
 	}
 
