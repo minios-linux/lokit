@@ -28,13 +28,32 @@
 ```bash
 git clone https://github.com/minios-linux/lokit.git
 cd lokit
+make build
+```
+
+This builds the binary with version information embedded. You can also use:
+
+```bash
+# Just build (no version info)
 go build
+
+# Build and install to $GOPATH/bin
+make install
+
+# Build with custom version
+VERSION=1.0.0 make build
 ```
 
 ### Using go install
 
 ```bash
 go install github.com/minios-linux/lokit@latest
+```
+
+### Check version
+
+```bash
+lokit version
 ```
 
 ## Quick Start
@@ -124,6 +143,15 @@ translations/
 ```
 
 ## Commands
+
+### `lokit version`
+
+Display version information:
+```bash
+lokit version
+```
+
+Shows version, commit hash, and build date.
 
 ### `lokit status`
 
