@@ -26,6 +26,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Version information (set via -ldflags during build)
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 // ANSI colors
 const (
 	colorReset  = "\033[0m"
@@ -97,6 +104,7 @@ AI Providers:
 		newInitCmd(),
 		newTranslateCmd(),
 		newAuthCmd(),
+		newVersionCmd(),
 	)
 
 	return root
@@ -107,6 +115,25 @@ func main() {
 		logError("%v", err)
 		os.Exit(1)
 	}
+}
+
+// ---------------------------------------------------------------------------
+// version (display version information)
+// ---------------------------------------------------------------------------
+
+func newVersionCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Show version information",
+		Long:  `Display version, commit hash, and build date.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("lokit version %s\n", version)
+			fmt.Printf("  commit:    %s\n", commit)
+			fmt.Printf("  built:     %s\n", date)
+		},
+	}
+
+	return cmd
 }
 
 // ---------------------------------------------------------------------------
