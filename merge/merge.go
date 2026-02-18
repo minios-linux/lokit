@@ -3,7 +3,7 @@
 package merge
 
 import (
-	"github.com/minios-linux/lokit/po"
+	po "github.com/minios-linux/lokit/pofile"
 )
 
 // Merge updates a PO file with entries from a POT template.

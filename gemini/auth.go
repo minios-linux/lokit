@@ -32,7 +32,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/minios-linux/lokit/credentials"
+	"github.com/minios-linux/lokit/settings"
 )
 
 // ---------------------------------------------------------------------------
@@ -99,17 +99,17 @@ var ErrProjectIDRequired = fmt.Errorf("GCP project ID required")
 
 // LoadToken loads the Gemini OAuth token from the unified auth store.
 // Returns nil if no token is stored.
-func LoadToken() *credentials.Info {
-	return credentials.GetOAuth(providerID)
+func LoadToken() *settings.Info {
+	return settings.GetOAuth(providerID)
 }
 
 // SaveToken saves a Gemini OAuth token to the unified auth store.
 // Preserves existing email and projectId if not provided.
 func SaveToken(access, refresh string, expiresAt int64) error {
-	store := credentials.Load()
+	store := settings.Load()
 	existing := store[providerID]
 
-	info := &credentials.Info{
+	info := &settings.Info{
 		Type:    "oauth",
 		Access:  access,
 		Refresh: refresh,
@@ -126,39 +126,39 @@ func SaveToken(access, refresh string, expiresAt int64) error {
 	}
 
 	store[providerID] = info
-	return credentials.Save(store)
+	return settings.Save(store)
 }
 
 // SaveProjectID updates the project ID in the existing gemini entry.
 func SaveProjectID(projectID string) error {
-	store := credentials.Load()
+	store := settings.Load()
 	info := store[providerID]
 	if info == nil {
 		return fmt.Errorf("no gemini credentials to update")
 	}
 	info.ProjectID = projectID
-	return credentials.Save(store)
+	return settings.Save(store)
 }
 
 // SaveEmail updates the email in the existing gemini entry.
 func SaveEmail(email string) error {
-	store := credentials.Load()
+	store := settings.Load()
 	info := store[providerID]
 	if info == nil {
 		return fmt.Errorf("no gemini credentials to update")
 	}
 	info.Email = email
-	return credentials.Save(store)
+	return settings.Save(store)
 }
 
 // DeleteToken removes the Gemini credentials from the unified auth store.
 func DeleteToken() error {
-	return credentials.Remove(providerID)
+	return settings.Remove(providerID)
 }
 
 // IsExpired returns true if the access token has expired (or will expire
 // within 60 seconds).
-func IsExpired(info *credentials.Info) bool {
+func IsExpired(info *settings.Info) bool {
 	if info == nil || info.Expires == 0 {
 		return false // No expiry info, assume valid
 	}
@@ -177,7 +177,7 @@ func TokenStatus() string {
 	if info.Email != "" {
 		status = fmt.Sprintf("authenticated (%s)", info.Email)
 	} else {
-		masked := credentials.MaskKey(info.Access)
+		masked := settings.MaskKey(info.Access)
 		status = fmt.Sprintf("authenticated (token: %s)", masked)
 	}
 
@@ -442,7 +442,7 @@ type tokenResponse struct {
 
 // RefreshAccessToken uses the refresh token to obtain a new access token.
 // Updates the entry in the unified auth store.
-func RefreshAccessToken(ctx context.Context, info *credentials.Info) error {
+func RefreshAccessToken(ctx context.Context, info *settings.Info) error {
 	if info.Refresh == "" {
 		return fmt.Errorf("no refresh token available, re-login required")
 	}
@@ -521,14 +521,14 @@ func EnsureAuth(ctx context.Context) (string, error) {
 	return info.Access, nil
 }
 
-// EnsureAuthWithSetup returns a valid Gemini credentials.Info with both a
+// EnsureAuthWithSetup returns a valid Gemini settings.Info with both a
 // valid access token and a Code Assist project ID. It handles OAuth auth,
 // token refresh, and Code Assist onboarding (loadCodeAssist + onboardUser)
 // as needed.
 //
 // If ErrProjectIDRequired is returned by SetupUser, this function wraps it
 // with a user-friendly message directing to `lokit auth login --provider gemini`.
-func EnsureAuthWithSetup(ctx context.Context) (*credentials.Info, error) {
+func EnsureAuthWithSetup(ctx context.Context) (*settings.Info, error) {
 	info, err := ensureToken(ctx)
 	if err != nil {
 		return nil, err
@@ -552,7 +552,7 @@ func EnsureAuthWithSetup(ctx context.Context) (*credentials.Info, error) {
 }
 
 // ensureToken loads, refreshes, or re-authenticates to get a valid token.
-func ensureToken(ctx context.Context) (*credentials.Info, error) {
+func ensureToken(ctx context.Context) (*settings.Info, error) {
 	info := LoadToken()
 
 	// If we have a token and it's not expired, use it directly
@@ -685,7 +685,7 @@ type onboardUserResponse struct {
 // can prompt the user and retry.
 //
 // The project ID is saved to the unified auth store.
-func SetupUser(ctx context.Context, info *credentials.Info) (string, error) {
+func SetupUser(ctx context.Context, info *settings.Info) (string, error) {
 	if info == nil || info.Access == "" {
 		return "", fmt.Errorf("no access token available")
 	}

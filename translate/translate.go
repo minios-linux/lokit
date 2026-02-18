@@ -14,6 +14,7 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -21,10 +22,12 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/minios-linux/lokit/android"
 	"github.com/minios-linux/lokit/copilot"
 	"github.com/minios-linux/lokit/gemini"
 	"github.com/minios-linux/lokit/i18next"
-	"github.com/minios-linux/lokit/po"
+	po "github.com/minios-linux/lokit/pofile"
+	"github.com/minios-linux/lokit/settings"
 )
 
 // ---------------------------------------------------------------------------
@@ -51,17 +54,99 @@ const (
 )
 
 // ---------------------------------------------------------------------------
+// System Prompts Configuration
+// ---------------------------------------------------------------------------
+
+// PromptsConfig holds all system prompts loaded from prompts.json
+type PromptsConfig struct {
+	Prompts map[string]string `json:"prompts"`
+}
+
+// globalPrompts holds the loaded prompts configuration
+var globalPrompts *PromptsConfig
+
+// LoadPromptsFromFile loads system prompts from a JSON file.
+// If the file doesn't exist or can't be loaded, it returns nil (will use embedded defaults).
+func LoadPromptsFromFile(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		// File not found is not an error - we'll use embedded defaults
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("failed to read prompts file: %w", err)
+	}
+
+	var config PromptsConfig
+	if err := json.Unmarshal(data, &config); err != nil {
+		return fmt.Errorf("failed to parse prompts file: %w", err)
+	}
+
+	globalPrompts = &config
+	return nil
+}
+
+// LoadPromptsFromDefaultLocations tries to load prompts from the user data directory.
+// Default location: ~/.local/share/lokit/prompts.json (or $XDG_DATA_HOME/lokit/prompts.json)
+// This matches the location where auth.json is stored.
+// Returns the path of the loaded prompts file, or empty string if using embedded defaults.
+func LoadPromptsFromDefaultLocations() (string, error) {
+	path, err := settings.PromptsFilePath()
+	if err != nil {
+		return "", fmt.Errorf("cannot determine prompts file path: %w", err)
+	}
+
+	if err := LoadPromptsFromFile(path); err != nil {
+		return "", err
+	}
+
+	if globalPrompts != nil {
+		return path, nil
+	}
+
+	// No custom prompts found - will use embedded defaults
+	return "", nil
+}
+
+// getPrompt returns the system prompt for a given content type.
+// If custom prompts are loaded, it uses them; otherwise falls back to embedded defaults.
+func getPrompt(promptType string) string {
+	if globalPrompts != nil {
+		if prompt, ok := globalPrompts.Prompts[promptType]; ok && prompt != "" {
+			return prompt
+		}
+	}
+
+	// Fallback to embedded defaults
+	switch promptType {
+	case "default":
+		return DefaultSystemPrompt
+	case "docs":
+		return DocsSystemPrompt
+	case "i18next":
+		return I18NextSystemPrompt
+	case "recipe":
+		return RecipeSystemPrompt
+	case "blogpost":
+		return BlogPostSystemPrompt
+	case "android":
+		return AndroidSystemPrompt
+	default:
+		return DefaultSystemPrompt
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Default system prompt (matches the admin panel's defaultPrompt)
 // ---------------------------------------------------------------------------
 
-const DefaultSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating UI strings for MiniOS Store — a web-based application installer for MiniOS Linux distribution.
+const DefaultSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating UI strings for a software application.
 
 CONTEXT AWARENESS:
-- MiniOS Store allows users to browse, select, and install software packages as squashfs modules
-- The audience is technical users who use MiniOS Linux distribution
-- Key concepts: recipes (app definitions), categories, cart, modules, compression (zstd/xz), installation methods (apt/script/deb)
+- The audience is software users
 - Tone: professional yet approachable, clear and concise
 - Use IT/software terminology that is standard in {{targetLang}} tech community
+- Adapt to the application's specific domain based on the source text context
 
 IMPORTANT TRANSLATION PRINCIPLES:
 - Translate for NATURALNESS and FLUENCY in the target language, not word-for-word
@@ -75,17 +160,17 @@ TECHNICAL REQUIREMENTS:
 - Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
 - Preserve all format specifiers exactly as-is (%s, %d, %%(name)s, etc.).
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
-- Keep brand names unchanged (MiniOS, Debian, Ubuntu, Linux, SquashFS, etc.).
-- Do NOT translate proper nouns or technical terms.
+- Keep brand names and proper nouns unchanged.
+- Do NOT translate technical terms that are standard in English (unless they have established translations).
 - Return ONLY the JSON array, no explanations or markdown code blocks.`
 
 // DocsSystemPrompt is the system prompt for translating documentation PO files
 // (man pages via po4a) that contain groff/roff markup.
-const DocsSystemPrompt = `You are a professional translator specializing in technical documentation for Linux systems. You are translating man page documentation that uses groff/roff markup via the po4a (PO for anything) framework.
+const DocsSystemPrompt = `You are a professional translator specializing in technical documentation for software systems. You are translating documentation that uses groff/roff markup via the po4a (PO for anything) framework.
 
 CONTEXT AWARENESS:
-- The source text comes from man pages for MiniOS Linux utilities
-- The audience is system administrators and advanced Linux users
+- The source text comes from software documentation and man pages
+- The audience is system administrators, developers, and advanced users
 - Tone: formal technical documentation, precise and unambiguous
 - Use IT/system administration terminology standard in {{targetLang}}
 
@@ -94,7 +179,7 @@ IMPORTANT TRANSLATION PRINCIPLES:
 - Use idiomatic expressions natural to {{targetLang}} technical writing
 - Adapt sentence structure to match {{targetLang}} documentation conventions
 - Use established system administration terminology in {{targetLang}}
-- Maintain the formal register typical of man pages
+- Maintain the formal register typical of technical documentation
 
 CRITICAL MARKUP PRESERVATION RULES:
 - Preserve ALL groff/roff inline markup exactly as-is:
@@ -107,8 +192,8 @@ CRITICAL MARKUP PRESERVATION RULES:
   - .B, .I, .BR, .IR — keep as-is
 - Do NOT translate:
   - Command names, option flags (--option, -f)
-  - File paths (/etc/live/config, /usr/share/...)
-  - Environment variable names (LIVE_*, DEBIAN_*)
+  - File paths (/etc/, /usr/share/, etc.)
+  - Environment variable names
   - Package names, program names
   - Configuration directive names
   - Code examples and command invocations
@@ -121,7 +206,7 @@ TECHNICAL REQUIREMENTS:
 - Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
 - Preserve all format specifiers exactly as-is (%s, %d, etc.).
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
-- Keep brand names unchanged (MiniOS, Debian, Ubuntu, Linux, etc.).
+- Keep brand names and proper nouns unchanged.
 - CRITICAL: Properly escape ALL backslashes in JSON strings. Groff sequences like \[dq] MUST be escaped as \\[dq] in JSON.
 - Return ONLY the JSON array, no explanations or markdown code blocks.`
 
@@ -230,6 +315,9 @@ type Options struct {
 	TranslateFuzzy bool
 	// SystemPrompt overrides the default system prompt.
 	SystemPrompt string
+	// PromptType specifies which prompt to use: "default", "docs", "i18next", "recipe", "blogpost", "android".
+	// If SystemPrompt is set, this is ignored.
+	PromptType string
 	// OnProgress is called after each batch/chunk is translated.
 	OnProgress func(lang string, done, total int)
 	// OnLog emits log messages during translation.
@@ -289,7 +377,11 @@ func (o *Options) effectiveMaxConcurrent() int {
 func (o *Options) resolvedPrompt() string {
 	prompt := o.SystemPrompt
 	if prompt == "" {
-		prompt = DefaultSystemPrompt
+		promptType := o.PromptType
+		if promptType == "" {
+			promptType = "default"
+		}
+		prompt = getPrompt(promptType)
 	}
 	langName := o.LanguageName
 	if langName == "" {
@@ -1015,7 +1107,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 				}
 				continue
 			}
-			
+
 			// Special handling for 403 Forbidden - usually geographic restrictions or no subscription
 			if resp.StatusCode == http.StatusForbidden {
 				return "", fmt.Errorf("Copilot API returned 403 Forbidden: access denied\n\n" +
@@ -1031,7 +1123,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 					"      lokit auth login --provider google      (Google AI Studio)\n" +
 					"      lokit translate --provider ollama --model llama3.2  (local, no restrictions)")
 			}
-			
+
 			return "", fmt.Errorf("Copilot API returned status %d: %s", resp.StatusCode, truncate(string(respBody), 500))
 		}
 
@@ -1263,34 +1355,34 @@ var markdownCodeBlock = regexp.MustCompile("(?s)```(?:json)?\\s*(.*?)\\s*```")
 var groffEscapePattern = regexp.MustCompile(`(\\\[(?:dq|aq|co|lq|rq|oq|cq|em|en|ha|ti|bu|de|ps|ts|Fo|Fc|Po|Pc|rs)\])`)
 
 // fixGroffEscapesInJSON properly escapes backslashes in groff escape sequences
-// and other invalid escape sequences within JSON strings. AI models sometimes 
+// and other invalid escape sequences within JSON strings. AI models sometimes
 // return sequences like \[dq], \&, \m without properly escaping the backslash.
 //
-// We need to find invalid escape sequences inside JSON string values and ensure 
+// We need to find invalid escape sequences inside JSON string values and ensure
 // the backslashes are properly escaped: \& -> \\&, \[dq] -> \\[dq]
 func fixGroffEscapesInJSON(jsonContent string) string {
 	var fixed strings.Builder
 	inQuote := false
 	escaped := false
-	
+
 	for i := 0; i < len(jsonContent); i++ {
 		c := jsonContent[i]
-		
+
 		if c == '"' && !escaped {
 			inQuote = !inQuote
 			fixed.WriteByte(c)
 			escaped = false
 			continue
 		}
-		
+
 		if inQuote && c == '\\' && !escaped {
 			// Check if next character forms a valid JSON escape sequence
 			if i+1 < len(jsonContent) {
 				next := jsonContent[i+1]
 				// Valid JSON escapes: \" \\ \/ \b \f \n \r \t \uXXXX
-				if next == '"' || next == '\\' || next == '/' || 
-				   next == 'b' || next == 'f' || next == 'n' || 
-				   next == 'r' || next == 't' || next == 'u' {
+				if next == '"' || next == '\\' || next == '/' ||
+					next == 'b' || next == 'f' || next == 'n' ||
+					next == 'r' || next == 't' || next == 'u' {
 					// Valid JSON escape sequence, keep as-is
 					fixed.WriteByte(c)
 					escaped = true
@@ -1307,11 +1399,11 @@ func fixGroffEscapesInJSON(jsonContent string) string {
 			escaped = false
 			continue
 		}
-		
+
 		fixed.WriteByte(c)
 		escaped = (c == '\\' && !escaped)
 	}
-	
+
 	return fixed.String()
 }
 
@@ -1721,8 +1813,8 @@ func TranslateAll(ctx context.Context, langTasks []LangTask, opts Options) error
 const I18NextSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating UI strings for a web application built with React and i18next.
 
 CONTEXT AWARENESS:
-- The application is MiniOS Store or MiniOS website — Linux distribution tools
-- The audience is technical users who use MiniOS Linux distribution
+- The application is a web application using React and i18next for internationalization
+- The audience is web application users
 - Keys are natural English text; you translate them to {{targetLang}}
 - Tone: professional yet approachable, clear and concise
 - Use IT/software terminology that is standard in {{targetLang}} tech community
@@ -1739,18 +1831,18 @@ TECHNICAL REQUIREMENTS:
 - Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
 - Preserve all interpolation variables exactly as-is (e.g. {{count}}, {{name}}, etc.).
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
-- Keep brand names unchanged (MiniOS, Debian, Ubuntu, Linux, SquashFS, etc.).
-- Do NOT translate proper nouns or technical terms that are standard in English.
+- Keep brand names and proper nouns unchanged.
+- Do NOT translate technical terms that are standard in English (unless they have established translations).
 - Return ONLY the JSON array, no explanations or markdown code blocks.`
 
 // RecipeSystemPrompt is the system prompt for translating recipe metadata
 // (app names, descriptions, long descriptions).
-const RecipeSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating application metadata (names, descriptions) for a Linux application store.
+const RecipeSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating application metadata (names, descriptions) for a software catalog or app store.
 
 CONTEXT AWARENESS:
-- These are software application descriptions for MiniOS Store
+- These are software application descriptions for an application catalog
 - Each entry has a name, short description, and optionally a long HTML description
-- The audience is technical users browsing for software to install
+- The audience is users browsing for software to install
 - Tone: clear, informative, matching standard app store descriptions
 
 IMPORTANT TRANSLATION PRINCIPLES:
@@ -2191,14 +2283,13 @@ func splitFieldRefs(items []recipeFieldRef, chunkSize int) [][]recipeFieldRef {
 // ---------------------------------------------------------------------------
 
 // BlogPostSystemPrompt is the system prompt for translating blog post content.
-const BlogPostSystemPrompt = `You are a professional translator specializing in technical blog posts about Linux distributions. You are translating blog posts for the MiniOS Linux project website.
+const BlogPostSystemPrompt = `You are a professional translator specializing in technical blog posts and articles. You are translating blog posts for a software project website.
 
 CONTEXT AWARENESS:
-- MiniOS is a modular Linux distribution based on Debian
-- The audience is technical users interested in Linux, system administration, and MiniOS
+- The audience is technical users interested in software, technology, and project updates
 - Blog posts may discuss features, releases, community updates, and technical topics
 - Tone: professional yet friendly, matching the original post's voice
-- Use IT/Linux terminology standard in {{targetLang}}
+- Use IT/software terminology standard in {{targetLang}}
 
 IMPORTANT TRANSLATION PRINCIPLES:
 - Translate for NATURALNESS and FLUENCY in {{targetLang}}, not word-for-word
@@ -2211,8 +2302,8 @@ TECHNICAL REQUIREMENTS:
 - Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
 - Preserve ALL Markdown formatting exactly as-is: links [text](url), **bold**, *italic*, headers, lists, code blocks
 - Preserve all URLs unchanged
-- Keep brand names unchanged (MiniOS, Debian, Telegram, GitHub, etc.)
-- Do NOT translate proper nouns or technical terms that are standard in English
+- Keep brand names and proper nouns unchanged
+- Do NOT translate technical terms that are standard in English (unless they have established translations)
 - Return ONLY the JSON array, no explanations or markdown code blocks.`
 
 // BlogPostTask is a single blog post translation task.
@@ -2346,4 +2437,288 @@ func min(a, b time.Duration) time.Duration {
 		return a
 	}
 	return b
+}
+
+// ---------------------------------------------------------------------------
+// Android strings.xml translation support
+// ---------------------------------------------------------------------------
+
+// AndroidSystemPrompt is the system prompt for translating Android strings.xml UI strings.
+const AndroidSystemPrompt = `You are a professional translator specializing in mobile app localization. You are translating UI strings for an Android application.
+
+CONTEXT AWARENESS:
+- The audience is mobile app users
+- Tone: professional yet approachable, clear and concise
+- Use mobile app terminology that is standard in {{targetLang}} tech community
+- Adapt to the app's specific domain and target audience based on the source text context
+
+IMPORTANT TRANSLATION PRINCIPLES:
+- Translate for NATURALNESS and FLUENCY in the target language, not word-for-word
+- Use idiomatic expressions natural to {{targetLang}}, not literal translations
+- Adapt sentence structure to match {{targetLang}} conventions
+- Use established terminology in {{targetLang}} appropriate for mobile apps
+- Consider cultural context and target audience expectations
+- Maintain the original tone and intent, but express it naturally in {{targetLang}}
+- Follow platform-specific conventions for {{targetLang}} on Android (button labels, menu items, etc.)
+
+TECHNICAL REQUIREMENTS:
+- Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
+- Preserve all Android format specifiers exactly as-is (%s, %d, %1$s, %1$d, %2$d, %2$s, etc.).
+- Preserve leading/trailing whitespace, newlines, and punctuation patterns.
+- Keep brand names and proper nouns unchanged.
+- Do NOT translate technical terms that are standard in English (unless they have established translations).
+- Return ONLY the JSON array, no explanations or markdown code blocks.`
+
+// AndroidLangTask is a language translation task for Android strings.xml files.
+type AndroidLangTask struct {
+	Lang       string
+	LangName   string
+	File       *android.File
+	FilePath   string
+	SourceFile *android.File // Source (English) file for looking up original values
+}
+
+// TranslateAllAndroid translates multiple Android strings.xml files according to opts.ParallelMode.
+func TranslateAllAndroid(ctx context.Context, langTasks []AndroidLangTask, opts Options) error {
+	if opts.ParallelMode == ParallelFullParallel {
+		return translateAndroidFullParallel(ctx, langTasks, opts)
+	}
+	return translateAndroidSequential(ctx, langTasks, opts)
+}
+
+// translateAndroidSequential translates Android strings.xml files one language at a time.
+func translateAndroidSequential(ctx context.Context, langTasks []AndroidLangTask, opts Options) error {
+	var failedLangs []string
+	for _, task := range langTasks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+
+		// Determine keys to translate
+		var keysToTranslate []string
+		if opts.RetranslateExisting {
+			keysToTranslate = task.File.Keys()
+		} else {
+			keysToTranslate = task.File.UntranslatedKeys()
+		}
+
+		if len(keysToTranslate) == 0 {
+			continue
+		}
+
+		opts.log("Translating %s (%s) — %d strings...", task.Lang, task.LangName, len(keysToTranslate))
+
+		if err := translateAndroidFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
+			if ctx.Err() != nil {
+				saveAndroidFile(task.File, task.FilePath, opts)
+				return ctx.Err()
+			}
+			opts.logError("Error translating %s: %v", task.Lang, err)
+			failedLangs = append(failedLangs, task.Lang)
+			continue
+		}
+
+		saveAndroidFile(task.File, task.FilePath, opts)
+	}
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translateAndroidFullParallel translates all Android strings.xml files in parallel.
+func translateAndroidFullParallel(ctx context.Context, langTasks []AndroidLangTask, opts Options) error {
+	rl := &rateLimitState{}
+
+	type flatTask struct {
+		lang         string
+		langName     string
+		keys         []string
+		file         *android.File
+		sourceFile   *android.File
+		filePath     string
+		systemPrompt string
+		total        *int64
+		done         *int64
+	}
+
+	var flatTasks []flatTask
+
+	for _, task := range langTasks {
+		var keysToTranslate []string
+		if opts.RetranslateExisting {
+			keysToTranslate = task.File.Keys()
+		} else {
+			keysToTranslate = task.File.UntranslatedKeys()
+		}
+		if len(keysToTranslate) == 0 {
+			continue
+		}
+
+		chunkSize := opts.effectiveChunkSize()
+		if chunkSize == 0 {
+			chunkSize = len(keysToTranslate)
+		}
+		chunks := splitStrings(keysToTranslate, chunkSize)
+
+		total := int64(len(keysToTranslate))
+		done := int64(0)
+
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+		systemPrompt := taskOpts.resolvedPrompt()
+
+		for _, chunk := range chunks {
+			flatTasks = append(flatTasks, flatTask{
+				lang:         task.Lang,
+				langName:     task.LangName,
+				keys:         chunk,
+				file:         task.File,
+				sourceFile:   task.SourceFile,
+				filePath:     task.FilePath,
+				systemPrompt: systemPrompt,
+				total:        &total,
+				done:         &done,
+			})
+		}
+	}
+
+	if len(flatTasks) == 0 {
+		return nil
+	}
+
+	// Mutex per file to protect concurrent writes
+	fileMu := make(map[string]*sync.Mutex)
+	for _, ft := range flatTasks {
+		if _, ok := fileMu[ft.filePath]; !ok {
+			fileMu[ft.filePath] = &sync.Mutex{}
+		}
+	}
+
+	err := runParallelGeneric(ctx, flatTasks, opts.effectiveMaxConcurrent(), opts.RequestDelay, func(ctx context.Context, ft flatTask) error {
+		translations, err := translateAndroidChunk(ctx, ft.keys, ft.sourceFile, ft.systemPrompt, opts, rl)
+		if err != nil {
+			return err
+		}
+
+		mu := fileMu[ft.filePath]
+		mu.Lock()
+		applyAndroidTranslations(ft.file, ft.keys, translations)
+		mu.Unlock()
+
+		newDone := atomic.AddInt64(ft.done, int64(len(ft.keys)))
+		if opts.OnProgress != nil {
+			opts.OnProgress(ft.lang, int(newDone), int(atomic.LoadInt64(ft.total)))
+		}
+		return nil
+	})
+
+	// Save all files
+	saved := make(map[string]bool)
+	for _, ft := range flatTasks {
+		if !saved[ft.filePath] {
+			saveAndroidFile(ft.file, ft.filePath, opts)
+			saved[ft.filePath] = true
+		}
+	}
+
+	return err
+}
+
+// translateAndroidFile translates specific keys in an Android strings.xml file.
+func translateAndroidFile(ctx context.Context, file *android.File, sourceFile *android.File, keys []string, opts Options) error {
+	chunkSize := opts.effectiveChunkSize()
+	if chunkSize == 0 {
+		chunkSize = len(keys)
+	}
+
+	rl := &rateLimitState{}
+	chunks := splitStrings(keys, chunkSize)
+	systemPrompt := opts.resolvedPrompt()
+	done := 0
+
+	for i, chunk := range chunks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		if opts.Verbose {
+			opts.log("  Chunk %d/%d (%d strings)", i+1, len(chunks), len(chunk))
+		}
+
+		translations, err := translateAndroidChunk(ctx, chunk, sourceFile, systemPrompt, opts, rl)
+		if err != nil {
+			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+		}
+
+		applyAndroidTranslations(file, chunk, translations)
+
+		done += len(chunk)
+		if opts.OnProgress != nil {
+			opts.OnProgress(opts.Language, done, len(keys))
+		}
+
+		if i < len(chunks)-1 && opts.RequestDelay > 0 {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(opts.RequestDelay):
+			}
+		}
+	}
+
+	return nil
+}
+
+// translateAndroidChunk sends a batch of Android string keys to the AI and gets translations back.
+// It looks up the source English values from the source file to provide context.
+func translateAndroidChunk(ctx context.Context, keys []string, sourceFile *android.File, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
+	var userMsg strings.Builder
+	userMsg.WriteString(fmt.Sprintf("Translate these Android app UI strings to %s:\n\n", opts.LanguageName))
+	for i, key := range keys {
+		// Get the source English value from the source file
+		value, _ := sourceFile.Get(key)
+		if value != "" {
+			userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(value)))
+		} else {
+			// Fallback: use the key name as context
+			userMsg.WriteString(fmt.Sprintf("%d. [%s] (translate based on string resource name)\n", i+1, key))
+		}
+	}
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
+
+	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
+	if err != nil {
+		return nil, err
+	}
+
+	return parseTranslations(text, len(keys))
+}
+
+// applyAndroidTranslations applies translated strings to the Android file.
+func applyAndroidTranslations(file *android.File, keys []string, translations []string) {
+	for i, key := range keys {
+		if i < len(translations) && translations[i] != "" {
+			file.Set(key, translations[i])
+		}
+	}
+}
+
+// saveAndroidFile saves an Android strings.xml file and logs the result.
+func saveAndroidFile(file *android.File, path string, opts Options) {
+	if err := file.WriteFile(path); err != nil {
+		opts.logError("Error saving %s: %v", path, err)
+	} else {
+		total, translated, _ := file.Stats()
+		opts.log("Saved %s (%d/%d translated)", path, translated, total)
+	}
 }

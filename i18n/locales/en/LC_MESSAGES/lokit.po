@@ -1,0 +1,989 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the lokit CLI package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: lokit CLI\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-17 14:39+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: /home/live/opencode/lokit/main.go:1015
+#: /home/live/opencode/lokit/main.go:1246
+#: /home/live/opencode/lokit/main.go:3132
+msgid "Creating %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1018
+msgid "Created: %s (%d keys)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1034
+msgid "Updating %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1037
+msgid "Updated: %s (+%d new keys)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1040
+msgid "%s: up to date"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1044
+#: /home/live/opencode/lokit/main.go:1268
+msgid "Summary: %d created, %d updated"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1047
+#: /home/live/opencode/lokit/main.go:1197
+#: /home/live/opencode/lokit/main.go:1274
+msgid "Init complete!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1060
+msgid "pandoc not found, skipping manpage generation from markdown"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1108
+msgid "Generating %s from %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1118
+msgid "Failed to post-process %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1125
+msgid "Generated %d manpage(s) from markdown"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1157
+msgid "po4a is not installed. Install with: sudo apt install po4a"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1163
+msgid "Failed to generate manpages from markdown: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1164
+msgid "Continuing anyway, po4a might fail if source files don't exist"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1167
+msgid "Running po4a --no-translations %s ..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1173
+msgid "po4a failed: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1176
+msgid "po4a updated POT and PO files"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1210
+#: /home/live/opencode/lokit/main.go:1254
+#: /home/live/opencode/lokit/main.go:1667
+#: /home/live/opencode/lokit/main.go:1768
+msgid "Reading %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1214
+msgid "Updating PO files for: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1222
+#: /home/live/opencode/lokit/main.go:3127
+msgid "Creating directory for %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1249
+msgid "Created: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1260
+msgid "Writing %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1263
+msgid "Updated: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:129
+msgid "Localization Kit: AI-powered translation for multiple formats"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1313
+msgid "Translate files using AI"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1468
+msgid ""
+"No provider specified. Use --provider to choose an AI translation service.\n"
+"\n"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1486
+msgid "No targets defined in .lokit.yaml"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1498
+#: /home/live/opencode/lokit/main.go:2159
+msgid "Interrupted, saving progress..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1525
+msgid "[%s] No languages to translate, skipping"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1534
+#: /home/live/opencode/lokit/main.go:1540
+#: /home/live/opencode/lokit/main.go:1546
+#: /home/live/opencode/lokit/main.go:1552
+#: /home/live/opencode/lokit/main.go:1558
+msgid "[%s] %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1563
+msgid "[%s] Unknown target type %q, skipping"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1568
+#: /home/live/opencode/lokit/main.go:2423
+msgid "Translation completed with errors"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1571
+msgid "All targets translated!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1579
+#: /home/live/opencode/lokit/main.go:1702
+#: /home/live/opencode/lokit/main.go:1800
+#: /home/live/opencode/lokit/main.go:1828
+#: /home/live/opencode/lokit/main.go:1849
+#: /home/live/opencode/lokit/main.go:2063
+msgid "Provider: %s (%s), Model: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1581
+#: /home/live/opencode/lokit/main.go:1851
+#: /home/live/opencode/lokit/main.go:2065
+msgid "Parallel: enabled, max concurrent: %d"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1584
+#: /home/live/opencode/lokit/main.go:1854
+msgid "Chunk size: %d"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1586
+#: /home/live/opencode/lokit/main.go:1704
+msgid "PO dir: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1587
+#: /home/live/opencode/lokit/main.go:1705
+#: /home/live/opencode/lokit/main.go:1802
+#: /home/live/opencode/lokit/main.go:1830
+#: /home/live/opencode/lokit/main.go:1857
+msgid "Translating: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1595
+#: /home/live/opencode/lokit/main.go:1713
+#: /home/live/opencode/lokit/main.go:1890
+#: /home/live/opencode/lokit/main.go:2097
+msgid "%s (%s): %d strings to translate"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1597
+msgid "%s: PO file not found, will be created"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1623
+#: /home/live/opencode/lokit/main.go:1740
+#: /home/live/opencode/lokit/main.go:1920
+#: /home/live/opencode/lokit/main.go:2177
+msgid "  %s: %d/%d"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:165
+msgid "Warning: Failed to load prompts: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:167
+msgid "Loaded prompts from %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1689
+#: /home/live/opencode/lokit/main.go:1789
+#: /home/live/opencode/lokit/main.go:1970
+msgid "[%s] All translations complete!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1703
+msgid "po4a config: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1715
+msgid "%s: PO file not found at %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1755
+msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1765
+msgid "[%s] No PO file for %s at %s, skipping (run po4a first)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1801
+#: /home/live/opencode/lokit/main.go:1829
+msgid "Translations dir: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1856
+msgid "Res dir: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1866
+msgid "Source strings: %d"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1877
+#: /home/live/opencode/lokit/main.go:2085
+msgid "%s (%s): %d strings to translate (file will be auto-created)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:190
+#: /home/live/opencode/lokit/main.go:1203
+#: /home/live/opencode/lokit/main.go:1475
+msgid "%v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1938
+msgid "Auto-creating %s with %d strings"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:1943
+msgid "Added %d new strings to %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:202
+msgid "Show version information"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:203
+msgid "Display version, commit hash, and build date."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:205
+msgid "lokit version %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2053
+msgid "All UI translations are complete!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:206
+msgid "commit:"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2067
+msgid "Parallel: disabled (sequential)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2069
+msgid "Source keys (%s): %d"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:207
+msgid "built:"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2072
+msgid "Translating UI strings: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2107
+msgid "%s: recipe translations directory not found"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2120
+msgid "%s: %d recipe files need translation"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2126
+#: /home/live/opencode/lokit/main.go:2333
+msgid "No blog posts found in %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2141
+msgid "%s: %d blog post(s) need translation"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2143
+msgid "%s: all blog posts translated"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2208
+msgid "Auto-creating %s with %d keys"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2228
+#: /home/live/opencode/lokit/main.go:2315
+#: /home/live/opencode/lokit/main.go:2412
+msgid "Translation interrupted, partial progress saved"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:223
+msgid "Generate .lokit.yaml using an AI agent"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2231
+msgid "UI translation failed: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2239
+msgid "Translating recipe metadata..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2256
+msgid "Cannot read recipe directory for %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2304
+msgid "  %s: all recipe translations complete"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2308
+msgid "  %s (%s): %d recipe files to translate"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2318
+msgid "Recipe translation failed for %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2326
+msgid "Translating blog posts..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2352
+msgid "Cannot read source blog post %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2364
+msgid "Error parsing %s, will recreate: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2401
+msgid "  %s: all blog posts translated"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2405
+msgid "  %s (%s): %d blog post(s) to translate"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2415
+msgid "Blog post translation failed for %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2426
+msgid "Translation complete!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2436
+msgid "Manage provider authentication"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2491
+msgid "Authenticate with an AI provider"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2508
+msgid "Select provider to authenticate"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2529
+#: /home/live/opencode/lokit/main.go:2737
+#: /home/live/opencode/lokit/main.go:2776
+#: /home/live/opencode/lokit/main.go:2798
+msgid "No input received"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2549
+msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2574
+msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:258
+msgid "%s already exists."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:259
+msgid "Overwrite? [y/N]"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2596
+msgid "GitHub Copilot Authentication"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2599
+msgid "Open this URL in your browser:"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2601
+msgid "Enter this code:"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2603
+#: /home/live/opencode/lokit/main.go:2627
+msgid "Waiting for authorization..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2607
+#: /home/live/opencode/lokit/main.go:2631
+msgid "Authentication cancelled"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2610
+#: /home/live/opencode/lokit/main.go:2634
+msgid "Authentication failed: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2614
+msgid "Copilot authentication successful!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2615
+msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2620
+msgid "Google Gemini Authentication"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2623
+msgid "Opening browser for Google sign-in..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2625
+msgid "If the browser doesn't open, visit:"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2639
+msgid "Gemini authentication successful!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2645
+msgid "Token was saved but cannot be loaded"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:265
+msgid "Aborted."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2651
+msgid "Gemini Code Assist requires a GCP project ID to work in your region."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2652
+msgid "Find your project ID at: https://console.cloud.google.com"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2653
+msgid "(Create a project if you don't have one, then enable the Gemini API)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2667
+#: /home/live/opencode/lokit/main.go:2679
+msgid "Code Assist setup failed: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2668
+msgid "Project ID saved. You can try again later."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2670
+#: /home/live/opencode/lokit/main.go:2683
+msgid "Code Assist project configured!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2673
+msgid "Skipped. You can set it later with:"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2674
+msgid "  lokit auth login --provider gemini"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2680
+msgid "OAuth login succeeded but Code Assist onboarding failed."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2681
+msgid "This will be retried automatically on first translate."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2688
+msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2689
+msgid "(no API key needed when authenticated via OAuth)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:271
+msgid "Setup"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2719
+msgid "%s — API Key Setup"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:272
+msgid "Provider: %s, Model: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2722
+msgid "Get your API key from: %s%s%s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2729
+#: /home/live/opencode/lokit/main.go:2791
+msgid "Current key"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:273
+msgid "Project root: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2744
+msgid "Keeping existing key"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2747
+msgid "No API key provided"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2752
+msgid "Failed to save API key: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2756
+msgid "%s API key saved!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2757
+msgid "You can now use: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2762
+msgid "Custom OpenAI-Compatible Endpoint"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2769
+msgid "Current endpoint"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2785
+msgid "Endpoint URL is required"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2808
+msgid "Failed to save credentials: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2812
+msgid "Custom OpenAI endpoint saved!"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2813
+msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2822
+msgid "Remove stored credentials"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2838
+#: /home/live/opencode/lokit/main.go:2864
+msgid "Failed to remove Copilot credentials: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2841
+msgid "Copilot credentials removed"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2844
+#: /home/live/opencode/lokit/main.go:2868
+msgid "Failed to remove Gemini credentials: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2847
+msgid "Gemini credentials removed"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2850
+#: /home/live/opencode/lokit/main.go:2873
+msgid "Failed to remove %s credentials: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2853
+msgid "%s credentials removed"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2855
+msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:287
+msgid "Tool: %s(%s)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2878
+msgid "All stored credentials removed"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2902
+msgid "Show stored credentials and status"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2904
+msgid "Stored Credentials"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2908
+msgid "copilot"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2909
+msgid "gemini"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2936
+msgid "not configured"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2944
+#: /home/live/opencode/lokit/main.go:2946
+msgid "LOKIT_API_KEY"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2944
+msgid "overrides stored keys"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2946
+msgid "not set"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2967
+msgid "Scanning for source files in: %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:2979
+msgid "Found %d source files (%s)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3003
+msgid "Extracting from %d Go files (AST, keywords: %s)..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3007
+msgid "Extracting from %d Go files with xgotext..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3014
+msgid "Extracting from %d non-Go files with xgettext..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3026
+msgid "Go extraction failed: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3027
+msgid "Continuing with xgettext results only"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3034
+msgid "Merging POT files..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3066
+msgid "Extracted %d strings to %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3068
+msgid "Extracted strings to %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3086
+msgid "No POT template found, running extraction..."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3088
+msgid "Auto-extraction failed: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:309
+msgid "Generated %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3095
+msgid "Cannot auto-create %s: extraction produced no POT template"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3096
+msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3103
+msgid "Cannot read POT template %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:3136
+msgid "Auto-created %s from %s (%d entries)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:314
+msgid "Generated config has validation issues: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:315
+msgid "You may need to edit the file manually."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:317
+msgid "%d target(s) configured"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:323
+msgid "  %s (%s) — %d language(s)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:345
+msgid "Show project info and translation statistics"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:365
+#: /home/live/opencode/lokit/main.go:878
+#: /home/live/opencode/lokit/main.go:1440
+msgid "Config error: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:373
+#: /home/live/opencode/lokit/main.go:882
+#: /home/live/opencode/lokit/main.go:1448
+msgid "No .lokit.yaml found in %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:374
+#: /home/live/opencode/lokit/main.go:883
+#: /home/live/opencode/lokit/main.go:1449
+msgid "Run 'lokit setup --provider <provider> --model <model>' to generate one."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:382
+msgid "Project"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:383
+msgid "Config"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:384
+#: /home/live/opencode/lokit/main.go:404
+msgid "Root"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:385
+msgid "Source lang"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:388
+#: /home/live/opencode/lokit/main.go:408
+#: /home/live/opencode/lokit/main.go:410
+msgid "Languages"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:390
+msgid "Targets"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:394
+#: /home/live/opencode/lokit/main.go:902
+#: /home/live/opencode/lokit/main.go:1481
+msgid "Config resolve error: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:410
+msgid "none detected"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:442
+msgid "run 'lokit init'"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:442
+msgid "POT"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:442
+#: /home/live/opencode/lokit/main.go:510
+#: /home/live/opencode/lokit/main.go:575
+msgid "not found"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:446
+#: /home/live/opencode/lokit/main.go:579
+#: /home/live/opencode/lokit/main.go:622
+msgid "Source strings"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:450
+#: /home/live/opencode/lokit/main.go:479
+#: /home/live/opencode/lokit/main.go:518
+#: /home/live/opencode/lokit/main.go:583
+#: /home/live/opencode/lokit/main.go:626
+#: /home/live/opencode/lokit/main.go:686
+#: /home/live/opencode/lokit/main.go:731
+msgid "Done"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:450
+#: /home/live/opencode/lokit/main.go:479
+#: /home/live/opencode/lokit/main.go:518
+#: /home/live/opencode/lokit/main.go:583
+#: /home/live/opencode/lokit/main.go:626
+#: /home/live/opencode/lokit/main.go:686
+#: /home/live/opencode/lokit/main.go:731
+msgid "Lang"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:450
+#: /home/live/opencode/lokit/main.go:479
+#: /home/live/opencode/lokit/main.go:626
+#: /home/live/opencode/lokit/main.go:686
+msgid "Fuzzy"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:450
+#: /home/live/opencode/lokit/main.go:518
+#: /home/live/opencode/lokit/main.go:583
+#: /home/live/opencode/lokit/main.go:626
+#: /home/live/opencode/lokit/main.go:731
+msgid "Left"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:450
+#: /home/live/opencode/lokit/main.go:479
+#: /home/live/opencode/lokit/main.go:518
+#: /home/live/opencode/lokit/main.go:583
+#: /home/live/opencode/lokit/main.go:626
+#: /home/live/opencode/lokit/main.go:686
+#: /home/live/opencode/lokit/main.go:731
+msgid "Progress"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:457
+#: /home/live/opencode/lokit/main.go:487
+#: /home/live/opencode/lokit/main.go:526
+#: /home/live/opencode/lokit/main.go:591
+#: /home/live/opencode/lokit/main.go:642
+#: /home/live/opencode/lokit/main.go:694
+#: /home/live/opencode/lokit/main.go:743
+#: /home/live/opencode/lokit/main.go:786
+msgid "missing"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:475
+msgid "po4a config"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:479
+#: /home/live/opencode/lokit/main.go:686
+msgid "Total"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:505
+msgid "Translations"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:510
+#: /home/live/opencode/lokit/main.go:575
+msgid "Source"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:514
+#: /home/live/opencode/lokit/main.go:726
+msgid "Source keys"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:546
+#: /home/live/opencode/lokit/main.go:827
+msgid "Blog Posts (%d posts)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:571
+msgid "Res dir"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:617
+msgid "No translatable strings found in %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:621
+msgid "Translation Statistics"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:662
+msgid "Translation gaps:"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:683
+msgid "Documentation Statistics"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:713
+msgid "No language files detected in %s"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:724
+msgid "UI Translation Statistics"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:773
+msgid "Recipe Translations"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:858
+msgid "Prepare translation files (extract strings, create/update PO)"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:975
+msgid "Android targets do not require init — use 'lokit translate' directly."
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:984
+#: /home/live/opencode/lokit/main.go:2012
+msgid "Cannot read source language file %s: %v"
+msgstr ""
+
+#: /home/live/opencode/lokit/main.go:989
+msgid "Source language (%s): %d keys"
+msgstr ""
+

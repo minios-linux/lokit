@@ -5,6 +5,7 @@
 *.so
 *.dylib
 lokit
+lokit-upx
 
 # Test binary, built with `go test -c`
 *.test
@@ -40,3 +41,8 @@ auth.json
 
 # Test/example projects
 minios-live/
+
+# Generated locale files (built from po/*.po by make i18n-sync)
+# en/ kept in git as fallback for bare "go build" without make
+i18n/locales/*/
+!i18n/locales/en/

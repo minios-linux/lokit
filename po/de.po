@@ -1,0 +1,1804 @@
+# Translations for lokit CLI.
+# Copyright (C) 2026 
+# This file is distributed under the same license as the lokit CLI package.
+msgid ""
+msgstr ""
+"Project-Id-Version: lokit CLI \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-17 16:18+0000\n"
+"PO-Revision-Date: 2026-02-17 16:18+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: main.go:1012
+msgid "Android targets do not require init — use 'lokit translate' directly."
+msgstr "Android-Ziele benötigen keine Initialisierung — verwenden Sie direkt 'lokit translate'."
+
+#: main.go:1021
+#: main.go:2125
+msgid "Cannot read source language file %s: %v"
+msgstr "Quelldatei der Sprache %s kann nicht gelesen werden: %v"
+
+#: main.go:1026
+msgid "Source language (%s): %d keys"
+msgstr "Quellsprache (%s): %d Schlüssel"
+
+#: main.go:1052
+#: main.go:1292
+#: main.go:3260
+msgid "Creating %s: %v"
+msgstr "%s wird erstellt: %v"
+
+#: main.go:1055
+msgid "Created: %s (%d keys)"
+msgstr "Erstellt: %s (%d Schlüssel)"
+
+#: main.go:1071
+#: main.go:1670
+msgid "Updating %s: %v"
+msgstr "%s wird aktualisiert: %v"
+
+#: main.go:1074
+msgid "Updated: %s (+%d new keys)"
+msgstr "Aktualisiert: %s (+%d neue Schlüssel)"
+
+#: main.go:1077
+msgid "%s: up to date"
+msgstr "%s: aktuell"
+
+#: main.go:1081
+#: main.go:1314
+msgid "Summary: %d created, %d updated"
+msgstr "Übersicht: %d erstellt, %d aktualisiert"
+
+#: main.go:1084
+#: main.go:1243
+#: main.go:1320
+msgid "Init complete!"
+msgstr "Initialisierung abgeschlossen!"
+
+#: main.go:1097
+msgid "pandoc not found, skipping manpage generation from markdown"
+msgstr "pandoc nicht gefunden, Manpage-Generierung aus Markdown wird übersprungen"
+
+#: main.go:1112
+msgid "failed to list markdown files: %w"
+msgstr "Fehler beim Auflisten der Markdown-Dateien: %w"
+
+#: main.go:1145
+msgid "Generating %s from %s"
+msgstr "%s wird aus %s generiert"
+
+#: main.go:1150
+msgid "pandoc failed for %s: %w"
+msgstr "Pandoc-Fehler für %s: %w"
+
+#: main.go:1155
+msgid "Failed to post-process %s: %v"
+msgstr "%s konnte nicht nachbearbeitet werden: %v"
+
+#: main.go:1162
+msgid "Generated %d manpage(s) from markdown"
+msgstr "%d Manpage(s) aus Markdown generiert"
+
+#: main.go:1197
+msgid "po4a is not installed. Install with: sudo apt install po4a"
+msgstr "po4a ist nicht installiert. Installieren Sie es mit: sudo apt install po4a"
+
+#: main.go:1202
+msgid "Failed to generate manpages from markdown: %v"
+msgstr "Manpages konnten nicht aus Markdown generiert werden: %v"
+
+#: main.go:1203
+msgid "Continuing anyway, po4a might fail if source files don't exist"
+msgstr "Fortsetzung trotzdem, po4a könnte fehlschlagen, wenn Quelldateien fehlen"
+
+#: main.go:1206
+msgid "Running po4a --no-translations %s ..."
+msgstr "Führe po4a --no-translations %s aus ..."
+
+#: main.go:1212
+msgid "po4a failed: %v"
+msgstr "po4a fehlgeschlagen: %v"
+
+#: main.go:1214
+msgid "po4a updated POT and PO files"
+msgstr "po4a hat POT- und PO-Dateien aktualisiert"
+
+#: main.go:1256
+#: main.go:1300
+#: main.go:1747
+#: main.go:1881
+msgid "Reading %s: %v"
+msgstr "%s wird gelesen: %v"
+
+#: main.go:1260
+msgid "Updating PO files for: %s"
+msgstr "PO-Dateien werden aktualisiert für: %s"
+
+#: main.go:1268
+#: main.go:3255
+msgid "Creating directory for %s: %v"
+msgstr "Verzeichnis für %s wird erstellt: %v"
+
+#: main.go:128
+msgid "Localization Kit: AI-powered translation for multiple formats"
+msgstr "Localization Kit: KI-gestützte Übersetzung für mehrere Formate"
+
+#: main.go:129
+msgid ""
+"lokit — Localization Kit: AI-powered translation for multiple formats.\n"
+"\n"
+"Supported project types (auto-detected or configured via .lokit.yaml):\n"
+"  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
+"  po4a        Documentation translation (man pages, groff/roff markup)\n"
+"  i18next     React/i18next JSON translation files\n"
+"  android     Android strings.xml resource files\n"
+"  json        Generic JSON translation files (recipes, blog posts)\n"
+"\n"
+"Configuration:\n"
+"  Project settings are defined in .lokit.yaml at the project root.\n"
+"  Each project can have multiple translation targets with different types.\n"
+"  See project examples for .lokit.yaml format.\n"
+"\n"
+"Custom prompts:\n"
+"  AI translation prompts are loaded from ~/.local/share/lokit/prompts.json\n"
+"  (or $XDG_DATA_HOME/lokit/prompts.json). If the file does not exist,\n"
+"  built-in defaults are used. Prompt types: default, docs, i18next,\n"
+"  recipe, blogpost, android. Use {{targetLang}} as a placeholder for\n"
+"  the target language name.\n"
+"\n"
+"AI Providers:\n"
+"  google         Google AI (Gemini) — API key\n"
+"  gemini         Gemini Code Assist — browser OAuth (free)\n"
+"  groq           Groq — API key required\n"
+"  opencode       OpenCode (multi-format dispatcher)\n"
+"  copilot        GitHub Copilot (native OAuth, free)\n"
+"  ollama         Ollama local server\n"
+"  custom-openai  Custom OpenAI-compatible endpoint"
+msgstr ""
+"lokit — Localization Kit: KI-gestützte Übersetzung für verschiedene Formate.\n"
+"\n"
+"Unterstützte Projekttypen (automatisch erkannt oder über .lokit.yaml konfiguriert):\n"
+"  gettext     Flache (po/*.po) und verschachtelte (po/lang/*.po) PO-Dateien\n"
+"  po4a        Dokumentationsübersetzung (Manpages, groff/roff-Markup)\n"
+"  i18next     React/i18next JSON-Übersetzungsdateien\n"
+"  android     Android strings.xml Ressourcen-Dateien\n"
+"  json        Allgemeine JSON-Übersetzungsdateien (Rezepte, Blogposts)\n"
+"\n"
+"Konfiguration:\n"
+"  Projekteinstellungen werden in .lokit.yaml im Projektstamm definiert.\n"
+"  Jedes Projekt kann mehrere Übersetzungsziele mit unterschiedlichen Typen haben.\n"
+"  Siehe Projektbeispiele für das .lokit.yaml-Format.\n"
+"\n"
+"Eigene Prompts:\n"
+"  KI-Übersetzungsprompts werden aus ~/.local/share/lokit/prompts.json\n"
+"  (oder $XDG_DATA_HOME/lokit/prompts.json) geladen. Falls die Datei nicht existiert,\n"
+"  werden eingebaute Standardwerte verwendet. Prompt-Typen: default, docs, i18next,\n"
+"  recipe, blogpost, android. Verwenden Sie {{targetLang}} als Platzhalter für\n"
+"  den Zielsprachennamen.\n"
+"\n"
+"KI-Anbieter:\n"
+"  google         Google AI (Gemini) — API-Schlüssel\n"
+"  gemini         Gemini Code Assist — Browser-OAuth (kostenlos)\n"
+"  groq           Groq — API-Schlüssel erforderlich\n"
+"  opencode       OpenCode (Multi-Format-Dispatcher)\n"
+"  copilot        GitHub Copilot (native OAuth, kostenlos)\n"
+"  ollama         Ollama lokaler Server\n"
+"  custom-openai  Benutzerdefinierter OpenAI-kompatibler Endpunkt"
+
+#: main.go:1295
+msgid "Created: %s"
+msgstr "Erstellt: %s"
+
+#: main.go:1306
+msgid "Writing %s: %v"
+msgstr "%s wird geschrieben: %v"
+
+#: main.go:1309
+msgid "Updated: %s"
+msgstr "Aktualisiert: %s"
+
+#: main.go:1359
+msgid "Translate files using AI"
+msgstr "Dateien mit KI übersetzen"
+
+#: main.go:1360
+msgid ""
+"Translate files using AI providers.\n"
+"\n"
+"Supports gettext PO, po4a, i18next JSON, Android strings.xml, and generic\n"
+"JSON formats. Project type is auto-detected or configured via .lokit.yaml.\n"
+"\n"
+"For gettext/po4a projects, automatically initializes if needed (extracts\n"
+"strings, creates PO files). Requires --provider and --model flags.\n"
+"\n"
+"Custom prompts are loaded from ~/.local/share/lokit/prompts.json (or\n"
+"$XDG_DATA_HOME/lokit/prompts.json). Each project type uses its own prompt\n"
+"template (default, docs, i18next, recipe, blogpost, android). If the file\n"
+"does not exist, built-in defaults are used. The --prompt flag overrides\n"
+"the loaded prompt for the current run.\n"
+"\n"
+"Examples:\n"
+"  # Translate a gettext project using GitHub Copilot (free)\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # Translate an Android project using Gemini (free, OAuth)\n"
+"  lokit translate --provider gemini --model gemini-2.5-flash\n"
+"\n"
+"  # Translate an i18next project using Google AI (API key)\n"
+"  lokit translate --provider google --model gemini-2.5-flash\n"
+"\n"
+"  # Translate specific languages in parallel\n"
+"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
+"\n"
+"  # Re-translate everything with a custom prompt\n"
+"  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
+"    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
+"\n"
+"  # Dry run (show what would be translated)\n"
+"  lokit translate --provider copilot --model gpt-4o --dry-run"
+msgstr ""
+"Dateien mit KI-Anbietern übersetzen.\n"
+"\n"
+"Unterstützt gettext PO, po4a, i18next JSON, Android strings.xml und generische\n"
+"JSON-Formate. Der Projekttyp wird automatisch erkannt oder über .lokit.yaml festgelegt.\n"
+"\n"
+"Für gettext/po4a-Projekte wird bei Bedarf automatisch initialisiert (Strings extrahieren,\n"
+"PO-Dateien erstellen). Benötigt die Flags --provider und --model.\n"
+"\n"
+"Eigene Prompts werden aus ~/.local/share/lokit/prompts.json (oder\n"
+"$XDG_DATA_HOME/lokit/prompts.json) geladen. Jeder Projekttyp nutzt eine eigene Prompt-Vorlage\n"
+"(default, docs, i18next, recipe, blogpost, android). Wenn die Datei nicht existiert, werden\n"
+"Standardwerte verwendet. Das --prompt-Flag überschreibt das geladene Prompt für den aktuellen Lauf.\n"
+"\n"
+"Beispiele:\n"
+"  # Ein gettext-Projekt mit GitHub Copilot (kostenlos) übersetzen\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # Ein Android-Projekt mit Gemini (kostenlos, OAuth) übersetzen\n"
+"  lokit translate --provider gemini --model gemini-2.5-flash\n"
+"\n"
+"  # Ein i18next-Projekt mit Google AI (API-Schlüssel) übersetzen\n"
+"  lokit translate --provider google --model gemini-2.5-flash\n"
+"\n"
+"  # Bestimmte Sprachen parallel übersetzen\n"
+"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
+"\n"
+"  # Alles mit einem eigenen Prompt neu übersetzen\n"
+"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
+"\n"
+"  # Probelauf (zeigt, was übersetzt würde)\n"
+"  lokit translate --provider copilot --model gpt-4o --dry-run"
+
+#: main.go:1408
+msgid "AI provider (required): google, gemini, groq, opencode, copilot, ollama, custom-openai"
+msgstr "KI-Anbieter (erforderlich): google, gemini, groq, opencode, copilot, ollama, custom-openai"
+
+#: main.go:1409
+msgid "Model name (required)"
+msgstr "Modellname (erforderlich)"
+
+#: main.go:1410
+msgid "API key (or LOKIT_API_KEY env var)"
+msgstr "API-Schlüssel (oder LOKIT_API_KEY Umgebungsvariable)"
+
+#: main.go:1411
+msgid "Custom API base URL"
+msgstr "Benutzerdefinierte API-Basis-URL"
+
+#: main.go:1414
+msgid "Languages to translate (comma-separated, default: all with untranslated)"
+msgstr "Zu übersetzende Sprachen (kommagetrennt, Standard: alle mit nicht übersetzten Einträgen)"
+
+#: main.go:1417
+msgid "Entries per API request (0 = all at once)"
+msgstr "Einträge pro API-Anfrage (0 = alle auf einmal)"
+
+#: main.go:1418
+msgid "Re-translate already translated entries"
+msgstr "Bereits übersetzte Einträge erneut übersetzen"
+
+#: main.go:1419
+msgid "Translate fuzzy entries and clear fuzzy flag"
+msgstr "Fuzzy-Einträge übersetzen und Fuzzy-Flag entfernen"
+
+#: main.go:1420
+msgid "Custom system prompt (use {{targetLang}} placeholder)"
+msgstr "Benutzerdefiniertes System-Prompt (nutze {{targetLang}} als Platzhalter)"
+
+#: main.go:1421
+msgid "Enable detailed logging"
+msgstr "Detailliertes Logging aktivieren"
+
+#: main.go:1422
+msgid "Show what would be translated without calling AI"
+msgstr "Anzeigen, was übersetzt würde, ohne KI-Aufruf"
+
+#: main.go:1425
+msgid "Enable parallel translation"
+msgstr "Parallele Übersetzung aktivieren"
+
+#: main.go:1426
+msgid "Maximum concurrent tasks (with --parallel)"
+msgstr "Maximale gleichzeitige Aufgaben (mit --parallel)"
+
+#: main.go:1427
+msgid "Delay between parallel tasks"
+msgstr "Verzögerung zwischen parallelen Aufgaben"
+
+#: main.go:1430
+msgid "Request timeout (0 = provider default)"
+msgstr "Anfrage-Timeout (0 = Standardwert des Anbieters)"
+
+#: main.go:1431
+msgid "HTTP/HTTPS proxy URL"
+msgstr "HTTP/HTTPS Proxy-URL"
+
+#: main.go:1432
+msgid "Maximum retries on rate limit (429)"
+msgstr "Maximale Wiederholungen bei Rate-Limit (429)"
+
+#: main.go:1437
+msgid "Google AI (Gemini) — API key required"
+msgstr "Google AI (Gemini) — API-Schlüssel erforderlich"
+
+#: main.go:1438
+msgid "Gemini Code Assist — browser OAuth (free)"
+msgstr "Gemini Code Assist — Browser-OAuth (kostenlos)"
+
+#: main.go:1439
+msgid "Groq — API key required"
+msgstr "Groq — API-Schlüssel erforderlich"
+
+#: main.go:1440
+msgid "OpenCode — optional API key"
+msgstr "OpenCode — API-Schlüssel optional"
+
+#: main.go:1441
+msgid "GitHub Copilot — native OAuth (free)"
+msgstr "GitHub Copilot — native OAuth (kostenlos)"
+
+#: main.go:1442
+msgid "Ollama local server"
+msgstr "Ollama lokaler Server"
+
+#: main.go:1443
+msgid "Custom OpenAI-compatible endpoint"
+msgstr "Benutzerdefinierter OpenAI-kompatibler Endpunkt"
+
+#: main.go:1514
+msgid ""
+"No provider specified. Use --provider to choose an AI translation service.\n"
+"\n"
+msgstr ""
+"Kein Provider angegeben. Verwenden Sie --provider, um einen KI-Übersetzungsdienst auszuwählen.\n"
+"\n"
+
+#: main.go:1532
+msgid "No targets defined in .lokit.yaml"
+msgstr "Keine Ziele in .lokit.yaml definiert"
+
+#: main.go:1544
+#: main.go:2272
+msgid "Interrupted, saving progress..."
+msgstr "Unterbrochen, Fortschritt wird gespeichert..."
+
+#: main.go:1571
+msgid "[%s] No languages to translate, skipping"
+msgstr "[%s] Keine Sprachen zum Übersetzen, überspringe"
+
+#: main.go:1580
+#: main.go:1586
+#: main.go:1592
+#: main.go:1598
+#: main.go:1604
+msgid "[%s] %v"
+msgstr "[%s] %v"
+
+#: main.go:1609
+msgid "[%s] Unknown target type %q, skipping"
+msgstr "[%s] Unbekannter Zieltyp %q, überspringe"
+
+#: main.go:1614
+#: main.go:2536
+msgid "Translation completed with errors"
+msgstr "Übersetzung abgeschlossen mit Fehlern"
+
+#: main.go:1617
+msgid "All targets translated!"
+msgstr "Alle Ziele übersetzt!"
+
+#: main.go:164
+msgid "Warning: Failed to load prompts: %v"
+msgstr "Warnung: Prompts konnten nicht geladen werden: %v"
+
+#: main.go:1651
+msgid "Extracting strings and updating PO files..."
+msgstr "Strings werden extrahiert und PO-Dateien aktualisiert..."
+
+#: main.go:1653
+msgid "Extraction failed: %v"
+msgstr "Extraktion fehlgeschlagen: %v"
+
+#: main.go:1654
+msgid "Continuing with existing PO files"
+msgstr "Fortfahren mit bestehenden PO-Dateien"
+
+#: main.go:166
+msgid "Loaded prompts from %s"
+msgstr "Prompts geladen aus %s"
+
+#: main.go:1676
+#: main.go:1782
+#: main.go:1913
+#: main.go:1941
+#: main.go:1962
+#: main.go:2176
+msgid "Provider: %s (%s), Model: %s"
+msgstr "Provider: %s (%s), Modell: %s"
+
+#: main.go:1678
+#: main.go:1964
+#: main.go:2178
+msgid "Parallel: enabled, max concurrent: %d"
+msgstr "Parallel: aktiviert, max. gleichzeitig: %d"
+
+#: main.go:1681
+#: main.go:1967
+msgid "Chunk size: %d"
+msgstr "Chunk-Größe: %d"
+
+#: main.go:1683
+#: main.go:1784
+msgid "PO dir: %s"
+msgstr "PO-Verzeichnis: %s"
+
+#: main.go:1684
+#: main.go:1785
+#: main.go:1915
+#: main.go:1943
+#: main.go:1970
+msgid "Translating: %s"
+msgstr "Übersetze: %s"
+
+#: main.go:1692
+#: main.go:1793
+#: main.go:2003
+#: main.go:2210
+msgid "%s (%s): %d strings to translate"
+msgstr "%s (%s): %d zu übersetzende Strings"
+
+#: main.go:1694
+msgid "%s: PO file not found, will be created"
+msgstr "%s: PO-Datei nicht gefunden, wird erstellt"
+
+#: main.go:1720
+#: main.go:1820
+#: main.go:2033
+#: main.go:2290
+msgid "  %s: %d/%d"
+msgstr "  %s: %d/%d"
+
+#: main.go:173
+msgid "default"
+msgstr "Standard"
+
+#: main.go:176
+msgid "Use \"%s [command] --help\" for more information about a command."
+msgstr "Verwenden Sie \"%s [Befehl] --help\" für weitere Informationen zu einem Befehl."
+
+#: main.go:1769
+#: main.go:1902
+#: main.go:2083
+msgid "[%s] All translations complete!"
+msgstr "[%s] Alle Übersetzungen abgeschlossen!"
+
+#: main.go:1783
+msgid "po4a config: %s"
+msgstr "po4a-Konfiguration: %s"
+
+#: main.go:1795
+msgid "%s: PO file not found at %s"
+msgstr "%s: PO-Datei nicht gefunden unter %s"
+
+#: main.go:182
+msgid "Usage:"
+msgstr "Verwendung:"
+
+#: main.go:1835
+msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
+msgstr "Verwende dokumentationsspezifischen Übersetzungs-Prompt (groff/man Markup-Erhaltung)"
+
+#: main.go:1847
+msgid "PO files missing, running po4a initialization..."
+msgstr "PO-Dateien fehlen, po4a-Initialisierung wird ausgeführt..."
+
+#: main.go:186
+msgid "Aliases:"
+msgstr "Aliasse:"
+
+#: main.go:1867
+msgid "auto-init failed: %v"
+msgstr "Automatische Initialisierung fehlgeschlagen: %v"
+
+#: main.go:1878
+msgid "[%s] No PO file for %s at %s, skipping"
+msgstr "[%s] Keine PO-Datei für %s unter %s, übersprungen"
+
+#: main.go:189
+msgid "Examples:"
+msgstr "Beispiele:"
+
+#: main.go:1914
+#: main.go:1942
+msgid "Translations dir: %s"
+msgstr "Übersetzungsverzeichnis: %s"
+
+#: main.go:192
+msgid "Available Commands:"
+msgstr "Verfügbare Befehle:"
+
+#: main.go:1969
+msgid "Res dir: %s"
+msgstr "Res-Verzeichnis: %s"
+
+#: main.go:1976
+msgid "cannot read source strings.xml %s: %w"
+msgstr "Kann source strings.xml %s nicht lesen: %w"
+
+#: main.go:1979
+msgid "Source strings: %d"
+msgstr "Quellstrings: %d"
+
+#: main.go:198
+msgid "Additional Commands:"
+msgstr "Weitere Befehle:"
+
+#: main.go:1990
+#: main.go:2198
+msgid "%s (%s): %d strings to translate (file will be auto-created)"
+msgstr "%s (%s): %d zu übersetzende Strings (Datei wird automatisch erstellt)"
+
+#: main.go:201
+msgid "Flags:"
+msgstr "Flags:"
+
+#: main.go:204
+msgid "Global Flags:"
+msgstr "Globale Flags:"
+
+#: main.go:2051
+msgid "Auto-creating %s with %d strings"
+msgstr "%s wird automatisch mit %d Strings erstellt"
+
+#: main.go:2056
+msgid "Added %d new strings to %s"
+msgstr "%d neue Strings zu %s hinzugefügt"
+
+#: main.go:207
+msgid "Additional help topics:"
+msgstr "Weitere Hilfethemen:"
+
+#: main.go:216
+msgid "Help about any command"
+msgstr "Hilfe zu jedem Befehl"
+
+#: main.go:2166
+msgid "All UI translations are complete!"
+msgstr "Alle UI-Übersetzungen sind abgeschlossen!"
+
+#: main.go:217
+msgid ""
+"Help provides help for any command in the application.\n"
+"Simply type %s help [path to command] for full details."
+msgstr ""
+"Die Hilfe bietet Unterstützung zu jedem Befehl in der Anwendung.\n"
+"Geben Sie einfach %s help [Pfad zum Befehl] ein, um alle Details zu erhalten."
+
+#: main.go:2180
+msgid "Parallel: disabled (sequential)"
+msgstr "Parallel: deaktiviert (sequenziell)"
+
+#: main.go:2182
+msgid "Source keys (%s): %d"
+msgstr "Quellschlüssel (%s): %d"
+
+#: main.go:2185
+msgid "Translating UI strings: %s"
+msgstr "UI-Strings werden übersetzt: %s"
+
+#: main.go:2220
+msgid "%s: recipe translations directory not found"
+msgstr "%s: Verzeichnis für Rezeptübersetzungen nicht gefunden"
+
+#: main.go:2233
+msgid "%s: %d recipe files need translation"
+msgstr "%s: %d Rezeptdateien müssen übersetzt werden"
+
+#: main.go:2239
+#: main.go:2446
+msgid "No blog posts found in %s"
+msgstr "Keine Blogbeiträge in %s gefunden"
+
+#: main.go:2254
+msgid "%s: %d blog post(s) need translation"
+msgstr "%s: %d Blogbeitrag/Beiträge müssen übersetzt werden"
+
+#: main.go:2256
+msgid "%s: all blog posts translated"
+msgstr "%s: alle Blogbeiträge übersetzt"
+
+#: main.go:2321
+msgid "Auto-creating %s with %d keys"
+msgstr "%s wird automatisch mit %d Schlüsseln erstellt"
+
+#: main.go:2341
+#: main.go:2428
+#: main.go:2525
+msgid "Translation interrupted, partial progress saved"
+msgstr "Übersetzung unterbrochen, Fortschritt teilweise gespeichert"
+
+#: main.go:2344
+msgid "UI translation failed: %v"
+msgstr "UI-Übersetzung fehlgeschlagen: %v"
+
+#: main.go:2352
+msgid "Translating recipe metadata..."
+msgstr "Rezept-Metadaten werden übersetzt..."
+
+#: main.go:2369
+msgid "Cannot read recipe directory for %s: %v"
+msgstr "Rezeptverzeichnis für %s kann nicht gelesen werden: %v"
+
+#: main.go:239
+msgid ""
+"Unknown help topic %q\n"
+msgstr ""
+"Unbekanntes Hilfethema %q\n"
+
+#: main.go:2417
+msgid "  %s: all recipe translations complete"
+msgstr "  %s: alle Rezeptübersetzungen abgeschlossen"
+
+#: main.go:2421
+msgid "  %s (%s): %d recipe files to translate"
+msgstr "  %s (%s): %d Rezeptdateien zu übersetzen"
+
+#: main.go:2431
+msgid "Recipe translation failed for %s: %v"
+msgstr "Rezeptübersetzung für %s fehlgeschlagen: %v"
+
+#: main.go:2439
+msgid "Translating blog posts..."
+msgstr "Blogbeiträge werden übersetzt..."
+
+#: main.go:2465
+msgid "Cannot read source blog post %s: %v"
+msgstr "Quell-Blogbeitrag %s kann nicht gelesen werden: %v"
+
+#: main.go:2477
+msgid "Error parsing %s, will recreate: %v"
+msgstr "Fehler beim Parsen von %s, wird neu erstellt: %v"
+
+#: main.go:249
+msgid "Project root directory"
+msgstr "Projekt-Stammverzeichnis"
+
+#: main.go:2514
+msgid "  %s: all blog posts translated"
+msgstr "  %s: alle Blogbeiträge übersetzt"
+
+#: main.go:2518
+msgid "  %s (%s): %d blog post(s) to translate"
+msgstr "  %s (%s): %d Blogbeitrag/Beiträge zu übersetzen"
+
+#: main.go:2528
+msgid "Blog post translation failed for %s: %v"
+msgstr "Blogbeitragsübersetzung für %s fehlgeschlagen: %v"
+
+#: main.go:2539
+msgid "Translation complete!"
+msgstr "Übersetzung abgeschlossen!"
+
+#: main.go:2549
+msgid "Manage provider authentication"
+msgstr "Provider-Authentifizierung verwalten"
+
+#: main.go:2550
+msgid ""
+"Manage authentication credentials for all AI providers.\n"
+"\n"
+"OAuth providers (interactive browser/device flow):\n"
+"  copilot       GitHub Copilot (device code flow, free with GitHub account)\n"
+"  gemini        Google Gemini Code Assist (browser OAuth, free tier: 60 req/min)\n"
+"\n"
+"API key providers (paste your key):\n"
+"  google        Google AI Studio (Gemini API key)\n"
+"  groq          Groq Cloud (free tier available)\n"
+"  opencode      OpenCode proxy\n"
+"  custom-openai Custom OpenAI-compatible endpoint\n"
+"\n"
+"No auth required:\n"
+"  ollama        Local Ollama server\n"
+"\n"
+"Examples:\n"
+"  lokit auth login                         Interactive provider selection\n"
+"  lokit auth login --provider copilot      OAuth with GitHub Copilot\n"
+"  lokit auth login --provider google       Store Google AI API key\n"
+"  lokit auth logout --provider google      Remove Google API key\n"
+"  lokit auth logout                        Remove all credentials\n"
+"  lokit auth list                          Show all stored credentials"
+msgstr ""
+"Verwalte Authentifizierungsdaten für alle KI-Anbieter.\n"
+"\n"
+"OAuth-Anbieter (interaktiver Browser-/Geräte-Flow):\n"
+"  copilot       GitHub Copilot (Gerätecode-Flow, kostenlos mit GitHub-Konto)\n"
+"  gemini        Google Gemini Code Assist (Browser-OAuth, kostenloses Kontingent: 60 Anfragen/Min)\n"
+"\n"
+"API-Key-Anbieter (API-Key einfügen):\n"
+"  google        Google AI Studio (Gemini API-Schlüssel)\n"
+"  groq          Groq Cloud (kostenloses Kontingent verfügbar)\n"
+"  opencode      OpenCode Proxy\n"
+"  custom-openai Benutzerdefinierter OpenAI-kompatibler Endpunkt\n"
+"\n"
+"Keine Authentifizierung erforderlich:\n"
+"  ollama        Lokaler Ollama-Server\n"
+"\n"
+"Beispiele:\n"
+"  lokit auth login                         Interaktive Anbieterauswahl\n"
+"  lokit auth login --provider copilot      OAuth mit GitHub Copilot\n"
+"  lokit auth login --provider google       Google AI API-Schlüssel speichern\n"
+"  lokit auth logout --provider google      Google API-Schlüssel entfernen\n"
+"  lokit auth logout                        Alle Zugangsdaten entfernen\n"
+"  lokit auth list                          Alle gespeicherten Zugangsdaten anzeigen"
+
+#: main.go:2604
+msgid "Authenticate with an AI provider"
+msgstr "Mit einem KI-Provider authentifizieren"
+
+#: main.go:2605
+msgid ""
+"Authenticate with an AI provider using OAuth or API key.\n"
+"\n"
+"If --provider is not specified, you will be prompted to choose.\n"
+"\n"
+"OAuth providers:\n"
+"  copilot       Device code flow — enter code in browser\n"
+"  gemini        Browser-based OAuth — sign in with Google\n"
+"\n"
+"API key providers:\n"
+"  google        Paste your Google AI Studio API key\n"
+"  groq          Paste your Groq API key\n"
+"  opencode      Paste your OpenCode API key\n"
+"  custom-openai Paste your API key + endpoint URL"
+msgstr ""
+"Mit einem KI-Anbieter über OAuth oder API-Schlüssel authentifizieren.\n"
+"\n"
+"Wenn --provider nicht angegeben ist, erfolgt eine Auswahlaufforderung.\n"
+"\n"
+"OAuth-Anbieter:\n"
+"  copilot       Gerätecode-Flow — Code im Browser eingeben\n"
+"  gemini        Browserbasierte OAuth — Mit Google anmelden\n"
+"\n"
+"API-Key-Anbieter:\n"
+"  google        Google AI Studio API-Schlüssel einfügen\n"
+"  groq          Groq API-Schlüssel einfügen\n"
+"  opencode      OpenCode API-Schlüssel einfügen\n"
+"  custom-openai API-Schlüssel + Endpunkt-URL einfügen"
+
+#: main.go:2621
+msgid "Select provider to authenticate"
+msgstr "Provider zur Authentifizierung auswählen"
+
+#: main.go:2630
+msgid "OAuth"
+msgstr "OAuth"
+
+#: main.go:2632
+msgid "API key"
+msgstr "API-Schlüssel"
+
+#: main.go:2638
+msgid "Enter choice (number or name):"
+msgstr "Auswahl eingeben (Nummer oder Name):"
+
+#: main.go:2642
+#: main.go:2850
+#: main.go:2889
+#: main.go:2911
+msgid "No input received"
+msgstr "Keine Eingabe erhalten"
+
+#: main.go:2662
+msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
+msgstr "Ungültige Auswahl. Verwenden Sie: lokit auth login --provider PROVIDER"
+
+#: main.go:267
+msgid "this command"
+msgstr "dieser Befehl"
+
+#: main.go:2687
+msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
+msgstr "Unbekannter Provider '%s'. Führen Sie 'lokit auth login' für Optionen aus."
+
+#: main.go:269
+msgid "help for %s"
+msgstr "Hilfe für %s"
+
+#: main.go:2693
+msgid "Provider to authenticate"
+msgstr "Anbieter zur Authentifizierung"
+
+#: main.go:2709
+msgid "GitHub Copilot Authentication"
+msgstr "GitHub Copilot-Authentifizierung"
+
+#: main.go:2712
+msgid "Open this URL in your browser:"
+msgstr "Öffnen Sie diese URL in Ihrem Browser:"
+
+#: main.go:2714
+msgid "Enter this code:"
+msgstr "Geben Sie diesen Code ein:"
+
+#: main.go:2716
+#: main.go:2740
+msgid "Waiting for authorization..."
+msgstr "Warte auf Autorisierung..."
+
+#: main.go:2720
+#: main.go:2744
+msgid "Authentication cancelled"
+msgstr "Authentifizierung abgebrochen"
+
+#: main.go:2723
+#: main.go:2747
+msgid "Authentication failed: %v"
+msgstr "Authentifizierung fehlgeschlagen: %v"
+
+#: main.go:2727
+msgid "Copilot authentication successful!"
+msgstr "Copilot-Authentifizierung erfolgreich!"
+
+#: main.go:2728
+msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
+msgstr "Sie können jetzt verwenden: lokit translate --provider copilot --model gpt-4o"
+
+#: main.go:2733
+msgid "Google Gemini Authentication"
+msgstr "Google Gemini-Authentifizierung"
+
+#: main.go:2736
+msgid "Opening browser for Google sign-in..."
+msgstr "Browser wird für die Google-Anmeldung geöffnet..."
+
+#: main.go:2738
+msgid "If the browser doesn't open, visit:"
+msgstr "Falls sich der Browser nicht öffnet, besuchen Sie:"
+
+#: main.go:2752
+msgid "Gemini authentication successful!"
+msgstr "Gemini-Authentifizierung erfolgreich!"
+
+#: main.go:2758
+msgid "Token was saved but cannot be loaded"
+msgstr "Token wurde gespeichert, kann aber nicht geladen werden"
+
+#: main.go:2764
+msgid "Gemini Code Assist requires a GCP project ID to work in your region."
+msgstr "Gemini Code Assist benötigt eine GCP-Projekt-ID, um in Ihrer Region zu funktionieren."
+
+#: main.go:2765
+msgid "Find your project ID at: https://console.cloud.google.com"
+msgstr "Ihre Projekt-ID finden Sie unter: https://console.cloud.google.com"
+
+#: main.go:2766
+msgid "(Create a project if you don't have one, then enable the Gemini API)"
+msgstr "(Erstellen Sie ein Projekt, falls Sie noch keines haben, und aktivieren Sie anschließend die Gemini API)"
+
+#: main.go:2768
+msgid "GCP Project ID (or press Enter to skip):"
+msgstr "GCP-Projekt-ID (oder Enter zum Überspringen):"
+
+#: main.go:2780
+#: main.go:2792
+msgid "Code Assist setup failed: %v"
+msgstr "Code Assist-Setup fehlgeschlagen: %v"
+
+#: main.go:2781
+msgid "Project ID saved. You can try again later."
+msgstr "Projekt-ID gespeichert. Sie können es später erneut versuchen."
+
+#: main.go:2783
+#: main.go:2796
+msgid "Code Assist project configured!"
+msgstr "Code Assist-Projekt konfiguriert!"
+
+#: main.go:2786
+msgid "Skipped. You can set it later with:"
+msgstr "Übersprungen. Sie können dies später festlegen mit:"
+
+#: main.go:2787
+msgid "  lokit auth login --provider gemini"
+msgstr "  lokit auth login --provider gemini"
+
+#: main.go:2793
+msgid "OAuth login succeeded but Code Assist onboarding failed."
+msgstr "OAuth-Anmeldung war erfolgreich, aber das Code Assist-Onboarding ist fehlgeschlagen."
+
+#: main.go:2794
+msgid "This will be retried automatically on first translate."
+msgstr "Dies wird beim ersten Übersetzen automatisch erneut versucht."
+
+#: main.go:280
+#: main.go:1231
+#: main.go:1249
+#: main.go:1521
+msgid "%v"
+msgstr "%v"
+
+#: main.go:2801
+msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr "Sie können jetzt verwenden: lokit translate --provider gemini --model gemini-2.5-flash"
+
+#: main.go:2802
+msgid "(no API key needed when authenticated via OAuth)"
+msgstr "(Kein API-Schlüssel erforderlich, wenn Sie über OAuth authentifiziert sind)"
+
+#: main.go:2832
+msgid "%s — API Key Setup"
+msgstr "%s — API-Schlüssel-Einrichtung"
+
+#: main.go:2835
+msgid "Get your API key from: %s%s%s"
+msgstr "Ihren API-Schlüssel erhalten Sie unter: %s%s%s"
+
+#: main.go:2842
+#: main.go:2904
+msgid "Current key"
+msgstr "Aktueller Schlüssel"
+
+#: main.go:2843
+msgid "Enter new key to replace, or press Enter to keep:"
+msgstr "Neuen Schlüssel eingeben, oder Enter zum Beibehalten:"
+
+#: main.go:2845
+msgid "Enter API key:"
+msgstr "API-Schlüssel eingeben:"
+
+#: main.go:2857
+msgid "Keeping existing key"
+msgstr "Vorhandener Schlüssel wird beibehalten"
+
+#: main.go:2860
+msgid "No API key provided"
+msgstr "Kein API-Schlüssel angegeben"
+
+#: main.go:2865
+msgid "Failed to save API key: %v"
+msgstr "API-Schlüssel konnte nicht gespeichert werden: %v"
+
+#: main.go:2869
+msgid "%s API key saved!"
+msgstr "%s API-Schlüssel gespeichert!"
+
+#: main.go:2870
+msgid "You can now use: %s"
+msgstr "Sie können jetzt verwenden: %s"
+
+#: main.go:2875
+msgid "Custom OpenAI-Compatible Endpoint"
+msgstr "Benutzerdefinierter OpenAI-kompatibler Endpoint"
+
+#: main.go:2882
+msgid "Current endpoint"
+msgstr "Aktueller Endpoint"
+
+#: main.go:2883
+msgid "Enter new endpoint URL, or press Enter to keep:"
+msgstr "Neue Endpunkt-URL eingeben, oder Enter zum Beibehalten:"
+
+#: main.go:2885
+msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
+msgstr "Endpunkt-URL eingeben (z. B. https://api.example.com/v1):"
+
+#: main.go:2898
+msgid "Endpoint URL is required"
+msgstr "Endpoint-URL ist erforderlich"
+
+#: main.go:2905
+msgid "Enter new API key, or press Enter to keep (leave empty for none):"
+msgstr "Neuen API-Schlüssel eingeben, oder Enter zum Beibehalten (leer lassen für keinen):"
+
+#: main.go:2907
+msgid "Enter API key (or press Enter if not required):"
+msgstr "API-Schlüssel eingeben (oder Enter, falls nicht erforderlich):"
+
+#: main.go:292
+msgid "Show version information"
+msgstr "Versionsinformationen anzeigen"
+
+#: main.go:2921
+msgid "Failed to save credentials: %v"
+msgstr "Anmeldedaten konnten nicht gespeichert werden: %v"
+
+#: main.go:2925
+msgid "Custom OpenAI endpoint saved!"
+msgstr "Benutzerdefinierter OpenAI-Endpoint gespeichert!"
+
+#: main.go:2926
+msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
+msgstr "Sie können jetzt verwenden: lokit translate --provider custom-openai --model MODEL_NAME"
+
+#: main.go:293
+msgid "Display version, commit hash, and build date."
+msgstr "Version, Commit-Hash und Build-Datum anzeigen."
+
+#: main.go:2935
+msgid "Remove stored credentials"
+msgstr "Gespeicherte Anmeldedaten entfernen"
+
+#: main.go:2936
+msgid ""
+"Remove stored credentials for one or all providers.\n"
+"\n"
+"If --provider is not specified, credentials for ALL providers are removed.\n"
+"\n"
+"Examples:\n"
+"  lokit auth logout                        Remove all credentials\n"
+"  lokit auth logout --provider copilot     Remove only Copilot OAuth\n"
+"  lokit auth logout --provider google      Remove only Google API key\n"
+"  lokit auth logout --provider gemini      Remove only Gemini OAuth"
+msgstr ""
+"Gespeicherte Zugangsdaten für einen oder alle Anbieter entfernen.\n"
+"\n"
+"Wenn --provider nicht angegeben ist, werden Zugangsdaten für ALLE Anbieter entfernt.\n"
+"\n"
+"Beispiele:\n"
+"  lokit auth logout                        Alle Zugangsdaten entfernen\n"
+"  lokit auth logout --provider copilot     Nur Copilot OAuth entfernen\n"
+"  lokit auth logout --provider google      Nur Google API-Schlüssel entfernen\n"
+"  lokit auth logout --provider gemini      Nur Gemini OAuth entfernen"
+
+#: main.go:295
+msgid "lokit version %s"
+msgstr "lokit Version %s"
+
+#: main.go:2951
+#: main.go:2977
+msgid "Failed to remove Copilot credentials: %v"
+msgstr "Copilot-Anmeldedaten konnten nicht entfernt werden: %v"
+
+#: main.go:2954
+msgid "Copilot credentials removed"
+msgstr "Copilot-Anmeldedaten entfernt"
+
+#: main.go:2957
+#: main.go:2981
+msgid "Failed to remove Gemini credentials: %v"
+msgstr "Gemini-Anmeldedaten konnten nicht entfernt werden: %v"
+
+#: main.go:296
+msgid "commit:"
+msgstr "commit:"
+
+#: main.go:2960
+msgid "Gemini credentials removed"
+msgstr "Gemini-Anmeldedaten entfernt"
+
+#: main.go:2963
+#: main.go:2986
+msgid "Failed to remove %s credentials: %v"
+msgstr "%s-Anmeldedaten konnten nicht entfernt werden: %v"
+
+#: main.go:2966
+msgid "%s credentials removed"
+msgstr "%s-Anmeldedaten entfernt"
+
+#: main.go:2968
+msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
+msgstr "Unbekannter Provider '%s'. Führen Sie 'lokit auth list' aus, um die verfügbaren Provider anzuzeigen."
+
+#: main.go:297
+msgid "built:"
+msgstr "gebaut:"
+
+#: main.go:2991
+msgid "All stored credentials removed"
+msgstr "Alle gespeicherten Anmeldedaten entfernt"
+
+#: main.go:2996
+msgid "Provider to logout (default: all)"
+msgstr "Anbieter zum Abmelden (Standard: alle)"
+
+#: main.go:3015
+msgid "Show stored credentials and status"
+msgstr "Gespeicherte Anmeldedaten und Status anzeigen"
+
+#: main.go:3017
+msgid "Stored Credentials"
+msgstr "Gespeicherte Anmeldedaten"
+
+#: main.go:3020
+msgid "OAuth Providers"
+msgstr "OAuth-Anbieter"
+
+#: main.go:3021
+msgid "copilot"
+msgstr "copilot"
+
+#: main.go:3022
+msgid "gemini"
+msgstr "gemini"
+
+#: main.go:3025
+msgid "API Key Providers"
+msgstr "API-Key-Anbieter"
+
+#: main.go:3038
+#: main.go:3045
+msgid "✓ configured"
+msgstr "✓ konfiguriert"
+
+#: main.go:3040
+#: main.go:3046
+msgid "endpoint:"
+msgstr "Endpunkt:"
+
+#: main.go:3045
+msgid "no key"
+msgstr "kein Schlüssel"
+
+#: main.go:3049
+msgid "not configured"
+msgstr "nicht konfiguriert"
+
+#: main.go:3054
+msgid "Environment Variables"
+msgstr "Umgebungsvariablen"
+
+#: main.go:3057
+msgid "overrides stored keys"
+msgstr "überschreibt gespeicherte Schlüssel"
+
+#: main.go:3057
+#: main.go:3059
+msgid "LOKIT_API_KEY"
+msgstr "LOKIT_API_KEY"
+
+#: main.go:3059
+msgid "not set"
+msgstr "nicht gesetzt"
+
+#: main.go:3080
+msgid "Scanning for source files in: %s"
+msgstr "Suche nach Quelldateien in: %s"
+
+#: main.go:3084
+msgid "scanning sources: %w"
+msgstr "Quellen werden gescannt: %w"
+
+#: main.go:3088
+msgid "no source files found (supported: %s)"
+msgstr "Keine Quelldateien gefunden (unterstützt: %s)"
+
+#: main.go:3107
+msgid "Found %d source files (%s)"
+msgstr "%d Quelldateien gefunden (%s)"
+
+#: main.go:312
+msgid "Show project info and translation statistics"
+msgstr "Projektinfo und Übersetzungsstatistiken anzeigen"
+
+#: main.go:313
+msgid ""
+"Show auto-detected project structure and translation statistics.\n"
+"\n"
+"Displays project type (gettext, po4a, i18next, android), file structure,\n"
+"detected languages, and per-language translation progress. For projects\n"
+"configured via .lokit.yaml, shows each target separately.\n"
+"\n"
+"Does not modify any files."
+msgstr ""
+"Zeigt automatisch erkannte Projektstruktur und Übersetzungsstatistiken an.\n"
+"\n"
+"Zeigt Projekttyp (gettext, po4a, i18next, android), Dateistruktur,\n"
+"erkannte Sprachen und Übersetzungsfortschritt pro Sprache. Für Projekte,\n"
+"die über .lokit.yaml konfiguriert sind, wird jedes Ziel einzeln angezeigt.\n"
+"\n"
+"Es werden keine Dateien verändert."
+
+#: main.go:3131
+msgid "Extracting from %d Go files (AST, keywords: %s)..."
+msgstr "Extrahiere aus %d Go-Dateien (AST, Schlüsselwörter: %s)..."
+
+#: main.go:3135
+msgid "Extracting from %d Go files with xgotext..."
+msgstr "Extrahiere aus %d Go-Dateien mit xgotext..."
+
+#: main.go:3142
+msgid "Extracting from %d non-Go files with xgettext..."
+msgstr "Extrahiere aus %d Nicht-Go-Dateien mit xgettext..."
+
+#: main.go:3145
+msgid "xgettext extraction failed: %w"
+msgstr "xgettext-Extraktion fehlgeschlagen: %w"
+
+#: main.go:3154
+msgid "Go extraction failed: %v"
+msgstr "Go-Extraktion fehlgeschlagen: %v"
+
+#: main.go:3155
+msgid "Continuing with xgettext results only"
+msgstr "Es wird nur mit den xgettext-Ergebnissen fortgefahren"
+
+#: main.go:3162
+msgid "Merging POT files..."
+msgstr "POT-Dateien werden zusammengeführt..."
+
+#: main.go:3164
+msgid "merging POT files: %w"
+msgstr "POT-Dateien werden zusammengeführt: %w"
+
+#: main.go:3172
+msgid "extraction failed: %w"
+msgstr "Extraktion fehlgeschlagen: %w"
+
+#: main.go:3180
+msgid "Go extraction failed: %w"
+msgstr "Go-Extraktion fehlgeschlagen: %w"
+
+#: main.go:3194
+msgid "Extracted %d strings to %s"
+msgstr "%d Zeichenketten nach %s extrahiert"
+
+#: main.go:3196
+msgid "Extracted strings to %s"
+msgstr "Zeichenketten nach %s extrahiert"
+
+#: main.go:3214
+msgid "No POT template found, running extraction..."
+msgstr "Keine POT-Vorlage gefunden, Extraktion wird gestartet..."
+
+#: main.go:3216
+msgid "Auto-extraction failed: %v"
+msgstr "Auto-Extraktion fehlgeschlagen: %v"
+
+#: main.go:3223
+msgid "Cannot auto-create %s: extraction produced no POT template"
+msgstr "%s kann nicht automatisch erstellt werden: Extraktion hat keine POT-Vorlage erzeugt"
+
+#: main.go:3224
+msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
+msgstr "Stellen Sie sicher, dass die Quelldateien übersetzbare Zeichenketten enthalten (_(), N_(), usw.)"
+
+#: main.go:3231
+msgid "Cannot read POT template %s: %v"
+msgstr "POT-Vorlage %s kann nicht gelesen werden: %v"
+
+#: main.go:3264
+msgid "Auto-created %s from %s (%d entries)"
+msgstr "%s automatisch aus %s erstellt (%d Einträge)"
+
+#: main.go:332
+#: main.go:914
+#: main.go:1486
+msgid "Config error: %v"
+msgstr "Konfigurationsfehler: %v"
+
+#: main.go:3336
+msgid "check provider documentation"
+msgstr "Siehe Anbieterdokumentation"
+
+#: main.go:3339
+msgid ""
+"--model is required for provider '%s'\n"
+"\n"
+"Example models for %s:\n"
+"  %s\n"
+"\n"
+"Usage: --provider %s --model MODEL_NAME"
+msgstr ""
+"--model ist für Anbieter '%s' erforderlich\n"
+"\n"
+"Beispielmodelle für %s:\n"
+"  %s\n"
+"\n"
+"Verwendung: --provider %s --model MODELLNAME"
+
+#: main.go:3353
+msgid ""
+"provider 'google' requires an API key or Gemini OAuth login\n"
+"\n"
+"Option 1: Store an API key:\n"
+"  lokit auth login --provider google\n"
+"\n"
+"Option 2: Login with Google OAuth (free tier: 60 req/min):\n"
+"  lokit auth login --provider gemini\n"
+"\n"
+"Option 3: Pass key directly:\n"
+"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"\n"
+"Get an API key from: https://aistudio.google.com/apikey"
+msgstr ""
+"Anbieter 'google' benötigt einen API-Schlüssel oder Gemini OAuth-Login\n"
+"\n"
+"Option 1: API-Schlüssel speichern:\n"
+"  lokit auth login --provider google\n"
+"\n"
+"Option 2: Mit Google OAuth anmelden (kostenloses Kontingent: 60 Anfragen/Min):\n"
+"  lokit auth login --provider gemini\n"
+"\n"
+"Option 3: Schlüssel direkt übergeben:\n"
+"  --api-key IHR_SCHLÜSSEL oder export LOKIT_API_KEY=IHR_SCHLÜSSEL\n"
+"\n"
+"API-Schlüssel erhalten unter: https://aistudio.google.com/apikey"
+
+#: main.go:3365
+msgid ""
+"provider 'gemini' requires Google OAuth login\n"
+"\n"
+"Login with your Google account:\n"
+"  lokit auth login --provider gemini\n"
+"\n"
+"This uses Gemini Code Assist (free tier: 60 req/min).\n"
+"For API key access, use --provider google instead."
+msgstr ""
+"Anbieter 'gemini' benötigt Google OAuth-Login\n"
+"\n"
+"Mit Ihrem Google-Konto anmelden:\n"
+"  lokit auth login --provider gemini\n"
+"\n"
+"Dies nutzt Gemini Code Assist (kostenloses Kontingent: 60 Anfragen/Min).\n"
+"Für API-Key-Zugang verwenden Sie stattdessen --provider google."
+
+#: main.go:3374
+msgid ""
+"provider 'groq' requires an API key\n"
+"\n"
+"Option 1: Store your API key:\n"
+"  lokit auth login --provider groq\n"
+"\n"
+"Option 2: Pass key directly:\n"
+"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"\n"
+"Get a free API key from: https://console.groq.com/keys"
+msgstr ""
+"Anbieter 'groq' benötigt einen API-Schlüssel\n"
+"\n"
+"Option 1: API-Schlüssel speichern:\n"
+"  lokit auth login --provider groq\n"
+"\n"
+"Option 2: Schlüssel direkt übergeben:\n"
+"  --api-key IHR_SCHLÜSSEL oder export LOKIT_API_KEY=IHR_SCHLÜSSEL\n"
+"\n"
+"Kostenlosen API-Schlüssel erhalten unter: https://console.groq.com/keys"
+
+#: main.go:3387
+msgid ""
+"provider 'copilot' requires GitHub Copilot authentication\n"
+"\n"
+"Login with your GitHub account:\n"
+"  lokit auth login --provider copilot\n"
+"\n"
+"This uses GitHub Copilot (requires active Copilot subscription)."
+msgstr ""
+"Anbieter 'copilot' benötigt GitHub Copilot-Authentifizierung\n"
+"\n"
+"Mit Ihrem GitHub-Konto anmelden:\n"
+"  lokit auth login --provider copilot\n"
+"\n"
+"Dies nutzt GitHub Copilot (aktives Copilot-Abo erforderlich)."
+
+#: main.go:3395
+msgid ""
+"provider 'custom-openai' requires an endpoint URL\n"
+"\n"
+"Option 1: Configure via auth:\n"
+"  lokit auth login --provider custom-openai\n"
+"\n"
+"Option 2: Pass directly:\n"
+"  --base-url https://api.example.com/v1"
+msgstr ""
+"Anbieter 'custom-openai' benötigt eine Endpunkt-URL\n"
+"\n"
+"Option 1: Über Auth konfigurieren:\n"
+"  lokit auth login --provider custom-openai\n"
+"\n"
+"Option 2: Direkt übergeben:\n"
+"  --base-url https://api.example.com/v1"
+
+#: main.go:340
+#: main.go:918
+#: main.go:1494
+msgid "No .lokit.yaml found in %s"
+msgstr "Keine .lokit.yaml in %s gefunden"
+
+#: main.go:341
+#: main.go:919
+#: main.go:1495
+msgid "Create a .lokit.yaml configuration file. See 'lokit init --help' for format reference."
+msgstr "Erstellen Sie eine .lokit.yaml-Konfigurationsdatei. Siehe 'lokit init --help' für eine Formatübersicht."
+
+#: main.go:3410
+msgid ""
+"provider 'ollama' requires Ollama server to be running\n"
+"\n"
+"Start Ollama with: ollama serve\n"
+"Install from: https://ollama.com\n"
+"Alternative providers:\n"
+"  --provider copilot         (GitHub Copilot, free)\n"
+"  --provider google          (requires API key)"
+msgstr ""
+"Anbieter 'ollama' benötigt laufenden Ollama-Server\n"
+"\n"
+"Ollama starten mit: ollama serve\n"
+"Download unter: https://ollama.com\n"
+"Alternative Anbieter:\n"
+"  --provider copilot         (GitHub Copilot, kostenlos)\n"
+"  --provider google          (API-Schlüssel erforderlich)"
+
+#: main.go:349
+msgid "Project"
+msgstr "Projekt"
+
+#: main.go:350
+msgid "Config"
+msgstr "Konfiguration"
+
+#: main.go:351
+#: main.go:371
+msgid "Root"
+msgstr "Root"
+
+#: main.go:352
+msgid "Source lang"
+msgstr "Quellsprache"
+
+#: main.go:355
+#: main.go:375
+#: main.go:377
+msgid "Languages"
+msgstr "Sprachen"
+
+#: main.go:357
+msgid "Targets"
+msgstr "Ziele"
+
+#: main.go:361
+#: main.go:938
+#: main.go:1527
+msgid "Config resolve error: %v"
+msgstr "Fehler beim Auflösen der Konfiguration: %v"
+
+#: main.go:377
+msgid "none detected"
+msgstr "keine erkannt"
+
+#: main.go:409
+msgid "POT"
+msgstr "POT"
+
+#: main.go:409
+#: main.go:477
+#: main.go:542
+msgid "not found"
+msgstr "nicht gefunden"
+
+#: main.go:409
+msgid "run 'lokit init'"
+msgstr "Führen Sie 'lokit init' aus"
+
+#: main.go:413
+#: main.go:546
+#: main.go:589
+msgid "Source strings"
+msgstr "Quellzeichenketten"
+
+#: main.go:417
+#: main.go:446
+#: main.go:593
+#: main.go:653
+msgid "Fuzzy"
+msgstr "Fuzzy"
+
+#: main.go:417
+#: main.go:446
+#: main.go:485
+#: main.go:550
+#: main.go:593
+#: main.go:653
+#: main.go:698
+msgid "Progress"
+msgstr "Fortschritt"
+
+#: main.go:417
+#: main.go:446
+#: main.go:485
+#: main.go:550
+#: main.go:593
+#: main.go:653
+#: main.go:698
+msgid "Done"
+msgstr "Fertig"
+
+#: main.go:417
+#: main.go:446
+#: main.go:485
+#: main.go:550
+#: main.go:593
+#: main.go:653
+#: main.go:698
+msgid "Lang"
+msgstr "Sprache"
+
+#: main.go:417
+#: main.go:485
+#: main.go:550
+#: main.go:593
+#: main.go:698
+msgid "Left"
+msgstr "Offen"
+
+#: main.go:424
+#: main.go:454
+#: main.go:493
+#: main.go:558
+#: main.go:609
+#: main.go:661
+#: main.go:710
+#: main.go:753
+msgid "missing"
+msgstr "fehlt"
+
+#: main.go:442
+msgid "po4a config"
+msgstr "po4a-Konfiguration"
+
+#: main.go:446
+#: main.go:653
+msgid "Total"
+msgstr "Gesamt"
+
+#: main.go:472
+msgid "Translations"
+msgstr "Übersetzungen"
+
+#: main.go:477
+#: main.go:542
+msgid "Source"
+msgstr "Quelle"
+
+#: main.go:481
+#: main.go:693
+msgid "Source keys"
+msgstr "Quellschlüssel"
+
+#: main.go:513
+#: main.go:794
+msgid "Blog Posts (%d posts)"
+msgstr "Blog-Beiträge (%d Beiträge)"
+
+#: main.go:538
+msgid "Res dir"
+msgstr "Res-Verzeichnis"
+
+#: main.go:584
+msgid "No translatable strings found in %s"
+msgstr "Keine übersetzbaren Zeichenketten in %s gefunden"
+
+#: main.go:588
+msgid "Translation Statistics"
+msgstr "Übersetzungsstatistik"
+
+#: main.go:629
+msgid "Translation gaps:"
+msgstr "Übersetzungslücken:"
+
+#: main.go:633
+msgid "%d untranslated"
+msgstr "%d nicht übersetzt"
+
+#: main.go:636
+msgid "%d fuzzy"
+msgstr "%d fuzzy"
+
+#: main.go:650
+msgid "Documentation Statistics"
+msgstr "Dokumentationsstatistik"
+
+#: main.go:680
+msgid "No language files detected in %s"
+msgstr "Keine Sprachdateien in %s gefunden"
+
+#: main.go:691
+msgid "UI Translation Statistics"
+msgstr "UI-Übersetzungsstatistik"
+
+#: main.go:740
+msgid "Recipe Translations"
+msgstr "Rezeptübersetzungen"
+
+#: main.go:825
+msgid "Prepare translation files (extract strings, create/update PO)"
+msgstr "Übersetzungsdateien vorbereiten (Strings extrahieren, PO erstellen/aktualisieren)"
+
+#: main.go:826
+msgid ""
+"Extract translatable strings and create/update translation files.\n"
+"\n"
+"Requires a .lokit.yaml configuration file in the project root.\n"
+"\n"
+"For gettext projects: runs xgettext to extract strings into a POT template,\n"
+"then creates or updates PO files for each language.\n"
+"\n"
+"For po4a projects: runs 'po4a --no-translations' to update templates.\n"
+"\n"
+"For i18next projects: creates missing language files with empty translations.\n"
+"\n"
+"For Android projects: no init step needed — use 'lokit translate' directly.\n"
+"\n"
+"This command is idempotent — safe to run multiple times. Existing\n"
+"translations are preserved when updating files.\n"
+"\n"
+"CONFIG FORMAT (.lokit.yaml)\n"
+"\n"
+"  source_lang: en                    # Source language (default: en)\n"
+"  languages: [ru, de, fr, es, ...]   # Target languages\n"
+"\n"
+"  targets:\n"
+"    - name: myproject                # Display name\n"
+"      type: gettext                  # Target type (see below)\n"
+"      root: .                        # Working directory (default: .)\n"
+"      # ... type-specific options\n"
+"\n"
+"TARGET TYPES\n"
+"\n"
+"  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
+"    po_dir: po                       # PO files directory (default: po)\n"
+"    pot_file: po/messages.pot        # POT template path\n"
+"    sources: [src, scripts]          # Directories to scan (default: root)\n"
+"    keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)\n"
+"\n"
+"  po4a — Documentation translation (man pages, AsciiDoc, etc.)\n"
+"    po4a_config: po4a.cfg            # Path to po4a.cfg (default: po4a.cfg)\n"
+"\n"
+"  i18next — i18next JSON translations\n"
+"    translations_dir: public/translations  # JSON files directory\n"
+"\n"
+"  json — Simple JSON translations { \"key\": \"value\" }\n"
+"    translations_dir: translations   # JSON files directory\n"
+"\n"
+"  android — Android strings.xml\n"
+"    res_dir: app/src/main/res        # Android res/ directory\n"
+"\n"
+"COMMON OPTIONS (all target types)\n"
+"\n"
+"  languages: [ru, de]               # Override global language list\n"
+"  prompt: \"Custom translation...\"   # Override AI translation prompt\n"
+"\n"
+"EXAMPLES\n"
+"\n"
+"  # Shell scripts with gettext\n"
+"  source_lang: en\n"
+"  languages: [ru, de, fr]\n"
+"  targets:\n"
+"    - name: myapp\n"
+"      type: gettext\n"
+"      sources: [scripts, lib]\n"
+"      keywords: [gettext, eval_gettext]\n"
+"\n"
+"  # Go project with wrapper functions\n"
+"  targets:\n"
+"    - name: myapp\n"
+"      type: gettext\n"
+"      sources: [.]\n"
+"      keywords: [T, N]\n"
+"\n"
+"  # Documentation + code\n"
+"  targets:\n"
+"    - name: code\n"
+"      type: gettext\n"
+"      sources: [src]\n"
+"    - name: docs\n"
+"      type: po4a\n"
+"      po4a_config: docs/po4a.cfg\n"
+"\n"
+"  # i18next web application\n"
+"  targets:\n"
+"    - name: frontend\n"
+"      type: i18next\n"
+"      translations_dir: public/translations"
+msgstr ""
+"Extrahiert übersetzbare Strings und erstellt/aktualisiert Übersetzungsdateien.\n"
+"\n"
+"Erfordert eine .lokit.yaml-Konfigurationsdatei im Projektverzeichnis.\n"
+"\n"
+"Für gettext-Projekte: Führt xgettext aus, um Strings in eine POT-Vorlage zu extrahieren, und erstellt oder aktualisiert anschließend PO-Dateien für jede Sprache.\n"
+"\n"
+"Für po4a-Projekte: Führt 'po4a --no-translations' aus, um Vorlagen zu aktualisieren.\n"
+"\n"
+"Für i18next-Projekte: Erstellt fehlende Sprachdateien mit leeren Übersetzungen.\n"
+"\n"
+"Für Android-Projekte: Kein Init-Schritt erforderlich — verwenden Sie direkt 'lokit translate'.\n"
+"\n"
+"Dieser Befehl ist idempotent — kann gefahrlos mehrfach ausgeführt werden. Bestehende Übersetzungen bleiben beim Aktualisieren erhalten.\n"
+"\n"
+"KONFIGURATIONSFORMAT (.lokit.yaml)\n"
+"\n"
+"  source_lang: en                    # Quellsprache (Standard: en)\n"
+"  languages: [ru, de, fr, es, ...]   # Zielsprachen\n"
+"\n"
+"  targets:\n"
+"    - name: myproject                # Anzeigename\n"
+"      type: gettext                  # Zieltyp (siehe unten)\n"
+"      root: .                        # Arbeitsverzeichnis (Standard: .)\n"
+"      # ... typspezifische Optionen\n"
+"\n"
+"ZIELTYPEN\n"
+"\n"
+"  gettext — Quellcode-String-Extraktion (Shell, Python, C, Go, etc.)\n"
+"    po_dir: po                       # PO-Dateien-Verzeichnis (Standard: po)\n"
+"    pot_file: po/messages.pot        # POT-Vorlagenpfad\n"
+"    sources: [src, scripts]          # Zu scannende Verzeichnisse (Standard: root)\n"
+"    keywords: [_, N_, gettext]       # xgettext-Schlüsselwörter (Standard: Standard-Set)\n"
+"\n"
+"  po4a — Dokumentationsübersetzung (Manpages, AsciiDoc, etc.)\n"
+"    po4a_config: po4a.cfg            # Pfad zu po4a.cfg (Standard: po4a.cfg)\n"
+"\n"
+"  i18next — i18next JSON-Übersetzungen\n"
+"    translations_dir: public/translations  # JSON-Dateien-Verzeichnis\n"
+"\n"
+"  json — Einfache JSON-Übersetzungen { \"key\": \"value\" }\n"
+"    translations_dir: translations   # JSON-Dateien-Verzeichnis\n"
+"\n"
+"  android — Android strings.xml\n"
+"    res_dir: app/src/main/res        # Android res/-Verzeichnis\n"
+"\n"
+"ALLGEMEINE OPTIONEN (für alle Zieltypen)\n"
+"\n"
+"  languages: [ru, de]               # Globale Sprachliste überschreiben\n"
+"  prompt: \"Custom translation...\"   # AI-Übersetzungsprompt überschreiben\n"
+"\n"
+"BEISPIELE\n"
+"\n"
+"  # Shell-Skripte mit gettext\n"
+"  source_lang: en\n"
+"  languages: [ru, de, fr]\n"
+"  targets:\n"
+"    - name: myapp\n"
+"      type: gettext\n"
+"      sources: [scripts, lib]\n"
+"      keywords: [gettext, eval_gettext]\n"
+"\n"
+"  # Go-Projekt mit Wrapper-Funktionen\n"
+"  targets:\n"
+"    - name: myapp\n"
+"      type: gettext\n"
+"      sources: [.]\n"
+"      keywords: [T, N]\n"
+"\n"
+"  # Dokumentation + Code\n"
+"  targets:\n"
+"    - name: code\n"
+"      type: gettext\n"
+"      sources: [src]\n"
+"    - name: docs\n"
+"      type: po4a\n"
+"      po4a_config: docs/po4a.cfg\n"
+"\n"
+"  # i18next-Webanwendung\n"
+"  targets:\n"
+"    - name: frontend\n"
+"      type: i18next\n"
+"      translations_dir: public/translations"
+
+#: main.go:927
+msgid "Languages to init (comma-separated, default: all from config)"
+msgstr "Zu initialisierende Sprachen (kommagetrennt, Standard: alle aus der Konfiguration)"

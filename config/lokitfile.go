@@ -65,6 +65,11 @@ type Target struct {
 	// BlogDir is the directory with blog posts + translations (i18next).
 	BlogDir string `yaml:"blog_dir,omitempty"`
 
+	// --- android options ---
+
+	// ResDir is the Android res/ directory relative to Root (default "app/src/main/res").
+	ResDir string `yaml:"res_dir,omitempty"`
+
 	// --- overrides ---
 
 	// Languages overrides the global language list for this target.
@@ -84,6 +89,9 @@ const TargetTypeI18Next = "i18next"
 
 // TargetTypeJSON is used for simple JSON translation projects { "translations": {...} }.
 const TargetTypeJSON = "json"
+
+// TargetTypeAndroid is used for Android strings.xml translation projects.
+const TargetTypeAndroid = "android"
 
 // ---------------------------------------------------------------------------
 // Loading
@@ -157,8 +165,12 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			if t.TranslationsDir == "" {
 				t.TranslationsDir = "public/translations"
 			}
+		case TargetTypeAndroid:
+			if t.ResDir == "" {
+				t.ResDir = "app/src/main/res"
+			}
 		default:
-			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, json)", path, t.Name, t.Type)
+			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, json, android)", path, t.Name, t.Type)
 		}
 	}
 
@@ -218,7 +230,7 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 		}
 		// Fallback: scan po/ subdirectory
 		poDir := filepath.Join(filepath.Dir(cfgPath), "po")
-		return detectLanguagesNested(poDir)
+		return DetectLanguagesNested(poDir)
 
 	case TargetTypeI18Next:
 		transDir := filepath.Join(absRoot, t.TranslationsDir)
@@ -227,6 +239,10 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 	case TargetTypeJSON:
 		transDir := filepath.Join(absRoot, t.TranslationsDir)
 		return detectLanguagesJSON(transDir)
+
+	case TargetTypeAndroid:
+		resDir := filepath.Join(absRoot, t.ResDir)
+		return detectLanguagesAndroid(resDir)
 	}
 	return nil
 }
@@ -273,6 +289,11 @@ func (rt *ResolvedTarget) AbsTranslationsDir() string {
 	return filepath.Join(rt.AbsRoot, rt.Target.TranslationsDir)
 }
 
+// AbsResDir returns the absolute Android res/ directory for android targets.
+func (rt *ResolvedTarget) AbsResDir() string {
+	return filepath.Join(rt.AbsRoot, rt.Target.ResDir)
+}
+
 // POPath returns the .po file path for a language in a gettext target.
 func (rt *ResolvedTarget) POPath(lang string) string {
 	return filepath.Join(rt.AbsPODir(), lang+".po")
@@ -317,6 +338,52 @@ func (lf *LokitFile) AllLanguages(projectRoot string) []string {
 
 	sort.Strings(all)
 	return all
+}
+
+// ---------------------------------------------------------------------------
+// Android res/ language detection
+// ---------------------------------------------------------------------------
+
+// detectLanguagesAndroid scans an Android res/ directory for values-XX/ directories
+// that contain strings.xml, and returns the language codes.
+func detectLanguagesAndroid(resDir string) []string {
+	entries, err := os.ReadDir(resDir)
+	if err != nil {
+		return nil
+	}
+
+	var langs []string
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasPrefix(name, "values-") {
+			continue
+		}
+		lang := strings.TrimPrefix(name, "values-")
+		if lang == "" {
+			continue
+		}
+		// Check if strings.xml exists in this directory
+		stringsPath := filepath.Join(resDir, name, "strings.xml")
+		if _, err := os.Stat(stringsPath); err == nil {
+			// Convert Android locale format (e.g., "pt-rBR") to standard ("pt-BR")
+			lang = androidLocaleToStandard(lang)
+			langs = append(langs, lang)
+		}
+	}
+	sort.Strings(langs)
+	return langs
+}
+
+// androidLocaleToStandard converts Android locale format to standard BCP-47.
+// Examples: "pt-rBR" -> "pt-BR", "zh-rCN" -> "zh-CN", "ru" -> "ru"
+func androidLocaleToStandard(androidLocale string) string {
+	if idx := strings.Index(androidLocale, "-r"); idx >= 0 {
+		return androidLocale[:idx] + "-" + androidLocale[idx+2:]
+	}
+	return androidLocale
 }
 
 // ---------------------------------------------------------------------------

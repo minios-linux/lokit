@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/minios-linux/lokit/credentials"
+	"github.com/minios-linux/lokit/settings"
 )
 
 // ---------------------------------------------------------------------------
@@ -51,18 +51,18 @@ const (
 
 // LoadToken loads the Copilot OAuth token from the unified auth store.
 // Returns nil if no token is stored.
-func LoadToken() *credentials.Info {
-	return credentials.GetOAuth(providerID)
+func LoadToken() *settings.Info {
+	return settings.GetOAuth(providerID)
 }
 
 // SaveToken saves a Copilot OAuth token to the unified auth store.
 func SaveToken(access string) error {
-	return credentials.SetOAuth(providerID, access, "", 0)
+	return settings.SetOAuth(providerID, access, "", 0)
 }
 
 // DeleteToken removes the Copilot credentials from the unified auth store.
 func DeleteToken() error {
-	return credentials.Remove(providerID)
+	return settings.Remove(providerID)
 }
 
 // TokenStatus returns a human-readable status of the stored token.
@@ -72,7 +72,7 @@ func TokenStatus() string {
 		return "not authenticated"
 	}
 
-	masked := credentials.MaskKey(info.Access)
+	masked := settings.MaskKey(info.Access)
 	return fmt.Sprintf("authenticated (token: %s)", masked)
 }
 
