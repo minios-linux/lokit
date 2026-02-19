@@ -1,5 +1,5 @@
 // Package config provides project configuration types and helpers
-// for working with .lokit.yaml and PO/POT files.
+// for working with lokit.yaml and PO/POT files.
 package config
 
 import (

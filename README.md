@@ -1,25 +1,30 @@
 # lokit — Localization Kit
 
-**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, and simple JSON formats — either auto-detected or configured via `.lokit.yaml`.
+**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, and generic JSON formats — either auto-detected or configured via `lokit.yaml`.
 
 ## Features
 
-- 🔧 **Multi-target config** — `.lokit.yaml` for complex projects with multiple translation types
-- 🚀 **Auto-detection** — works without config for simple projects (flat PO, nested PO, po4a, i18next)
-- 🤖 **AI translation** — 7 providers including free GitHub Copilot and Gemini
-- 📊 **Translation statistics** — per-target progress tracking
-- 🔄 **Smart PO management** — extract, merge, update with `xgettext` and `msgmerge`
-- 🔐 **Native OAuth** — GitHub Copilot (device code) and Gemini (browser)
-- ⚡ **Parallel translation** — concurrent API requests with configurable chunking
+- **Multi-target config** — `lokit.yaml` for complex projects with multiple translation types
+- **Auto-detection** — works without config for simple projects (flat PO, nested PO, po4a, i18next)
+- **AI translation** — 7 providers including free GitHub Copilot and Gemini
+- **Translation statistics** — per-target progress tracking
+- **Smart PO management** — extract, merge, update with `xgettext` and `msgmerge`
+- **Native OAuth** — GitHub Copilot (device code) and Gemini (browser)
+- **Parallel translation** — concurrent API requests with configurable chunking
 
 ## Supported Formats
 
 | Format | Extension | Use case |
 |--------|-----------|----------|
-| **gettext** | `.po` / `.pot` | Source code strings (shell, Python, C) |
+| **gettext** | `.po` / `.pot` | Source code strings (shell, Python, C, Go) |
 | **po4a** | `.po` + `po4a.cfg` | Documentation / manpages |
-| **i18next** | `.json` (`_meta`) | Web apps with i18next |
-| **json** | `.json` (`translations`) | Simple JSON key-value translations |
+| **i18next** | `.json` | Web apps with i18next |
+| **json** | `.json` | Simple JSON key-value translations |
+| **android** | `strings.xml` | Android resource files |
+| **yaml** | `.yaml` / `.yml` | YAML key-value translations |
+| **markdown** | `.md` | Markdown document translation |
+| **properties** | `.properties` | Java application translations |
+| **flutter** | `.arb` | Flutter Application Resource Bundle |
 
 ## Supported AI Providers
 
@@ -29,7 +34,7 @@
 | **Gemini Code Assist** | OAuth (browser) | ✅ 60 req/min |
 | **Google AI (Gemini)** | API key | ✅ limited |
 | **Groq** | API key | ✅ limited |
-| **OpenCode** | API key | — |
+| **OpenCode** | API key (optional) | ✅ free models available |
 | **Ollama** | none (local) | ✅ |
 | **Custom OpenAI** | API key | depends |
 
@@ -73,9 +78,9 @@ lokit auth login --provider copilot
 lokit translate --provider copilot --model gpt-4.1
 ```
 
-### Complex project (`.lokit.yaml`)
+### Complex project (`lokit.yaml`)
 
-Create a `.lokit.yaml` in the project root:
+Create a `lokit.yaml` in the project root:
 
 ```yaml
 languages: [de, es, fr, ru]
@@ -95,7 +100,11 @@ targets:
     type: i18next
     root: submodules/site
     translations_dir: public/translations
-    languages: [de, es, fr, pt-BR, ru]
+    languages: [de, es, fr, pt_BR, ru]
+
+  - name: mobile
+    type: flutter
+    translations_dir: lib/l10n
 ```
 
 Then:
@@ -105,9 +114,9 @@ lokit status        # Shows all targets with stats
 lokit translate --provider copilot --model gpt-4o  # Translates everything
 ```
 
-## Configuration File (`.lokit.yaml`)
+## Configuration File (`lokit.yaml`)
 
-When `.lokit.yaml` exists, lokit uses it as the sole source of truth — no auto-detection.
+When `lokit.yaml` exists, lokit uses it as the sole source of truth — no auto-detection.
 
 ### Schema
 
@@ -121,7 +130,7 @@ source_lang: en
 # Translation targets
 targets:
   - name: my-app              # Display name (required)
-    type: gettext              # Type: gettext | po4a | i18next | json (required)
+    type: gettext              # Type (required, see below)
     root: .                    # Working directory relative to config (default: .)
 
     # --- gettext options ---
@@ -134,9 +143,15 @@ targets:
     po4a_config: po4a.cfg      # po4a config path relative to root
 
     # --- i18next / json options ---
-    translations_dir: public/translations  # JSON directory (default: public/translations)
+    translations_dir: public/translations  # JSON directory
     recipes_dir: data/recipes              # Per-recipe translations (i18next)
     blog_dir: data/blog                    # Blog post translations (i18next)
+
+    # --- android options ---
+    res_dir: app/src/main/res  # Android res/ directory
+
+    # --- yaml / properties / flutter / markdown options ---
+    translations_dir: translations  # Files directory
 
     # --- overrides ---
     languages: [de, es, fr]    # Override global language list
@@ -146,19 +161,29 @@ targets:
 
 ### Target types
 
-**gettext** — For code translation (shell, Python, C). Reads `.pot` templates, translates to `.po` files.
+**gettext** — For code translation (shell, Python, C, Go). Reads `.pot` templates, translates to `.po` files.
 
-**po4a** — For documentation (manpages, Markdown). Works with `po4a.cfg` and its PO directory.
+**po4a** — For documentation (manpages, AsciiDoc). Works with `po4a.cfg` and its PO directory.
 
 **i18next** — For web applications using i18next. JSON files with `_meta` block.
 
 **json** — For simple JSON translations. JSON files with `translations` block.
 
+**android** — For Android applications. Translates `strings.xml` resource files.
+
+**yaml** — For YAML key-value translation files (`translations/LANG.yaml`).
+
+**markdown** — For Markdown document translation. Files organized as `translations_dir/LANG/file.md`.
+
+**properties** — For Java `.properties` files (`translations_dir/LANG.properties`).
+
+**flutter** — For Flutter ARB files (`translations_dir/app_LANG.arb`).
+
 ## Commands
 
 ### `lokit status`
 
-Shows project info and translation statistics. With `.lokit.yaml`, displays per-target stats.
+Shows project info and translation statistics. With `lokit.yaml`, displays per-target stats.
 
 ```bash
 lokit status                    # Current directory
@@ -167,16 +192,16 @@ lokit status --root ./my-project  # Specific project
 
 ### `lokit init`
 
-Extracts translatable strings and creates/updates PO files:
+Extracts translatable strings and creates/updates translation files:
 
 ```bash
 lokit init                     # All languages
 lokit init --lang ru,de        # Specific languages
 ```
 
-- Runs `xgettext` for code projects
+- Runs `xgettext` for gettext projects
 - Runs `po4a --no-translations` for po4a projects
-- Creates PO from POT template using `msginit`/`msgmerge`
+- Creates missing language files for i18next, json, yaml, properties, flutter
 - Idempotent — safe to run repeatedly
 
 ### `lokit translate`
@@ -198,7 +223,7 @@ lokit translate --provider copilot --model gpt-4o
   --dry-run                 Show what would be translated
   --prompt string           Custom system prompt ({{targetLang}} placeholder)
   --proxy string            HTTP/HTTPS proxy URL
-  --api-key string          API key (or LOKIT_API_KEY env)
+  --api-key string          API key (or provider env var)
   --base-url string         Custom API endpoint
   --timeout duration        Request timeout (0 = provider default)
   --max-retries int         Retries on rate limit (default: 3)
@@ -235,7 +260,7 @@ Show version, commit hash, and build date.
 ### Translate a monorepo with submodules
 
 ```yaml
-# .lokit.yaml
+# lokit.yaml
 languages: [de, es, fr, id, it, pt, pt_BR, ru]
 targets:
   - name: scripts
@@ -255,6 +280,35 @@ targets:
 
 ```bash
 lokit translate --provider copilot --model gpt-4o --parallel --max-concurrent 10
+```
+
+### Flutter application
+
+```yaml
+# lokit.yaml
+languages: [de, es, fr, ru, ja, zh]
+source_lang: en
+targets:
+  - name: app
+    type: flutter
+    translations_dir: lib/l10n
+```
+
+```bash
+lokit init
+lokit translate --provider copilot --model gpt-4o
+```
+
+### Java application with .properties
+
+```yaml
+# lokit.yaml
+languages: [de, es, fr, ru]
+source_lang: en
+targets:
+  - name: app
+    type: properties
+    translations_dir: src/main/resources
 ```
 
 ### Parallel translation with proxy
@@ -291,24 +345,42 @@ lokit translate --provider custom-openai --model my-model
 lokit translate --provider copilot --model gpt-4o --dry-run
 ```
 
-## Credential Storage
+## User Data Storage
 
-Credentials are stored in:
+All user data is stored in `~/.local/share/lokit/` (respects `$XDG_DATA_HOME`):
 
-```
-~/.local/share/lokit/auth.json
-```
+- **`auth.json`** — OAuth tokens and API keys (permissions: `0600`)
+- **`prompts.json`** — AI system prompts (created automatically on first use)
 
-Respects `$XDG_DATA_HOME`. File permissions: `0600`.
+### Credentials
 
 **Lookup order** (highest → lowest):
 1. `--api-key` flag
-2. `LOKIT_API_KEY` environment variable
+2. Provider-specific environment variable (`GOOGLE_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, `OPENCODE_API_KEY`)
 3. Stored credentials in `auth.json`
+
+### Custom Prompts
+
+On first use, lokit creates `prompts.json` with all built-in system prompts. Edit it to customize translation behavior per content type:
+
+| Key | Used for |
+|-----|----------|
+| `default` | gettext UI strings |
+| `docs` | po4a / man-pages (groff markup) |
+| `i18next` | i18next JSON |
+| `recipe` | App catalog metadata |
+| `blogpost` | Blog post content |
+| `android` | Android strings.xml |
+| `yaml` | YAML translation files |
+| `markdown` | Markdown documents |
+| `properties` | Java .properties files |
+| `flutter` | Flutter ARB files |
+
+Use `{{targetLang}}` as a placeholder for the target language name in prompt text.
 
 ## Project Structure Support
 
-Without `.lokit.yaml`, lokit auto-detects:
+Without `lokit.yaml`, lokit auto-detects:
 
 **Flat PO** — `po/*.po` (shell/Python gettext)
 
@@ -332,7 +404,7 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
-Automated build for Linux, macOS, and Windows with binary uploads.
+Automated build for Linux and macOS (amd64, arm64) with binary uploads.
 
 View releases: https://github.com/minios-linux/lokit/releases
 

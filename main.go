@@ -15,16 +15,20 @@ import (
 	"time"
 
 	"github.com/minios-linux/lokit/android"
+	"github.com/minios-linux/lokit/arbfile"
 	"github.com/minios-linux/lokit/config"
 	"github.com/minios-linux/lokit/copilot"
 	"github.com/minios-linux/lokit/extract"
 	"github.com/minios-linux/lokit/gemini"
 	. "github.com/minios-linux/lokit/i18n"
 	"github.com/minios-linux/lokit/i18next"
+	"github.com/minios-linux/lokit/mdfile"
 	"github.com/minios-linux/lokit/merge"
 	po "github.com/minios-linux/lokit/pofile"
+	"github.com/minios-linux/lokit/propfile"
 	"github.com/minios-linux/lokit/settings"
 	"github.com/minios-linux/lokit/translate"
+	"github.com/minios-linux/lokit/yamlfile"
 	"github.com/spf13/cobra"
 )
 
@@ -128,30 +132,35 @@ func newRootCmd() *cobra.Command {
 		Short: T("Localization Kit: AI-powered translation for multiple formats"),
 		Long: T(`lokit — Localization Kit: AI-powered translation for multiple formats.
 
-Supported project types (auto-detected or configured via .lokit.yaml):
+Supported project types (auto-detected or configured via lokit.yaml):
   gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
   po4a        Documentation translation (man pages, groff/roff markup)
   i18next     React/i18next JSON translation files
   android     Android strings.xml resource files
   json        Generic JSON translation files (recipes, blog posts)
+  yaml        YAML translation files
+  markdown    Markdown document translation
+  properties  Java .properties translation files
+  flutter     Flutter ARB (Application Resource Bundle) files
 
 Configuration:
-  Project settings are defined in .lokit.yaml at the project root.
+  Project settings are defined in lokit.yaml at the project root.
   Each project can have multiple translation targets with different types.
-  See project examples for .lokit.yaml format.
+  See project examples for lokit.yaml format.
 
 Custom prompts:
-  AI translation prompts are loaded from ~/.local/share/lokit/prompts.json
-  (or $XDG_DATA_HOME/lokit/prompts.json). If the file does not exist,
-  built-in defaults are used. Prompt types: default, docs, i18next,
-  recipe, blogpost, android. Use {{targetLang}} as a placeholder for
-  the target language name.
+  AI translation prompts are stored in ~/.local/share/lokit/prompts.json
+  (or $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+  on first use with built-in defaults. Edit it to customize prompts per
+  content type: default, docs, i18next, recipe, blogpost, android, yaml,
+  markdown, properties, flutter.
+  Use {{targetLang}} as a placeholder for the target language name.
 
 AI Providers:
   google         Google AI (Gemini) — API key
   gemini         Gemini Code Assist — browser OAuth (free)
   groq           Groq — API key required
-  opencode       OpenCode (multi-format dispatcher)
+  opencode       OpenCode Zen API (free models available without key)
   copilot        GitHub Copilot (native OAuth, free)
   ollama         Ollama local server
   custom-openai  Custom OpenAI-compatible endpoint`),
@@ -314,7 +323,7 @@ func newStatusCmd() *cobra.Command {
 
 Displays project type (gettext, po4a, i18next, android), file structure,
 detected languages, and per-language translation progress. For projects
-configured via .lokit.yaml, shows each target separately.
+configured via lokit.yaml, shows each target separately.
 
 Does not modify any files.`),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -326,7 +335,7 @@ Does not modify any files.`),
 }
 
 func runStatus() {
-	// Check for .lokit.yaml
+	// Check for lokit.yaml
 	lf, err := config.LoadLokitFile(rootDir)
 	if err != nil {
 		logError(T("Config error: %v"), err)
@@ -337,17 +346,17 @@ func runStatus() {
 		return
 	}
 
-	logError(T("No .lokit.yaml found in %s"), rootDir)
-	logInfo(T("Create a .lokit.yaml configuration file. See 'lokit init --help' for format reference."))
+	logError(T("No lokit.yaml found in %s"), rootDir)
+	logInfo(T("Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."))
 	os.Exit(1)
 }
 
-// runStatusWithConfig shows multi-target status from .lokit.yaml.
+// runStatusWithConfig shows multi-target status from lokit.yaml.
 func runStatusWithConfig(lf *config.LokitFile) {
 	absRoot, _ := filepath.Abs(rootDir)
 
 	sectionHeader(T("Project"))
-	keyVal(T("Config"), ".lokit.yaml")
+	keyVal(T("Config"), "lokit.yaml")
 	keyVal(T("Root"), absRoot)
 	keyVal(T("Source lang"), lf.SourceLang)
 
@@ -386,6 +395,14 @@ func runStatusWithConfig(lf *config.LokitFile) {
 			showConfigI18NextStats(rt, langs)
 		case config.TargetTypeAndroid:
 			showConfigAndroidStats(rt, langs)
+		case config.TargetTypeYAML:
+			showConfigYAMLStats(rt, langs)
+		case config.TargetTypeMarkdown:
+			showConfigMarkdownStats(rt, langs)
+		case config.TargetTypeProperties:
+			showConfigPropertiesStats(rt, langs)
+		case config.TargetTypeFlutter:
+			showConfigFlutterStats(rt, langs)
 		}
 
 		fmt.Fprintln(os.Stderr)
@@ -560,6 +577,74 @@ func showConfigAndroidStats(rt config.ResolvedTarget, langs []string) {
 		}
 
 		_, translated, untranslated := file.Stats()
+		percent := 0
+		if srcTotal > 0 {
+			percent = translated * 100 / srcTotal
+		}
+
+		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
+			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+	}
+}
+
+// showConfigYAMLStats shows translation stats for a YAML target.
+func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	keyVal(T("Translations"), transDir)
+
+	// Try both .yaml and .yml extensions for source file.
+	srcLang := rt.Target.SourceLang
+	srcPath := ""
+	for _, ext := range []string{".yaml", ".yml"} {
+		candidate := filepath.Join(transDir, srcLang+ext)
+		if _, err := os.Stat(candidate); err == nil {
+			srcPath = candidate
+			break
+		}
+	}
+	if srcPath == "" {
+		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+filepath.Join(transDir, srcLang+".yaml")+")")
+		return
+	}
+
+	srcFile, err := yamlfile.ParseFile(srcPath)
+	if err != nil {
+		keyVal(T("Source"), colorYellow+fmt.Sprintf(T("parse error: %v"), err)+colorReset)
+		return
+	}
+	srcTotal, _, _ := srcFile.Stats()
+	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
+		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+
+	for _, lang := range langs {
+		// Try both extensions.
+		filePath := ""
+		for _, ext := range []string{".yaml", ".yml"} {
+			candidate := filepath.Join(transDir, lang+ext)
+			if _, err := os.Stat(candidate); err == nil {
+				filePath = candidate
+				break
+			}
+		}
+		if filePath == "" {
+			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
+				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			continue
+		}
+
+		file, err := yamlfile.ParseFile(filePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
+				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("parse error"), colorReset)
+			continue
+		}
+
+		total, translated, _ := file.Stats()
+		untranslated := total - translated
 		percent := 0
 		if srcTotal > 0 {
 			percent = translated * 100 / srcTotal
@@ -825,21 +910,23 @@ func newInitCmd() *cobra.Command {
 		Short: T("Prepare translation files (extract strings, create/update PO)"),
 		Long: T(`Extract translatable strings and create/update translation files.
 
-Requires a .lokit.yaml configuration file in the project root.
+Requires a lokit.yaml configuration file in the project root.
 
 For gettext projects: runs xgettext to extract strings into a POT template,
 then creates or updates PO files for each language.
 
 For po4a projects: runs 'po4a --no-translations' to update templates.
 
-For i18next projects: creates missing language files with empty translations.
+For i18next/json/yaml/properties/flutter projects: creates missing language
+files with empty translations.
 
-For Android projects: no init step needed — use 'lokit translate' directly.
+For android/markdown projects: no init step needed — use 'lokit translate'
+directly.
 
 This command is idempotent — safe to run multiple times. Existing
 translations are preserved when updating files.
 
-CONFIG FORMAT (.lokit.yaml)
+CONFIG FORMAT (lokit.yaml)
 
   source_lang: en                    # Source language (default: en)
   languages: [ru, de, fr, es, ...]   # Target languages
@@ -869,6 +956,18 @@ TARGET TYPES
 
   android — Android strings.xml
     res_dir: app/src/main/res        # Android res/ directory
+
+  yaml — YAML key/value translations
+    translations_dir: translations   # YAML files directory
+
+  markdown — Markdown document translation
+    translations_dir: translations   # Root dir; files at translations/LANG/
+
+  properties — Java .properties translations
+    translations_dir: translations   # .properties files directory
+
+  flutter — Flutter ARB (Application Resource Bundle)
+    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)
 
 COMMON OPTIONS (all target types)
 
@@ -906,17 +1005,29 @@ EXAMPLES
   targets:
     - name: frontend
       type: i18next
-      translations_dir: public/translations`),
+      translations_dir: public/translations
+
+  # Flutter application
+  targets:
+    - name: app
+      type: flutter
+      translations_dir: lib/l10n
+
+  # Java application with .properties
+  targets:
+    - name: app
+      type: properties
+      translations_dir: src/main/resources`),
 		Run: func(cmd *cobra.Command, args []string) {
-			// Require .lokit.yaml
+			// Require lokit.yaml
 			lf, err := config.LoadLokitFile(rootDir)
 			if err != nil {
 				logError(T("Config error: %v"), err)
 				os.Exit(1)
 			}
 			if lf == nil {
-				logError(T("No .lokit.yaml found in %s"), rootDir)
-				logInfo(T("Create a .lokit.yaml configuration file. See 'lokit init --help' for format reference."))
+				logError(T("No lokit.yaml found in %s"), rootDir)
+				logInfo(T("Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."))
 				os.Exit(1)
 			}
 
@@ -929,7 +1040,7 @@ EXAMPLES
 	return cmd
 }
 
-// runInitWithConfig initializes translation files using .lokit.yaml targets.
+// runInitWithConfig initializes translation files using lokit.yaml targets.
 func runInitWithConfig(lf *config.LokitFile, langsFlag string) {
 	absRoot, _ := filepath.Abs(rootDir)
 
@@ -1010,8 +1121,101 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string) {
 
 		case config.TargetTypeAndroid:
 			logInfo(T("Android targets do not require init — use 'lokit translate' directly."))
+
+		case config.TargetTypeYAML:
+			runInitYAML(rt, langs)
+
+		case config.TargetTypeMarkdown:
+			runInitMarkdown(rt, langs)
+
+		case config.TargetTypeProperties:
+			runInitProperties(rt, langs)
+
+		case config.TargetTypeFlutter:
+			runInitFlutter(rt, langs)
 		}
 	}
+}
+
+// runInitYAML creates or syncs YAML translation files from the source file.
+func runInitYAML(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+
+	// Locate source file (try .yaml then .yml).
+	srcLang := rt.Target.SourceLang
+	srcPath := ""
+	for _, ext := range []string{".yaml", ".yml"} {
+		candidate := filepath.Join(transDir, srcLang+ext)
+		if _, err := os.Stat(candidate); err == nil {
+			srcPath = candidate
+			break
+		}
+	}
+	if srcPath == "" {
+		logError(T("Cannot find source YAML file for language %q in %s"), srcLang, transDir)
+		logInfo(T("Expected: %s"), filepath.Join(transDir, srcLang+".yaml"))
+		os.Exit(1)
+	}
+
+	srcFile, err := yamlfile.ParseFile(srcPath)
+	if err != nil {
+		logError(T("Cannot read source YAML file %s: %v"), srcPath, err)
+		os.Exit(1)
+	}
+
+	logInfo(T("Source language (%s): %d keys"), srcLang, len(srcFile.Keys()))
+
+	created, updated := 0, 0
+
+	for _, lang := range langs {
+		if lang == srcLang {
+			continue
+		}
+
+		// Try to find existing target file.
+		targetPath := ""
+		for _, ext := range []string{".yaml", ".yml"} {
+			candidate := filepath.Join(transDir, lang+ext)
+			if _, err := os.Stat(candidate); err == nil {
+				targetPath = candidate
+				break
+			}
+		}
+
+		if targetPath == "" {
+			// Create new file from source structure.
+			targetPath = filepath.Join(transDir, lang+".yaml")
+			newFile := yamlfile.NewTranslationFile(srcFile, lang)
+			if err := os.MkdirAll(transDir, 0755); err != nil {
+				logError(T("Creating directory %s: %v"), transDir, err)
+				continue
+			}
+			if err := newFile.WriteFile(targetPath); err != nil {
+				logError(T("Creating %s: %v"), targetPath, err)
+				continue
+			}
+			logSuccess(T("Created: %s (%d keys)"), targetPath, len(srcFile.Keys()))
+			created++
+			continue
+		}
+
+		// Sync existing file.
+		targetFile, err := yamlfile.ParseFile(targetPath)
+		if err != nil {
+			logError(T("Reading %s: %v"), targetPath, err)
+			continue
+		}
+
+		yamlfile.SyncKeys(srcFile, targetFile)
+		if err := targetFile.WriteFile(targetPath); err != nil {
+			logError(T("Writing %s: %v"), targetPath, err)
+			continue
+		}
+		logSuccess(T("Updated: %s"), targetPath)
+		updated++
+	}
+
+	logInfo(T("YAML init: %d created, %d updated"), created, updated)
 }
 
 func runInitI18Next(proj *config.Project) {
@@ -1359,17 +1563,19 @@ func newTranslateCmd() *cobra.Command {
 		Short: T("Translate files using AI"),
 		Long: T(`Translate files using AI providers.
 
-Supports gettext PO, po4a, i18next JSON, Android strings.xml, and generic
-JSON formats. Project type is auto-detected or configured via .lokit.yaml.
+Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+auto-detected or configured via lokit.yaml.
 
 For gettext/po4a projects, automatically initializes if needed (extracts
 strings, creates PO files). Requires --provider and --model flags.
 
-Custom prompts are loaded from ~/.local/share/lokit/prompts.json (or
-$XDG_DATA_HOME/lokit/prompts.json). Each project type uses its own prompt
-template (default, docs, i18next, recipe, blogpost, android). If the file
-does not exist, built-in defaults are used. The --prompt flag overrides
-the loaded prompt for the current run.
+Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+$XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+on first use with built-in defaults. Each project type uses its own
+prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+properties, flutter). The --prompt flag overrides the loaded prompt for the
+current run.
 
 Examples:
   # Translate a gettext project using GitHub Copilot (free)
@@ -1387,6 +1593,9 @@ Examples:
   # Re-translate everything with a custom prompt
   lokit translate --provider copilot --model gpt-4o --retranslate \
     --prompt "Translate to {{targetLang}}. Use informal tone."
+
+  # Translate a Flutter project
+  lokit translate --provider copilot --model gpt-4o
 
   # Dry run (show what would be translated)
   lokit translate --provider copilot --model gpt-4o --dry-run`),
@@ -1407,7 +1616,7 @@ Examples:
 	// Provider selection
 	cmd.Flags().StringVar(&provider, "provider", "", T("AI provider (required): google, gemini, groq, opencode, copilot, ollama, custom-openai"))
 	cmd.Flags().StringVar(&model, "model", "", T("Model name (required)"))
-	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key (or LOKIT_API_KEY env var)"))
+	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"))
 	cmd.Flags().StringVar(&baseURL, "base-url", "", T("Custom API base URL"))
 
 	// Target selection
@@ -1480,7 +1689,7 @@ type translateArgs struct {
 }
 
 func runTranslate(a translateArgs) {
-	// Check for .lokit.yaml config file
+	// Check for lokit.yaml config file
 	lf, err := config.LoadLokitFile(rootDir)
 	if err != nil {
 		logError(T("Config error: %v"), err)
@@ -1491,24 +1700,18 @@ func runTranslate(a translateArgs) {
 		return
 	}
 
-	logError(T("No .lokit.yaml found in %s"), rootDir)
-	logInfo(T("Create a .lokit.yaml configuration file. See 'lokit init --help' for format reference."))
+	logError(T("No lokit.yaml found in %s"), rootDir)
+	logInfo(T("Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."))
 	os.Exit(1)
 }
 
 // ---------------------------------------------------------------------------
-// .lokit.yaml multi-target translate
+// lokit.yaml multi-target translate
 // ---------------------------------------------------------------------------
 
 func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
-	// Resolve API key
-	key := a.apiKey
-	if key == "" {
-		key = os.Getenv("LOKIT_API_KEY")
-	}
-	if key == "" {
-		key = settings.GetAPIKey(a.provider)
-	}
+	// Resolve API key: --api-key flag → provider env var → stored credential
+	key := settings.ResolveAPIKey(a.provider, a.apiKey)
 
 	if a.provider == "" {
 		logError(T("No provider specified. Use --provider to choose an AI translation service.\n\n") +
@@ -1529,7 +1732,7 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 	}
 
 	if len(resolved) == 0 {
-		logError(T("No targets defined in .lokit.yaml"))
+		logError(T("No targets defined in lokit.yaml"))
 		os.Exit(1)
 	}
 
@@ -1601,6 +1804,30 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 
 		case config.TargetTypeAndroid:
 			if err := translateAndroidTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError(T("[%s] %v"), rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		case config.TargetTypeYAML:
+			if err := translateYAMLTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError(T("[%s] %v"), rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		case config.TargetTypeMarkdown:
+			if err := translateMarkdownTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError(T("[%s] %v"), rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		case config.TargetTypeProperties:
+			if err := translatePropertiesTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError(T("[%s] %v"), rt.Target.Name, err)
+				hadErrors = true
+			}
+
+		case config.TargetTypeFlutter:
+			if err := translateFlutterTarget(ctx, rt, prov, a, targetLangs); err != nil {
 				logError(T("[%s] %v"), rt.Target.Name, err)
 				hadErrors = true
 			}
@@ -2556,7 +2783,7 @@ OAuth providers (interactive browser/device flow):
 API key providers (paste your key):
   google        Google AI Studio (Gemini API key)
   groq          Groq Cloud (free tier available)
-  opencode      OpenCode proxy
+  opencode      OpenCode Zen API (free models available without key)
   custom-openai Custom OpenAI-compatible endpoint
 
 No auth required:
@@ -3052,11 +3279,21 @@ func newAuthListCmd() *cobra.Command {
 
 			// Environment variables
 			fmt.Fprintf(os.Stderr, "\n  %s%s%s\n", colorBold+colorYellow, T("Environment Variables"), colorReset)
-			envKey := os.Getenv("LOKIT_API_KEY")
-			if envKey != "" {
-				keyVal(T("LOKIT_API_KEY"), fmt.Sprintf("%s%s%s (%s)", colorGreen, settings.MaskKey(envKey), colorReset, T("overrides stored keys")))
-			} else {
-				keyVal(T("LOKIT_API_KEY"), fmt.Sprintf("%s%s%s", colorDim, T("not set"), colorReset))
+			envProviders := []struct {
+				id string
+			}{
+				{"google"},
+				{"groq"},
+				{"opencode"},
+				{"custom-openai"},
+			}
+			for _, p := range envProviders {
+				envVar := settings.EnvVarForProvider(p.id)
+				if v := os.Getenv(envVar); v != "" {
+					keyVal(envVar, fmt.Sprintf("%s%s%s (%s)", colorGreen, settings.MaskKey(v), colorReset, p.id))
+				} else {
+					keyVal(envVar, fmt.Sprintf("%s%s%s", colorDim, T("not set"), colorReset))
+				}
 			}
 			fmt.Fprintln(os.Stderr)
 		},
@@ -3356,7 +3593,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 				"Option 2: Login with Google OAuth (free tier: 60 req/min):\n" +
 				"  lokit auth login --provider gemini\n\n" +
 				"Option 3: Pass key directly:\n" +
-				"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n\n" +
+				"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n\n" +
 				"Get an API key from: https://aistudio.google.com/apikey"))
 		}
 
@@ -3375,7 +3612,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 				"Option 1: Store your API key:\n" +
 				"  lokit auth login --provider groq\n\n" +
 				"Option 2: Pass key directly:\n" +
-				"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n\n" +
+				"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n\n" +
 				"Get a free API key from: https://console.groq.com/keys"))
 		}
 
@@ -3418,4 +3655,872 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 	}
 
 	return nil
+}
+
+// translateYAMLTarget translates YAML translation files.
+func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	transDir := rt.AbsTranslationsDir()
+
+	logInfo(T("Provider: %s (%s), Model: %s"), prov.Name, prov.ID, prov.Model)
+	if a.parallel {
+		logInfo(T("Parallel: enabled, max concurrent: %d"), a.maxConcurrent)
+	}
+	if a.chunkSize > 0 {
+		logInfo(T("Chunk size: %d"), a.chunkSize)
+	}
+	logInfo(T("Translations dir: %s"), transDir)
+	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
+
+	// Locate source file.
+	srcLang := rt.Target.SourceLang
+	srcPath := ""
+	for _, ext := range []string{".yaml", ".yml"} {
+		candidate := filepath.Join(transDir, srcLang+ext)
+		if _, err := os.Stat(candidate); err == nil {
+			srcPath = candidate
+			break
+		}
+	}
+	if srcPath == "" {
+		return fmt.Errorf(T("cannot find source YAML file for language %q in %s"), srcLang, transDir)
+	}
+
+	srcFile, err := yamlfile.ParseFile(srcPath)
+	if err != nil {
+		return fmt.Errorf(T("cannot read source YAML %s: %w"), srcPath, err)
+	}
+	srcTotal, _, _ := srcFile.Stats()
+	logInfo(T("Source strings: %d"), srcTotal)
+
+	if a.dryRun {
+		for _, lang := range langs {
+			filePath := ""
+			for _, ext := range []string{".yaml", ".yml"} {
+				candidate := filepath.Join(transDir, lang+ext)
+				if _, err := os.Stat(candidate); err == nil {
+					filePath = candidate
+					break
+				}
+			}
+
+			langName := lang
+			if meta, ok := i18next.LangMeta[lang]; ok {
+				langName = meta.Name
+			}
+
+			if filePath == "" {
+				logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, srcTotal)
+				continue
+			}
+
+			file, err := yamlfile.ParseFile(filePath)
+			if err != nil {
+				logInfo(T("%s (%s): %d strings to translate"), lang, langName, srcTotal)
+				continue
+			}
+
+			count := len(file.UntranslatedKeys())
+			if a.retranslate {
+				count = srcTotal
+			}
+			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
+		}
+		return nil
+	}
+
+	// Build translate tasks.
+	var tasks []translate.YAMLLangTask
+	for _, lang := range langs {
+		langName := lang
+		if meta, ok := i18next.LangMeta[lang]; ok {
+			langName = meta.Name
+		}
+
+		// Find or init target file.
+		filePath := ""
+		for _, ext := range []string{".yaml", ".yml"} {
+			candidate := filepath.Join(transDir, lang+ext)
+			if _, err := os.Stat(candidate); err == nil {
+				filePath = candidate
+				break
+			}
+		}
+
+		var targetFile *yamlfile.File
+		if filePath == "" {
+			filePath = filepath.Join(transDir, lang+".yaml")
+			targetFile = yamlfile.NewTranslationFile(srcFile, lang)
+		} else {
+			targetFile, err = yamlfile.ParseFile(filePath)
+			if err != nil {
+				logError(T("Reading %s: %v"), filePath, err)
+				continue
+			}
+			yamlfile.SyncKeys(srcFile, targetFile)
+		}
+
+		tasks = append(tasks, translate.YAMLLangTask{
+			Lang:       lang,
+			LangName:   langName,
+			FilePath:   filePath,
+			File:       targetFile,
+			SourceFile: srcFile,
+		})
+	}
+
+	if len(tasks) == 0 {
+		logInfo(T("No YAML files to translate"))
+		return nil
+	}
+
+	systemPrompt := rt.Target.Prompt
+
+	parallelMode := translate.ParallelSequential
+	if a.parallel {
+		parallelMode = translate.ParallelFullParallel
+	}
+
+	opts := translate.Options{
+		Provider:            prov,
+		SystemPrompt:        systemPrompt,
+		RetranslateExisting: a.retranslate,
+		ChunkSize:           a.chunkSize,
+		RequestDelay:        a.requestDelay,
+		Timeout:             a.timeout,
+		MaxRetries:          a.maxRetries,
+		ParallelMode:        parallelMode,
+		MaxConcurrent:       a.maxConcurrent,
+		Verbose:             a.verbose,
+		OnLog: func(format string, args ...any) {
+			logInfo(format, args...)
+		},
+		OnError: func(format string, args ...any) {
+			logError(format, args...)
+		},
+		OnProgress: func(lang string, done, total int) {
+			logInfo(T("  %s: %d/%d strings"), lang, done, total)
+		},
+	}
+
+	return translate.TranslateAllYAML(ctx, tasks, opts)
+}
+
+// ---------------------------------------------------------------------------
+// Markdown helpers
+// ---------------------------------------------------------------------------
+
+// showConfigMarkdownStats shows translation stats for a Markdown target.
+// Source files live in translations_dir/SOURCE_LANG/*.md and targets in
+// translations_dir/LANG/*.md.
+func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	keyVal(T("Translations"), transDir)
+
+	srcLang := rt.Target.SourceLang
+	srcDir := filepath.Join(transDir, srcLang)
+	srcFiles, _ := filepath.Glob(filepath.Join(srcDir, "*.md"))
+	if len(srcFiles) == 0 {
+		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcDir+"/*.md)")
+		return
+	}
+
+	// Count total translatable segments across all source files.
+	srcTotal := 0
+	for _, p := range srcFiles {
+		f, err := mdfile.ParseFile(p)
+		if err == nil {
+			t, _, _ := f.Stats()
+			srcTotal += t
+		}
+	}
+	keyVal(T("Source segments"), fmt.Sprintf("%d (%s, %d files)", srcTotal, srcLang, len(srcFiles)))
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
+		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+
+	for _, lang := range langs {
+		langDir := filepath.Join(transDir, lang)
+		files, _ := filepath.Glob(filepath.Join(langDir, "*.md"))
+		if len(files) == 0 {
+			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
+				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			continue
+		}
+
+		translated := 0
+		for _, p := range files {
+			f, err := mdfile.ParseFile(p)
+			if err != nil {
+				continue
+			}
+			_, tr, _ := f.Stats()
+			translated += tr
+		}
+
+		untranslated := srcTotal - translated
+		percent := 0
+		if srcTotal > 0 {
+			percent = translated * 100 / srcTotal
+		}
+		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
+			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+	}
+}
+
+// runInitMarkdown creates or syncs Markdown translation files from the source directory.
+func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	srcLang := rt.Target.SourceLang
+	srcDir := filepath.Join(transDir, srcLang)
+
+	srcFiles, _ := filepath.Glob(filepath.Join(srcDir, "*.md"))
+	if len(srcFiles) == 0 {
+		logError(T("Cannot find source Markdown files in %s"), srcDir)
+		logInfo(T("Expected: %s/*.md"), srcDir)
+		os.Exit(1)
+	}
+
+	logInfo(T("Source language (%s): %d files"), srcLang, len(srcFiles))
+
+	created, updated := 0, 0
+
+	for _, lang := range langs {
+		if lang == srcLang {
+			continue
+		}
+
+		langDir := filepath.Join(transDir, lang)
+		if err := os.MkdirAll(langDir, 0755); err != nil {
+			logError(T("Creating directory %s: %v"), langDir, err)
+			continue
+		}
+
+		for _, srcPath := range srcFiles {
+			base := filepath.Base(srcPath)
+			targetPath := filepath.Join(langDir, base)
+
+			srcFile, err := mdfile.ParseFile(srcPath)
+			if err != nil {
+				logError(T("Cannot read source Markdown file %s: %v"), srcPath, err)
+				continue
+			}
+
+			if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+				// Create new empty translation file.
+				newFile := mdfile.NewTranslationFile(srcFile)
+				if err := newFile.WriteFile(targetPath); err != nil {
+					logError(T("Creating %s: %v"), targetPath, err)
+					continue
+				}
+				logSuccess(T("Created: %s (%d segments)"), targetPath, len(srcFile.Keys()))
+				created++
+			} else {
+				// Sync existing file.
+				targetFile, err := mdfile.ParseFile(targetPath)
+				if err != nil {
+					logError(T("Reading %s: %v"), targetPath, err)
+					continue
+				}
+				mdfile.SyncKeys(srcFile, targetFile)
+				if err := targetFile.WriteFile(targetPath); err != nil {
+					logError(T("Writing %s: %v"), targetPath, err)
+					continue
+				}
+				logSuccess(T("Updated: %s"), targetPath)
+				updated++
+			}
+		}
+	}
+
+	logInfo(T("Markdown init: %d created, %d updated"), created, updated)
+}
+
+// translateMarkdownTarget translates Markdown files for a single target.
+// Source: translations_dir/SOURCE_LANG/*.md → Target: translations_dir/LANG/*.md
+func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	transDir := rt.AbsTranslationsDir()
+
+	logInfo(T("Provider: %s (%s), Model: %s"), prov.Name, prov.ID, prov.Model)
+	if a.parallel {
+		logInfo(T("Parallel: enabled, max concurrent: %d"), a.maxConcurrent)
+	}
+	if a.chunkSize > 0 {
+		logInfo(T("Chunk size: %d"), a.chunkSize)
+	}
+	logInfo(T("Translations dir: %s"), transDir)
+	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
+
+	srcLang := rt.Target.SourceLang
+	srcDir := filepath.Join(transDir, srcLang)
+	srcFiles, _ := filepath.Glob(filepath.Join(srcDir, "*.md"))
+	if len(srcFiles) == 0 {
+		return fmt.Errorf(T("cannot find source Markdown files in %s"), srcDir)
+	}
+
+	totalSrcSegs := 0
+	for _, p := range srcFiles {
+		if f, err := mdfile.ParseFile(p); err == nil {
+			t, _, _ := f.Stats()
+			totalSrcSegs += t
+		}
+	}
+	logInfo(T("Source segments: %d (%d files)"), totalSrcSegs, len(srcFiles))
+
+	if a.dryRun {
+		for _, lang := range langs {
+			langName := lang
+			if meta, ok := i18next.LangMeta[lang]; ok {
+				langName = meta.Name
+			}
+			langDir := filepath.Join(transDir, lang)
+			count := 0
+			for _, srcPath := range srcFiles {
+				base := filepath.Base(srcPath)
+				targetPath := filepath.Join(langDir, base)
+				srcFile, err := mdfile.ParseFile(srcPath)
+				if err != nil {
+					continue
+				}
+				if a.retranslate {
+					count += len(srcFile.Keys())
+					continue
+				}
+				if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+					count += len(srcFile.Keys())
+					continue
+				}
+				tf, err := mdfile.ParseFile(targetPath)
+				if err != nil {
+					count += len(srcFile.Keys())
+					continue
+				}
+				count += len(tf.UntranslatedKeys())
+			}
+			logInfo(T("%s (%s): %d segments to translate"), lang, langName, count)
+		}
+		return nil
+	}
+
+	// Build tasks — one per (lang, file) pair.
+	var tasks []translate.MarkdownLangTask
+	for _, lang := range langs {
+		langName := lang
+		if meta, ok := i18next.LangMeta[lang]; ok {
+			langName = meta.Name
+		}
+		langDir := filepath.Join(transDir, lang)
+		if err := os.MkdirAll(langDir, 0755); err != nil {
+			logError(T("Creating directory %s: %v"), langDir, err)
+			continue
+		}
+
+		for _, srcPath := range srcFiles {
+			base := filepath.Base(srcPath)
+			targetPath := filepath.Join(langDir, base)
+
+			srcFile, err := mdfile.ParseFile(srcPath)
+			if err != nil {
+				logError(T("Reading %s: %v"), srcPath, err)
+				continue
+			}
+
+			var targetFile *mdfile.File
+			if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+				targetFile = mdfile.NewTranslationFile(srcFile)
+			} else {
+				targetFile, err = mdfile.ParseFile(targetPath)
+				if err != nil {
+					logError(T("Reading %s: %v"), targetPath, err)
+					continue
+				}
+				mdfile.SyncKeys(srcFile, targetFile)
+			}
+
+			tasks = append(tasks, translate.MarkdownLangTask{
+				Lang:       lang,
+				LangName:   langName,
+				FilePath:   targetPath,
+				File:       targetFile,
+				SourceFile: srcFile,
+			})
+		}
+	}
+
+	if len(tasks) == 0 {
+		logInfo(T("No Markdown files to translate"))
+		return nil
+	}
+
+	systemPrompt := rt.Target.Prompt
+
+	parallelMode := translate.ParallelSequential
+	if a.parallel {
+		parallelMode = translate.ParallelFullParallel
+	}
+
+	opts := translate.Options{
+		Provider:            prov,
+		SystemPrompt:        systemPrompt,
+		RetranslateExisting: a.retranslate,
+		ChunkSize:           a.chunkSize,
+		RequestDelay:        a.requestDelay,
+		Timeout:             a.timeout,
+		MaxRetries:          a.maxRetries,
+		ParallelMode:        parallelMode,
+		MaxConcurrent:       a.maxConcurrent,
+		Verbose:             a.verbose,
+		OnLog: func(format string, args ...any) {
+			logInfo(format, args...)
+		},
+		OnError: func(format string, args ...any) {
+			logError(format, args...)
+		},
+		OnProgress: func(lang string, done, total int) {
+			logInfo(T("  %s: %d/%d segments"), lang, done, total)
+		},
+	}
+
+	return translate.TranslateAllMarkdown(ctx, tasks, opts)
+}
+
+// ---------------------------------------------------------------------------
+// Properties (.properties) helpers
+// ---------------------------------------------------------------------------
+
+// showConfigPropertiesStats shows translation stats for a .properties target.
+func showConfigPropertiesStats(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	keyVal(T("Translations"), transDir)
+
+	srcLang := rt.Target.SourceLang
+	srcPath := filepath.Join(transDir, srcLang+".properties")
+	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
+		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcPath+")")
+		return
+	}
+
+	srcFile, err := propfile.ParseFile(srcPath)
+	if err != nil {
+		keyVal(T("Source"), colorYellow+fmt.Sprintf(T("parse error: %v"), err)+colorReset)
+		return
+	}
+	srcTotal, _, _ := srcFile.Stats()
+	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
+		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+
+	for _, lang := range langs {
+		filePath := filepath.Join(transDir, lang+".properties")
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
+				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			continue
+		}
+
+		file, err := propfile.ParseFile(filePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
+				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("parse error"), colorReset)
+			continue
+		}
+
+		total, translated, _ := file.Stats()
+		untranslated := total - translated
+		percent := 0
+		if srcTotal > 0 {
+			percent = translated * 100 / srcTotal
+		}
+		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
+			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+	}
+}
+
+// runInitProperties creates or syncs .properties translation files from the source file.
+func runInitProperties(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	srcLang := rt.Target.SourceLang
+	srcPath := filepath.Join(transDir, srcLang+".properties")
+
+	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
+		logError(T("Cannot find source .properties file: %s"), srcPath)
+		os.Exit(1)
+	}
+
+	srcFile, err := propfile.ParseFile(srcPath)
+	if err != nil {
+		logError(T("Cannot read source .properties file %s: %v"), srcPath, err)
+		os.Exit(1)
+	}
+
+	logInfo(T("Source language (%s): %d keys"), srcLang, len(srcFile.Keys()))
+
+	created, updated := 0, 0
+
+	for _, lang := range langs {
+		if lang == srcLang {
+			continue
+		}
+		targetPath := filepath.Join(transDir, lang+".properties")
+
+		if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+			newFile := propfile.NewTranslationFile(srcFile)
+			if err := os.MkdirAll(transDir, 0755); err != nil {
+				logError(T("Creating directory %s: %v"), transDir, err)
+				continue
+			}
+			if err := newFile.WriteFile(targetPath); err != nil {
+				logError(T("Creating %s: %v"), targetPath, err)
+				continue
+			}
+			logSuccess(T("Created: %s (%d keys)"), targetPath, len(srcFile.Keys()))
+			created++
+		} else {
+			targetFile, err := propfile.ParseFile(targetPath)
+			if err != nil {
+				logError(T("Reading %s: %v"), targetPath, err)
+				continue
+			}
+			propfile.SyncKeys(srcFile, targetFile)
+			if err := targetFile.WriteFile(targetPath); err != nil {
+				logError(T("Writing %s: %v"), targetPath, err)
+				continue
+			}
+			logSuccess(T("Updated: %s"), targetPath)
+			updated++
+		}
+	}
+
+	logInfo(T("Properties init: %d created, %d updated"), created, updated)
+}
+
+// translatePropertiesTarget translates .properties files for a single target.
+func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	transDir := rt.AbsTranslationsDir()
+
+	logInfo(T("Provider: %s (%s), Model: %s"), prov.Name, prov.ID, prov.Model)
+	if a.parallel {
+		logInfo(T("Parallel: enabled, max concurrent: %d"), a.maxConcurrent)
+	}
+	if a.chunkSize > 0 {
+		logInfo(T("Chunk size: %d"), a.chunkSize)
+	}
+	logInfo(T("Translations dir: %s"), transDir)
+	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
+
+	srcLang := rt.Target.SourceLang
+	srcPath := filepath.Join(transDir, srcLang+".properties")
+	srcFile, err := propfile.ParseFile(srcPath)
+	if err != nil {
+		return fmt.Errorf(T("cannot read source .properties file %s: %w"), srcPath, err)
+	}
+	srcTotal, _, _ := srcFile.Stats()
+	logInfo(T("Source strings: %d"), srcTotal)
+
+	if a.dryRun {
+		for _, lang := range langs {
+			langName := lang
+			if meta, ok := i18next.LangMeta[lang]; ok {
+				langName = meta.Name
+			}
+			targetPath := filepath.Join(transDir, lang+".properties")
+			count := srcTotal
+			if !a.retranslate {
+				if _, err := os.Stat(targetPath); err == nil {
+					if tf, err := propfile.ParseFile(targetPath); err == nil {
+						count = len(tf.UntranslatedKeys())
+					}
+				}
+			}
+			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
+		}
+		return nil
+	}
+
+	var tasks []translate.PropertiesLangTask
+	for _, lang := range langs {
+		langName := lang
+		if meta, ok := i18next.LangMeta[lang]; ok {
+			langName = meta.Name
+		}
+		targetPath := filepath.Join(transDir, lang+".properties")
+
+		var targetFile *propfile.File
+		if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+			targetFile = propfile.NewTranslationFile(srcFile)
+		} else {
+			targetFile, err = propfile.ParseFile(targetPath)
+			if err != nil {
+				logError(T("Reading %s: %v"), targetPath, err)
+				continue
+			}
+			propfile.SyncKeys(srcFile, targetFile)
+		}
+
+		tasks = append(tasks, translate.PropertiesLangTask{
+			Lang:       lang,
+			LangName:   langName,
+			FilePath:   targetPath,
+			File:       targetFile,
+			SourceFile: srcFile,
+		})
+	}
+
+	if len(tasks) == 0 {
+		logInfo(T("No .properties files to translate"))
+		return nil
+	}
+
+	parallelMode := translate.ParallelSequential
+	if a.parallel {
+		parallelMode = translate.ParallelFullParallel
+	}
+
+	opts := translate.Options{
+		Provider:            prov,
+		SystemPrompt:        rt.Target.Prompt,
+		RetranslateExisting: a.retranslate,
+		ChunkSize:           a.chunkSize,
+		RequestDelay:        a.requestDelay,
+		Timeout:             a.timeout,
+		MaxRetries:          a.maxRetries,
+		ParallelMode:        parallelMode,
+		MaxConcurrent:       a.maxConcurrent,
+		Verbose:             a.verbose,
+		OnLog: func(format string, args ...any) {
+			logInfo(format, args...)
+		},
+		OnError: func(format string, args ...any) {
+			logError(format, args...)
+		},
+		OnProgress: func(lang string, done, total int) {
+			logInfo(T("  %s: %d/%d strings"), lang, done, total)
+		},
+	}
+
+	return translate.TranslateAllProperties(ctx, tasks, opts)
+}
+
+// ---------------------------------------------------------------------------
+// Flutter ARB helpers
+// ---------------------------------------------------------------------------
+
+// showConfigFlutterStats shows translation stats for a Flutter ARB target.
+func showConfigFlutterStats(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	keyVal(T("Translations"), transDir)
+
+	srcLang := rt.Target.SourceLang
+	srcPath := filepath.Join(transDir, "app_"+srcLang+".arb")
+	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
+		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcPath+")")
+		return
+	}
+
+	srcFile, err := arbfile.ParseFile(srcPath)
+	if err != nil {
+		keyVal(T("Source"), colorYellow+fmt.Sprintf(T("parse error: %v"), err)+colorReset)
+		return
+	}
+	srcTotal, _, _ := srcFile.Stats()
+	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
+		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+
+	for _, lang := range langs {
+		filePath := filepath.Join(transDir, "app_"+lang+".arb")
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
+				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			continue
+		}
+
+		file, err := arbfile.ParseFile(filePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
+				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("parse error"), colorReset)
+			continue
+		}
+
+		total, translated, _ := file.Stats()
+		untranslated := total - translated
+		percent := 0
+		if srcTotal > 0 {
+			percent = translated * 100 / srcTotal
+		}
+		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
+			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+	}
+}
+
+// runInitFlutter creates or syncs Flutter ARB translation files from the source file.
+func runInitFlutter(rt config.ResolvedTarget, langs []string) {
+	transDir := rt.AbsTranslationsDir()
+	srcLang := rt.Target.SourceLang
+	srcPath := filepath.Join(transDir, "app_"+srcLang+".arb")
+
+	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
+		logError(T("Cannot find source ARB file: %s"), srcPath)
+		os.Exit(1)
+	}
+
+	srcFile, err := arbfile.ParseFile(srcPath)
+	if err != nil {
+		logError(T("Cannot read source ARB file %s: %v"), srcPath, err)
+		os.Exit(1)
+	}
+
+	logInfo(T("Source language (%s): %d keys"), srcLang, len(srcFile.Keys()))
+
+	created, updated := 0, 0
+
+	for _, lang := range langs {
+		if lang == srcLang {
+			continue
+		}
+		targetPath := filepath.Join(transDir, "app_"+lang+".arb")
+
+		if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+			newFile := arbfile.NewTranslationFile(srcFile, lang)
+			if err := os.MkdirAll(transDir, 0755); err != nil {
+				logError(T("Creating directory %s: %v"), transDir, err)
+				continue
+			}
+			if err := newFile.WriteFile(targetPath); err != nil {
+				logError(T("Creating %s: %v"), targetPath, err)
+				continue
+			}
+			logSuccess(T("Created: %s (%d keys)"), targetPath, len(srcFile.Keys()))
+			created++
+		} else {
+			targetFile, err := arbfile.ParseFile(targetPath)
+			if err != nil {
+				logError(T("Reading %s: %v"), targetPath, err)
+				continue
+			}
+			arbfile.SyncKeys(srcFile, targetFile)
+			if err := targetFile.WriteFile(targetPath); err != nil {
+				logError(T("Writing %s: %v"), targetPath, err)
+				continue
+			}
+			logSuccess(T("Updated: %s"), targetPath)
+			updated++
+		}
+	}
+
+	logInfo(T("Flutter ARB init: %d created, %d updated"), created, updated)
+}
+
+// translateFlutterTarget translates Flutter ARB files for a single target.
+func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+	transDir := rt.AbsTranslationsDir()
+
+	logInfo(T("Provider: %s (%s), Model: %s"), prov.Name, prov.ID, prov.Model)
+	if a.parallel {
+		logInfo(T("Parallel: enabled, max concurrent: %d"), a.maxConcurrent)
+	}
+	if a.chunkSize > 0 {
+		logInfo(T("Chunk size: %d"), a.chunkSize)
+	}
+	logInfo(T("Translations dir: %s"), transDir)
+	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
+
+	srcLang := rt.Target.SourceLang
+	srcPath := filepath.Join(transDir, "app_"+srcLang+".arb")
+	srcFile, err := arbfile.ParseFile(srcPath)
+	if err != nil {
+		return fmt.Errorf(T("cannot read source ARB file %s: %w"), srcPath, err)
+	}
+	srcTotal, _, _ := srcFile.Stats()
+	logInfo(T("Source strings: %d"), srcTotal)
+
+	if a.dryRun {
+		for _, lang := range langs {
+			langName := lang
+			if meta, ok := i18next.LangMeta[lang]; ok {
+				langName = meta.Name
+			}
+			targetPath := filepath.Join(transDir, "app_"+lang+".arb")
+			count := srcTotal
+			if !a.retranslate {
+				if _, err := os.Stat(targetPath); err == nil {
+					if tf, err := arbfile.ParseFile(targetPath); err == nil {
+						count = len(tf.UntranslatedKeys())
+					}
+				}
+			}
+			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
+		}
+		return nil
+	}
+
+	var tasks []translate.ARBLangTask
+	for _, lang := range langs {
+		langName := lang
+		if meta, ok := i18next.LangMeta[lang]; ok {
+			langName = meta.Name
+		}
+		targetPath := filepath.Join(transDir, "app_"+lang+".arb")
+
+		var targetFile *arbfile.File
+		if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+			targetFile = arbfile.NewTranslationFile(srcFile, lang)
+		} else {
+			targetFile, err = arbfile.ParseFile(targetPath)
+			if err != nil {
+				logError(T("Reading %s: %v"), targetPath, err)
+				continue
+			}
+			arbfile.SyncKeys(srcFile, targetFile)
+		}
+
+		tasks = append(tasks, translate.ARBLangTask{
+			Lang:       lang,
+			LangName:   langName,
+			FilePath:   targetPath,
+			File:       targetFile,
+			SourceFile: srcFile,
+		})
+	}
+
+	if len(tasks) == 0 {
+		logInfo(T("No ARB files to translate"))
+		return nil
+	}
+
+	parallelMode := translate.ParallelSequential
+	if a.parallel {
+		parallelMode = translate.ParallelFullParallel
+	}
+
+	opts := translate.Options{
+		Provider:            prov,
+		SystemPrompt:        rt.Target.Prompt,
+		RetranslateExisting: a.retranslate,
+		ChunkSize:           a.chunkSize,
+		RequestDelay:        a.requestDelay,
+		Timeout:             a.timeout,
+		MaxRetries:          a.maxRetries,
+		ParallelMode:        parallelMode,
+		MaxConcurrent:       a.maxConcurrent,
+		Verbose:             a.verbose,
+		OnLog: func(format string, args ...any) {
+			logInfo(format, args...)
+		},
+		OnError: func(format string, args ...any) {
+			logError(format, args...)
+		},
+		OnProgress: func(lang string, done, total int) {
+			logInfo(T("  %s: %d/%d strings"), lang, done, total)
+		},
+	}
+
+	return translate.TranslateAllARB(ctx, tasks, opts)
 }

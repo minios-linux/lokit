@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-17 16:18+0000\n"
-"PO-Revision-Date: 2026-02-17 16:18+0000\n"
+"POT-Creation-Date: 2026-02-19 12:46+0000\n"
+"PO-Revision-Date: 2026-02-19 12:47+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -15,214 +15,281 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: main.go:1012
+#: main.go:1038
+msgid "Languages to init (comma-separated, default: all from config)"
+msgstr "Языки для инициализации (через запятую, по умолчанию: все из конфигурации)"
+
+#: main.go:1123
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Для Android-целей инициализация не требуется — используйте 'lokit translate' напрямую."
 
-#: main.go:1021
-#: main.go:2125
-msgid "Cannot read source language file %s: %v"
-msgstr "Не удалось прочитать файл исходного языка %s: %v"
+#: main.go:1155
+msgid "Cannot find source YAML file for language %q in %s"
+msgstr "Не удалось найти исходный YAML-файл для языка %q в %s"
 
-#: main.go:1026
+#: main.go:1156
+msgid "Expected: %s"
+msgstr "Ожидалось: %s"
+
+#: main.go:1162
+msgid "Cannot read source YAML file %s: %v"
+msgstr "Не удалось прочитать исходный YAML-файл %s: %v"
+
+#: main.go:1166
+#: main.go:1230
+#: main.go:4160
+#: main.go:4380
 msgid "Source language (%s): %d keys"
 msgstr "Исходный язык (%s): %d ключей"
 
-#: main.go:1052
-#: main.go:1292
-#: main.go:3260
+#: main.go:1190
+#: main.go:3896
+#: main.go:4015
+#: main.go:4173
+#: main.go:4393
+msgid "Creating directory %s: %v"
+msgstr "Создание директории %s: %v"
+
+#: main.go:1194
+#: main.go:1256
+#: main.go:1496
+#: main.go:3497
+#: main.go:3914
+#: main.go:4177
+#: main.go:4397
 msgid "Creating %s: %v"
 msgstr "Создание %s: %v"
 
-#: main.go:1055
+#: main.go:1197
+#: main.go:1259
+#: main.go:4180
+#: main.go:4400
 msgid "Created: %s (%d keys)"
 msgstr "Создано: %s (%d ключей)"
 
-#: main.go:1071
-#: main.go:1670
-msgid "Updating %s: %v"
-msgstr "Обновление %s: %v"
-
-#: main.go:1074
-msgid "Updated: %s (+%d new keys)"
-msgstr "Обновлено: %s (+%d новых ключей)"
-
-#: main.go:1077
-msgid "%s: up to date"
-msgstr "%s: актуально"
-
-#: main.go:1081
-#: main.go:1314
-msgid "Summary: %d created, %d updated"
-msgstr "Итого: создано — %d, обновлено — %d"
-
-#: main.go:1084
-#: main.go:1243
-#: main.go:1320
-msgid "Init complete!"
-msgstr "Инициализация завершена!"
-
-#: main.go:1097
-msgid "pandoc not found, skipping manpage generation from markdown"
-msgstr "pandoc не найден, пропускаем генерацию man-страницы из markdown"
-
-#: main.go:1112
-msgid "failed to list markdown files: %w"
-msgstr "не удалось получить список файлов Markdown: %w"
-
-#: main.go:1145
-msgid "Generating %s from %s"
-msgstr "Генерация %s из %s"
-
-#: main.go:1150
-msgid "pandoc failed for %s: %w"
-msgstr "ошибка pandoc для %s: %w"
-
-#: main.go:1155
-msgid "Failed to post-process %s: %v"
-msgstr "Не удалось выполнить постобработку %s: %v"
-
-#: main.go:1162
-msgid "Generated %d manpage(s) from markdown"
-msgstr "Сгенерировано %d man-страниц из markdown"
-
-#: main.go:1197
-msgid "po4a is not installed. Install with: sudo apt install po4a"
-msgstr "po4a не установлен. Установите с помощью: sudo apt install po4a"
-
-#: main.go:1202
-msgid "Failed to generate manpages from markdown: %v"
-msgstr "Не удалось сгенерировать man-страницы из markdown: %v"
-
-#: main.go:1203
-msgid "Continuing anyway, po4a might fail if source files don't exist"
-msgstr "Продолжаем работу, po4a может завершиться с ошибкой, если исходные файлы отсутствуют"
-
-#: main.go:1206
-msgid "Running po4a --no-translations %s ..."
-msgstr "Выполняется po4a --no-translations %s ..."
-
-#: main.go:1212
-msgid "po4a failed: %v"
-msgstr "Ошибка po4a: %v"
-
-#: main.go:1214
-msgid "po4a updated POT and PO files"
-msgstr "po4a обновил файлы POT и PO"
-
-#: main.go:1256
-#: main.go:1300
-#: main.go:1747
-#: main.go:1881
+#: main.go:1205
+#: main.go:1460
+#: main.go:1504
+#: main.go:1974
+#: main.go:2108
+#: main.go:3756
+#: main.go:3923
+#: main.go:4025
+#: main.go:4035
+#: main.go:4185
+#: main.go:4258
+#: main.go:4405
+#: main.go:4478
 msgid "Reading %s: %v"
 msgstr "Чтение %s: %v"
 
-#: main.go:1260
-msgid "Updating PO files for: %s"
-msgstr "Обновление PO-файлов для: %s"
+#: main.go:1211
+#: main.go:1510
+#: main.go:3928
+#: main.go:4190
+#: main.go:4410
+msgid "Writing %s: %v"
+msgstr "Запись %s: %v"
 
-#: main.go:1268
-#: main.go:3255
-msgid "Creating directory for %s: %v"
-msgstr "Создание директории для %s: %v"
+#: main.go:1214
+#: main.go:1513
+#: main.go:3931
+#: main.go:4193
+#: main.go:4413
+msgid "Updated: %s"
+msgstr "Обновлено: %s"
 
-#: main.go:128
+#: main.go:1218
+msgid "YAML init: %d created, %d updated"
+msgstr "Инициализация YAML: создано — %d, обновлено — %d"
+
+#: main.go:1225
+#: main.go:2352
+msgid "Cannot read source language file %s: %v"
+msgstr "Не удалось прочитать файл исходного языка %s: %v"
+
+#: main.go:1275
+#: main.go:1897
+msgid "Updating %s: %v"
+msgstr "Обновление %s: %v"
+
+#: main.go:1278
+msgid "Updated: %s (+%d new keys)"
+msgstr "Обновлено: %s (+%d новых ключей)"
+
+#: main.go:1281
+msgid "%s: up to date"
+msgstr "%s: актуально"
+
+#: main.go:1285
+#: main.go:1518
+msgid "Summary: %d created, %d updated"
+msgstr "Итого: создано — %d, обновлено — %d"
+
+#: main.go:1288
+#: main.go:1447
+#: main.go:1524
+msgid "Init complete!"
+msgstr "Инициализация завершена!"
+
+#: main.go:1301
+msgid "pandoc not found, skipping manpage generation from markdown"
+msgstr "pandoc не найден, пропускаем генерацию man-страницы из markdown"
+
+#: main.go:1316
+msgid "failed to list markdown files: %w"
+msgstr "не удалось получить список файлов Markdown: %w"
+
+#: main.go:132
 msgid "Localization Kit: AI-powered translation for multiple formats"
 msgstr "Localization Kit: перевод на базе ИИ для различных форматов"
 
-#: main.go:129
+#: main.go:133
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
-"Supported project types (auto-detected or configured via .lokit.yaml):\n"
+"Supported project types (auto-detected or configured via lokit.yaml):\n"
 "  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
 "  po4a        Documentation translation (man pages, groff/roff markup)\n"
 "  i18next     React/i18next JSON translation files\n"
 "  android     Android strings.xml resource files\n"
 "  json        Generic JSON translation files (recipes, blog posts)\n"
+"  yaml        YAML translation files\n"
+"  markdown    Markdown document translation\n"
+"  properties  Java .properties translation files\n"
+"  flutter     Flutter ARB (Application Resource Bundle) files\n"
 "\n"
 "Configuration:\n"
-"  Project settings are defined in .lokit.yaml at the project root.\n"
+"  Project settings are defined in lokit.yaml at the project root.\n"
 "  Each project can have multiple translation targets with different types.\n"
-"  See project examples for .lokit.yaml format.\n"
+"  See project examples for lokit.yaml format.\n"
 "\n"
 "Custom prompts:\n"
-"  AI translation prompts are loaded from ~/.local/share/lokit/prompts.json\n"
-"  (or $XDG_DATA_HOME/lokit/prompts.json). If the file does not exist,\n"
-"  built-in defaults are used. Prompt types: default, docs, i18next,\n"
-"  recipe, blogpost, android. Use {{targetLang}} as a placeholder for\n"
-"  the target language name.\n"
+"  AI translation prompts are stored in ~/.local/share/lokit/prompts.json\n"
+"  (or $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
+"  on first use with built-in defaults. Edit it to customize prompts per\n"
+"  content type: default, docs, i18next, recipe, blogpost, android, yaml,\n"
+"  markdown, properties, flutter.\n"
+"  Use {{targetLang}} as a placeholder for the target language name.\n"
 "\n"
 "AI Providers:\n"
 "  google         Google AI (Gemini) — API key\n"
 "  gemini         Gemini Code Assist — browser OAuth (free)\n"
 "  groq           Groq — API key required\n"
-"  opencode       OpenCode (multi-format dispatcher)\n"
+"  opencode       OpenCode Zen API (free models available without key)\n"
 "  copilot        GitHub Copilot (native OAuth, free)\n"
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
 "lokit — Localization Kit: перевод с помощью ИИ для различных форматов.\n"
 "\n"
-"Поддерживаемые типы проектов (автоматически определяются или настраиваются через .lokit.yaml):\n"
+"Поддерживаемые типы проектов (автоопределение или настройка через lokit.yaml):\n"
 "  gettext     Плоские (po/*.po) и вложенные (po/lang/*.po) PO-файлы\n"
 "  po4a        Перевод документации (man-страницы, groff/roff-разметка)\n"
 "  i18next     JSON-файлы переводов для React/i18next\n"
-"  android     Файлы ресурсов Android strings.xml\n"
+"  android     Ресурсы Android strings.xml\n"
 "  json        Универсальные JSON-файлы переводов (рецепты, блоги)\n"
+"  yaml        YAML-файлы переводов\n"
+"  markdown    Перевод Markdown-документов\n"
+"  properties  Переводы Java .properties\n"
+"  flutter     Flutter ARB (Application Resource Bundle)\n"
 "\n"
 "Конфигурация:\n"
-"  Настройки проекта задаются в .lokit.yaml в корне проекта.\n"
-"  В каждом проекте можно настроить несколько целей перевода разных типов.\n"
-"  Примеры проектов с форматом .lokit.yaml смотрите в документации.\n"
+"  Настройки проекта задаются в lokit.yaml в корне проекта.\n"
+"  Для каждого проекта можно указать несколько целей перевода с разными типами.\n"
+"  Примеры lokit.yaml смотрите в примерах проектов.\n"
 "\n"
 "Пользовательские промпты:\n"
-"  Промпты для ИИ загружаются из ~/.local/share/lokit/prompts.json\n"
-"  (или $XDG_DATA_HOME/lokit/prompts.json). Если файл отсутствует,\n"
-"  используются встроенные значения. Типы промптов: default, docs, i18next,\n"
-"  recipe, blogpost, android. Используйте {{targetLang}} как плейсхолдер\n"
-"  для названия целевого языка.\n"
+"  Промпты для ИИ-перевода хранятся в ~/.local/share/lokit/prompts.json\n"
+"  (или $XDG_DATA_HOME/lokit/prompts.json). Файл создаётся автоматически\n"
+"  при первом запуске с настройками по умолчанию. Отредактируйте его для\n"
+"  кастомизации промптов по типу контента: default, docs, i18next, recipe, blogpost, android, yaml,\n"
+"  markdown, properties, flutter.\n"
+"  Используйте {{targetLang}} как плейсхолдер для названия целевого языка.\n"
 "\n"
 "Провайдеры ИИ:\n"
-"  google         Google AI (Gemini) — требуется API-ключ\n"
+"  google         Google AI (Gemini) — API-ключ\n"
 "  gemini         Gemini Code Assist — OAuth через браузер (бесплатно)\n"
 "  groq           Groq — требуется API-ключ\n"
-"  opencode       OpenCode (мультиформатный диспетчер)\n"
+"  opencode       OpenCode Zen API (бесплатные модели без ключа)\n"
 "  copilot        GitHub Copilot (нативный OAuth, бесплатно)\n"
 "  ollama         Локальный сервер Ollama\n"
 "  custom-openai  Пользовательский OpenAI-совместимый endpoint"
 
-#: main.go:1295
+#: main.go:1349
+msgid "Generating %s from %s"
+msgstr "Генерация %s из %s"
+
+#: main.go:1354
+msgid "pandoc failed for %s: %w"
+msgstr "ошибка pandoc для %s: %w"
+
+#: main.go:1359
+msgid "Failed to post-process %s: %v"
+msgstr "Не удалось выполнить постобработку %s: %v"
+
+#: main.go:1366
+msgid "Generated %d manpage(s) from markdown"
+msgstr "Сгенерировано %d man-страниц из markdown"
+
+#: main.go:1401
+msgid "po4a is not installed. Install with: sudo apt install po4a"
+msgstr "po4a не установлен. Установите с помощью: sudo apt install po4a"
+
+#: main.go:1406
+msgid "Failed to generate manpages from markdown: %v"
+msgstr "Не удалось сгенерировать man-страницы из markdown: %v"
+
+#: main.go:1407
+msgid "Continuing anyway, po4a might fail if source files don't exist"
+msgstr "Продолжаем работу, po4a может завершиться с ошибкой, если исходные файлы отсутствуют"
+
+#: main.go:1410
+msgid "Running po4a --no-translations %s ..."
+msgstr "Выполняется po4a --no-translations %s ..."
+
+#: main.go:1416
+msgid "po4a failed: %v"
+msgstr "Ошибка po4a: %v"
+
+#: main.go:1418
+msgid "po4a updated POT and PO files"
+msgstr "po4a обновил файлы POT и PO"
+
+#: main.go:1464
+msgid "Updating PO files for: %s"
+msgstr "Обновление PO-файлов для: %s"
+
+#: main.go:1472
+#: main.go:3492
+msgid "Creating directory for %s: %v"
+msgstr "Создание директории для %s: %v"
+
+#: main.go:1499
 msgid "Created: %s"
 msgstr "Создано: %s"
 
-#: main.go:1306
-msgid "Writing %s: %v"
-msgstr "Запись %s: %v"
-
-#: main.go:1309
-msgid "Updated: %s"
-msgstr "Обновлено: %s"
-
-#: main.go:1359
+#: main.go:1563
 msgid "Translate files using AI"
 msgstr "Перевод файлов с помощью ИИ"
 
-#: main.go:1360
+#: main.go:1564
 msgid ""
 "Translate files using AI providers.\n"
 "\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, and generic\n"
-"JSON formats. Project type is auto-detected or configured via .lokit.yaml.\n"
+"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
+"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
+"auto-detected or configured via lokit.yaml.\n"
 "\n"
 "For gettext/po4a projects, automatically initializes if needed (extracts\n"
 "strings, creates PO files). Requires --provider and --model flags.\n"
 "\n"
-"Custom prompts are loaded from ~/.local/share/lokit/prompts.json (or\n"
-"$XDG_DATA_HOME/lokit/prompts.json). Each project type uses its own prompt\n"
-"template (default, docs, i18next, recipe, blogpost, android). If the file\n"
-"does not exist, built-in defaults are used. The --prompt flag overrides\n"
-"the loaded prompt for the current run.\n"
+"Custom prompts are stored in ~/.local/share/lokit/prompts.json (or\n"
+"$XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
+"on first use with built-in defaults. Each project type uses its own\n"
+"prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,\n"
+"properties, flutter). The --prompt flag overrides the loaded prompt for the\n"
+"current run.\n"
 "\n"
 "Examples:\n"
 "  # Translate a gettext project using GitHub Copilot (free)\n"
@@ -241,138 +308,145 @@ msgid ""
 "  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
 "    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
 "\n"
+"  # Translate a Flutter project\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 msgstr ""
 "Перевод файлов с помощью ИИ-провайдеров.\n"
 "\n"
-"Поддерживаются форматы: gettext PO, po4a, i18next JSON, Android strings.xml и универсальный\n"
-"JSON. Тип проекта определяется автоматически или настраивается через .lokit.yaml.\n"
+"Поддерживаются форматы: gettext PO, po4a, i18next JSON, Android strings.xml, универсальный JSON,\n"
+"YAML, Markdown, Java .properties и Flutter ARB. Тип проекта определяется автоматически или настраивается через lokit.yaml.\n"
 "\n"
-"Для проектов gettext/po4a автоматически инициализируется при необходимости (извлекает\n"
-"строки, создает PO-файлы). Требуются параметры --provider и --model.\n"
+"Для проектов gettext/po4a автоматически выполняется инициализация при необходимости (извлечение\n"
+"строк, создание PO-файлов). Требуются флаги --provider и --model.\n"
 "\n"
-"Пользовательские промпты загружаются из ~/.local/share/lokit/prompts.json (или\n"
-"$XDG_DATA_HOME/lokit/prompts.json). Для каждого типа проекта используется свой шаблон\n"
-"промпта (default, docs, i18next, recipe, blogpost, android). Если файл отсутствует,\n"
-"используются встроенные значения. Параметр --prompt переопределяет промпт для текущего запуска.\n"
+"Пользовательские промпты сохраняются в ~/.local/share/lokit/prompts.json (или\n"
+"$XDG_DATA_HOME/lokit/prompts.json). Файл создаётся автоматически\n"
+"при первом запуске с настройками по умолчанию. Для каждого типа проекта используется свой\n"
+"промпт (default, docs, i18next, recipe, blogpost, android, yaml, markdown,\n"
+"properties, flutter). Флаг --prompt переопределяет промпт для текущего запуска.\n"
 "\n"
 "Примеры:\n"
 "  # Перевести проект gettext с помощью GitHub Copilot (бесплатно)\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
 "\n"
-"  # Перевести проект Android с помощью Gemini (бесплатно, OAuth)\n"
+"  # Перевести Android-проект с помощью Gemini (бесплатно, OAuth)\n"
 "  lokit translate --provider gemini --model gemini-2.5-flash\n"
 "\n"
 "  # Перевести проект i18next с помощью Google AI (API-ключ)\n"
 "  lokit translate --provider google --model gemini-2.5-flash\n"
 "\n"
-"  # Перевести выбранные языки параллельно\n"
+"  # Перевести несколько языков параллельно\n"
 "  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
 "\n"
-"  # Перевести всё заново с пользовательским промптом\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
+"  # Перевести всё заново с кастомным промптом\n"
+"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Перевести на {{targetLang}}. Использовать неформальный стиль.\"\n"
 "\n"
-"  # Тестовый запуск (показать, что будет переведено)\n"
+"  # Перевести Flutter-проект\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # Пробный запуск (показать, что будет переведено)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 
-#: main.go:1408
+#: main.go:1617
 msgid "AI provider (required): google, gemini, groq, opencode, copilot, ollama, custom-openai"
 msgstr "Провайдер ИИ (обязательно): google, gemini, groq, opencode, copilot, ollama, custom-openai"
 
-#: main.go:1409
+#: main.go:1618
 msgid "Model name (required)"
 msgstr "Название модели (обязательно)"
 
-#: main.go:1410
-msgid "API key (or LOKIT_API_KEY env var)"
-msgstr "API-ключ (или переменная окружения LOKIT_API_KEY)"
+#: main.go:1619
+msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
+msgstr "API-ключ (или переменная окружения провайдера: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 
-#: main.go:1411
+#: main.go:1620
 msgid "Custom API base URL"
 msgstr "Пользовательский базовый URL API"
 
-#: main.go:1414
+#: main.go:1623
 msgid "Languages to translate (comma-separated, default: all with untranslated)"
 msgstr "Языки для перевода (через запятую, по умолчанию: все непереведённые)"
 
-#: main.go:1417
+#: main.go:1626
 msgid "Entries per API request (0 = all at once)"
 msgstr "Количество записей на запрос к API (0 = все сразу)"
 
-#: main.go:1418
+#: main.go:1627
 msgid "Re-translate already translated entries"
 msgstr "Перевести уже переведённые записи"
 
-#: main.go:1419
+#: main.go:1628
 msgid "Translate fuzzy entries and clear fuzzy flag"
 msgstr "Перевести нечеткие записи и снять флаг fuzzy"
 
-#: main.go:1420
+#: main.go:1629
 msgid "Custom system prompt (use {{targetLang}} placeholder)"
 msgstr "Пользовательский системный промпт (используйте плейсхолдер {{targetLang}})"
 
-#: main.go:1421
+#: main.go:1630
 msgid "Enable detailed logging"
 msgstr "Включить подробное логирование"
 
-#: main.go:1422
+#: main.go:1631
 msgid "Show what would be translated without calling AI"
 msgstr "Показать, что будет переведено, без обращения к ИИ"
 
-#: main.go:1425
+#: main.go:1634
 msgid "Enable parallel translation"
 msgstr "Включить параллельный перевод"
 
-#: main.go:1426
+#: main.go:1635
 msgid "Maximum concurrent tasks (with --parallel)"
 msgstr "Максимальное количество одновременных задач (с --parallel)"
 
-#: main.go:1427
+#: main.go:1636
 msgid "Delay between parallel tasks"
 msgstr "Задержка между параллельными задачами"
 
-#: main.go:1430
+#: main.go:1639
 msgid "Request timeout (0 = provider default)"
 msgstr "Таймаут запроса (0 = значение по умолчанию провайдера)"
 
-#: main.go:1431
+#: main.go:1640
 msgid "HTTP/HTTPS proxy URL"
 msgstr "URL HTTP/HTTPS прокси"
 
-#: main.go:1432
+#: main.go:1641
 msgid "Maximum retries on rate limit (429)"
 msgstr "Максимальное количество попыток при ограничении по скорости (429)"
 
-#: main.go:1437
+#: main.go:1646
 msgid "Google AI (Gemini) — API key required"
 msgstr "Google AI (Gemini) — требуется API-ключ"
 
-#: main.go:1438
+#: main.go:1647
 msgid "Gemini Code Assist — browser OAuth (free)"
 msgstr "Gemini Code Assist — OAuth через браузер (бесплатно)"
 
-#: main.go:1439
+#: main.go:1648
 msgid "Groq — API key required"
 msgstr "Groq — требуется API-ключ"
 
-#: main.go:1440
+#: main.go:1649
 msgid "OpenCode — optional API key"
 msgstr "OpenCode — API-ключ необязателен"
 
-#: main.go:1441
+#: main.go:1650
 msgid "GitHub Copilot — native OAuth (free)"
 msgstr "GitHub Copilot — нативный OAuth (бесплатно)"
 
-#: main.go:1442
+#: main.go:1651
 msgid "Ollama local server"
 msgstr "Локальный сервер Ollama"
 
-#: main.go:1443
+#: main.go:1652
 msgid "Custom OpenAI-compatible endpoint"
 msgstr "Пользовательский OpenAI-совместимый endpoint"
 
-#: main.go:1514
+#: main.go:1717
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
@@ -380,220 +454,240 @@ msgstr ""
 "Провайдер не указан. Используйте --provider для выбора сервиса AI-перевода.\n"
 "\n"
 
-#: main.go:1532
-msgid "No targets defined in .lokit.yaml"
-msgstr "В .lokit.yaml не определены целевые языки"
-
-#: main.go:1544
-#: main.go:2272
-msgid "Interrupted, saving progress..."
-msgstr "Операция прервана, сохраняем прогресс..."
-
-#: main.go:1571
-msgid "[%s] No languages to translate, skipping"
-msgstr "[%s] Нет языков для перевода, пропускаем"
-
-#: main.go:1580
-#: main.go:1586
-#: main.go:1592
-#: main.go:1598
-#: main.go:1604
-msgid "[%s] %v"
-msgstr "[%s] %v"
-
-#: main.go:1609
-msgid "[%s] Unknown target type %q, skipping"
-msgstr "[%s] Неизвестный тип цели %q, пропускаем"
-
-#: main.go:1614
-#: main.go:2536
-msgid "Translation completed with errors"
-msgstr "Перевод завершён с ошибками"
-
-#: main.go:1617
-msgid "All targets translated!"
-msgstr "Все цели переведены!"
-
-#: main.go:164
+#: main.go:173
 msgid "Warning: Failed to load prompts: %v"
 msgstr "Внимание: не удалось загрузить подсказки: %v"
 
-#: main.go:1651
-msgid "Extracting strings and updating PO files..."
-msgstr "Извлечение строк и обновление файлов PO..."
+#: main.go:1735
+msgid "No targets defined in lokit.yaml"
+msgstr "В lokit.yaml не указаны цели перевода"
 
-#: main.go:1653
-msgid "Extraction failed: %v"
-msgstr "Ошибка извлечения: %v"
+#: main.go:1747
+#: main.go:2499
+msgid "Interrupted, saving progress..."
+msgstr "Операция прервана, сохраняем прогресс..."
 
-#: main.go:1654
-msgid "Continuing with existing PO files"
-msgstr "Продолжаем работу с существующими файлами PO"
-
-#: main.go:166
+#: main.go:175
 msgid "Loaded prompts from %s"
 msgstr "Подсказки загружены из %s"
 
-#: main.go:1676
-#: main.go:1782
-#: main.go:1913
-#: main.go:1941
-#: main.go:1962
-#: main.go:2176
-msgid "Provider: %s (%s), Model: %s"
-msgstr "Провайдер: %s (%s), Модель: %s"
+#: main.go:1774
+msgid "[%s] No languages to translate, skipping"
+msgstr "[%s] Нет языков для перевода, пропускаем"
 
-#: main.go:1678
-#: main.go:1964
-#: main.go:2178
-msgid "Parallel: enabled, max concurrent: %d"
-msgstr "Параллельная обработка: включена, максимум одновременных: %d"
+#: main.go:1783
+#: main.go:1789
+#: main.go:1795
+#: main.go:1801
+#: main.go:1807
+#: main.go:1813
+#: main.go:1819
+#: main.go:1825
+#: main.go:1831
+msgid "[%s] %v"
+msgstr "[%s] %v"
 
-#: main.go:1681
-#: main.go:1967
-msgid "Chunk size: %d"
-msgstr "Размер чанка: %d"
-
-#: main.go:1683
-#: main.go:1784
-msgid "PO dir: %s"
-msgstr "Каталог PO: %s"
-
-#: main.go:1684
-#: main.go:1785
-#: main.go:1915
-#: main.go:1943
-#: main.go:1970
-msgid "Translating: %s"
-msgstr "Перевод: %s"
-
-#: main.go:1692
-#: main.go:1793
-#: main.go:2003
-#: main.go:2210
-msgid "%s (%s): %d strings to translate"
-msgstr "%s (%s): %d строк для перевода"
-
-#: main.go:1694
-msgid "%s: PO file not found, will be created"
-msgstr "%s: PO-файл не найден, будет создан"
-
-#: main.go:1720
-#: main.go:1820
-#: main.go:2033
-#: main.go:2290
-msgid "  %s: %d/%d"
-msgstr "  %s: %d/%d"
-
-#: main.go:173
+#: main.go:182
 msgid "default"
 msgstr "по умолчанию"
 
-#: main.go:176
+#: main.go:1836
+msgid "[%s] Unknown target type %q, skipping"
+msgstr "[%s] Неизвестный тип цели %q, пропускаем"
+
+#: main.go:1841
+#: main.go:2763
+msgid "Translation completed with errors"
+msgstr "Перевод завершён с ошибками"
+
+#: main.go:1844
+msgid "All targets translated!"
+msgstr "Все цели переведены!"
+
+#: main.go:185
 msgid "Use \"%s [command] --help\" for more information about a command."
 msgstr "Используйте «%s [команда] --help» для получения дополнительной информации о команде."
 
-#: main.go:1769
-#: main.go:1902
-#: main.go:2083
-msgid "[%s] All translations complete!"
-msgstr "[%s] Все переводы завершены!"
+#: main.go:1878
+msgid "Extracting strings and updating PO files..."
+msgstr "Извлечение строк и обновление файлов PO..."
 
-#: main.go:1783
-msgid "po4a config: %s"
-msgstr "Конфигурация po4a: %s"
+#: main.go:1880
+msgid "Extraction failed: %v"
+msgstr "Ошибка извлечения: %v"
 
-#: main.go:1795
-msgid "%s: PO file not found at %s"
-msgstr "%s: PO-файл не найден по пути %s"
+#: main.go:1881
+msgid "Continuing with existing PO files"
+msgstr "Продолжаем работу с существующими файлами PO"
 
-#: main.go:182
+#: main.go:1903
+#: main.go:2009
+#: main.go:2140
+#: main.go:2168
+#: main.go:2189
+#: main.go:2403
+#: main.go:3664
+#: main.go:3945
+#: main.go:4205
+#: main.go:4425
+msgid "Provider: %s (%s), Model: %s"
+msgstr "Провайдер: %s (%s), Модель: %s"
+
+#: main.go:1905
+#: main.go:2191
+#: main.go:2405
+#: main.go:3666
+#: main.go:3947
+#: main.go:4207
+#: main.go:4427
+msgid "Parallel: enabled, max concurrent: %d"
+msgstr "Параллельная обработка: включена, максимум одновременных: %d"
+
+#: main.go:1908
+#: main.go:2194
+#: main.go:3669
+#: main.go:3950
+#: main.go:4210
+#: main.go:4430
+msgid "Chunk size: %d"
+msgstr "Размер чанка: %d"
+
+#: main.go:191
 msgid "Usage:"
 msgstr "Использование:"
 
-#: main.go:1835
-msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
-msgstr "Используется специальная подсказка для перевода документации (с сохранением groff/man-разметки)"
+#: main.go:1910
+#: main.go:2011
+msgid "PO dir: %s"
+msgstr "Каталог PO: %s"
 
-#: main.go:1847
-msgid "PO files missing, running po4a initialization..."
-msgstr "PO-файлы отсутствуют, запуск инициализации po4a..."
+#: main.go:1911
+#: main.go:2012
+#: main.go:2142
+#: main.go:2170
+#: main.go:2197
+#: main.go:3672
+#: main.go:3953
+#: main.go:4213
+#: main.go:4433
+msgid "Translating: %s"
+msgstr "Перевод: %s"
 
-#: main.go:186
+#: main.go:1919
+#: main.go:2020
+#: main.go:2230
+#: main.go:2437
+#: main.go:3718
+#: main.go:3726
+#: main.go:4239
+#: main.go:4459
+msgid "%s (%s): %d strings to translate"
+msgstr "%s (%s): %d строк для перевода"
+
+#: main.go:1921
+msgid "%s: PO file not found, will be created"
+msgstr "%s: PO-файл не найден, будет создан"
+
+#: main.go:1947
+#: main.go:2047
+#: main.go:2260
+#: main.go:2517
+msgid "  %s: %d/%d"
+msgstr "  %s: %d/%d"
+
+#: main.go:195
 msgid "Aliases:"
 msgstr "Псевдонимы:"
 
-#: main.go:1867
-msgid "auto-init failed: %v"
-msgstr "автоинициализация не удалась: %v"
-
-#: main.go:1878
-msgid "[%s] No PO file for %s at %s, skipping"
-msgstr "[%s] Нет PO-файла для %s в %s, пропуск"
-
-#: main.go:189
+#: main.go:198
 msgid "Examples:"
 msgstr "Примеры:"
 
-#: main.go:1914
-#: main.go:1942
-msgid "Translations dir: %s"
-msgstr "Каталог переводов: %s"
+#: main.go:1996
+#: main.go:2129
+#: main.go:2310
+msgid "[%s] All translations complete!"
+msgstr "[%s] Все переводы завершены!"
 
-#: main.go:192
+#: main.go:201
 msgid "Available Commands:"
 msgstr "Доступные команды:"
 
-#: main.go:1969
-msgid "Res dir: %s"
-msgstr "Каталог ресурсов: %s"
+#: main.go:2010
+msgid "po4a config: %s"
+msgstr "Конфигурация po4a: %s"
 
-#: main.go:1976
-msgid "cannot read source strings.xml %s: %w"
-msgstr "невозможно прочитать исходный strings.xml %s: %w"
+#: main.go:2022
+msgid "%s: PO file not found at %s"
+msgstr "%s: PO-файл не найден по пути %s"
 
-#: main.go:1979
-msgid "Source strings: %d"
-msgstr "Исходные строки: %d"
+#: main.go:2062
+msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
+msgstr "Используется специальная подсказка для перевода документации (с сохранением groff/man-разметки)"
 
-#: main.go:198
+#: main.go:207
 msgid "Additional Commands:"
 msgstr "Дополнительные команды:"
 
-#: main.go:1990
-#: main.go:2198
-msgid "%s (%s): %d strings to translate (file will be auto-created)"
-msgstr "%s (%s): %d строк для перевода (файл будет создан автоматически)"
+#: main.go:2074
+msgid "PO files missing, running po4a initialization..."
+msgstr "PO-файлы отсутствуют, запуск инициализации po4a..."
 
-#: main.go:201
+#: main.go:2094
+msgid "auto-init failed: %v"
+msgstr "автоинициализация не удалась: %v"
+
+#: main.go:210
 msgid "Flags:"
 msgstr "Флаги:"
 
-#: main.go:204
+#: main.go:2105
+msgid "[%s] No PO file for %s at %s, skipping"
+msgstr "[%s] Нет PO-файла для %s в %s, пропуск"
+
+#: main.go:213
 msgid "Global Flags:"
 msgstr "Глобальные флаги:"
 
-#: main.go:2051
-msgid "Auto-creating %s with %d strings"
-msgstr "Автоматически создаётся %s с %d строками"
+#: main.go:2141
+#: main.go:2169
+#: main.go:3671
+#: main.go:3952
+#: main.go:4212
+#: main.go:4432
+msgid "Translations dir: %s"
+msgstr "Каталог переводов: %s"
 
-#: main.go:2056
-msgid "Added %d new strings to %s"
-msgstr "Добавлено %d новых строк в %s"
-
-#: main.go:207
+#: main.go:216
 msgid "Additional help topics:"
 msgstr "Дополнительные разделы справки:"
 
-#: main.go:216
+#: main.go:2196
+msgid "Res dir: %s"
+msgstr "Каталог ресурсов: %s"
+
+#: main.go:2203
+msgid "cannot read source strings.xml %s: %w"
+msgstr "невозможно прочитать исходный strings.xml %s: %w"
+
+#: main.go:2206
+#: main.go:3693
+#: main.go:4222
+#: main.go:4442
+msgid "Source strings: %d"
+msgstr "Исходные строки: %d"
+
+#: main.go:2217
+#: main.go:2425
+#: main.go:3712
+msgid "%s (%s): %d strings to translate (file will be auto-created)"
+msgstr "%s (%s): %d строк для перевода (файл будет создан автоматически)"
+
+#: main.go:225
 msgid "Help about any command"
 msgstr "Справка по любой команде"
 
-#: main.go:2166
-msgid "All UI translations are complete!"
-msgstr "Все переводы интерфейса завершены!"
-
-#: main.go:217
+#: main.go:226
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
@@ -601,116 +695,132 @@ msgstr ""
 "Справка предоставляет информацию по любой команде приложения.\n"
 "Просто введите %s help [путь к команде] для подробностей."
 
-#: main.go:2180
+#: main.go:2278
+msgid "Auto-creating %s with %d strings"
+msgstr "Автоматически создаётся %s с %d строками"
+
+#: main.go:2283
+msgid "Added %d new strings to %s"
+msgstr "Добавлено %d новых строк в %s"
+
+#: main.go:2393
+msgid "All UI translations are complete!"
+msgstr "Все переводы интерфейса завершены!"
+
+#: main.go:2407
 msgid "Parallel: disabled (sequential)"
 msgstr "Параллельно: отключено (последовательно)"
 
-#: main.go:2182
+#: main.go:2409
 msgid "Source keys (%s): %d"
 msgstr "Исходные ключи (%s): %d"
 
-#: main.go:2185
+#: main.go:2412
 msgid "Translating UI strings: %s"
 msgstr "Переводим строки интерфейса: %s"
 
-#: main.go:2220
+#: main.go:2447
 msgid "%s: recipe translations directory not found"
 msgstr "%s: директория переводов рецептов не найдена"
 
-#: main.go:2233
+#: main.go:2460
 msgid "%s: %d recipe files need translation"
 msgstr "%s: требуется перевести %d файлов рецептов"
 
-#: main.go:2239
-#: main.go:2446
+#: main.go:2466
+#: main.go:2673
 msgid "No blog posts found in %s"
 msgstr "В %s не найдено ни одной записи блога"
 
-#: main.go:2254
-msgid "%s: %d blog post(s) need translation"
-msgstr "%s: требуется перевести %d запись(ей) блога"
-
-#: main.go:2256
-msgid "%s: all blog posts translated"
-msgstr "%s: все записи блога переведены"
-
-#: main.go:2321
-msgid "Auto-creating %s with %d keys"
-msgstr "Автоматически создаётся %s с %d ключами"
-
-#: main.go:2341
-#: main.go:2428
-#: main.go:2525
-msgid "Translation interrupted, partial progress saved"
-msgstr "Перевод прерван, частичный прогресс сохранён"
-
-#: main.go:2344
-msgid "UI translation failed: %v"
-msgstr "Ошибка перевода интерфейса: %v"
-
-#: main.go:2352
-msgid "Translating recipe metadata..."
-msgstr "Переводим метаданные рецептов..."
-
-#: main.go:2369
-msgid "Cannot read recipe directory for %s: %v"
-msgstr "Не удалось прочитать директорию рецептов для %s: %v"
-
-#: main.go:239
+#: main.go:248
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "Неизвестная тема справки %q\n"
 
-#: main.go:2417
-msgid "  %s: all recipe translations complete"
-msgstr "  %s: все переводы рецептов завершены"
+#: main.go:2481
+msgid "%s: %d blog post(s) need translation"
+msgstr "%s: требуется перевести %d запись(ей) блога"
 
-#: main.go:2421
-msgid "  %s (%s): %d recipe files to translate"
-msgstr "  %s (%s): %d файлов рецептов для перевода"
+#: main.go:2483
+msgid "%s: all blog posts translated"
+msgstr "%s: все записи блога переведены"
 
-#: main.go:2431
-msgid "Recipe translation failed for %s: %v"
-msgstr "Ошибка перевода рецепта для %s: %v"
+#: main.go:2548
+msgid "Auto-creating %s with %d keys"
+msgstr "Автоматически создаётся %s с %d ключами"
 
-#: main.go:2439
-msgid "Translating blog posts..."
-msgstr "Переводим записи блога..."
+#: main.go:2568
+#: main.go:2655
+#: main.go:2752
+msgid "Translation interrupted, partial progress saved"
+msgstr "Перевод прерван, частичный прогресс сохранён"
 
-#: main.go:2465
-msgid "Cannot read source blog post %s: %v"
-msgstr "Не удалось прочитать исходную запись блога %s: %v"
+#: main.go:2571
+msgid "UI translation failed: %v"
+msgstr "Ошибка перевода интерфейса: %v"
 
-#: main.go:2477
-msgid "Error parsing %s, will recreate: %v"
-msgstr "Ошибка разбора %s, будет пересоздано: %v"
+#: main.go:2579
+msgid "Translating recipe metadata..."
+msgstr "Переводим метаданные рецептов..."
 
-#: main.go:249
+#: main.go:258
 msgid "Project root directory"
 msgstr "Корневая директория проекта"
 
-#: main.go:2514
+#: main.go:2596
+msgid "Cannot read recipe directory for %s: %v"
+msgstr "Не удалось прочитать директорию рецептов для %s: %v"
+
+#: main.go:2644
+msgid "  %s: all recipe translations complete"
+msgstr "  %s: все переводы рецептов завершены"
+
+#: main.go:2648
+msgid "  %s (%s): %d recipe files to translate"
+msgstr "  %s (%s): %d файлов рецептов для перевода"
+
+#: main.go:2658
+msgid "Recipe translation failed for %s: %v"
+msgstr "Ошибка перевода рецепта для %s: %v"
+
+#: main.go:2666
+msgid "Translating blog posts..."
+msgstr "Переводим записи блога..."
+
+#: main.go:2692
+msgid "Cannot read source blog post %s: %v"
+msgstr "Не удалось прочитать исходную запись блога %s: %v"
+
+#: main.go:2704
+msgid "Error parsing %s, will recreate: %v"
+msgstr "Ошибка разбора %s, будет пересоздано: %v"
+
+#: main.go:2741
 msgid "  %s: all blog posts translated"
 msgstr "  %s: все записи блога переведены"
 
-#: main.go:2518
+#: main.go:2745
 msgid "  %s (%s): %d blog post(s) to translate"
 msgstr "  %s (%s): %d запись(ей) блога для перевода"
 
-#: main.go:2528
+#: main.go:2755
 msgid "Blog post translation failed for %s: %v"
 msgstr "Ошибка перевода записи блога для %s: %v"
 
-#: main.go:2539
+#: main.go:276
+msgid "this command"
+msgstr "эта команда"
+
+#: main.go:2766
 msgid "Translation complete!"
 msgstr "Перевод завершён!"
 
-#: main.go:2549
+#: main.go:2776
 msgid "Manage provider authentication"
 msgstr "Управление аутентификацией провайдера"
 
-#: main.go:2550
+#: main.go:2777
 msgid ""
 "Manage authentication credentials for all AI providers.\n"
 "\n"
@@ -721,7 +831,7 @@ msgid ""
 "API key providers (paste your key):\n"
 "  google        Google AI Studio (Gemini API key)\n"
 "  groq          Groq Cloud (free tier available)\n"
-"  opencode      OpenCode proxy\n"
+"  opencode      OpenCode Zen API (free models available without key)\n"
 "  custom-openai Custom OpenAI-compatible endpoint\n"
 "\n"
 "No auth required:\n"
@@ -735,16 +845,16 @@ msgid ""
 "  lokit auth logout                        Remove all credentials\n"
 "  lokit auth list                          Show all stored credentials"
 msgstr ""
-"Управление учетными данными для всех ИИ-провайдеров.\n"
+"Управление учётными данными для всех ИИ-провайдеров.\n"
 "\n"
 "OAuth-провайдеры (интерактивный браузер/устройство):\n"
 "  copilot       GitHub Copilot (device code flow, бесплатно с аккаунтом GitHub)\n"
-"  gemini        Google Gemini Code Assist (OAuth через браузер, бесплатный тариф: 60 req/min)\n"
+"  gemini        Google Gemini Code Assist (OAuth через браузер, бесплатный тариф: 60 запросов/мин)\n"
 "\n"
 "Провайдеры с API-ключом (вставьте свой ключ):\n"
 "  google        Google AI Studio (API-ключ Gemini)\n"
-"  groq          Groq Cloud (есть бесплатный тариф)\n"
-"  opencode      Прокси OpenCode\n"
+"  groq          Groq Cloud (доступен бесплатный тариф)\n"
+"  opencode      OpenCode Zen API (доступны бесплатные модели без ключа)\n"
 "  custom-openai Пользовательский OpenAI-совместимый endpoint\n"
 "\n"
 "Без авторизации:\n"
@@ -755,14 +865,18 @@ msgstr ""
 "  lokit auth login --provider copilot      OAuth с GitHub Copilot\n"
 "  lokit auth login --provider google       Сохранить API-ключ Google AI\n"
 "  lokit auth logout --provider google      Удалить API-ключ Google\n"
-"  lokit auth logout                        Удалить все учетные данные\n"
-"  lokit auth list                          Показать все сохранённые учетные данные"
+"  lokit auth logout                        Удалить все учётные данные\n"
+"  lokit auth list                          Показать все сохранённые учётные данные"
 
-#: main.go:2604
+#: main.go:278
+msgid "help for %s"
+msgstr "справка по %s"
+
+#: main.go:2831
 msgid "Authenticate with an AI provider"
 msgstr "Аутентификация через AI-провайдера"
 
-#: main.go:2605
+#: main.go:2832
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -792,259 +906,263 @@ msgstr ""
 "  opencode      Вставьте свой API-ключ OpenCode\n"
 "  custom-openai Вставьте API-ключ и URL endpoint"
 
-#: main.go:2621
+#: main.go:2848
 msgid "Select provider to authenticate"
 msgstr "Выберите провайдера для аутентификации"
 
-#: main.go:2630
+#: main.go:2857
 msgid "OAuth"
 msgstr "OAuth"
 
-#: main.go:2632
+#: main.go:2859
 msgid "API key"
 msgstr "API-ключ"
 
-#: main.go:2638
+#: main.go:2865
 msgid "Enter choice (number or name):"
 msgstr "Введите выбор (номер или имя):"
 
-#: main.go:2642
-#: main.go:2850
-#: main.go:2889
-#: main.go:2911
+#: main.go:2869
+#: main.go:3077
+#: main.go:3116
+#: main.go:3138
 msgid "No input received"
 msgstr "Входные данные не получены"
 
-#: main.go:2662
+#: main.go:2889
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
 msgstr "Некорректный выбор. Используйте: lokit auth login --provider PROVIDER"
 
-#: main.go:267
-msgid "this command"
-msgstr "эта команда"
-
-#: main.go:2687
-msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
-msgstr "Неизвестный провайдер '%s'. Запустите 'lokit auth login' для просмотра вариантов."
-
-#: main.go:269
-msgid "help for %s"
-msgstr "справка по %s"
-
-#: main.go:2693
-msgid "Provider to authenticate"
-msgstr "Провайдер для авторизации"
-
-#: main.go:2709
-msgid "GitHub Copilot Authentication"
-msgstr "Аутентификация GitHub Copilot"
-
-#: main.go:2712
-msgid "Open this URL in your browser:"
-msgstr "Откройте этот URL в браузере:"
-
-#: main.go:2714
-msgid "Enter this code:"
-msgstr "Введите этот код:"
-
-#: main.go:2716
-#: main.go:2740
-msgid "Waiting for authorization..."
-msgstr "Ожидание авторизации..."
-
-#: main.go:2720
-#: main.go:2744
-msgid "Authentication cancelled"
-msgstr "Аутентификация отменена"
-
-#: main.go:2723
-#: main.go:2747
-msgid "Authentication failed: %v"
-msgstr "Ошибка аутентификации: %v"
-
-#: main.go:2727
-msgid "Copilot authentication successful!"
-msgstr "Аутентификация Copilot прошла успешно!"
-
-#: main.go:2728
-msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
-msgstr "Теперь вы можете использовать: lokit translate --provider copilot --model gpt-4o"
-
-#: main.go:2733
-msgid "Google Gemini Authentication"
-msgstr "Аутентификация Google Gemini"
-
-#: main.go:2736
-msgid "Opening browser for Google sign-in..."
-msgstr "Открывается браузер для входа в Google..."
-
-#: main.go:2738
-msgid "If the browser doesn't open, visit:"
-msgstr "Если браузер не открылся, перейдите по адресу:"
-
-#: main.go:2752
-msgid "Gemini authentication successful!"
-msgstr "Аутентификация Gemini прошла успешно!"
-
-#: main.go:2758
-msgid "Token was saved but cannot be loaded"
-msgstr "Токен сохранён, но не удалось загрузить"
-
-#: main.go:2764
-msgid "Gemini Code Assist requires a GCP project ID to work in your region."
-msgstr "Для работы Gemini Code Assist в вашем регионе требуется указать идентификатор проекта GCP."
-
-#: main.go:2765
-msgid "Find your project ID at: https://console.cloud.google.com"
-msgstr "Найдите свой идентификатор проекта здесь: https://console.cloud.google.com"
-
-#: main.go:2766
-msgid "(Create a project if you don't have one, then enable the Gemini API)"
-msgstr "(Создайте проект, если его ещё нет, затем включите Gemini API)"
-
-#: main.go:2768
-msgid "GCP Project ID (or press Enter to skip):"
-msgstr "ID проекта GCP (или нажмите Enter для пропуска):"
-
-#: main.go:2780
-#: main.go:2792
-msgid "Code Assist setup failed: %v"
-msgstr "Не удалось настроить Code Assist: %v"
-
-#: main.go:2781
-msgid "Project ID saved. You can try again later."
-msgstr "Идентификатор проекта сохранён. Вы можете попробовать снова позже."
-
-#: main.go:2783
-#: main.go:2796
-msgid "Code Assist project configured!"
-msgstr "Проект для Code Assist настроен!"
-
-#: main.go:2786
-msgid "Skipped. You can set it later with:"
-msgstr "Пропущено. Вы можете задать его позже с помощью:"
-
-#: main.go:2787
-msgid "  lokit auth login --provider gemini"
-msgstr "  lokit auth login --provider gemini"
-
-#: main.go:2793
-msgid "OAuth login succeeded but Code Assist onboarding failed."
-msgstr "OAuth-вход выполнен успешно, но настройка Code Assist не завершена."
-
-#: main.go:2794
-msgid "This will be retried automatically on first translate."
-msgstr "Попытка будет автоматически повторена при первом переводе."
-
-#: main.go:280
-#: main.go:1231
-#: main.go:1249
-#: main.go:1521
+#: main.go:289
+#: main.go:1435
+#: main.go:1453
+#: main.go:1724
 msgid "%v"
 msgstr "%v"
 
-#: main.go:2801
-msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
-msgstr "Теперь вы можете использовать: lokit translate --provider gemini --model gemini-2.5-flash"
+#: main.go:2914
+msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
+msgstr "Неизвестный провайдер '%s'. Запустите 'lokit auth login' для просмотра вариантов."
 
-#: main.go:2802
-msgid "(no API key needed when authenticated via OAuth)"
-msgstr "(API-ключ не требуется при аутентификации через OAuth)"
+#: main.go:2920
+msgid "Provider to authenticate"
+msgstr "Провайдер для авторизации"
 
-#: main.go:2832
-msgid "%s — API Key Setup"
-msgstr "%s — настройка API-ключа"
+#: main.go:2936
+msgid "GitHub Copilot Authentication"
+msgstr "Аутентификация GitHub Copilot"
 
-#: main.go:2835
-msgid "Get your API key from: %s%s%s"
-msgstr "Получите свой API-ключ по адресу: %s%s%s"
+#: main.go:2939
+msgid "Open this URL in your browser:"
+msgstr "Откройте этот URL в браузере:"
 
-#: main.go:2842
-#: main.go:2904
-msgid "Current key"
-msgstr "Текущий ключ"
+#: main.go:2941
+msgid "Enter this code:"
+msgstr "Введите этот код:"
 
-#: main.go:2843
-msgid "Enter new key to replace, or press Enter to keep:"
-msgstr "Введите новый ключ для замены или нажмите Enter, чтобы оставить:"
+#: main.go:2943
+#: main.go:2967
+msgid "Waiting for authorization..."
+msgstr "Ожидание авторизации..."
 
-#: main.go:2845
-msgid "Enter API key:"
-msgstr "Введите API-ключ:"
+#: main.go:2947
+#: main.go:2971
+msgid "Authentication cancelled"
+msgstr "Аутентификация отменена"
 
-#: main.go:2857
-msgid "Keeping existing key"
-msgstr "Используется существующий ключ"
+#: main.go:2950
+#: main.go:2974
+msgid "Authentication failed: %v"
+msgstr "Ошибка аутентификации: %v"
 
-#: main.go:2860
-msgid "No API key provided"
-msgstr "API-ключ не указан"
+#: main.go:2954
+msgid "Copilot authentication successful!"
+msgstr "Аутентификация Copilot прошла успешно!"
 
-#: main.go:2865
-msgid "Failed to save API key: %v"
-msgstr "Не удалось сохранить API-ключ: %v"
+#: main.go:2955
+msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
+msgstr "Теперь вы можете использовать: lokit translate --provider copilot --model gpt-4o"
 
-#: main.go:2869
-msgid "%s API key saved!"
-msgstr "%s API-ключ сохранён!"
+#: main.go:2960
+msgid "Google Gemini Authentication"
+msgstr "Аутентификация Google Gemini"
 
-#: main.go:2870
-msgid "You can now use: %s"
-msgstr "Теперь вы можете использовать: %s"
+#: main.go:2963
+msgid "Opening browser for Google sign-in..."
+msgstr "Открывается браузер для входа в Google..."
 
-#: main.go:2875
-msgid "Custom OpenAI-Compatible Endpoint"
-msgstr "Пользовательский OpenAI-совместимый endpoint"
+#: main.go:2965
+msgid "If the browser doesn't open, visit:"
+msgstr "Если браузер не открылся, перейдите по адресу:"
 
-#: main.go:2882
-msgid "Current endpoint"
-msgstr "Текущий endpoint"
+#: main.go:2979
+msgid "Gemini authentication successful!"
+msgstr "Аутентификация Gemini прошла успешно!"
 
-#: main.go:2883
-msgid "Enter new endpoint URL, or press Enter to keep:"
-msgstr "Введите новый URL endpoint или нажмите Enter, чтобы оставить:"
+#: main.go:2985
+msgid "Token was saved but cannot be loaded"
+msgstr "Токен сохранён, но не удалось загрузить"
 
-#: main.go:2885
-msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
-msgstr "Введите URL endpoint (например, https://api.example.com/v1):"
+#: main.go:2991
+msgid "Gemini Code Assist requires a GCP project ID to work in your region."
+msgstr "Для работы Gemini Code Assist в вашем регионе требуется указать идентификатор проекта GCP."
 
-#: main.go:2898
-msgid "Endpoint URL is required"
-msgstr "Требуется указать URL endpoint"
+#: main.go:2992
+msgid "Find your project ID at: https://console.cloud.google.com"
+msgstr "Найдите свой идентификатор проекта здесь: https://console.cloud.google.com"
 
-#: main.go:2905
-msgid "Enter new API key, or press Enter to keep (leave empty for none):"
-msgstr "Введите новый API-ключ или нажмите Enter, чтобы оставить (оставьте пустым для отсутствия):"
+#: main.go:2993
+msgid "(Create a project if you don't have one, then enable the Gemini API)"
+msgstr "(Создайте проект, если его ещё нет, затем включите Gemini API)"
 
-#: main.go:2907
-msgid "Enter API key (or press Enter if not required):"
-msgstr "Введите API-ключ (или нажмите Enter, если не требуется):"
+#: main.go:2995
+msgid "GCP Project ID (or press Enter to skip):"
+msgstr "ID проекта GCP (или нажмите Enter для пропуска):"
 
-#: main.go:292
+#: main.go:3007
+#: main.go:3019
+msgid "Code Assist setup failed: %v"
+msgstr "Не удалось настроить Code Assist: %v"
+
+#: main.go:3008
+msgid "Project ID saved. You can try again later."
+msgstr "Идентификатор проекта сохранён. Вы можете попробовать снова позже."
+
+#: main.go:301
 msgid "Show version information"
 msgstr "Показать информацию о версии"
 
-#: main.go:2921
-msgid "Failed to save credentials: %v"
-msgstr "Не удалось сохранить учётные данные: %v"
+#: main.go:3010
+#: main.go:3023
+msgid "Code Assist project configured!"
+msgstr "Проект для Code Assist настроен!"
 
-#: main.go:2925
-msgid "Custom OpenAI endpoint saved!"
-msgstr "Пользовательский OpenAI endpoint сохранён!"
+#: main.go:3013
+msgid "Skipped. You can set it later with:"
+msgstr "Пропущено. Вы можете задать его позже с помощью:"
 
-#: main.go:2926
-msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
-msgstr "Теперь вы можете использовать: lokit translate --provider custom-openai --model MODEL_NAME"
+#: main.go:3014
+msgid "  lokit auth login --provider gemini"
+msgstr "  lokit auth login --provider gemini"
 
-#: main.go:293
+#: main.go:302
 msgid "Display version, commit hash, and build date."
 msgstr "Показать версию, хеш коммита и дату сборки."
 
-#: main.go:2935
+#: main.go:3020
+msgid "OAuth login succeeded but Code Assist onboarding failed."
+msgstr "OAuth-вход выполнен успешно, но настройка Code Assist не завершена."
+
+#: main.go:3021
+msgid "This will be retried automatically on first translate."
+msgstr "Попытка будет автоматически повторена при первом переводе."
+
+#: main.go:3028
+msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr "Теперь вы можете использовать: lokit translate --provider gemini --model gemini-2.5-flash"
+
+#: main.go:3029
+msgid "(no API key needed when authenticated via OAuth)"
+msgstr "(API-ключ не требуется при аутентификации через OAuth)"
+
+#: main.go:304
+msgid "lokit version %s"
+msgstr "lokit версия %s"
+
+#: main.go:305
+msgid "commit:"
+msgstr "коммит:"
+
+#: main.go:3059
+msgid "%s — API Key Setup"
+msgstr "%s — настройка API-ключа"
+
+#: main.go:306
+msgid "built:"
+msgstr "собрано:"
+
+#: main.go:3062
+msgid "Get your API key from: %s%s%s"
+msgstr "Получите свой API-ключ по адресу: %s%s%s"
+
+#: main.go:3069
+#: main.go:3131
+msgid "Current key"
+msgstr "Текущий ключ"
+
+#: main.go:3070
+msgid "Enter new key to replace, or press Enter to keep:"
+msgstr "Введите новый ключ для замены или нажмите Enter, чтобы оставить:"
+
+#: main.go:3072
+msgid "Enter API key:"
+msgstr "Введите API-ключ:"
+
+#: main.go:3084
+msgid "Keeping existing key"
+msgstr "Используется существующий ключ"
+
+#: main.go:3087
+msgid "No API key provided"
+msgstr "API-ключ не указан"
+
+#: main.go:3092
+msgid "Failed to save API key: %v"
+msgstr "Не удалось сохранить API-ключ: %v"
+
+#: main.go:3096
+msgid "%s API key saved!"
+msgstr "%s API-ключ сохранён!"
+
+#: main.go:3097
+msgid "You can now use: %s"
+msgstr "Теперь вы можете использовать: %s"
+
+#: main.go:3102
+msgid "Custom OpenAI-Compatible Endpoint"
+msgstr "Пользовательский OpenAI-совместимый endpoint"
+
+#: main.go:3109
+msgid "Current endpoint"
+msgstr "Текущий endpoint"
+
+#: main.go:3110
+msgid "Enter new endpoint URL, or press Enter to keep:"
+msgstr "Введите новый URL endpoint или нажмите Enter, чтобы оставить:"
+
+#: main.go:3112
+msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
+msgstr "Введите URL endpoint (например, https://api.example.com/v1):"
+
+#: main.go:3125
+msgid "Endpoint URL is required"
+msgstr "Требуется указать URL endpoint"
+
+#: main.go:3132
+msgid "Enter new API key, or press Enter to keep (leave empty for none):"
+msgstr "Введите новый API-ключ или нажмите Enter, чтобы оставить (оставьте пустым для отсутствия):"
+
+#: main.go:3134
+msgid "Enter API key (or press Enter if not required):"
+msgstr "Введите API-ключ (или нажмите Enter, если не требуется):"
+
+#: main.go:3148
+msgid "Failed to save credentials: %v"
+msgstr "Не удалось сохранить учётные данные: %v"
+
+#: main.go:3152
+msgid "Custom OpenAI endpoint saved!"
+msgstr "Пользовательский OpenAI endpoint сохранён!"
+
+#: main.go:3153
+msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
+msgstr "Теперь вы можете использовать: lokit translate --provider custom-openai --model MODEL_NAME"
+
+#: main.go:3162
 msgid "Remove stored credentials"
 msgstr "Удалить сохранённые учётные данные"
 
-#: main.go:2936
+#: main.go:3163
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -1066,237 +1184,228 @@ msgstr ""
 "  lokit auth logout --provider google      Удалить только API-ключ Google\n"
 "  lokit auth logout --provider gemini      Удалить только Gemini OAuth"
 
-#: main.go:295
-msgid "lokit version %s"
-msgstr "lokit версия %s"
-
-#: main.go:2951
-#: main.go:2977
+#: main.go:3178
+#: main.go:3204
 msgid "Failed to remove Copilot credentials: %v"
 msgstr "Не удалось удалить учётные данные Copilot: %v"
 
-#: main.go:2954
+#: main.go:3181
 msgid "Copilot credentials removed"
 msgstr "Учётные данные Copilot удалены"
 
-#: main.go:2957
-#: main.go:2981
+#: main.go:3184
+#: main.go:3208
 msgid "Failed to remove Gemini credentials: %v"
 msgstr "Не удалось удалить учётные данные Gemini: %v"
 
-#: main.go:296
-msgid "commit:"
-msgstr "коммит:"
-
-#: main.go:2960
+#: main.go:3187
 msgid "Gemini credentials removed"
 msgstr "Учётные данные Gemini удалены"
 
-#: main.go:2963
-#: main.go:2986
+#: main.go:3190
+#: main.go:3213
 msgid "Failed to remove %s credentials: %v"
 msgstr "Не удалось удалить учётные данные %s: %v"
 
-#: main.go:2966
+#: main.go:3193
 msgid "%s credentials removed"
 msgstr "Учётные данные %s удалены"
 
-#: main.go:2968
+#: main.go:3195
 msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
 msgstr "Неизвестный провайдер '%s'. Выполните 'lokit auth list', чтобы увидеть список провайдеров."
 
-#: main.go:297
-msgid "built:"
-msgstr "собрано:"
-
-#: main.go:2991
-msgid "All stored credentials removed"
-msgstr "Все сохранённые учётные данные удалены"
-
-#: main.go:2996
-msgid "Provider to logout (default: all)"
-msgstr "Провайдер для выхода (по умолчанию: все)"
-
-#: main.go:3015
-msgid "Show stored credentials and status"
-msgstr "Показать сохранённые учётные данные и их статус"
-
-#: main.go:3017
-msgid "Stored Credentials"
-msgstr "Сохранённые учётные данные"
-
-#: main.go:3020
-msgid "OAuth Providers"
-msgstr "OAuth-провайдеры"
-
-#: main.go:3021
-msgid "copilot"
-msgstr "copilot"
-
-#: main.go:3022
-msgid "gemini"
-msgstr "gemini"
-
-#: main.go:3025
-msgid "API Key Providers"
-msgstr "Провайдеры с API-ключом"
-
-#: main.go:3038
-#: main.go:3045
-msgid "✓ configured"
-msgstr "✓ настроено"
-
-#: main.go:3040
-#: main.go:3046
-msgid "endpoint:"
-msgstr "endpoint:"
-
-#: main.go:3045
-msgid "no key"
-msgstr "нет ключа"
-
-#: main.go:3049
-msgid "not configured"
-msgstr "не настроено"
-
-#: main.go:3054
-msgid "Environment Variables"
-msgstr "Переменные окружения"
-
-#: main.go:3057
-msgid "overrides stored keys"
-msgstr "заменяет сохранённые ключи"
-
-#: main.go:3057
-#: main.go:3059
-msgid "LOKIT_API_KEY"
-msgstr "LOKIT_API_KEY"
-
-#: main.go:3059
-msgid "not set"
-msgstr "не задано"
-
-#: main.go:3080
-msgid "Scanning for source files in: %s"
-msgstr "Сканирование исходных файлов в: %s"
-
-#: main.go:3084
-msgid "scanning sources: %w"
-msgstr "сканирование источников: %w"
-
-#: main.go:3088
-msgid "no source files found (supported: %s)"
-msgstr "нет исходных файлов (поддерживаются: %s)"
-
-#: main.go:3107
-msgid "Found %d source files (%s)"
-msgstr "Найдено исходных файлов: %d (%s)"
-
-#: main.go:312
+#: main.go:321
 msgid "Show project info and translation statistics"
 msgstr "Показать информацию о проекте и статистику переводов"
 
-#: main.go:313
+#: main.go:3218
+msgid "All stored credentials removed"
+msgstr "Все сохранённые учётные данные удалены"
+
+#: main.go:322
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
 "Displays project type (gettext, po4a, i18next, android), file structure,\n"
 "detected languages, and per-language translation progress. For projects\n"
-"configured via .lokit.yaml, shows each target separately.\n"
+"configured via lokit.yaml, shows each target separately.\n"
 "\n"
 "Does not modify any files."
 msgstr ""
 "Показать автоматически определённую структуру проекта и статистику перевода.\n"
 "\n"
 "Отображает тип проекта (gettext, po4a, i18next, android), структуру файлов,\n"
-"выявленные языки и прогресс перевода по каждому языку. Для проектов с .lokit.yaml\n"
-"показывает каждый перевод отдельно.\n"
+"обнаруженные языки и прогресс перевода по каждому языку. Для проектов,\n"
+"настроенных через lokit.yaml, показывает каждую цель отдельно.\n"
 "\n"
-"Файлы не изменяются."
+"Не изменяет файлы."
 
-#: main.go:3131
+#: main.go:3223
+msgid "Provider to logout (default: all)"
+msgstr "Провайдер для выхода (по умолчанию: все)"
+
+#: main.go:3242
+msgid "Show stored credentials and status"
+msgstr "Показать сохранённые учётные данные и их статус"
+
+#: main.go:3244
+msgid "Stored Credentials"
+msgstr "Сохранённые учётные данные"
+
+#: main.go:3247
+msgid "OAuth Providers"
+msgstr "OAuth-провайдеры"
+
+#: main.go:3248
+msgid "copilot"
+msgstr "copilot"
+
+#: main.go:3249
+msgid "gemini"
+msgstr "gemini"
+
+#: main.go:3252
+msgid "API Key Providers"
+msgstr "Провайдеры с API-ключом"
+
+#: main.go:3265
+#: main.go:3272
+msgid "✓ configured"
+msgstr "✓ настроено"
+
+#: main.go:3267
+#: main.go:3273
+msgid "endpoint:"
+msgstr "endpoint:"
+
+#: main.go:3272
+msgid "no key"
+msgstr "нет ключа"
+
+#: main.go:3276
+msgid "not configured"
+msgstr "не настроено"
+
+#: main.go:3281
+msgid "Environment Variables"
+msgstr "Переменные окружения"
+
+#: main.go:3295
+msgid "not set"
+msgstr "не задано"
+
+#: main.go:3317
+msgid "Scanning for source files in: %s"
+msgstr "Сканирование исходных файлов в: %s"
+
+#: main.go:3321
+msgid "scanning sources: %w"
+msgstr "сканирование источников: %w"
+
+#: main.go:3325
+msgid "no source files found (supported: %s)"
+msgstr "нет исходных файлов (поддерживаются: %s)"
+
+#: main.go:3344
+msgid "Found %d source files (%s)"
+msgstr "Найдено исходных файлов: %d (%s)"
+
+#: main.go:3368
 msgid "Extracting from %d Go files (AST, keywords: %s)..."
 msgstr "Извлечение из %d Go-файлов (AST, ключевые слова: %s)..."
 
-#: main.go:3135
+#: main.go:3372
 msgid "Extracting from %d Go files with xgotext..."
 msgstr "Извлечение из %d Go-файлов с помощью xgotext..."
 
-#: main.go:3142
+#: main.go:3379
 msgid "Extracting from %d non-Go files with xgettext..."
 msgstr "Извлечение из %d не-Go-файлов с помощью xgettext..."
 
-#: main.go:3145
+#: main.go:3382
 msgid "xgettext extraction failed: %w"
 msgstr "ошибка извлечения xgettext: %w"
 
-#: main.go:3154
+#: main.go:3391
 msgid "Go extraction failed: %v"
 msgstr "Ошибка извлечения из Go: %v"
 
-#: main.go:3155
+#: main.go:3392
 msgid "Continuing with xgettext results only"
 msgstr "Продолжаем только с результатами xgettext"
 
-#: main.go:3162
+#: main.go:3399
 msgid "Merging POT files..."
 msgstr "Объединение файлов POT..."
 
-#: main.go:3164
+#: main.go:3401
 msgid "merging POT files: %w"
 msgstr "слияние файлов POT: %w"
 
-#: main.go:3172
+#: main.go:3409
 msgid "extraction failed: %w"
 msgstr "ошибка извлечения: %w"
 
-#: main.go:3180
-msgid "Go extraction failed: %w"
-msgstr "ошибка извлечения Go: %w"
-
-#: main.go:3194
-msgid "Extracted %d strings to %s"
-msgstr "Извлечено %d строк в %s"
-
-#: main.go:3196
-msgid "Extracted strings to %s"
-msgstr "Строки извлечены в %s"
-
-#: main.go:3214
-msgid "No POT template found, running extraction..."
-msgstr "POT-шаблон не найден, запускается извлечение..."
-
-#: main.go:3216
-msgid "Auto-extraction failed: %v"
-msgstr "Автоматическое извлечение не удалось: %v"
-
-#: main.go:3223
-msgid "Cannot auto-create %s: extraction produced no POT template"
-msgstr "Не удалось автоматически создать %s: извлечение не дало POT-шаблон"
-
-#: main.go:3224
-msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
-msgstr "Проверьте, что исходные файлы содержат переводимые строки (_(), N_() и т.д.)"
-
-#: main.go:3231
-msgid "Cannot read POT template %s: %v"
-msgstr "Не удалось прочитать POT-шаблон %s: %v"
-
-#: main.go:3264
-msgid "Auto-created %s from %s (%d entries)"
-msgstr "Автоматически создан %s из %s (%d элементов)"
-
-#: main.go:332
-#: main.go:914
-#: main.go:1486
+#: main.go:341
+#: main.go:1025
+#: main.go:1695
 msgid "Config error: %v"
 msgstr "Ошибка конфигурации: %v"
 
-#: main.go:3336
+#: main.go:3417
+msgid "Go extraction failed: %w"
+msgstr "ошибка извлечения Go: %w"
+
+#: main.go:3431
+msgid "Extracted %d strings to %s"
+msgstr "Извлечено %d строк в %s"
+
+#: main.go:3433
+msgid "Extracted strings to %s"
+msgstr "Строки извлечены в %s"
+
+#: main.go:3451
+msgid "No POT template found, running extraction..."
+msgstr "POT-шаблон не найден, запускается извлечение..."
+
+#: main.go:3453
+msgid "Auto-extraction failed: %v"
+msgstr "Автоматическое извлечение не удалось: %v"
+
+#: main.go:3460
+msgid "Cannot auto-create %s: extraction produced no POT template"
+msgstr "Не удалось автоматически создать %s: извлечение не дало POT-шаблон"
+
+#: main.go:3461
+msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
+msgstr "Проверьте, что исходные файлы содержат переводимые строки (_(), N_() и т.д.)"
+
+#: main.go:3468
+msgid "Cannot read POT template %s: %v"
+msgstr "Не удалось прочитать POT-шаблон %s: %v"
+
+#: main.go:349
+#: main.go:1029
+#: main.go:1703
+msgid "No lokit.yaml found in %s"
+msgstr "Файл lokit.yaml не найден в %s"
+
+#: main.go:350
+#: main.go:1030
+#: main.go:1704
+msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
+msgstr "Создайте конфигурационный файл lokit.yaml. Формат смотрите в 'lokit init --help'."
+
+#: main.go:3501
+msgid "Auto-created %s from %s (%d entries)"
+msgstr "Автоматически создан %s из %s (%d элементов)"
+
+#: main.go:3573
 msgid "check provider documentation"
 msgstr "см. документацию провайдера"
 
-#: main.go:3339
+#: main.go:3576
 msgid ""
 "--model is required for provider '%s'\n"
 "\n"
@@ -1312,7 +1421,15 @@ msgstr ""
 "\n"
 "Использование: --provider %s --model MODEL_NAME"
 
-#: main.go:3353
+#: main.go:358
+msgid "Project"
+msgstr "Проект"
+
+#: main.go:359
+msgid "Config"
+msgstr "Конфиг"
+
+#: main.go:3590
 msgid ""
 "provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
@@ -1323,24 +1440,29 @@ msgid ""
 "  lokit auth login --provider gemini\n"
 "\n"
 "Option 3: Pass key directly:\n"
-"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n"
 "\n"
 "Get an API key from: https://aistudio.google.com/apikey"
 msgstr ""
-"провайдер 'google' требует API-ключ или вход через Gemini OAuth\n"
+"Провайдер 'google' требует API-ключ или вход через Gemini OAuth\n"
 "\n"
 "Вариант 1: Сохранить API-ключ:\n"
 "  lokit auth login --provider google\n"
 "\n"
-"Вариант 2: Войти через Google OAuth (бесплатный тариф: 60 req/min):\n"
+"Вариант 2: Войти через Google OAuth (бесплатно: 60 запросов/мин):\n"
 "  lokit auth login --provider gemini\n"
 "\n"
 "Вариант 3: Передать ключ напрямую:\n"
-"  --api-key YOUR_KEY или экспортировать LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key ВАШ_КЛЮЧ или export GOOGLE_API_KEY=ВАШ_КЛЮЧ\n"
 "\n"
 "Получить API-ключ: https://aistudio.google.com/apikey"
 
-#: main.go:3365
+#: main.go:360
+#: main.go:380
+msgid "Root"
+msgstr "Корень"
+
+#: main.go:3602
 msgid ""
 "provider 'gemini' requires Google OAuth login\n"
 "\n"
@@ -1358,7 +1480,11 @@ msgstr ""
 "Используется Gemini Code Assist (бесплатный тариф: 60 req/min).\n"
 "Для доступа по API-ключу используйте --provider google."
 
-#: main.go:3374
+#: main.go:361
+msgid "Source lang"
+msgstr "Исходный язык"
+
+#: main.go:3611
 msgid ""
 "provider 'groq' requires an API key\n"
 "\n"
@@ -1366,21 +1492,21 @@ msgid ""
 "  lokit auth login --provider groq\n"
 "\n"
 "Option 2: Pass key directly:\n"
-"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n"
 "\n"
 "Get a free API key from: https://console.groq.com/keys"
 msgstr ""
-"провайдер 'groq' требует API-ключ\n"
+"Провайдер 'groq' требует API-ключ\n"
 "\n"
 "Вариант 1: Сохранить ваш API-ключ:\n"
 "  lokit auth login --provider groq\n"
 "\n"
 "Вариант 2: Передать ключ напрямую:\n"
-"  --api-key YOUR_KEY или экспортировать LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key ВАШ_КЛЮЧ или export GROQ_API_KEY=ВАШ_КЛЮЧ\n"
 "\n"
 "Получить бесплатный API-ключ: https://console.groq.com/keys"
 
-#: main.go:3387
+#: main.go:3624
 msgid ""
 "provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
@@ -1396,7 +1522,7 @@ msgstr ""
 "\n"
 "Используется GitHub Copilot (требуется активная подписка Copilot)."
 
-#: main.go:3395
+#: main.go:3632
 msgid ""
 "provider 'custom-openai' requires an endpoint URL\n"
 "\n"
@@ -1414,19 +1540,13 @@ msgstr ""
 "Вариант 2: Передать напрямую:\n"
 "  --base-url https://api.example.com/v1"
 
-#: main.go:340
-#: main.go:918
-#: main.go:1494
-msgid "No .lokit.yaml found in %s"
-msgstr "Файл .lokit.yaml не найден в %s"
+#: main.go:364
+#: main.go:384
+#: main.go:386
+msgid "Languages"
+msgstr "Языки"
 
-#: main.go:341
-#: main.go:919
-#: main.go:1495
-msgid "Create a .lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr "Создайте конфигурационный файл .lokit.yaml. Формат смотрите в справке: 'lokit init --help'."
-
-#: main.go:3410
+#: main.go:3647
 msgid ""
 "provider 'ollama' requires Ollama server to be running\n"
 "\n"
@@ -1444,210 +1564,345 @@ msgstr ""
 "  --provider copilot         (GitHub Copilot, бесплатно)\n"
 "  --provider google          (требуется API-ключ)"
 
-#: main.go:349
-msgid "Project"
-msgstr "Проект"
-
-#: main.go:350
-msgid "Config"
-msgstr "Конфиг"
-
-#: main.go:351
-#: main.go:371
-msgid "Root"
-msgstr "Корень"
-
-#: main.go:352
-msgid "Source lang"
-msgstr "Исходный язык"
-
-#: main.go:355
-#: main.go:375
-#: main.go:377
-msgid "Languages"
-msgstr "Языки"
-
-#: main.go:357
+#: main.go:366
 msgid "Targets"
 msgstr "Цели"
 
-#: main.go:361
-#: main.go:938
-#: main.go:1527
+#: main.go:3685
+msgid "cannot find source YAML file for language %q in %s"
+msgstr "не удалось найти исходный YAML-файл для языка %q в %s"
+
+#: main.go:3690
+msgid "cannot read source YAML %s: %w"
+msgstr "не удалось прочитать исходный YAML %s: %w"
+
+#: main.go:370
+#: main.go:1049
+#: main.go:1730
 msgid "Config resolve error: %v"
 msgstr "Ошибка разрешения конфигурации: %v"
 
-#: main.go:377
+#: main.go:3772
+msgid "No YAML files to translate"
+msgstr "Нет YAML-файлов для перевода"
+
+#: main.go:3801
+#: main.go:4301
+#: main.go:4521
+msgid "  %s: %d/%d strings"
+msgstr "  %s: %d/%d строк"
+
+#: main.go:3836
+msgid "Source segments"
+msgstr "Исходные сегменты"
+
+#: main.go:386
 msgid "none detected"
 msgstr "не обнаружено"
 
-#: main.go:409
-msgid "POT"
-msgstr "POT"
+#: main.go:3880
+msgid "Cannot find source Markdown files in %s"
+msgstr "Не удалось найти исходные Markdown-файлы в %s"
 
-#: main.go:409
-#: main.go:477
-#: main.go:542
+#: main.go:3881
+msgid "Expected: %s/*.md"
+msgstr "Ожидалось: %s/*.md"
+
+#: main.go:3885
+msgid "Source language (%s): %d files"
+msgstr "Язык-источник (%s): %d файлов"
+
+#: main.go:3906
+msgid "Cannot read source Markdown file %s: %v"
+msgstr "Не удалось прочитать исходный Markdown-файл %s: %v"
+
+#: main.go:3917
+msgid "Created: %s (%d segments)"
+msgstr "Создано: %s (%d сегментов)"
+
+#: main.go:3937
+msgid "Markdown init: %d created, %d updated"
+msgstr "Инициализация Markdown: создано — %d, обновлено — %d"
+
+#: main.go:3959
+msgid "cannot find source Markdown files in %s"
+msgstr "не удалось найти исходные Markdown-файлы в %s"
+
+#: main.go:3969
+msgid "Source segments: %d (%d files)"
+msgstr "Исходные сегменты: %d (%d файлов)"
+
+#: main.go:4001
+msgid "%s (%s): %d segments to translate"
+msgstr "%s (%s): %d сегментов для перевода"
+
+#: main.go:4052
+msgid "No Markdown files to translate"
+msgstr "Нет Markdown-файлов для перевода"
+
+#: main.go:4081
+msgid "  %s: %d/%d segments"
+msgstr "  %s: %d/%d сегментов"
+
+#: main.go:4150
+msgid "Cannot find source .properties file: %s"
+msgstr "Не удалось найти исходный .properties-файл: %s"
+
+#: main.go:4156
+msgid "Cannot read source .properties file %s: %v"
+msgstr "Не удалось прочитать исходный .properties-файл %s: %v"
+
+#: main.go:4198
+msgid "Properties init: %d created, %d updated"
+msgstr "Инициализация Properties: создано — %d, обновлено — %d"
+
+#: main.go:4219
+msgid "cannot read source .properties file %s: %w"
+msgstr "не удалось прочитать исходный .properties-файл %s: %w"
+
+#: main.go:426
+#: main.go:494
+#: main.go:559
+#: main.go:606
+#: main.go:3823
+#: main.go:4100
+#: main.go:4320
 msgid "not found"
 msgstr "не найдено"
 
-#: main.go:409
+#: main.go:426
+msgid "POT"
+msgstr "POT"
+
+#: main.go:426
 msgid "run 'lokit init'"
 msgstr "выполните 'lokit init'"
 
-#: main.go:413
-#: main.go:546
-#: main.go:589
+#: main.go:4274
+msgid "No .properties files to translate"
+msgstr "Нет .properties-файлов для перевода"
+
+#: main.go:430
+#: main.go:563
+#: main.go:674
 msgid "Source strings"
 msgstr "Исходные строки"
 
-#: main.go:417
-#: main.go:446
-#: main.go:593
-#: main.go:653
-msgid "Fuzzy"
-msgstr "Неточный"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
-msgid "Progress"
-msgstr "Прогресс"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
-msgid "Done"
-msgstr "Готово"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
 msgid "Lang"
 msgstr "Язык"
 
-#: main.go:417
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:698
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr "Готово"
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr "Неточный"
+
+#: main.go:434
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
 msgid "Left"
 msgstr "Осталось"
 
-#: main.go:424
-#: main.go:454
-#: main.go:493
-#: main.go:558
-#: main.go:609
-#: main.go:661
-#: main.go:710
-#: main.go:753
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Progress"
+msgstr "Прогресс"
+
+#: main.go:4370
+msgid "Cannot find source ARB file: %s"
+msgstr "Не удалось найти исходный ARB-файл: %s"
+
+#: main.go:4376
+msgid "Cannot read source ARB file %s: %v"
+msgstr "Не удалось прочитать исходный ARB-файл %s: %v"
+
+#: main.go:441
+#: main.go:471
+#: main.go:510
+#: main.go:575
+#: main.go:635
+#: main.go:694
+#: main.go:746
+#: main.go:795
+#: main.go:838
+#: main.go:3848
+#: main.go:4121
+#: main.go:4341
 msgid "missing"
 msgstr "отсутствует"
 
-#: main.go:442
+#: main.go:4418
+msgid "Flutter ARB init: %d created, %d updated"
+msgstr "Инициализация Flutter ARB: создано — %d, обновлено — %d"
+
+#: main.go:4439
+msgid "cannot read source ARB file %s: %w"
+msgstr "не удалось прочитать исходный ARB-файл %s: %w"
+
+#: main.go:4494
+msgid "No ARB files to translate"
+msgstr "Нет ARB-файлов для перевода"
+
+#: main.go:459
 msgid "po4a config"
 msgstr "конфиг po4a"
 
-#: main.go:446
-#: main.go:653
+#: main.go:463
+#: main.go:738
 msgid "Total"
 msgstr "Всего"
 
-#: main.go:472
+#: main.go:489
+#: main.go:593
+#: main.go:3817
+#: main.go:4095
+#: main.go:4315
 msgid "Translations"
 msgstr "Переводы"
 
-#: main.go:477
-#: main.go:542
+#: main.go:494
+#: main.go:559
+#: main.go:606
+#: main.go:612
+#: main.go:3823
+#: main.go:4100
+#: main.go:4106
+#: main.go:4320
+#: main.go:4326
 msgid "Source"
 msgstr "Исходный файл"
 
-#: main.go:481
-#: main.go:693
+#: main.go:498
+#: main.go:616
+#: main.go:778
+#: main.go:4110
+#: main.go:4330
 msgid "Source keys"
 msgstr "Исходные ключи"
 
-#: main.go:513
-#: main.go:794
+#: main.go:530
+#: main.go:879
 msgid "Blog Posts (%d posts)"
 msgstr "Посты в блоге (%d постов)"
 
-#: main.go:538
+#: main.go:555
 msgid "Res dir"
 msgstr "Папка ресурсов"
 
-#: main.go:584
+#: main.go:612
+#: main.go:4106
+#: main.go:4326
+msgid "parse error: %v"
+msgstr "ошибка разбора: %v"
+
+#: main.go:642
+#: main.go:4128
+#: main.go:4348
+msgid "parse error"
+msgstr "ошибка разбора"
+
+#: main.go:669
 msgid "No translatable strings found in %s"
 msgstr "В %s не найдено строк для перевода"
 
-#: main.go:588
+#: main.go:673
 msgid "Translation Statistics"
 msgstr "Статистика перевода"
 
-#: main.go:629
+#: main.go:714
 msgid "Translation gaps:"
 msgstr "Пробелы в переводе:"
 
-#: main.go:633
+#: main.go:718
 msgid "%d untranslated"
 msgstr "%d не переведено"
 
-#: main.go:636
+#: main.go:721
 msgid "%d fuzzy"
 msgstr "%d нечетких"
 
-#: main.go:650
+#: main.go:735
 msgid "Documentation Statistics"
 msgstr "Статистика документации"
 
-#: main.go:680
+#: main.go:765
 msgid "No language files detected in %s"
 msgstr "В %s не обнаружено языковых файлов"
 
-#: main.go:691
+#: main.go:776
 msgid "UI Translation Statistics"
 msgstr "Статистика перевода интерфейса"
 
-#: main.go:740
+#: main.go:825
 msgid "Recipe Translations"
 msgstr "Переводы рецептов"
 
-#: main.go:825
+#: main.go:910
 msgid "Prepare translation files (extract strings, create/update PO)"
 msgstr "Подготовить файлы перевода (извлечение строк, создание/обновление PO)"
 
-#: main.go:826
+#: main.go:911
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"
-"Requires a .lokit.yaml configuration file in the project root.\n"
+"Requires a lokit.yaml configuration file in the project root.\n"
 "\n"
 "For gettext projects: runs xgettext to extract strings into a POT template,\n"
 "then creates or updates PO files for each language.\n"
 "\n"
 "For po4a projects: runs 'po4a --no-translations' to update templates.\n"
 "\n"
-"For i18next projects: creates missing language files with empty translations.\n"
+"For i18next/json/yaml/properties/flutter projects: creates missing language\n"
+"files with empty translations.\n"
 "\n"
-"For Android projects: no init step needed — use 'lokit translate' directly.\n"
+"For android/markdown projects: no init step needed — use 'lokit translate'\n"
+"directly.\n"
 "\n"
 "This command is idempotent — safe to run multiple times. Existing\n"
 "translations are preserved when updating files.\n"
 "\n"
-"CONFIG FORMAT (.lokit.yaml)\n"
+"CONFIG FORMAT (lokit.yaml)\n"
 "\n"
 "  source_lang: en                    # Source language (default: en)\n"
 "  languages: [ru, de, fr, es, ...]   # Target languages\n"
@@ -1677,6 +1932,18 @@ msgid ""
 "\n"
 "  android — Android strings.xml\n"
 "    res_dir: app/src/main/res        # Android res/ directory\n"
+"\n"
+"  yaml — YAML key/value translations\n"
+"    translations_dir: translations   # YAML files directory\n"
+"\n"
+"  markdown — Markdown document translation\n"
+"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"\n"
+"  properties — Java .properties translations\n"
+"    translations_dir: translations   # .properties files directory\n"
+"\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1714,25 +1981,38 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations"
+"      translations_dir: public/translations\n"
+"\n"
+"  # Flutter application\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: flutter\n"
+"      translations_dir: lib/l10n\n"
+"\n"
+"  # Java application with .properties\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: properties\n"
+"      translations_dir: src/main/resources"
 msgstr ""
-"Извлекает переводимые строки и создает/обновляет файлы перевода.\n"
+"Извлечение переводимых строк и создание/обновление файлов перевода.\n"
 "\n"
-"Требуется конфигурационный файл .lokit.yaml в корне проекта.\n"
+"Требуется конфигурационный файл lokit.yaml в корне проекта.\n"
 "\n"
-"Для проектов на gettext: запускает xgettext для извлечения строк в POT-шаблон,\n"
-"затем создает или обновляет PO-файлы для каждого языка.\n"
+"Для проектов gettext: запускает xgettext для извлечения строк в POT-шаблон,\n"
+"затем создаёт или обновляет PO-файлы для каждого языка.\n"
 "\n"
 "Для проектов po4a: запускает 'po4a --no-translations' для обновления шаблонов.\n"
 "\n"
-"Для проектов i18next: создает отсутствующие языковые файлы с пустыми переводами.\n"
+"Для i18next/json/yaml/properties/flutter: создаёт отсутствующие языковые\n"
+"файлы с пустыми переводами.\n"
 "\n"
-"Для Android-проектов: инициализация не требуется — используйте 'lokit translate' напрямую.\n"
+"Для android/markdown: инициализация не требуется — используйте 'lokit translate'.\n"
 "\n"
-"Эта команда идемпотентна — ее можно запускать несколько раз. При обновлении файлов\n"
+"Команда идемпотентна — безопасно запускать несколько раз. При обновлении\n"
 "существующие переводы сохраняются.\n"
 "\n"
-"ФОРМАТ КОНФИГА (.lokit.yaml)\n"
+"ФОРМАТ КОНФИГУРАЦИИ (lokit.yaml)\n"
 "\n"
 "  source_lang: en                    # Язык-источник (по умолчанию: en)\n"
 "  languages: [ru, de, fr, es, ...]   # Целевые языки\n"
@@ -1741,32 +2021,44 @@ msgstr ""
 "    - name: myproject                # Отображаемое имя\n"
 "      type: gettext                  # Тип цели (см. ниже)\n"
 "      root: .                        # Рабочая директория (по умолчанию: .)\n"
-"      # ... опции для конкретного типа\n"
+"      # ... специфичные параметры\n"
 "\n"
 "ТИПЫ ЦЕЛЕЙ\n"
 "\n"
-"  gettext — Извлечение строк из исходного кода (shell, python, C, Go и др.)\n"
-"    po_dir: po                       # Каталог с PO-файлами (по умолчанию: po)\n"
+"  gettext — Извлечение строк из кода (shell, python, C, Go и др.)\n"
+"    po_dir: po                       # Каталог PO-файлов (по умолчанию: po)\n"
 "    pot_file: po/messages.pot        # Путь к POT-шаблону\n"
 "    sources: [src, scripts]          # Каталоги для сканирования (по умолчанию: root)\n"
-"    keywords: [_, N_, gettext]       # Ключевые слова для xgettext (по умолчанию: стандартный набор)\n"
+"    keywords: [_, N_, gettext]       # Ключевые слова xgettext (по умолчанию: стандарт)\n"
 "\n"
 "  po4a — Перевод документации (man-страницы, AsciiDoc и др.)\n"
 "    po4a_config: po4a.cfg            # Путь к po4a.cfg (по умолчанию: po4a.cfg)\n"
 "\n"
 "  i18next — JSON-переводы для i18next\n"
-"    translations_dir: public/translations  # Каталог с JSON-файлами\n"
+"    translations_dir: public/translations  # Каталог JSON-файлов\n"
 "\n"
 "  json — Простые JSON-переводы { \"key\": \"value\" }\n"
-"    translations_dir: translations   # Каталог с JSON-файлами\n"
+"    translations_dir: translations   # Каталог JSON-файлов\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Каталог res/ для Android\n"
+"    res_dir: app/src/main/res        # Каталог Android res/\n"
+"\n"
+"  yaml — YAML-переводы (key/value)\n"
+"    translations_dir: translations   # Каталог YAML-файлов\n"
+"\n"
+"  markdown — Перевод Markdown-документов\n"
+"    translations_dir: translations   # Корень; файлы в translations/LANG/\n"
+"\n"
+"  properties — Переводы Java .properties\n"
+"    translations_dir: translations   # Каталог .properties\n"
+"\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    translations_dir: lib/l10n       # Каталог ARB-файлов (app_LANG.arb)\n"
 "\n"
 "ОБЩИЕ ОПЦИИ (для всех типов целей)\n"
 "\n"
 "  languages: [ru, de]               # Переопределить глобальный список языков\n"
-"  prompt: \"Custom translation...\"   # Переопределить AI-подсказку для перевода\n"
+"  prompt: \"Пользовательский перевод...\"   # Переопределить промпт ИИ\n"
 "\n"
 "ПРИМЕРЫ\n"
 "\n"
@@ -1779,11 +2071,11 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # Go-проект с обертками\n"
+"  # Go-проект с обёртками\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
-"      sources: [.] \n"
+"      sources: [.]\n"
 "      keywords: [T, N]\n"
 "\n"
 "  # Документация + код\n"
@@ -1795,12 +2087,20 @@ msgstr ""
 "      type: po4a\n"
 "      po4a_config: docs/po4a.cfg\n"
 "\n"
-"  # Веб-приложение на i18next\n"
+"  # Веб-приложение i18next\n"
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations"
-
-#: main.go:927
-msgid "Languages to init (comma-separated, default: all from config)"
-msgstr "Языки для инициализации (через запятую, по умолчанию: все из конфигурации)"
+"      translations_dir: public/translations\n"
+"\n"
+"  # Flutter-приложение\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: flutter\n"
+"      translations_dir: lib/l10n\n"
+"\n"
+"  # Java-приложение с .properties\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: properties\n"
+"      translations_dir: src/main/resources"

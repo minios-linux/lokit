@@ -20,7 +20,7 @@
 //
 // Lookup order for API keys:
 //  1. --api-key flag (highest priority)
-//  2. LOKIT_API_KEY environment variable
+//  2. Provider-specific environment variable (GOOGLE_API_KEY, GROQ_API_KEY, etc.)
 //  3. This credential store
 package settings
 
@@ -284,6 +284,52 @@ func GetBaseURL(providerID string) string {
 		return ""
 	}
 	return info.BaseURL
+}
+
+// ---------------------------------------------------------------------------
+// Environment variable helpers
+// ---------------------------------------------------------------------------
+
+// EnvVarForProvider returns the standard environment variable name used to
+// supply an API key for the given provider. Returns empty string for
+// OAuth-only providers (copilot, gemini) and Ollama (no key needed).
+//
+// Lookup order used by ResolveAPIKey:
+//  1. --api-key flag
+//  2. Provider-specific env var (e.g. GOOGLE_API_KEY)
+//  3. Stored credential from auth.json
+func EnvVarForProvider(providerID string) string {
+	switch providerID {
+	case "google":
+		return "GOOGLE_API_KEY"
+	case "groq":
+		return "GROQ_API_KEY"
+	case "opencode":
+		return "OPENCODE_API_KEY"
+	case "custom-openai":
+		return "OPENAI_API_KEY"
+	case "ollama", "copilot", "gemini":
+		return "" // no API key needed
+	default:
+		return ""
+	}
+}
+
+// ResolveAPIKey returns the effective API key for a provider, following the
+// standard priority order:
+//  1. flagKey — value from --api-key flag (if non-empty, returned as-is)
+//  2. Provider-specific env var (e.g. GOOGLE_API_KEY, GROQ_API_KEY)
+//  3. Stored credential from auth.json
+func ResolveAPIKey(providerID, flagKey string) string {
+	if flagKey != "" {
+		return flagKey
+	}
+	if envVar := EnvVarForProvider(providerID); envVar != "" {
+		if v := os.Getenv(envVar); v != "" {
+			return v
+		}
+	}
+	return GetAPIKey(providerID)
 }
 
 // ---------------------------------------------------------------------------

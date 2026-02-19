@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-17 16:18+0000\n"
-"PO-Revision-Date: 2026-02-17 16:19+0000\n"
+"POT-Creation-Date: 2026-02-19 12:46+0000\n"
+"PO-Revision-Date: 2026-02-19 12:47+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ko\n"
@@ -15,213 +15,280 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: main.go:1012
+#: main.go:1038
+msgid "Languages to init (comma-separated, default: all from config)"
+msgstr "초기화할 언어(쉼표로 구분, 기본값: 설정 파일 전체)"
+
+#: main.go:1123
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Android 타깃은 초기화가 필요하지 않습니다 — 'lokit translate'를 바로 사용하세요."
 
-#: main.go:1021
-#: main.go:2125
-msgid "Cannot read source language file %s: %v"
-msgstr "소스 언어 파일 %s을(를) 읽을 수 없습니다: %v"
+#: main.go:1155
+msgid "Cannot find source YAML file for language %q in %s"
+msgstr "언어 %q에 대한 소스 YAML 파일을 %s에서 찾을 수 없습니다"
 
-#: main.go:1026
+#: main.go:1156
+msgid "Expected: %s"
+msgstr "예상값: %s"
+
+#: main.go:1162
+msgid "Cannot read source YAML file %s: %v"
+msgstr "소스 YAML 파일 %s을(를) 읽을 수 없습니다: %v"
+
+#: main.go:1166
+#: main.go:1230
+#: main.go:4160
+#: main.go:4380
 msgid "Source language (%s): %d keys"
 msgstr "소스 언어(%s): %d개 키"
 
-#: main.go:1052
-#: main.go:1292
-#: main.go:3260
+#: main.go:1190
+#: main.go:3896
+#: main.go:4015
+#: main.go:4173
+#: main.go:4393
+msgid "Creating directory %s: %v"
+msgstr "디렉터리 생성 중: %s: %v"
+
+#: main.go:1194
+#: main.go:1256
+#: main.go:1496
+#: main.go:3497
+#: main.go:3914
+#: main.go:4177
+#: main.go:4397
 msgid "Creating %s: %v"
 msgstr "%s 생성 중: %v"
 
-#: main.go:1055
+#: main.go:1197
+#: main.go:1259
+#: main.go:4180
+#: main.go:4400
 msgid "Created: %s (%d keys)"
 msgstr "생성됨: %s (%d개 키)"
 
-#: main.go:1071
-#: main.go:1670
-msgid "Updating %s: %v"
-msgstr "%s 업데이트 중: %v"
-
-#: main.go:1074
-msgid "Updated: %s (+%d new keys)"
-msgstr "업데이트됨: %s (+%d개 신규 키)"
-
-#: main.go:1077
-msgid "%s: up to date"
-msgstr "%s: 최신 상태입니다"
-
-#: main.go:1081
-#: main.go:1314
-msgid "Summary: %d created, %d updated"
-msgstr "요약: %d개 생성, %d개 업데이트"
-
-#: main.go:1084
-#: main.go:1243
-#: main.go:1320
-msgid "Init complete!"
-msgstr "초기화 완료!"
-
-#: main.go:1097
-msgid "pandoc not found, skipping manpage generation from markdown"
-msgstr "pandoc을 찾을 수 없어 markdown에서 manpage 생성을 건너뜁니다"
-
-#: main.go:1112
-msgid "failed to list markdown files: %w"
-msgstr "마크다운 파일 목록 가져오기 실패: %w"
-
-#: main.go:1145
-msgid "Generating %s from %s"
-msgstr "%s에서 %s 생성 중"
-
-#: main.go:1150
-msgid "pandoc failed for %s: %w"
-msgstr "pandoc 실행 실패: %s: %w"
-
-#: main.go:1155
-msgid "Failed to post-process %s: %v"
-msgstr "%s 후처리에 실패했습니다: %v"
-
-#: main.go:1162
-msgid "Generated %d manpage(s) from markdown"
-msgstr "markdown에서 %d개의 manpage를 생성했습니다"
-
-#: main.go:1197
-msgid "po4a is not installed. Install with: sudo apt install po4a"
-msgstr "po4a가 설치되어 있지 않습니다. 설치하려면: sudo apt install po4a"
-
-#: main.go:1202
-msgid "Failed to generate manpages from markdown: %v"
-msgstr "markdown에서 manpage 생성에 실패했습니다: %v"
-
-#: main.go:1203
-msgid "Continuing anyway, po4a might fail if source files don't exist"
-msgstr "계속 진행합니다. 소스 파일이 없으면 po4a가 실패할 수 있습니다"
-
-#: main.go:1206
-msgid "Running po4a --no-translations %s ..."
-msgstr "po4a --no-translations %s 실행 중 ..."
-
-#: main.go:1212
-msgid "po4a failed: %v"
-msgstr "po4a 실패: %v"
-
-#: main.go:1214
-msgid "po4a updated POT and PO files"
-msgstr "po4a가 POT 및 PO 파일을 업데이트했습니다"
-
-#: main.go:1256
-#: main.go:1300
-#: main.go:1747
-#: main.go:1881
+#: main.go:1205
+#: main.go:1460
+#: main.go:1504
+#: main.go:1974
+#: main.go:2108
+#: main.go:3756
+#: main.go:3923
+#: main.go:4025
+#: main.go:4035
+#: main.go:4185
+#: main.go:4258
+#: main.go:4405
+#: main.go:4478
 msgid "Reading %s: %v"
 msgstr "%s 읽는 중: %v"
 
-#: main.go:1260
-msgid "Updating PO files for: %s"
-msgstr "%s의 PO 파일 업데이트 중"
+#: main.go:1211
+#: main.go:1510
+#: main.go:3928
+#: main.go:4190
+#: main.go:4410
+msgid "Writing %s: %v"
+msgstr "%s 쓰는 중: %v"
 
-#: main.go:1268
-#: main.go:3255
-msgid "Creating directory for %s: %v"
-msgstr "%s용 디렉터리 생성 중: %v"
+#: main.go:1214
+#: main.go:1513
+#: main.go:3931
+#: main.go:4193
+#: main.go:4413
+msgid "Updated: %s"
+msgstr "업데이트됨: %s"
 
-#: main.go:128
+#: main.go:1218
+msgid "YAML init: %d created, %d updated"
+msgstr "YAML 초기화: %d개 생성, %d개 업데이트됨"
+
+#: main.go:1225
+#: main.go:2352
+msgid "Cannot read source language file %s: %v"
+msgstr "소스 언어 파일 %s을(를) 읽을 수 없습니다: %v"
+
+#: main.go:1275
+#: main.go:1897
+msgid "Updating %s: %v"
+msgstr "%s 업데이트 중: %v"
+
+#: main.go:1278
+msgid "Updated: %s (+%d new keys)"
+msgstr "업데이트됨: %s (+%d개 신규 키)"
+
+#: main.go:1281
+msgid "%s: up to date"
+msgstr "%s: 최신 상태입니다"
+
+#: main.go:1285
+#: main.go:1518
+msgid "Summary: %d created, %d updated"
+msgstr "요약: %d개 생성, %d개 업데이트"
+
+#: main.go:1288
+#: main.go:1447
+#: main.go:1524
+msgid "Init complete!"
+msgstr "초기화 완료!"
+
+#: main.go:1301
+msgid "pandoc not found, skipping manpage generation from markdown"
+msgstr "pandoc을 찾을 수 없어 markdown에서 manpage 생성을 건너뜁니다"
+
+#: main.go:1316
+msgid "failed to list markdown files: %w"
+msgstr "마크다운 파일 목록 가져오기 실패: %w"
+
+#: main.go:132
 msgid "Localization Kit: AI-powered translation for multiple formats"
 msgstr "Localization Kit: 다양한 포맷을 위한 AI 기반 번역"
 
-#: main.go:129
+#: main.go:133
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
-"Supported project types (auto-detected or configured via .lokit.yaml):\n"
+"Supported project types (auto-detected or configured via lokit.yaml):\n"
 "  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
 "  po4a        Documentation translation (man pages, groff/roff markup)\n"
 "  i18next     React/i18next JSON translation files\n"
 "  android     Android strings.xml resource files\n"
 "  json        Generic JSON translation files (recipes, blog posts)\n"
+"  yaml        YAML translation files\n"
+"  markdown    Markdown document translation\n"
+"  properties  Java .properties translation files\n"
+"  flutter     Flutter ARB (Application Resource Bundle) files\n"
 "\n"
 "Configuration:\n"
-"  Project settings are defined in .lokit.yaml at the project root.\n"
+"  Project settings are defined in lokit.yaml at the project root.\n"
 "  Each project can have multiple translation targets with different types.\n"
-"  See project examples for .lokit.yaml format.\n"
+"  See project examples for lokit.yaml format.\n"
 "\n"
 "Custom prompts:\n"
-"  AI translation prompts are loaded from ~/.local/share/lokit/prompts.json\n"
-"  (or $XDG_DATA_HOME/lokit/prompts.json). If the file does not exist,\n"
-"  built-in defaults are used. Prompt types: default, docs, i18next,\n"
-"  recipe, blogpost, android. Use {{targetLang}} as a placeholder for\n"
-"  the target language name.\n"
+"  AI translation prompts are stored in ~/.local/share/lokit/prompts.json\n"
+"  (or $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
+"  on first use with built-in defaults. Edit it to customize prompts per\n"
+"  content type: default, docs, i18next, recipe, blogpost, android, yaml,\n"
+"  markdown, properties, flutter.\n"
+"  Use {{targetLang}} as a placeholder for the target language name.\n"
 "\n"
 "AI Providers:\n"
 "  google         Google AI (Gemini) — API key\n"
 "  gemini         Gemini Code Assist — browser OAuth (free)\n"
 "  groq           Groq — API key required\n"
-"  opencode       OpenCode (multi-format dispatcher)\n"
+"  opencode       OpenCode Zen API (free models available without key)\n"
 "  copilot        GitHub Copilot (native OAuth, free)\n"
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
-"lokit — Localization Kit: AI 기반 다중 포맷 번역 도구입니다.\n"
+"lokit — Localization Kit: AI 기반 번역 지원, 다양한 포맷 지원.\n"
 "\n"
-"지원하는 프로젝트 유형(자동 감지 또는 .lokit.yaml로 설정):\n"
-"  gettext     평면(po/*.po) 및 계층형(po/lang/*.po) PO 파일\n"
-"  po4a        문서 번역(맨 페이지, groff/roff 마크업)\n"
+"지원 프로젝트 유형(자동 감지 또는 lokit.yaml에서 설정):\n"
+"  gettext     평면( po/*.po ) 및 중첩( po/lang/*.po ) PO 파일\n"
+"  po4a        문서 번역(매뉴얼 페이지, groff/roff 마크업)\n"
 "  i18next     React/i18next JSON 번역 파일\n"
 "  android     Android strings.xml 리소스 파일\n"
-"  json        일반 JSON 번역 파일(레시피, 블로그 글 등)\n"
+"  json        일반 JSON 번역 파일(레시피, 블로그 등)\n"
+"  yaml        YAML 번역 파일\n"
+"  markdown    Markdown 문서 번역\n"
+"  properties  Java .properties 번역 파일\n"
+"  flutter     Flutter ARB(Application Resource Bundle) 파일\n"
 "\n"
 "설정:\n"
-"  프로젝트 설정은 프로젝트 루트의 .lokit.yaml에 정의합니다.\n"
-"  각 프로젝트는 여러 번역 타겟과 타입을 가질 수 있습니다.\n"
-"  .lokit.yaml 형식은 프로젝트 예시를 참고하세요.\n"
+"  프로젝트 설정은 프로젝트 루트의 lokit.yaml에 정의합니다.\n"
+"  각 프로젝트는 여러 번역 타겟(타입별) 설정이 가능합니다.\n"
+"  lokit.yaml 포맷은 프로젝트 예시를 참고하세요.\n"
 "\n"
 "사용자 지정 프롬프트:\n"
 "  AI 번역 프롬프트는 ~/.local/share/lokit/prompts.json\n"
-"  (또는 $XDG_DATA_HOME/lokit/prompts.json)에서 불러옵니다. 파일이 없으면\n"
-"  내장 기본값이 사용됩니다. 프롬프트 타입: default, docs, i18next,\n"
-"  recipe, blogpost, android. {{targetLang}}는 대상 언어명에 대한 플레이스홀더입니다.\n"
+"  (또는 $XDG_DATA_HOME/lokit/prompts.json)에 저장됩니다. 파일은 최초 사용 시\n"
+"  기본값으로 자동 생성되며, 프롬프트를 타입별로 직접 수정할 수 있습니다:\n"
+"  default, docs, i18next, recipe, blogpost, android, yaml, markdown, properties, flutter.\n"
+"  {{targetLang}}를 번역 대상 언어명으로 치환하는 플레이스홀더로 사용하세요.\n"
 "\n"
 "AI 제공자:\n"
-"  google         Google AI (Gemini) — API 키 필요\n"
+"  google         Google AI(Gemini) — API 키 필요\n"
 "  gemini         Gemini Code Assist — 브라우저 OAuth(무료)\n"
 "  groq           Groq — API 키 필요\n"
-"  opencode       OpenCode (다중 포맷 디스패처)\n"
-"  copilot        GitHub Copilot (네이티브 OAuth, 무료)\n"
+"  opencode       OpenCode Zen API(무료 모델은 키 없이 사용 가능)\n"
+"  copilot        GitHub Copilot(네이티브 OAuth, 무료)\n"
 "  ollama         Ollama 로컬 서버\n"
-"  custom-openai  커스텀 OpenAI 호환 엔드포인트"
+"  custom-openai  OpenAI 호환 커스텀 엔드포인트"
 
-#: main.go:1295
+#: main.go:1349
+msgid "Generating %s from %s"
+msgstr "%s에서 %s 생성 중"
+
+#: main.go:1354
+msgid "pandoc failed for %s: %w"
+msgstr "pandoc 실행 실패: %s: %w"
+
+#: main.go:1359
+msgid "Failed to post-process %s: %v"
+msgstr "%s 후처리에 실패했습니다: %v"
+
+#: main.go:1366
+msgid "Generated %d manpage(s) from markdown"
+msgstr "markdown에서 %d개의 manpage를 생성했습니다"
+
+#: main.go:1401
+msgid "po4a is not installed. Install with: sudo apt install po4a"
+msgstr "po4a가 설치되어 있지 않습니다. 설치하려면: sudo apt install po4a"
+
+#: main.go:1406
+msgid "Failed to generate manpages from markdown: %v"
+msgstr "markdown에서 manpage 생성에 실패했습니다: %v"
+
+#: main.go:1407
+msgid "Continuing anyway, po4a might fail if source files don't exist"
+msgstr "계속 진행합니다. 소스 파일이 없으면 po4a가 실패할 수 있습니다"
+
+#: main.go:1410
+msgid "Running po4a --no-translations %s ..."
+msgstr "po4a --no-translations %s 실행 중 ..."
+
+#: main.go:1416
+msgid "po4a failed: %v"
+msgstr "po4a 실패: %v"
+
+#: main.go:1418
+msgid "po4a updated POT and PO files"
+msgstr "po4a가 POT 및 PO 파일을 업데이트했습니다"
+
+#: main.go:1464
+msgid "Updating PO files for: %s"
+msgstr "%s의 PO 파일 업데이트 중"
+
+#: main.go:1472
+#: main.go:3492
+msgid "Creating directory for %s: %v"
+msgstr "%s용 디렉터리 생성 중: %v"
+
+#: main.go:1499
 msgid "Created: %s"
 msgstr "생성됨: %s"
 
-#: main.go:1306
-msgid "Writing %s: %v"
-msgstr "%s 쓰는 중: %v"
-
-#: main.go:1309
-msgid "Updated: %s"
-msgstr "업데이트됨: %s"
-
-#: main.go:1359
+#: main.go:1563
 msgid "Translate files using AI"
 msgstr "AI로 파일 번역"
 
-#: main.go:1360
+#: main.go:1564
 msgid ""
 "Translate files using AI providers.\n"
 "\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, and generic\n"
-"JSON formats. Project type is auto-detected or configured via .lokit.yaml.\n"
+"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
+"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
+"auto-detected or configured via lokit.yaml.\n"
 "\n"
 "For gettext/po4a projects, automatically initializes if needed (extracts\n"
 "strings, creates PO files). Requires --provider and --model flags.\n"
 "\n"
-"Custom prompts are loaded from ~/.local/share/lokit/prompts.json (or\n"
-"$XDG_DATA_HOME/lokit/prompts.json). Each project type uses its own prompt\n"
-"template (default, docs, i18next, recipe, blogpost, android). If the file\n"
-"does not exist, built-in defaults are used. The --prompt flag overrides\n"
-"the loaded prompt for the current run.\n"
+"Custom prompts are stored in ~/.local/share/lokit/prompts.json (or\n"
+"$XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
+"on first use with built-in defaults. Each project type uses its own\n"
+"prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,\n"
+"properties, flutter). The --prompt flag overrides the loaded prompt for the\n"
+"current run.\n"
 "\n"
 "Examples:\n"
 "  # Translate a gettext project using GitHub Copilot (free)\n"
@@ -240,21 +307,23 @@ msgid ""
 "  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
 "    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
 "\n"
+"  # Translate a Flutter project\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 msgstr ""
-"AI 제공자를 이용해 파일을 번역합니다.\n"
+"AI 제공자를 사용해 파일을 번역합니다.\n"
 "\n"
-"gettext PO, po4a, i18next JSON, Android strings.xml, 일반\n"
-"JSON 포맷을 지원합니다. 프로젝트 타입은 자동 감지되거나 .lokit.yaml로 설정됩니다.\n"
+"gettext PO, po4a, i18next JSON, Android strings.xml, 일반 JSON,\n"
+"YAML, Markdown, Java .properties, Flutter ARB 포맷을 지원합니다.\n"
+"프로젝트 타입은 자동 감지되거나 lokit.yaml에서 설정할 수 있습니다.\n"
 "\n"
-"gettext/po4a 프로젝트는 필요 시 자동으로 초기화되며(문자열 추출, PO 파일 생성),\n"
-"--provider와 --model 플래그가 필요합니다.\n"
+"gettext/po4a 프로젝트의 경우, 필요 시 자동으로 초기화(문자열 추출 및 PO 파일 생성)를 수행합니다. --provider 및 --model 플래그가 필요합니다.\n"
 "\n"
-"사용자 지정 프롬프트는 ~/.local/share/lokit/prompts.json (또는\n"
-"$XDG_DATA_HOME/lokit/prompts.json)에서 불러옵니다. 각 프로젝트 타입별로\n"
-"프롬프트 템플릿(default, docs, i18next, recipe, blogpost, android)이 사용됩니다.\n"
-"파일이 없으면 내장 기본값이 적용됩니다. --prompt 플래그로 현재 실행에 사용할 프롬프트를 덮어쓸 수 있습니다.\n"
+"사용자 지정 프롬프트는 ~/.local/share/lokit/prompts.json(또는\n"
+"$XDG_DATA_HOME/lokit/prompts.json)에 저장됩니다. 파일은 최초 사용 시\n"
+"기본값으로 자동 생성되며, 각 프로젝트 타입별로 별도의 프롬프트를 사용합니다(default, docs, i18next, recipe, blogpost, android, yaml, markdown, properties, flutter). --prompt 플래그로 현재 실행에 사용할 프롬프트를 덮어쓸 수 있습니다.\n"
 "\n"
 "예시:\n"
 "  # GitHub Copilot(무료)로 gettext 프로젝트 번역\n"
@@ -266,112 +335,115 @@ msgstr ""
 "  # Google AI(API 키)로 i18next 프로젝트 번역\n"
 "  lokit translate --provider google --model gemini-2.5-flash\n"
 "\n"
-"  # 특정 언어를 병렬로 번역\n"
+"  # 여러 언어를 병렬로 번역\n"
 "  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
 "\n"
 "  # 사용자 지정 프롬프트로 전체 재번역\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
+"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"{{targetLang}}로 번역하세요. 구어체를 사용하세요.\"\n"
 "\n"
-"  # 드라이런(번역 예정 내용만 표시)\n"
+"  # Flutter 프로젝트 번역\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # 드라이런(번역될 항목 미리보기)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 
-#: main.go:1408
+#: main.go:1617
 msgid "AI provider (required): google, gemini, groq, opencode, copilot, ollama, custom-openai"
 msgstr "AI 제공자(필수): google, gemini, groq, opencode, copilot, ollama, custom-openai"
 
-#: main.go:1409
+#: main.go:1618
 msgid "Model name (required)"
 msgstr "모델 이름(필수)"
 
-#: main.go:1410
-msgid "API key (or LOKIT_API_KEY env var)"
-msgstr "API 키(또는 LOKIT_API_KEY 환경 변수)"
+#: main.go:1619
+msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
+msgstr "API 키(또는 제공자 환경 변수: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 
-#: main.go:1411
+#: main.go:1620
 msgid "Custom API base URL"
 msgstr "커스텀 API 기본 URL"
 
-#: main.go:1414
+#: main.go:1623
 msgid "Languages to translate (comma-separated, default: all with untranslated)"
 msgstr "번역할 언어(쉼표로 구분, 기본값: 미번역 포함 전체)"
 
-#: main.go:1417
+#: main.go:1626
 msgid "Entries per API request (0 = all at once)"
 msgstr "API 요청당 항목 수(0 = 전체 일괄 처리)"
 
-#: main.go:1418
+#: main.go:1627
 msgid "Re-translate already translated entries"
 msgstr "이미 번역된 항목도 재번역"
 
-#: main.go:1419
+#: main.go:1628
 msgid "Translate fuzzy entries and clear fuzzy flag"
 msgstr "퍼지(fuzzy) 항목 번역 및 퍼지 플래그 해제"
 
-#: main.go:1420
+#: main.go:1629
 msgid "Custom system prompt (use {{targetLang}} placeholder)"
 msgstr "사용자 지정 시스템 프롬프트({{targetLang}} 플레이스홀더 사용)"
 
-#: main.go:1421
+#: main.go:1630
 msgid "Enable detailed logging"
 msgstr "상세 로그 활성화"
 
-#: main.go:1422
+#: main.go:1631
 msgid "Show what would be translated without calling AI"
 msgstr "AI 호출 없이 번역 예정 항목만 표시"
 
-#: main.go:1425
+#: main.go:1634
 msgid "Enable parallel translation"
 msgstr "병렬 번역 활성화"
 
-#: main.go:1426
+#: main.go:1635
 msgid "Maximum concurrent tasks (with --parallel)"
 msgstr "최대 동시 작업 수(--parallel 사용 시)"
 
-#: main.go:1427
+#: main.go:1636
 msgid "Delay between parallel tasks"
 msgstr "병렬 작업 간 지연 시간"
 
-#: main.go:1430
+#: main.go:1639
 msgid "Request timeout (0 = provider default)"
 msgstr "요청 타임아웃(0 = 제공자 기본값)"
 
-#: main.go:1431
+#: main.go:1640
 msgid "HTTP/HTTPS proxy URL"
 msgstr "HTTP/HTTPS 프록시 URL"
 
-#: main.go:1432
+#: main.go:1641
 msgid "Maximum retries on rate limit (429)"
 msgstr "429(요청 제한) 발생 시 최대 재시도 횟수"
 
-#: main.go:1437
+#: main.go:1646
 msgid "Google AI (Gemini) — API key required"
 msgstr "Google AI (Gemini) — API 키 필요"
 
-#: main.go:1438
+#: main.go:1647
 msgid "Gemini Code Assist — browser OAuth (free)"
 msgstr "Gemini Code Assist — 브라우저 OAuth(무료)"
 
-#: main.go:1439
+#: main.go:1648
 msgid "Groq — API key required"
 msgstr "Groq — API 키 필요"
 
-#: main.go:1440
+#: main.go:1649
 msgid "OpenCode — optional API key"
 msgstr "OpenCode — API 키 선택 사항"
 
-#: main.go:1441
+#: main.go:1650
 msgid "GitHub Copilot — native OAuth (free)"
 msgstr "GitHub Copilot — 네이티브 OAuth(무료)"
 
-#: main.go:1442
+#: main.go:1651
 msgid "Ollama local server"
 msgstr "Ollama 로컬 서버"
 
-#: main.go:1443
+#: main.go:1652
 msgid "Custom OpenAI-compatible endpoint"
 msgstr "커스텀 OpenAI 호환 엔드포인트"
 
-#: main.go:1514
+#: main.go:1717
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
@@ -379,220 +451,240 @@ msgstr ""
 "프로바이더가 지정되지 않았습니다. --provider 옵션으로 AI 번역 서비스를 선택하세요.\n"
 "\n"
 
-#: main.go:1532
-msgid "No targets defined in .lokit.yaml"
-msgstr ".lokit.yaml에 대상이 정의되어 있지 않습니다"
-
-#: main.go:1544
-#: main.go:2272
-msgid "Interrupted, saving progress..."
-msgstr "중단됨, 진행 상황 저장 중..."
-
-#: main.go:1571
-msgid "[%s] No languages to translate, skipping"
-msgstr "[%s] 번역할 언어가 없어 건너뜁니다"
-
-#: main.go:1580
-#: main.go:1586
-#: main.go:1592
-#: main.go:1598
-#: main.go:1604
-msgid "[%s] %v"
-msgstr "[%s] %v"
-
-#: main.go:1609
-msgid "[%s] Unknown target type %q, skipping"
-msgstr "[%s] 알 수 없는 대상 타입 %q, 건너뜁니다"
-
-#: main.go:1614
-#: main.go:2536
-msgid "Translation completed with errors"
-msgstr "번역이 오류와 함께 완료되었습니다"
-
-#: main.go:1617
-msgid "All targets translated!"
-msgstr "모든 대상 번역 완료!"
-
-#: main.go:164
+#: main.go:173
 msgid "Warning: Failed to load prompts: %v"
 msgstr "경고: 프롬프트 로드 실패: %v"
 
-#: main.go:1651
-msgid "Extracting strings and updating PO files..."
-msgstr "문자열을 추출하고 PO 파일을 업데이트하는 중..."
+#: main.go:1735
+msgid "No targets defined in lokit.yaml"
+msgstr "lokit.yaml에 타겟이 정의되어 있지 않습니다"
 
-#: main.go:1653
-msgid "Extraction failed: %v"
-msgstr "추출 실패: %v"
+#: main.go:1747
+#: main.go:2499
+msgid "Interrupted, saving progress..."
+msgstr "중단됨, 진행 상황 저장 중..."
 
-#: main.go:1654
-msgid "Continuing with existing PO files"
-msgstr "기존 PO 파일로 계속 진행합니다"
-
-#: main.go:166
+#: main.go:175
 msgid "Loaded prompts from %s"
 msgstr "%s에서 프롬프트를 불러왔습니다"
 
-#: main.go:1676
-#: main.go:1782
-#: main.go:1913
-#: main.go:1941
-#: main.go:1962
-#: main.go:2176
-msgid "Provider: %s (%s), Model: %s"
-msgstr "프로바이더: %s (%s), 모델: %s"
+#: main.go:1774
+msgid "[%s] No languages to translate, skipping"
+msgstr "[%s] 번역할 언어가 없어 건너뜁니다"
 
-#: main.go:1678
-#: main.go:1964
-#: main.go:2178
-msgid "Parallel: enabled, max concurrent: %d"
-msgstr "병렬 처리: 활성화됨, 최대 동시 실행: %d"
+#: main.go:1783
+#: main.go:1789
+#: main.go:1795
+#: main.go:1801
+#: main.go:1807
+#: main.go:1813
+#: main.go:1819
+#: main.go:1825
+#: main.go:1831
+msgid "[%s] %v"
+msgstr "[%s] %v"
 
-#: main.go:1681
-#: main.go:1967
-msgid "Chunk size: %d"
-msgstr "청크 크기: %d"
-
-#: main.go:1683
-#: main.go:1784
-msgid "PO dir: %s"
-msgstr "PO 디렉터리: %s"
-
-#: main.go:1684
-#: main.go:1785
-#: main.go:1915
-#: main.go:1943
-#: main.go:1970
-msgid "Translating: %s"
-msgstr "번역 중: %s"
-
-#: main.go:1692
-#: main.go:1793
-#: main.go:2003
-#: main.go:2210
-msgid "%s (%s): %d strings to translate"
-msgstr "%s (%s): 번역할 문자열 %d개"
-
-#: main.go:1694
-msgid "%s: PO file not found, will be created"
-msgstr "%s: PO 파일을 찾을 수 없어 새로 생성합니다"
-
-#: main.go:1720
-#: main.go:1820
-#: main.go:2033
-#: main.go:2290
-msgid "  %s: %d/%d"
-msgstr "  %s: %d/%d"
-
-#: main.go:173
+#: main.go:182
 msgid "default"
 msgstr "기본값"
 
-#: main.go:176
+#: main.go:1836
+msgid "[%s] Unknown target type %q, skipping"
+msgstr "[%s] 알 수 없는 대상 타입 %q, 건너뜁니다"
+
+#: main.go:1841
+#: main.go:2763
+msgid "Translation completed with errors"
+msgstr "번역이 오류와 함께 완료되었습니다"
+
+#: main.go:1844
+msgid "All targets translated!"
+msgstr "모든 대상 번역 완료!"
+
+#: main.go:185
 msgid "Use \"%s [command] --help\" for more information about a command."
 msgstr "\"%s [command] --help\"를 입력하면 해당 명령어에 대한 자세한 정보를 확인할 수 있습니다."
 
-#: main.go:1769
-#: main.go:1902
-#: main.go:2083
-msgid "[%s] All translations complete!"
-msgstr "[%s] 모든 번역 완료!"
+#: main.go:1878
+msgid "Extracting strings and updating PO files..."
+msgstr "문자열을 추출하고 PO 파일을 업데이트하는 중..."
 
-#: main.go:1783
-msgid "po4a config: %s"
-msgstr "po4a 설정: %s"
+#: main.go:1880
+msgid "Extraction failed: %v"
+msgstr "추출 실패: %v"
 
-#: main.go:1795
-msgid "%s: PO file not found at %s"
-msgstr "%s: %s에서 PO 파일을 찾을 수 없습니다"
+#: main.go:1881
+msgid "Continuing with existing PO files"
+msgstr "기존 PO 파일로 계속 진행합니다"
 
-#: main.go:182
+#: main.go:1903
+#: main.go:2009
+#: main.go:2140
+#: main.go:2168
+#: main.go:2189
+#: main.go:2403
+#: main.go:3664
+#: main.go:3945
+#: main.go:4205
+#: main.go:4425
+msgid "Provider: %s (%s), Model: %s"
+msgstr "프로바이더: %s (%s), 모델: %s"
+
+#: main.go:1905
+#: main.go:2191
+#: main.go:2405
+#: main.go:3666
+#: main.go:3947
+#: main.go:4207
+#: main.go:4427
+msgid "Parallel: enabled, max concurrent: %d"
+msgstr "병렬 처리: 활성화됨, 최대 동시 실행: %d"
+
+#: main.go:1908
+#: main.go:2194
+#: main.go:3669
+#: main.go:3950
+#: main.go:4210
+#: main.go:4430
+msgid "Chunk size: %d"
+msgstr "청크 크기: %d"
+
+#: main.go:191
 msgid "Usage:"
 msgstr "사용법:"
 
-#: main.go:1835
-msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
-msgstr "문서 전용 번역 프롬프트 사용 중(groff/man 마크업 보존)"
+#: main.go:1910
+#: main.go:2011
+msgid "PO dir: %s"
+msgstr "PO 디렉터리: %s"
 
-#: main.go:1847
-msgid "PO files missing, running po4a initialization..."
-msgstr "PO 파일이 없습니다. po4a 초기화를 실행합니다..."
+#: main.go:1911
+#: main.go:2012
+#: main.go:2142
+#: main.go:2170
+#: main.go:2197
+#: main.go:3672
+#: main.go:3953
+#: main.go:4213
+#: main.go:4433
+msgid "Translating: %s"
+msgstr "번역 중: %s"
 
-#: main.go:186
+#: main.go:1919
+#: main.go:2020
+#: main.go:2230
+#: main.go:2437
+#: main.go:3718
+#: main.go:3726
+#: main.go:4239
+#: main.go:4459
+msgid "%s (%s): %d strings to translate"
+msgstr "%s (%s): 번역할 문자열 %d개"
+
+#: main.go:1921
+msgid "%s: PO file not found, will be created"
+msgstr "%s: PO 파일을 찾을 수 없어 새로 생성합니다"
+
+#: main.go:1947
+#: main.go:2047
+#: main.go:2260
+#: main.go:2517
+msgid "  %s: %d/%d"
+msgstr "  %s: %d/%d"
+
+#: main.go:195
 msgid "Aliases:"
 msgstr "별칭:"
 
-#: main.go:1867
-msgid "auto-init failed: %v"
-msgstr "자동 초기화 실패: %v"
-
-#: main.go:1878
-msgid "[%s] No PO file for %s at %s, skipping"
-msgstr "[%s] %s의 PO 파일이 %s에 없습니다. 건너뜁니다"
-
-#: main.go:189
+#: main.go:198
 msgid "Examples:"
 msgstr "예시:"
 
-#: main.go:1914
-#: main.go:1942
-msgid "Translations dir: %s"
-msgstr "번역 디렉터리: %s"
+#: main.go:1996
+#: main.go:2129
+#: main.go:2310
+msgid "[%s] All translations complete!"
+msgstr "[%s] 모든 번역 완료!"
 
-#: main.go:192
+#: main.go:201
 msgid "Available Commands:"
 msgstr "사용 가능한 명령어:"
 
-#: main.go:1969
-msgid "Res dir: %s"
-msgstr "Res 디렉터리: %s"
+#: main.go:2010
+msgid "po4a config: %s"
+msgstr "po4a 설정: %s"
 
-#: main.go:1976
-msgid "cannot read source strings.xml %s: %w"
-msgstr "소스 strings.xml 읽기 실패 %s: %w"
+#: main.go:2022
+msgid "%s: PO file not found at %s"
+msgstr "%s: %s에서 PO 파일을 찾을 수 없습니다"
 
-#: main.go:1979
-msgid "Source strings: %d"
-msgstr "원본 문자열: %d"
+#: main.go:2062
+msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
+msgstr "문서 전용 번역 프롬프트 사용 중(groff/man 마크업 보존)"
 
-#: main.go:198
+#: main.go:207
 msgid "Additional Commands:"
 msgstr "추가 명령어:"
 
-#: main.go:1990
-#: main.go:2198
-msgid "%s (%s): %d strings to translate (file will be auto-created)"
-msgstr "%s (%s): 번역할 문자열 %d개 (파일이 자동 생성됩니다)"
+#: main.go:2074
+msgid "PO files missing, running po4a initialization..."
+msgstr "PO 파일이 없습니다. po4a 초기화를 실행합니다..."
 
-#: main.go:201
+#: main.go:2094
+msgid "auto-init failed: %v"
+msgstr "자동 초기화 실패: %v"
+
+#: main.go:210
 msgid "Flags:"
 msgstr "플래그:"
 
-#: main.go:204
+#: main.go:2105
+msgid "[%s] No PO file for %s at %s, skipping"
+msgstr "[%s] %s의 PO 파일이 %s에 없습니다. 건너뜁니다"
+
+#: main.go:213
 msgid "Global Flags:"
 msgstr "전역 플래그:"
 
-#: main.go:2051
-msgid "Auto-creating %s with %d strings"
-msgstr "%d개의 문자열로 %s 파일을 자동 생성합니다"
+#: main.go:2141
+#: main.go:2169
+#: main.go:3671
+#: main.go:3952
+#: main.go:4212
+#: main.go:4432
+msgid "Translations dir: %s"
+msgstr "번역 디렉터리: %s"
 
-#: main.go:2056
-msgid "Added %d new strings to %s"
-msgstr "%d개의 새 문자열이 %s에 추가되었습니다"
-
-#: main.go:207
+#: main.go:216
 msgid "Additional help topics:"
 msgstr "추가 도움말 항목:"
 
-#: main.go:216
+#: main.go:2196
+msgid "Res dir: %s"
+msgstr "Res 디렉터리: %s"
+
+#: main.go:2203
+msgid "cannot read source strings.xml %s: %w"
+msgstr "소스 strings.xml 읽기 실패 %s: %w"
+
+#: main.go:2206
+#: main.go:3693
+#: main.go:4222
+#: main.go:4442
+msgid "Source strings: %d"
+msgstr "원본 문자열: %d"
+
+#: main.go:2217
+#: main.go:2425
+#: main.go:3712
+msgid "%s (%s): %d strings to translate (file will be auto-created)"
+msgstr "%s (%s): 번역할 문자열 %d개 (파일이 자동 생성됩니다)"
+
+#: main.go:225
 msgid "Help about any command"
 msgstr "모든 명령어에 대한 도움말"
 
-#: main.go:2166
-msgid "All UI translations are complete!"
-msgstr "모든 UI 번역이 완료되었습니다!"
-
-#: main.go:217
+#: main.go:226
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
@@ -600,116 +692,132 @@ msgstr ""
 "Help는 애플리케이션의 모든 명령어에 대한 도움말을 제공합니다.\n"
 "자세한 내용을 보려면 %s help [명령어 경로]를 입력하세요."
 
-#: main.go:2180
+#: main.go:2278
+msgid "Auto-creating %s with %d strings"
+msgstr "%d개의 문자열로 %s 파일을 자동 생성합니다"
+
+#: main.go:2283
+msgid "Added %d new strings to %s"
+msgstr "%d개의 새 문자열이 %s에 추가되었습니다"
+
+#: main.go:2393
+msgid "All UI translations are complete!"
+msgstr "모든 UI 번역이 완료되었습니다!"
+
+#: main.go:2407
 msgid "Parallel: disabled (sequential)"
 msgstr "병렬 처리: 비활성화됨 (순차 처리)"
 
-#: main.go:2182
+#: main.go:2409
 msgid "Source keys (%s): %d"
 msgstr "원본 키(%s): %d"
 
-#: main.go:2185
+#: main.go:2412
 msgid "Translating UI strings: %s"
 msgstr "UI 문자열 번역 중: %s"
 
-#: main.go:2220
+#: main.go:2447
 msgid "%s: recipe translations directory not found"
 msgstr "%s: 레시피 번역 디렉터리를 찾을 수 없습니다"
 
-#: main.go:2233
+#: main.go:2460
 msgid "%s: %d recipe files need translation"
 msgstr "%s: 번역이 필요한 레시피 파일 %d개"
 
-#: main.go:2239
-#: main.go:2446
+#: main.go:2466
+#: main.go:2673
 msgid "No blog posts found in %s"
 msgstr "%s에서 블로그 게시글을 찾을 수 없습니다"
 
-#: main.go:2254
-msgid "%s: %d blog post(s) need translation"
-msgstr "%s: 번역이 필요한 블로그 게시글 %d개"
-
-#: main.go:2256
-msgid "%s: all blog posts translated"
-msgstr "%s: 모든 블로그 게시글 번역 완료"
-
-#: main.go:2321
-msgid "Auto-creating %s with %d keys"
-msgstr "%d개의 키로 %s 파일을 자동 생성합니다"
-
-#: main.go:2341
-#: main.go:2428
-#: main.go:2525
-msgid "Translation interrupted, partial progress saved"
-msgstr "번역이 중단되었습니다. 일부 진행 상황이 저장되었습니다"
-
-#: main.go:2344
-msgid "UI translation failed: %v"
-msgstr "UI 번역 실패: %v"
-
-#: main.go:2352
-msgid "Translating recipe metadata..."
-msgstr "레시피 메타데이터 번역 중..."
-
-#: main.go:2369
-msgid "Cannot read recipe directory for %s: %v"
-msgstr "%s의 레시피 디렉터리를 읽을 수 없습니다: %v"
-
-#: main.go:239
+#: main.go:248
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "알 수 없는 도움말 주제 %q\n"
 
-#: main.go:2417
-msgid "  %s: all recipe translations complete"
-msgstr "  %s: 모든 레시피 번역 완료"
+#: main.go:2481
+msgid "%s: %d blog post(s) need translation"
+msgstr "%s: 번역이 필요한 블로그 게시글 %d개"
 
-#: main.go:2421
-msgid "  %s (%s): %d recipe files to translate"
-msgstr "  %s (%s): 번역할 레시피 파일 %d개"
+#: main.go:2483
+msgid "%s: all blog posts translated"
+msgstr "%s: 모든 블로그 게시글 번역 완료"
 
-#: main.go:2431
-msgid "Recipe translation failed for %s: %v"
-msgstr "%s의 레시피 번역 실패: %v"
+#: main.go:2548
+msgid "Auto-creating %s with %d keys"
+msgstr "%d개의 키로 %s 파일을 자동 생성합니다"
 
-#: main.go:2439
-msgid "Translating blog posts..."
-msgstr "블로그 게시글 번역 중..."
+#: main.go:2568
+#: main.go:2655
+#: main.go:2752
+msgid "Translation interrupted, partial progress saved"
+msgstr "번역이 중단되었습니다. 일부 진행 상황이 저장되었습니다"
 
-#: main.go:2465
-msgid "Cannot read source blog post %s: %v"
-msgstr "원본 블로그 게시글 %s을(를) 읽을 수 없습니다: %v"
+#: main.go:2571
+msgid "UI translation failed: %v"
+msgstr "UI 번역 실패: %v"
 
-#: main.go:2477
-msgid "Error parsing %s, will recreate: %v"
-msgstr "%s 파싱 오류, 재생성 예정: %v"
+#: main.go:2579
+msgid "Translating recipe metadata..."
+msgstr "레시피 메타데이터 번역 중..."
 
-#: main.go:249
+#: main.go:258
 msgid "Project root directory"
 msgstr "프로젝트 루트 디렉터리"
 
-#: main.go:2514
+#: main.go:2596
+msgid "Cannot read recipe directory for %s: %v"
+msgstr "%s의 레시피 디렉터리를 읽을 수 없습니다: %v"
+
+#: main.go:2644
+msgid "  %s: all recipe translations complete"
+msgstr "  %s: 모든 레시피 번역 완료"
+
+#: main.go:2648
+msgid "  %s (%s): %d recipe files to translate"
+msgstr "  %s (%s): 번역할 레시피 파일 %d개"
+
+#: main.go:2658
+msgid "Recipe translation failed for %s: %v"
+msgstr "%s의 레시피 번역 실패: %v"
+
+#: main.go:2666
+msgid "Translating blog posts..."
+msgstr "블로그 게시글 번역 중..."
+
+#: main.go:2692
+msgid "Cannot read source blog post %s: %v"
+msgstr "원본 블로그 게시글 %s을(를) 읽을 수 없습니다: %v"
+
+#: main.go:2704
+msgid "Error parsing %s, will recreate: %v"
+msgstr "%s 파싱 오류, 재생성 예정: %v"
+
+#: main.go:2741
 msgid "  %s: all blog posts translated"
 msgstr "  %s: 모든 블로그 게시글 번역 완료"
 
-#: main.go:2518
+#: main.go:2745
 msgid "  %s (%s): %d blog post(s) to translate"
 msgstr "  %s (%s): 번역할 블로그 게시글 %d개"
 
-#: main.go:2528
+#: main.go:2755
 msgid "Blog post translation failed for %s: %v"
 msgstr "%s의 블로그 게시글 번역 실패: %v"
 
-#: main.go:2539
+#: main.go:276
+msgid "this command"
+msgstr "이 명령어"
+
+#: main.go:2766
 msgid "Translation complete!"
 msgstr "번역이 완료되었습니다!"
 
-#: main.go:2549
+#: main.go:2776
 msgid "Manage provider authentication"
 msgstr "프로바이더 인증 관리"
 
-#: main.go:2550
+#: main.go:2777
 msgid ""
 "Manage authentication credentials for all AI providers.\n"
 "\n"
@@ -720,7 +828,7 @@ msgid ""
 "API key providers (paste your key):\n"
 "  google        Google AI Studio (Gemini API key)\n"
 "  groq          Groq Cloud (free tier available)\n"
-"  opencode      OpenCode proxy\n"
+"  opencode      OpenCode Zen API (free models available without key)\n"
 "  custom-openai Custom OpenAI-compatible endpoint\n"
 "\n"
 "No auth required:\n"
@@ -738,30 +846,34 @@ msgstr ""
 "\n"
 "OAuth 제공자(인터랙티브 브라우저/디바이스 플로우):\n"
 "  copilot       GitHub Copilot(디바이스 코드 플로우, GitHub 계정으로 무료)\n"
-"  gemini        Google Gemini Code Assist(브라우저 OAuth, 무료: 분당 60회)\n"
+"  gemini        Google Gemini Code Assist(브라우저 OAuth, 무료 티어: 분당 60회 요청)\n"
 "\n"
-"API 키 제공자(키 직접 입력):\n"
+"API 키 제공자(키를 직접 입력):\n"
 "  google        Google AI Studio(Gemini API 키)\n"
-"  groq          Groq Cloud(무료 플랜 제공)\n"
-"  opencode      OpenCode 프록시\n"
-"  custom-openai 커스텀 OpenAI 호환 엔드포인트\n"
+"  groq          Groq Cloud(무료 티어 제공)\n"
+"  opencode      OpenCode Zen API(무료 모델은 키 없이 사용 가능)\n"
+"  custom-openai OpenAI 호환 커스텀 엔드포인트\n"
 "\n"
 "인증 불필요:\n"
 "  ollama        로컬 Ollama 서버\n"
 "\n"
 "예시:\n"
 "  lokit auth login                         제공자 선택(인터랙티브)\n"
-"  lokit auth login --provider copilot      GitHub Copilot OAuth\n"
+"  lokit auth login --provider copilot      GitHub Copilot로 OAuth 인증\n"
 "  lokit auth login --provider google       Google AI API 키 저장\n"
 "  lokit auth logout --provider google      Google API 키 삭제\n"
 "  lokit auth logout                        모든 인증 정보 삭제\n"
-"  lokit auth list                          저장된 인증 정보 목록"
+"  lokit auth list                          저장된 모든 인증 정보 보기"
 
-#: main.go:2604
+#: main.go:278
+msgid "help for %s"
+msgstr "%s에 대한 도움말"
+
+#: main.go:2831
 msgid "Authenticate with an AI provider"
 msgstr "AI 프로바이더로 인증하기"
 
-#: main.go:2605
+#: main.go:2832
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -791,259 +903,263 @@ msgstr ""
 "  opencode      OpenCode API 키 입력\n"
 "  custom-openai API 키 및 엔드포인트 URL 입력"
 
-#: main.go:2621
+#: main.go:2848
 msgid "Select provider to authenticate"
 msgstr "인증할 프로바이더 선택"
 
-#: main.go:2630
+#: main.go:2857
 msgid "OAuth"
 msgstr "OAuth"
 
-#: main.go:2632
+#: main.go:2859
 msgid "API key"
 msgstr "API 키"
 
-#: main.go:2638
+#: main.go:2865
 msgid "Enter choice (number or name):"
 msgstr "선택 입력(번호 또는 이름):"
 
-#: main.go:2642
-#: main.go:2850
-#: main.go:2889
-#: main.go:2911
+#: main.go:2869
+#: main.go:3077
+#: main.go:3116
+#: main.go:3138
 msgid "No input received"
 msgstr "입력이 없습니다"
 
-#: main.go:2662
+#: main.go:2889
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
 msgstr "잘못된 선택입니다. 사용법: lokit auth login --provider PROVIDER"
 
-#: main.go:267
-msgid "this command"
-msgstr "이 명령어"
-
-#: main.go:2687
-msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
-msgstr "알 수 없는 프로바이더 '%s'. 옵션을 보려면 'lokit auth login'을 실행하세요."
-
-#: main.go:269
-msgid "help for %s"
-msgstr "%s에 대한 도움말"
-
-#: main.go:2693
-msgid "Provider to authenticate"
-msgstr "인증할 제공자"
-
-#: main.go:2709
-msgid "GitHub Copilot Authentication"
-msgstr "GitHub Copilot 인증"
-
-#: main.go:2712
-msgid "Open this URL in your browser:"
-msgstr "이 URL을 브라우저에서 여세요:"
-
-#: main.go:2714
-msgid "Enter this code:"
-msgstr "이 코드를 입력하세요:"
-
-#: main.go:2716
-#: main.go:2740
-msgid "Waiting for authorization..."
-msgstr "인증 대기 중..."
-
-#: main.go:2720
-#: main.go:2744
-msgid "Authentication cancelled"
-msgstr "인증이 취소되었습니다"
-
-#: main.go:2723
-#: main.go:2747
-msgid "Authentication failed: %v"
-msgstr "인증 실패: %v"
-
-#: main.go:2727
-msgid "Copilot authentication successful!"
-msgstr "Copilot 인증이 완료되었습니다!"
-
-#: main.go:2728
-msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
-msgstr "이제 다음 명령어를 사용할 수 있습니다: lokit translate --provider copilot --model gpt-4o"
-
-#: main.go:2733
-msgid "Google Gemini Authentication"
-msgstr "Google Gemini 인증"
-
-#: main.go:2736
-msgid "Opening browser for Google sign-in..."
-msgstr "Google 로그인용 브라우저를 여는 중..."
-
-#: main.go:2738
-msgid "If the browser doesn't open, visit:"
-msgstr "브라우저가 자동으로 열리지 않으면 아래 주소를 방문하세요:"
-
-#: main.go:2752
-msgid "Gemini authentication successful!"
-msgstr "Gemini 인증이 완료되었습니다!"
-
-#: main.go:2758
-msgid "Token was saved but cannot be loaded"
-msgstr "토큰이 저장되었지만 불러올 수 없습니다"
-
-#: main.go:2764
-msgid "Gemini Code Assist requires a GCP project ID to work in your region."
-msgstr "Gemini Code Assist는 해당 지역에서 사용하려면 GCP 프로젝트 ID가 필요합니다."
-
-#: main.go:2765
-msgid "Find your project ID at: https://console.cloud.google.com"
-msgstr "프로젝트 ID는 다음에서 확인할 수 있습니다: https://console.cloud.google.com"
-
-#: main.go:2766
-msgid "(Create a project if you don't have one, then enable the Gemini API)"
-msgstr "(프로젝트가 없다면 새로 생성하고 Gemini API를 활성화하세요)"
-
-#: main.go:2768
-msgid "GCP Project ID (or press Enter to skip):"
-msgstr "GCP 프로젝트 ID(건너뛰려면 Enter):"
-
-#: main.go:2780
-#: main.go:2792
-msgid "Code Assist setup failed: %v"
-msgstr "Code Assist 설정 실패: %v"
-
-#: main.go:2781
-msgid "Project ID saved. You can try again later."
-msgstr "프로젝트 ID가 저장되었습니다. 나중에 다시 시도할 수 있습니다."
-
-#: main.go:2783
-#: main.go:2796
-msgid "Code Assist project configured!"
-msgstr "Code Assist 프로젝트가 설정되었습니다!"
-
-#: main.go:2786
-msgid "Skipped. You can set it later with:"
-msgstr "건너뜀. 나중에 다음 명령어로 설정할 수 있습니다:"
-
-#: main.go:2787
-msgid "  lokit auth login --provider gemini"
-msgstr "  lokit auth login --provider gemini"
-
-#: main.go:2793
-msgid "OAuth login succeeded but Code Assist onboarding failed."
-msgstr "OAuth 로그인은 성공했으나 Code Assist 온보딩에 실패했습니다."
-
-#: main.go:2794
-msgid "This will be retried automatically on first translate."
-msgstr "첫 번역 시 자동으로 다시 시도됩니다."
-
-#: main.go:280
-#: main.go:1231
-#: main.go:1249
-#: main.go:1521
+#: main.go:289
+#: main.go:1435
+#: main.go:1453
+#: main.go:1724
 msgid "%v"
 msgstr "%v"
 
-#: main.go:2801
-msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
-msgstr "이제 다음 명령어를 사용할 수 있습니다: lokit translate --provider gemini --model gemini-2.5-flash"
+#: main.go:2914
+msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
+msgstr "알 수 없는 프로바이더 '%s'. 옵션을 보려면 'lokit auth login'을 실행하세요."
 
-#: main.go:2802
-msgid "(no API key needed when authenticated via OAuth)"
-msgstr "(OAuth 인증 시 API 키가 필요하지 않습니다)"
+#: main.go:2920
+msgid "Provider to authenticate"
+msgstr "인증할 제공자"
 
-#: main.go:2832
-msgid "%s — API Key Setup"
-msgstr "%s — API 키 설정"
+#: main.go:2936
+msgid "GitHub Copilot Authentication"
+msgstr "GitHub Copilot 인증"
 
-#: main.go:2835
-msgid "Get your API key from: %s%s%s"
-msgstr "API 키를 발급받으려면 다음을 방문하세요: %s%s%s"
+#: main.go:2939
+msgid "Open this URL in your browser:"
+msgstr "이 URL을 브라우저에서 여세요:"
 
-#: main.go:2842
-#: main.go:2904
-msgid "Current key"
-msgstr "현재 키"
+#: main.go:2941
+msgid "Enter this code:"
+msgstr "이 코드를 입력하세요:"
 
-#: main.go:2843
-msgid "Enter new key to replace, or press Enter to keep:"
-msgstr "교체할 새 키 입력 또는 Enter로 유지:"
+#: main.go:2943
+#: main.go:2967
+msgid "Waiting for authorization..."
+msgstr "인증 대기 중..."
 
-#: main.go:2845
-msgid "Enter API key:"
-msgstr "API 키 입력:"
+#: main.go:2947
+#: main.go:2971
+msgid "Authentication cancelled"
+msgstr "인증이 취소되었습니다"
 
-#: main.go:2857
-msgid "Keeping existing key"
-msgstr "기존 키를 유지합니다"
+#: main.go:2950
+#: main.go:2974
+msgid "Authentication failed: %v"
+msgstr "인증 실패: %v"
 
-#: main.go:2860
-msgid "No API key provided"
-msgstr "API 키가 제공되지 않았습니다"
+#: main.go:2954
+msgid "Copilot authentication successful!"
+msgstr "Copilot 인증이 완료되었습니다!"
 
-#: main.go:2865
-msgid "Failed to save API key: %v"
-msgstr "API 키 저장 실패: %v"
+#: main.go:2955
+msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
+msgstr "이제 다음 명령어를 사용할 수 있습니다: lokit translate --provider copilot --model gpt-4o"
 
-#: main.go:2869
-msgid "%s API key saved!"
-msgstr "%s API 키가 저장되었습니다!"
+#: main.go:2960
+msgid "Google Gemini Authentication"
+msgstr "Google Gemini 인증"
 
-#: main.go:2870
-msgid "You can now use: %s"
-msgstr "이제 다음 명령어를 사용할 수 있습니다: %s"
+#: main.go:2963
+msgid "Opening browser for Google sign-in..."
+msgstr "Google 로그인용 브라우저를 여는 중..."
 
-#: main.go:2875
-msgid "Custom OpenAI-Compatible Endpoint"
-msgstr "커스텀 OpenAI 호환 엔드포인트"
+#: main.go:2965
+msgid "If the browser doesn't open, visit:"
+msgstr "브라우저가 자동으로 열리지 않으면 아래 주소를 방문하세요:"
 
-#: main.go:2882
-msgid "Current endpoint"
-msgstr "현재 엔드포인트"
+#: main.go:2979
+msgid "Gemini authentication successful!"
+msgstr "Gemini 인증이 완료되었습니다!"
 
-#: main.go:2883
-msgid "Enter new endpoint URL, or press Enter to keep:"
-msgstr "새 엔드포인트 URL 입력 또는 Enter로 유지:"
+#: main.go:2985
+msgid "Token was saved but cannot be loaded"
+msgstr "토큰이 저장되었지만 불러올 수 없습니다"
 
-#: main.go:2885
-msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
-msgstr "엔드포인트 URL 입력(예: https://api.example.com/v1):"
+#: main.go:2991
+msgid "Gemini Code Assist requires a GCP project ID to work in your region."
+msgstr "Gemini Code Assist는 해당 지역에서 사용하려면 GCP 프로젝트 ID가 필요합니다."
 
-#: main.go:2898
-msgid "Endpoint URL is required"
-msgstr "엔드포인트 URL이 필요합니다"
+#: main.go:2992
+msgid "Find your project ID at: https://console.cloud.google.com"
+msgstr "프로젝트 ID는 다음에서 확인할 수 있습니다: https://console.cloud.google.com"
 
-#: main.go:2905
-msgid "Enter new API key, or press Enter to keep (leave empty for none):"
-msgstr "새 API 키 입력 또는 Enter로 유지(없음은 비워두기):"
+#: main.go:2993
+msgid "(Create a project if you don't have one, then enable the Gemini API)"
+msgstr "(프로젝트가 없다면 새로 생성하고 Gemini API를 활성화하세요)"
 
-#: main.go:2907
-msgid "Enter API key (or press Enter if not required):"
-msgstr "API 키 입력(필요 없으면 Enter):"
+#: main.go:2995
+msgid "GCP Project ID (or press Enter to skip):"
+msgstr "GCP 프로젝트 ID(건너뛰려면 Enter):"
 
-#: main.go:292
+#: main.go:3007
+#: main.go:3019
+msgid "Code Assist setup failed: %v"
+msgstr "Code Assist 설정 실패: %v"
+
+#: main.go:3008
+msgid "Project ID saved. You can try again later."
+msgstr "프로젝트 ID가 저장되었습니다. 나중에 다시 시도할 수 있습니다."
+
+#: main.go:301
 msgid "Show version information"
 msgstr "버전 정보 표시"
 
-#: main.go:2921
-msgid "Failed to save credentials: %v"
-msgstr "인증 정보 저장 실패: %v"
+#: main.go:3010
+#: main.go:3023
+msgid "Code Assist project configured!"
+msgstr "Code Assist 프로젝트가 설정되었습니다!"
 
-#: main.go:2925
-msgid "Custom OpenAI endpoint saved!"
-msgstr "커스텀 OpenAI 엔드포인트가 저장되었습니다!"
+#: main.go:3013
+msgid "Skipped. You can set it later with:"
+msgstr "건너뜀. 나중에 다음 명령어로 설정할 수 있습니다:"
 
-#: main.go:2926
-msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
-msgstr "이제 다음 명령어를 사용할 수 있습니다: lokit translate --provider custom-openai --model MODEL_NAME"
+#: main.go:3014
+msgid "  lokit auth login --provider gemini"
+msgstr "  lokit auth login --provider gemini"
 
-#: main.go:293
+#: main.go:302
 msgid "Display version, commit hash, and build date."
 msgstr "버전, 커밋 해시, 빌드 날짜를 표시합니다."
 
-#: main.go:2935
+#: main.go:3020
+msgid "OAuth login succeeded but Code Assist onboarding failed."
+msgstr "OAuth 로그인은 성공했으나 Code Assist 온보딩에 실패했습니다."
+
+#: main.go:3021
+msgid "This will be retried automatically on first translate."
+msgstr "첫 번역 시 자동으로 다시 시도됩니다."
+
+#: main.go:3028
+msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr "이제 다음 명령어를 사용할 수 있습니다: lokit translate --provider gemini --model gemini-2.5-flash"
+
+#: main.go:3029
+msgid "(no API key needed when authenticated via OAuth)"
+msgstr "(OAuth 인증 시 API 키가 필요하지 않습니다)"
+
+#: main.go:304
+msgid "lokit version %s"
+msgstr "lokit 버전 %s"
+
+#: main.go:305
+msgid "commit:"
+msgstr "커밋:"
+
+#: main.go:3059
+msgid "%s — API Key Setup"
+msgstr "%s — API 키 설정"
+
+#: main.go:306
+msgid "built:"
+msgstr "빌드:"
+
+#: main.go:3062
+msgid "Get your API key from: %s%s%s"
+msgstr "API 키를 발급받으려면 다음을 방문하세요: %s%s%s"
+
+#: main.go:3069
+#: main.go:3131
+msgid "Current key"
+msgstr "현재 키"
+
+#: main.go:3070
+msgid "Enter new key to replace, or press Enter to keep:"
+msgstr "교체할 새 키 입력 또는 Enter로 유지:"
+
+#: main.go:3072
+msgid "Enter API key:"
+msgstr "API 키 입력:"
+
+#: main.go:3084
+msgid "Keeping existing key"
+msgstr "기존 키를 유지합니다"
+
+#: main.go:3087
+msgid "No API key provided"
+msgstr "API 키가 제공되지 않았습니다"
+
+#: main.go:3092
+msgid "Failed to save API key: %v"
+msgstr "API 키 저장 실패: %v"
+
+#: main.go:3096
+msgid "%s API key saved!"
+msgstr "%s API 키가 저장되었습니다!"
+
+#: main.go:3097
+msgid "You can now use: %s"
+msgstr "이제 다음 명령어를 사용할 수 있습니다: %s"
+
+#: main.go:3102
+msgid "Custom OpenAI-Compatible Endpoint"
+msgstr "커스텀 OpenAI 호환 엔드포인트"
+
+#: main.go:3109
+msgid "Current endpoint"
+msgstr "현재 엔드포인트"
+
+#: main.go:3110
+msgid "Enter new endpoint URL, or press Enter to keep:"
+msgstr "새 엔드포인트 URL 입력 또는 Enter로 유지:"
+
+#: main.go:3112
+msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
+msgstr "엔드포인트 URL 입력(예: https://api.example.com/v1):"
+
+#: main.go:3125
+msgid "Endpoint URL is required"
+msgstr "엔드포인트 URL이 필요합니다"
+
+#: main.go:3132
+msgid "Enter new API key, or press Enter to keep (leave empty for none):"
+msgstr "새 API 키 입력 또는 Enter로 유지(없음은 비워두기):"
+
+#: main.go:3134
+msgid "Enter API key (or press Enter if not required):"
+msgstr "API 키 입력(필요 없으면 Enter):"
+
+#: main.go:3148
+msgid "Failed to save credentials: %v"
+msgstr "인증 정보 저장 실패: %v"
+
+#: main.go:3152
+msgid "Custom OpenAI endpoint saved!"
+msgstr "커스텀 OpenAI 엔드포인트가 저장되었습니다!"
+
+#: main.go:3153
+msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
+msgstr "이제 다음 명령어를 사용할 수 있습니다: lokit translate --provider custom-openai --model MODEL_NAME"
+
+#: main.go:3162
 msgid "Remove stored credentials"
 msgstr "저장된 인증 정보 삭제"
 
-#: main.go:2936
+#: main.go:3163
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -1065,237 +1181,228 @@ msgstr ""
 "  lokit auth logout --provider google      Google API 키만 삭제\n"
 "  lokit auth logout --provider gemini      Gemini OAuth만 삭제"
 
-#: main.go:295
-msgid "lokit version %s"
-msgstr "lokit 버전 %s"
-
-#: main.go:2951
-#: main.go:2977
+#: main.go:3178
+#: main.go:3204
 msgid "Failed to remove Copilot credentials: %v"
 msgstr "Copilot 인증 정보 삭제 실패: %v"
 
-#: main.go:2954
+#: main.go:3181
 msgid "Copilot credentials removed"
 msgstr "Copilot 인증 정보가 삭제되었습니다"
 
-#: main.go:2957
-#: main.go:2981
+#: main.go:3184
+#: main.go:3208
 msgid "Failed to remove Gemini credentials: %v"
 msgstr "Gemini 인증 정보 삭제 실패: %v"
 
-#: main.go:296
-msgid "commit:"
-msgstr "커밋:"
-
-#: main.go:2960
+#: main.go:3187
 msgid "Gemini credentials removed"
 msgstr "Gemini 인증 정보가 삭제되었습니다"
 
-#: main.go:2963
-#: main.go:2986
+#: main.go:3190
+#: main.go:3213
 msgid "Failed to remove %s credentials: %v"
 msgstr "%s 인증 정보 삭제 실패: %v"
 
-#: main.go:2966
+#: main.go:3193
 msgid "%s credentials removed"
 msgstr "%s 인증 정보가 삭제되었습니다"
 
-#: main.go:2968
+#: main.go:3195
 msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
 msgstr "알 수 없는 프로바이더 '%s'입니다. 사용 가능한 프로바이더는 'lokit auth list'로 확인하세요."
 
-#: main.go:297
-msgid "built:"
-msgstr "빌드:"
-
-#: main.go:2991
-msgid "All stored credentials removed"
-msgstr "모든 저장된 인증 정보가 삭제되었습니다"
-
-#: main.go:2996
-msgid "Provider to logout (default: all)"
-msgstr "로그아웃할 제공자(기본값: 전체)"
-
-#: main.go:3015
-msgid "Show stored credentials and status"
-msgstr "저장된 인증 정보 및 상태 보기"
-
-#: main.go:3017
-msgid "Stored Credentials"
-msgstr "저장된 인증 정보"
-
-#: main.go:3020
-msgid "OAuth Providers"
-msgstr "OAuth 제공자"
-
-#: main.go:3021
-msgid "copilot"
-msgstr "copilot"
-
-#: main.go:3022
-msgid "gemini"
-msgstr "gemini"
-
-#: main.go:3025
-msgid "API Key Providers"
-msgstr "API 키 제공자"
-
-#: main.go:3038
-#: main.go:3045
-msgid "✓ configured"
-msgstr "✓ 구성됨"
-
-#: main.go:3040
-#: main.go:3046
-msgid "endpoint:"
-msgstr "엔드포인트:"
-
-#: main.go:3045
-msgid "no key"
-msgstr "키 없음"
-
-#: main.go:3049
-msgid "not configured"
-msgstr "설정되지 않음"
-
-#: main.go:3054
-msgid "Environment Variables"
-msgstr "환경 변수"
-
-#: main.go:3057
-msgid "overrides stored keys"
-msgstr "저장된 키를 덮어씁니다"
-
-#: main.go:3057
-#: main.go:3059
-msgid "LOKIT_API_KEY"
-msgstr "LOKIT_API_KEY"
-
-#: main.go:3059
-msgid "not set"
-msgstr "설정되지 않음"
-
-#: main.go:3080
-msgid "Scanning for source files in: %s"
-msgstr "소스 파일을 검색 중: %s"
-
-#: main.go:3084
-msgid "scanning sources: %w"
-msgstr "소스 스캔 중: %w"
-
-#: main.go:3088
-msgid "no source files found (supported: %s)"
-msgstr "소스 파일을 찾을 수 없습니다(지원: %s)"
-
-#: main.go:3107
-msgid "Found %d source files (%s)"
-msgstr "%d개의 소스 파일 발견 (%s)"
-
-#: main.go:312
+#: main.go:321
 msgid "Show project info and translation statistics"
 msgstr "프로젝트 정보 및 번역 통계 보기"
 
-#: main.go:313
+#: main.go:3218
+msgid "All stored credentials removed"
+msgstr "모든 저장된 인증 정보가 삭제되었습니다"
+
+#: main.go:322
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
 "Displays project type (gettext, po4a, i18next, android), file structure,\n"
 "detected languages, and per-language translation progress. For projects\n"
-"configured via .lokit.yaml, shows each target separately.\n"
+"configured via lokit.yaml, shows each target separately.\n"
 "\n"
 "Does not modify any files."
 msgstr ""
-"자동 감지된 프로젝트 구조와 번역 통계를 표시합니다.\n"
+"자동 감지된 프로젝트 구조 및 번역 통계를 표시합니다.\n"
 "\n"
 "프로젝트 타입(gettext, po4a, i18next, android), 파일 구조,\n"
-"감지된 언어, 언어별 번역 진행률을 보여줍니다. .lokit.yaml로 설정된 프로젝트는\n"
-"각 타겟별로 별도 표시됩니다.\n"
+"감지된 언어, 언어별 번역 진행률을 보여줍니다. lokit.yaml로\n"
+"설정된 프로젝트의 경우 각 타겟별로 표시됩니다.\n"
 "\n"
 "파일을 수정하지 않습니다."
 
-#: main.go:3131
+#: main.go:3223
+msgid "Provider to logout (default: all)"
+msgstr "로그아웃할 제공자(기본값: 전체)"
+
+#: main.go:3242
+msgid "Show stored credentials and status"
+msgstr "저장된 인증 정보 및 상태 보기"
+
+#: main.go:3244
+msgid "Stored Credentials"
+msgstr "저장된 인증 정보"
+
+#: main.go:3247
+msgid "OAuth Providers"
+msgstr "OAuth 제공자"
+
+#: main.go:3248
+msgid "copilot"
+msgstr "copilot"
+
+#: main.go:3249
+msgid "gemini"
+msgstr "gemini"
+
+#: main.go:3252
+msgid "API Key Providers"
+msgstr "API 키 제공자"
+
+#: main.go:3265
+#: main.go:3272
+msgid "✓ configured"
+msgstr "✓ 구성됨"
+
+#: main.go:3267
+#: main.go:3273
+msgid "endpoint:"
+msgstr "엔드포인트:"
+
+#: main.go:3272
+msgid "no key"
+msgstr "키 없음"
+
+#: main.go:3276
+msgid "not configured"
+msgstr "설정되지 않음"
+
+#: main.go:3281
+msgid "Environment Variables"
+msgstr "환경 변수"
+
+#: main.go:3295
+msgid "not set"
+msgstr "설정되지 않음"
+
+#: main.go:3317
+msgid "Scanning for source files in: %s"
+msgstr "소스 파일을 검색 중: %s"
+
+#: main.go:3321
+msgid "scanning sources: %w"
+msgstr "소스 스캔 중: %w"
+
+#: main.go:3325
+msgid "no source files found (supported: %s)"
+msgstr "소스 파일을 찾을 수 없습니다(지원: %s)"
+
+#: main.go:3344
+msgid "Found %d source files (%s)"
+msgstr "%d개의 소스 파일 발견 (%s)"
+
+#: main.go:3368
 msgid "Extracting from %d Go files (AST, keywords: %s)..."
 msgstr "%d개의 Go 파일에서 추출 중 (AST, 키워드: %s)..."
 
-#: main.go:3135
+#: main.go:3372
 msgid "Extracting from %d Go files with xgotext..."
 msgstr "xgotext로 %d개의 Go 파일에서 추출 중..."
 
-#: main.go:3142
+#: main.go:3379
 msgid "Extracting from %d non-Go files with xgettext..."
 msgstr "xgettext로 %d개의 비-Go 파일에서 추출 중..."
 
-#: main.go:3145
+#: main.go:3382
 msgid "xgettext extraction failed: %w"
 msgstr "xgettext 추출 실패: %w"
 
-#: main.go:3154
+#: main.go:3391
 msgid "Go extraction failed: %v"
 msgstr "Go 추출 실패: %v"
 
-#: main.go:3155
+#: main.go:3392
 msgid "Continuing with xgettext results only"
 msgstr "xgettext 결과만으로 계속 진행합니다"
 
-#: main.go:3162
+#: main.go:3399
 msgid "Merging POT files..."
 msgstr "POT 파일 병합 중..."
 
-#: main.go:3164
+#: main.go:3401
 msgid "merging POT files: %w"
 msgstr "POT 파일 병합 중: %w"
 
-#: main.go:3172
+#: main.go:3409
 msgid "extraction failed: %w"
 msgstr "추출 실패: %w"
 
-#: main.go:3180
-msgid "Go extraction failed: %w"
-msgstr "Go 추출 실패: %w"
-
-#: main.go:3194
-msgid "Extracted %d strings to %s"
-msgstr "%d개의 문자열을 %s에 추출함"
-
-#: main.go:3196
-msgid "Extracted strings to %s"
-msgstr "문자열을 %s에 추출함"
-
-#: main.go:3214
-msgid "No POT template found, running extraction..."
-msgstr "POT 템플릿을 찾을 수 없어 추출을 실행합니다..."
-
-#: main.go:3216
-msgid "Auto-extraction failed: %v"
-msgstr "자동 추출 실패: %v"
-
-#: main.go:3223
-msgid "Cannot auto-create %s: extraction produced no POT template"
-msgstr "%s을(를) 자동 생성할 수 없습니다: 추출 결과 POT 템플릿이 생성되지 않았습니다"
-
-#: main.go:3224
-msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
-msgstr "소스 파일에 번역 가능한 문자열(_(), N_() 등)이 포함되어 있는지 확인하세요"
-
-#: main.go:3231
-msgid "Cannot read POT template %s: %v"
-msgstr "POT 템플릿 %s을(를) 읽을 수 없습니다: %v"
-
-#: main.go:3264
-msgid "Auto-created %s from %s (%d entries)"
-msgstr "%s을(를) %s에서 자동 생성함 (%d개 항목)"
-
-#: main.go:332
-#: main.go:914
-#: main.go:1486
+#: main.go:341
+#: main.go:1025
+#: main.go:1695
 msgid "Config error: %v"
 msgstr "설정 오류: %v"
 
-#: main.go:3336
+#: main.go:3417
+msgid "Go extraction failed: %w"
+msgstr "Go 추출 실패: %w"
+
+#: main.go:3431
+msgid "Extracted %d strings to %s"
+msgstr "%d개의 문자열을 %s에 추출함"
+
+#: main.go:3433
+msgid "Extracted strings to %s"
+msgstr "문자열을 %s에 추출함"
+
+#: main.go:3451
+msgid "No POT template found, running extraction..."
+msgstr "POT 템플릿을 찾을 수 없어 추출을 실행합니다..."
+
+#: main.go:3453
+msgid "Auto-extraction failed: %v"
+msgstr "자동 추출 실패: %v"
+
+#: main.go:3460
+msgid "Cannot auto-create %s: extraction produced no POT template"
+msgstr "%s을(를) 자동 생성할 수 없습니다: 추출 결과 POT 템플릿이 생성되지 않았습니다"
+
+#: main.go:3461
+msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
+msgstr "소스 파일에 번역 가능한 문자열(_(), N_() 등)이 포함되어 있는지 확인하세요"
+
+#: main.go:3468
+msgid "Cannot read POT template %s: %v"
+msgstr "POT 템플릿 %s을(를) 읽을 수 없습니다: %v"
+
+#: main.go:349
+#: main.go:1029
+#: main.go:1703
+msgid "No lokit.yaml found in %s"
+msgstr "%s에서 lokit.yaml을 찾을 수 없습니다"
+
+#: main.go:350
+#: main.go:1030
+#: main.go:1704
+msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
+msgstr "lokit.yaml 설정 파일을 생성합니다. 포맷 참고는 'lokit init --help'를 확인하세요."
+
+#: main.go:3501
+msgid "Auto-created %s from %s (%d entries)"
+msgstr "%s을(를) %s에서 자동 생성함 (%d개 항목)"
+
+#: main.go:3573
 msgid "check provider documentation"
 msgstr "제공자 문서 참고"
 
-#: main.go:3339
+#: main.go:3576
 msgid ""
 "--model is required for provider '%s'\n"
 "\n"
@@ -1311,7 +1418,15 @@ msgstr ""
 "\n"
 "사용법: --provider %s --model MODEL_NAME"
 
-#: main.go:3353
+#: main.go:358
+msgid "Project"
+msgstr "프로젝트"
+
+#: main.go:359
+msgid "Config"
+msgstr "설정"
+
+#: main.go:3590
 msgid ""
 "provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
@@ -1322,11 +1437,11 @@ msgid ""
 "  lokit auth login --provider gemini\n"
 "\n"
 "Option 3: Pass key directly:\n"
-"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n"
 "\n"
 "Get an API key from: https://aistudio.google.com/apikey"
 msgstr ""
-"google 제공자는 API 키 또는 Gemini OAuth 로그인이 필요합니다\n"
+"provider 'google'는 API 키 또는 Gemini OAuth 로그인이 필요합니다\n"
 "\n"
 "옵션 1: API 키 저장:\n"
 "  lokit auth login --provider google\n"
@@ -1335,11 +1450,16 @@ msgstr ""
 "  lokit auth login --provider gemini\n"
 "\n"
 "옵션 3: 키 직접 전달:\n"
-"  --api-key YOUR_KEY 또는 export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY 또는 export GOOGLE_API_KEY=YOUR_KEY\n"
 "\n"
 "API 키 발급: https://aistudio.google.com/apikey"
 
-#: main.go:3365
+#: main.go:360
+#: main.go:380
+msgid "Root"
+msgstr "루트"
+
+#: main.go:3602
 msgid ""
 "provider 'gemini' requires Google OAuth login\n"
 "\n"
@@ -1357,7 +1477,11 @@ msgstr ""
 "이 방식은 Gemini Code Assist(무료: 분당 60회)를 사용합니다.\n"
 "API 키 접근은 --provider google을 사용하세요."
 
-#: main.go:3374
+#: main.go:361
+msgid "Source lang"
+msgstr "소스 언어"
+
+#: main.go:3611
 msgid ""
 "provider 'groq' requires an API key\n"
 "\n"
@@ -1365,21 +1489,21 @@ msgid ""
 "  lokit auth login --provider groq\n"
 "\n"
 "Option 2: Pass key directly:\n"
-"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n"
 "\n"
 "Get a free API key from: https://console.groq.com/keys"
 msgstr ""
-"groq 제공자는 API 키가 필요합니다\n"
+"provider 'groq'는 API 키가 필요합니다\n"
 "\n"
 "옵션 1: API 키 저장:\n"
 "  lokit auth login --provider groq\n"
 "\n"
 "옵션 2: 키 직접 전달:\n"
-"  --api-key YOUR_KEY 또는 export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY 또는 export GROQ_API_KEY=YOUR_KEY\n"
 "\n"
 "무료 API 키 발급: https://console.groq.com/keys"
 
-#: main.go:3387
+#: main.go:3624
 msgid ""
 "provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
@@ -1395,7 +1519,7 @@ msgstr ""
 "\n"
 "이 방식은 GitHub Copilot(유효한 Copilot 구독 필요)을 사용합니다."
 
-#: main.go:3395
+#: main.go:3632
 msgid ""
 "provider 'custom-openai' requires an endpoint URL\n"
 "\n"
@@ -1413,19 +1537,13 @@ msgstr ""
 "옵션 2: 직접 전달:\n"
 "  --base-url https://api.example.com/v1"
 
-#: main.go:340
-#: main.go:918
-#: main.go:1494
-msgid "No .lokit.yaml found in %s"
-msgstr "%s에 .lokit.yaml 파일이 없습니다"
+#: main.go:364
+#: main.go:384
+#: main.go:386
+msgid "Languages"
+msgstr "언어"
 
-#: main.go:341
-#: main.go:919
-#: main.go:1495
-msgid "Create a .lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr ".lokit.yaml 구성 파일을 생성하세요. 포맷 참고는 'lokit init --help'를 확인하세요."
-
-#: main.go:3410
+#: main.go:3647
 msgid ""
 "provider 'ollama' requires Ollama server to be running\n"
 "\n"
@@ -1443,210 +1561,345 @@ msgstr ""
 "  --provider copilot         (GitHub Copilot, 무료)\n"
 "  --provider google          (API 키 필요)"
 
-#: main.go:349
-msgid "Project"
-msgstr "프로젝트"
-
-#: main.go:350
-msgid "Config"
-msgstr "설정"
-
-#: main.go:351
-#: main.go:371
-msgid "Root"
-msgstr "루트"
-
-#: main.go:352
-msgid "Source lang"
-msgstr "소스 언어"
-
-#: main.go:355
-#: main.go:375
-#: main.go:377
-msgid "Languages"
-msgstr "언어"
-
-#: main.go:357
+#: main.go:366
 msgid "Targets"
 msgstr "대상"
 
-#: main.go:361
-#: main.go:938
-#: main.go:1527
+#: main.go:3685
+msgid "cannot find source YAML file for language %q in %s"
+msgstr "언어 %q에 대한 소스 YAML 파일을 %s에서 찾을 수 없습니다"
+
+#: main.go:3690
+msgid "cannot read source YAML %s: %w"
+msgstr "소스 YAML %s을(를) 읽을 수 없습니다: %w"
+
+#: main.go:370
+#: main.go:1049
+#: main.go:1730
 msgid "Config resolve error: %v"
 msgstr "설정 확인 오류: %v"
 
-#: main.go:377
+#: main.go:3772
+msgid "No YAML files to translate"
+msgstr "번역할 YAML 파일이 없습니다"
+
+#: main.go:3801
+#: main.go:4301
+#: main.go:4521
+msgid "  %s: %d/%d strings"
+msgstr "  %s: %d/%d개 문자열"
+
+#: main.go:3836
+msgid "Source segments"
+msgstr "소스 세그먼트"
+
+#: main.go:386
 msgid "none detected"
 msgstr "감지된 항목 없음"
 
-#: main.go:409
-msgid "POT"
-msgstr "POT"
+#: main.go:3880
+msgid "Cannot find source Markdown files in %s"
+msgstr "%s에서 소스 Markdown 파일을 찾을 수 없습니다"
 
-#: main.go:409
-#: main.go:477
-#: main.go:542
+#: main.go:3881
+msgid "Expected: %s/*.md"
+msgstr "예상값: %s/*.md"
+
+#: main.go:3885
+msgid "Source language (%s): %d files"
+msgstr "소스 언어(%s): %d개 파일"
+
+#: main.go:3906
+msgid "Cannot read source Markdown file %s: %v"
+msgstr "소스 Markdown 파일 %s을(를) 읽을 수 없습니다: %v"
+
+#: main.go:3917
+msgid "Created: %s (%d segments)"
+msgstr "생성됨: %s (%d개 세그먼트)"
+
+#: main.go:3937
+msgid "Markdown init: %d created, %d updated"
+msgstr "Markdown 초기화: %d개 생성, %d개 업데이트됨"
+
+#: main.go:3959
+msgid "cannot find source Markdown files in %s"
+msgstr "%s에서 소스 Markdown 파일을 찾을 수 없습니다"
+
+#: main.go:3969
+msgid "Source segments: %d (%d files)"
+msgstr "소스 세그먼트: %d개(%d개 파일)"
+
+#: main.go:4001
+msgid "%s (%s): %d segments to translate"
+msgstr "%s (%s): 번역할 세그먼트 %d개"
+
+#: main.go:4052
+msgid "No Markdown files to translate"
+msgstr "번역할 Markdown 파일이 없습니다"
+
+#: main.go:4081
+msgid "  %s: %d/%d segments"
+msgstr "  %s: %d/%d개 세그먼트"
+
+#: main.go:4150
+msgid "Cannot find source .properties file: %s"
+msgstr "소스 .properties 파일을 찾을 수 없습니다: %s"
+
+#: main.go:4156
+msgid "Cannot read source .properties file %s: %v"
+msgstr "소스 .properties 파일 %s을(를) 읽을 수 없습니다: %v"
+
+#: main.go:4198
+msgid "Properties init: %d created, %d updated"
+msgstr "Properties 초기화: %d개 생성, %d개 업데이트됨"
+
+#: main.go:4219
+msgid "cannot read source .properties file %s: %w"
+msgstr "소스 .properties 파일 %s을(를) 읽을 수 없습니다: %w"
+
+#: main.go:426
+#: main.go:494
+#: main.go:559
+#: main.go:606
+#: main.go:3823
+#: main.go:4100
+#: main.go:4320
 msgid "not found"
 msgstr "찾을 수 없음"
 
-#: main.go:409
+#: main.go:426
+msgid "POT"
+msgstr "POT"
+
+#: main.go:426
 msgid "run 'lokit init'"
 msgstr "'lokit init' 실행"
 
-#: main.go:413
-#: main.go:546
-#: main.go:589
+#: main.go:4274
+msgid "No .properties files to translate"
+msgstr "번역할 .properties 파일이 없습니다"
+
+#: main.go:430
+#: main.go:563
+#: main.go:674
 msgid "Source strings"
 msgstr "소스 문자열"
 
-#: main.go:417
-#: main.go:446
-#: main.go:593
-#: main.go:653
-msgid "Fuzzy"
-msgstr "퍼지"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
-msgid "Progress"
-msgstr "진행률"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
-msgid "Done"
-msgstr "완료"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
 msgid "Lang"
 msgstr "언어"
 
-#: main.go:417
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:698
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr "완료"
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr "퍼지"
+
+#: main.go:434
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
 msgid "Left"
 msgstr "남음"
 
-#: main.go:424
-#: main.go:454
-#: main.go:493
-#: main.go:558
-#: main.go:609
-#: main.go:661
-#: main.go:710
-#: main.go:753
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Progress"
+msgstr "진행률"
+
+#: main.go:4370
+msgid "Cannot find source ARB file: %s"
+msgstr "소스 ARB 파일을 찾을 수 없습니다: %s"
+
+#: main.go:4376
+msgid "Cannot read source ARB file %s: %v"
+msgstr "소스 ARB 파일 %s을(를) 읽을 수 없습니다: %v"
+
+#: main.go:441
+#: main.go:471
+#: main.go:510
+#: main.go:575
+#: main.go:635
+#: main.go:694
+#: main.go:746
+#: main.go:795
+#: main.go:838
+#: main.go:3848
+#: main.go:4121
+#: main.go:4341
 msgid "missing"
 msgstr "누락됨"
 
-#: main.go:442
+#: main.go:4418
+msgid "Flutter ARB init: %d created, %d updated"
+msgstr "Flutter ARB 초기화: %d개 생성, %d개 업데이트됨"
+
+#: main.go:4439
+msgid "cannot read source ARB file %s: %w"
+msgstr "소스 ARB 파일 %s을(를) 읽을 수 없습니다: %w"
+
+#: main.go:4494
+msgid "No ARB files to translate"
+msgstr "번역할 ARB 파일이 없습니다"
+
+#: main.go:459
 msgid "po4a config"
 msgstr "po4a 설정"
 
-#: main.go:446
-#: main.go:653
+#: main.go:463
+#: main.go:738
 msgid "Total"
 msgstr "총계"
 
-#: main.go:472
+#: main.go:489
+#: main.go:593
+#: main.go:3817
+#: main.go:4095
+#: main.go:4315
 msgid "Translations"
 msgstr "번역"
 
-#: main.go:477
-#: main.go:542
+#: main.go:494
+#: main.go:559
+#: main.go:606
+#: main.go:612
+#: main.go:3823
+#: main.go:4100
+#: main.go:4106
+#: main.go:4320
+#: main.go:4326
 msgid "Source"
 msgstr "소스"
 
-#: main.go:481
-#: main.go:693
+#: main.go:498
+#: main.go:616
+#: main.go:778
+#: main.go:4110
+#: main.go:4330
 msgid "Source keys"
 msgstr "소스 키"
 
-#: main.go:513
-#: main.go:794
+#: main.go:530
+#: main.go:879
 msgid "Blog Posts (%d posts)"
 msgstr "블로그 게시글 (%d개)"
 
-#: main.go:538
+#: main.go:555
 msgid "Res dir"
 msgstr "리소스 디렉터리"
 
-#: main.go:584
+#: main.go:612
+#: main.go:4106
+#: main.go:4326
+msgid "parse error: %v"
+msgstr "파싱 오류: %v"
+
+#: main.go:642
+#: main.go:4128
+#: main.go:4348
+msgid "parse error"
+msgstr "파싱 오류"
+
+#: main.go:669
 msgid "No translatable strings found in %s"
 msgstr "%s에서 번역 가능한 문자열을 찾을 수 없습니다"
 
-#: main.go:588
+#: main.go:673
 msgid "Translation Statistics"
 msgstr "번역 통계"
 
-#: main.go:629
+#: main.go:714
 msgid "Translation gaps:"
 msgstr "번역 누락:"
 
-#: main.go:633
+#: main.go:718
 msgid "%d untranslated"
 msgstr "%d개 미번역"
 
-#: main.go:636
+#: main.go:721
 msgid "%d fuzzy"
 msgstr "%d개 퍼지(fuzzy)"
 
-#: main.go:650
+#: main.go:735
 msgid "Documentation Statistics"
 msgstr "문서 통계"
 
-#: main.go:680
+#: main.go:765
 msgid "No language files detected in %s"
 msgstr "%s에서 언어 파일을 찾을 수 없습니다"
 
-#: main.go:691
+#: main.go:776
 msgid "UI Translation Statistics"
 msgstr "UI 번역 통계"
 
-#: main.go:740
+#: main.go:825
 msgid "Recipe Translations"
 msgstr "레시피 번역"
 
-#: main.go:825
+#: main.go:910
 msgid "Prepare translation files (extract strings, create/update PO)"
 msgstr "번역 파일 준비(문자열 추출, PO 생성/업데이트)"
 
-#: main.go:826
+#: main.go:911
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"
-"Requires a .lokit.yaml configuration file in the project root.\n"
+"Requires a lokit.yaml configuration file in the project root.\n"
 "\n"
 "For gettext projects: runs xgettext to extract strings into a POT template,\n"
 "then creates or updates PO files for each language.\n"
 "\n"
 "For po4a projects: runs 'po4a --no-translations' to update templates.\n"
 "\n"
-"For i18next projects: creates missing language files with empty translations.\n"
+"For i18next/json/yaml/properties/flutter projects: creates missing language\n"
+"files with empty translations.\n"
 "\n"
-"For Android projects: no init step needed — use 'lokit translate' directly.\n"
+"For android/markdown projects: no init step needed — use 'lokit translate'\n"
+"directly.\n"
 "\n"
 "This command is idempotent — safe to run multiple times. Existing\n"
 "translations are preserved when updating files.\n"
 "\n"
-"CONFIG FORMAT (.lokit.yaml)\n"
+"CONFIG FORMAT (lokit.yaml)\n"
 "\n"
 "  source_lang: en                    # Source language (default: en)\n"
 "  languages: [ru, de, fr, es, ...]   # Target languages\n"
@@ -1676,6 +1929,18 @@ msgid ""
 "\n"
 "  android — Android strings.xml\n"
 "    res_dir: app/src/main/res        # Android res/ directory\n"
+"\n"
+"  yaml — YAML key/value translations\n"
+"    translations_dir: translations   # YAML files directory\n"
+"\n"
+"  markdown — Markdown document translation\n"
+"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"\n"
+"  properties — Java .properties translations\n"
+"    translations_dir: translations   # .properties files directory\n"
+"\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1713,43 +1978,57 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations"
+"      translations_dir: public/translations\n"
+"\n"
+"  # Flutter application\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: flutter\n"
+"      translations_dir: lib/l10n\n"
+"\n"
+"  # Java application with .properties\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: properties\n"
+"      translations_dir: src/main/resources"
 msgstr ""
-"번역 대상 문자열을 추출하고 번역 파일을 생성/업데이트합니다.\n"
+"번역 가능한 문자열을 추출하고 번역 파일을 생성/업데이트합니다.\n"
 "\n"
-"프로젝트 루트에 .lokit.yaml 구성 파일이 필요합니다.\n"
+"프로젝트 루트에 lokit.yaml 설정 파일이 필요합니다.\n"
 "\n"
-"gettext 프로젝트: xgettext를 실행하여 문자열을 POT 템플릿으로 추출한 후, 각 언어별로 PO 파일을 생성하거나 업데이트합니다.\n"
+"gettext 프로젝트: xgettext로 문자열을 POT 템플릿에 추출한 후,\n"
+"각 언어별로 PO 파일을 생성 또는 업데이트합니다.\n"
 "\n"
-"po4a 프로젝트: 'po4a --no-translations'를 실행해 템플릿을 업데이트합니다.\n"
+"po4a 프로젝트: 'po4a --no-translations'로 템플릿을 업데이트합니다.\n"
 "\n"
-"i18next 프로젝트: 누락된 언어 파일을 빈 번역값으로 생성합니다.\n"
+"i18next/json/yaml/properties/flutter 프로젝트: 누락된 언어 파일을\n"
+"빈 번역으로 생성합니다.\n"
 "\n"
-"Android 프로젝트: 별도의 초기화 단계 없이 바로 'lokit translate'를 사용하세요.\n"
+"android/markdown 프로젝트: 별도 초기화 없이 'lokit translate'를 바로 사용하세요.\n"
 "\n"
-"이 명령은 멱등성을 보장하므로 여러 번 실행해도 안전합니다. 기존 번역은 파일 업데이트 시 유지됩니다.\n"
+"이 명령은 멱등적이므로 여러 번 실행해도 안전합니다. 기존 번역은 파일 업데이트 시 유지됩니다.\n"
 "\n"
-"구성 포맷 (.lokit.yaml)\n"
+"설정 포맷(lokit.yaml)\n"
 "\n"
-"  source_lang: en                    # 소스 언어 (기본값: en)\n"
-"  languages: [ru, de, fr, es, ...]   # 대상 언어 목록\n"
+"  source_lang: en                    # 소스 언어(기본값: en)\n"
+"  languages: [ru, de, fr, es, ...]   # 타겟 언어 목록\n"
 "\n"
 "  targets:\n"
 "    - name: myproject                # 표시 이름\n"
-"      type: gettext                  # 대상 타입 (아래 참고)\n"
-"      root: .                        # 작업 디렉터리 (기본값: .)\n"
+"      type: gettext                  # 타겟 타입(아래 참고)\n"
+"      root: .                        # 작업 디렉터리(기본값: .)\n"
 "      # ... 타입별 옵션\n"
 "\n"
-"대상 타입\n"
+"타겟 타입\n"
 "\n"
-"  gettext — 소스 코드 문자열 추출 (shell, python, C, Go 등)\n"
-"    po_dir: po                       # PO 파일 디렉터리 (기본값: po)\n"
+"  gettext — 소스코드 문자열 추출(shell, python, C, Go 등)\n"
+"    po_dir: po                       # PO 파일 디렉터리(기본값: po)\n"
 "    pot_file: po/messages.pot        # POT 템플릿 경로\n"
-"    sources: [src, scripts]          # 스캔할 디렉터리 (기본값: root)\n"
-"    keywords: [_, N_, gettext]       # xgettext 키워드 (기본값: 표준 세트)\n"
+"    sources: [src, scripts]          # 스캔할 디렉터리(기본값: root)\n"
+"    keywords: [_, N_, gettext]       # xgettext 키워드(기본값: 표준)\n"
 "\n"
-"  po4a — 문서 번역 (man 페이지, AsciiDoc 등)\n"
-"    po4a_config: po4a.cfg            # po4a.cfg 경로 (기본값: po4a.cfg)\n"
+"  po4a — 문서 번역(매뉴얼, AsciiDoc 등)\n"
+"    po4a_config: po4a.cfg            # po4a.cfg 경로(기본값: po4a.cfg)\n"
 "\n"
 "  i18next — i18next JSON 번역\n"
 "    translations_dir: public/translations  # JSON 파일 디렉터리\n"
@@ -1760,14 +2039,26 @@ msgstr ""
 "  android — Android strings.xml\n"
 "    res_dir: app/src/main/res        # Android res/ 디렉터리\n"
 "\n"
-"공통 옵션 (모든 대상 타입)\n"
+"  yaml — YAML 키/값 번역\n"
+"    translations_dir: translations   # YAML 파일 디렉터리\n"
 "\n"
-"  languages: [ru, de]               # 글로벌 언어 목록 재정의\n"
-"  prompt: \"Custom translation...\"   # AI 번역 프롬프트 재정의\n"
+"  markdown — Markdown 문서 번역\n"
+"    translations_dir: translations   # 루트 디렉터리; translations/LANG/에 파일 생성\n"
+"\n"
+"  properties — Java .properties 번역\n"
+"    translations_dir: translations   # .properties 파일 디렉터리\n"
+"\n"
+"  flutter — Flutter ARB(Application Resource Bundle)\n"
+"    translations_dir: lib/l10n       # ARB 파일 디렉터리(app_LANG.arb)\n"
+"\n"
+"공통 옵션(모든 타겟 타입)\n"
+"\n"
+"  languages: [ru, de]               # 글로벌 언어 목록 덮어쓰기\n"
+"  prompt: \"사용자 지정 번역...\"   # AI 번역 프롬프트 덮어쓰기\n"
 "\n"
 "예시\n"
 "\n"
-"  # gettext를 사용하는 셸 스크립트\n"
+"  # gettext를 사용하는 쉘 스크립트\n"
 "  source_lang: en\n"
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
@@ -1776,11 +2067,11 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # Go 프로젝트에서 래퍼 함수 사용\n"
+"  # Go 프로젝트(래퍼 함수 사용)\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
-"      sources: [.] \n"
+"      sources: [.]\n"
 "      keywords: [T, N]\n"
 "\n"
 "  # 문서 + 코드\n"
@@ -1796,8 +2087,16 @@ msgstr ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations"
-
-#: main.go:927
-msgid "Languages to init (comma-separated, default: all from config)"
-msgstr "초기화할 언어(쉼표로 구분, 기본값: 설정 파일 전체)"
+"      translations_dir: public/translations\n"
+"\n"
+"  # Flutter 애플리케이션\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: flutter\n"
+"      translations_dir: lib/l10n\n"
+"\n"
+"  # Java 애플리케이션(.properties)\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: properties\n"
+"      translations_dir: src/main/resources"

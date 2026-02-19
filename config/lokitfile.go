@@ -1,6 +1,6 @@
-// Package config — .lokit.yaml configuration file support.
+// Package config — lokit.yaml configuration file support.
 //
-// When a .lokit.yaml file exists in the project root, lokit uses it
+// When a lokit.yaml file exists in the project root, lokit uses it
 // as the sole source of truth for translation targets. No auto-detection
 // is performed — every target must be explicitly declared.
 package config
@@ -19,7 +19,7 @@ import (
 // YAML schema
 // ---------------------------------------------------------------------------
 
-// LokitFile is the top-level .lokit.yaml structure.
+// LokitFile is the top-level lokit.yaml structure.
 type LokitFile struct {
 	// Languages is the default language list for all targets (can be overridden per target).
 	Languages []string `yaml:"languages,omitempty"`
@@ -35,7 +35,7 @@ type Target struct {
 	Name string `yaml:"name"`
 	// Type: "gettext", "po4a", "i18next", "json".
 	Type string `yaml:"type"`
-	// Root is the working directory relative to .lokit.yaml (default ".").
+	// Root is the working directory relative to lokit.yaml (default ".").
 	Root string `yaml:"root,omitempty"`
 
 	// --- gettext options ---
@@ -93,15 +93,27 @@ const TargetTypeJSON = "json"
 // TargetTypeAndroid is used for Android strings.xml translation projects.
 const TargetTypeAndroid = "android"
 
+// TargetTypeYAML is used for YAML translation files (nested, flat, Rails i18n style).
+const TargetTypeYAML = "yaml"
+
+// TargetTypeMarkdown is used for Markdown document translation.
+const TargetTypeMarkdown = "markdown"
+
+// TargetTypeProperties is used for Java .properties translation files.
+const TargetTypeProperties = "properties"
+
+// TargetTypeFlutter is used for Flutter ARB (Application Resource Bundle) files.
+const TargetTypeFlutter = "flutter"
+
 // ---------------------------------------------------------------------------
 // Loading
 // ---------------------------------------------------------------------------
 
 // LokitFileName is the default config file name.
-const LokitFileName = ".lokit.yaml"
+const LokitFileName = "lokit.yaml"
 
-// LoadLokitFile loads and validates .lokit.yaml from the given directory.
-// Returns nil if no .lokit.yaml exists.
+// LoadLokitFile loads and validates lokit.yaml from the given directory.
+// Returns nil if no lokit.yaml exists.
 func LoadLokitFile(rootDir string) (*LokitFile, error) {
 	path := filepath.Join(rootDir, LokitFileName)
 	data, err := os.ReadFile(path)
@@ -169,8 +181,24 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			if t.ResDir == "" {
 				t.ResDir = "app/src/main/res"
 			}
+		case TargetTypeYAML:
+			if t.TranslationsDir == "" {
+				t.TranslationsDir = "translations"
+			}
+		case TargetTypeMarkdown:
+			if t.TranslationsDir == "" {
+				t.TranslationsDir = "docs"
+			}
+		case TargetTypeProperties:
+			if t.TranslationsDir == "" {
+				t.TranslationsDir = "translations"
+			}
+		case TargetTypeFlutter:
+			if t.TranslationsDir == "" {
+				t.TranslationsDir = "lib/l10n"
+			}
 		default:
-			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, json, android)", path, t.Name, t.Type)
+			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, json, android, yaml, markdown, properties, flutter)", path, t.Name, t.Type)
 		}
 	}
 
@@ -243,6 +271,22 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 	case TargetTypeAndroid:
 		resDir := filepath.Join(absRoot, t.ResDir)
 		return detectLanguagesAndroid(resDir)
+
+	case TargetTypeYAML:
+		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		return detectLanguagesYAML(transDir)
+
+	case TargetTypeMarkdown:
+		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		return detectLanguagesMarkdown(transDir)
+
+	case TargetTypeProperties:
+		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		return detectLanguagesProperties(transDir)
+
+	case TargetTypeFlutter:
+		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		return detectLanguagesFlutter(transDir)
 	}
 	return nil
 }
@@ -261,6 +305,115 @@ func detectLanguagesJSON(dir string) []string {
 			continue
 		}
 		lang := strings.TrimSuffix(name, ".json")
+		if isLangCode(lang) || isI18NextLangCode(lang) {
+			langs = append(langs, lang)
+		}
+	}
+	sort.Strings(langs)
+	return langs
+}
+
+// detectLanguagesYAML finds language codes from YAML files in a directory.
+func detectLanguagesYAML(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var langs []string
+	for _, entry := range entries {
+		name := entry.Name()
+		if entry.IsDir() {
+			continue
+		}
+		for _, ext := range []string{".yaml", ".yml"} {
+			if strings.HasSuffix(name, ext) {
+				lang := strings.TrimSuffix(strings.TrimSuffix(name, ".yaml"), ".yml")
+				if isLangCode(lang) || isI18NextLangCode(lang) {
+					langs = append(langs, lang)
+				}
+				break
+			}
+		}
+	}
+	sort.Strings(langs)
+	return langs
+}
+
+// detectLanguagesMarkdown finds language codes from Markdown subdirectories.
+// It looks for subdirectories named with language codes (e.g. "ru/", "de/").
+func detectLanguagesMarkdown(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var langs []string
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if isLangCode(name) || isI18NextLangCode(name) {
+			langs = append(langs, name)
+		}
+	}
+	sort.Strings(langs)
+	return langs
+}
+
+// detectLanguagesProperties finds language codes from .properties files.
+// It looks for files named LANG.properties (e.g. en.properties, ru.properties).
+func detectLanguagesProperties(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var langs []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".properties") {
+			continue
+		}
+		lang := strings.TrimSuffix(name, ".properties")
+		if isLangCode(lang) || isI18NextLangCode(lang) {
+			langs = append(langs, lang)
+		}
+	}
+	sort.Strings(langs)
+	return langs
+}
+
+// detectLanguagesFlutter finds language codes from ARB files in a directory.
+// It looks for files named app_LANG.arb or intl_LANG.arb (e.g. app_en.arb, app_ru.arb).
+func detectLanguagesFlutter(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var langs []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".arb") {
+			continue
+		}
+		base := strings.TrimSuffix(name, ".arb")
+		// Strip "app_" or "intl_" prefix.
+		lang := base
+		for _, prefix := range []string{"app_", "intl_"} {
+			if strings.HasPrefix(base, prefix) {
+				lang = strings.TrimPrefix(base, prefix)
+				break
+			}
+		}
 		if isLangCode(lang) || isI18NextLangCode(lang) {
 			langs = append(langs, lang)
 		}

@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,11 +24,15 @@ import (
 	"time"
 
 	"github.com/minios-linux/lokit/android"
+	"github.com/minios-linux/lokit/arbfile"
 	"github.com/minios-linux/lokit/copilot"
 	"github.com/minios-linux/lokit/gemini"
 	"github.com/minios-linux/lokit/i18next"
+	"github.com/minios-linux/lokit/mdfile"
 	po "github.com/minios-linux/lokit/pofile"
+	"github.com/minios-linux/lokit/propfile"
 	"github.com/minios-linux/lokit/settings"
+	"github.com/minios-linux/lokit/yamlfile"
 )
 
 // ---------------------------------------------------------------------------
@@ -86,14 +91,53 @@ func LoadPromptsFromFile(path string) error {
 	return nil
 }
 
+// defaultPromptsMap returns all built-in system prompts as a map.
+func defaultPromptsMap() map[string]string {
+	return map[string]string{
+		"default":  DefaultSystemPrompt,
+		"docs":     DocsSystemPrompt,
+		"i18next":  I18NextSystemPrompt,
+		"recipe":   RecipeSystemPrompt,
+		"blogpost": BlogPostSystemPrompt,
+		"android":  AndroidSystemPrompt,
+	}
+}
+
+// createDefaultPromptsFile writes the built-in prompts to path as a formatted JSON file.
+func createDefaultPromptsFile(path string) error {
+	config := PromptsConfig{
+		Prompts: defaultPromptsMap(),
+	}
+	data, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshaling default prompts: %w", err)
+	}
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return fmt.Errorf("creating prompts directory: %w", err)
+	}
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		return fmt.Errorf("writing default prompts file: %w", err)
+	}
+	return nil
+}
+
 // LoadPromptsFromDefaultLocations tries to load prompts from the user data directory.
 // Default location: ~/.local/share/lokit/prompts.json (or $XDG_DATA_HOME/lokit/prompts.json)
 // This matches the location where auth.json is stored.
-// Returns the path of the loaded prompts file, or empty string if using embedded defaults.
+// If the file does not exist, it is created with built-in default prompts.
+// Returns the path of the loaded prompts file, or empty string on error.
 func LoadPromptsFromDefaultLocations() (string, error) {
 	path, err := settings.PromptsFilePath()
 	if err != nil {
 		return "", fmt.Errorf("cannot determine prompts file path: %w", err)
+	}
+
+	// If the file doesn't exist, create it with defaults
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := createDefaultPromptsFile(path); err != nil {
+			return "", fmt.Errorf("creating default prompts file: %w", err)
+		}
 	}
 
 	if err := LoadPromptsFromFile(path); err != nil {
@@ -104,7 +148,6 @@ func LoadPromptsFromDefaultLocations() (string, error) {
 		return path, nil
 	}
 
-	// No custom prompts found - will use embedded defaults
 	return "", nil
 }
 
@@ -1407,6 +1450,136 @@ func fixGroffEscapesInJSON(jsonContent string) string {
 	return fixed.String()
 }
 
+// npluralsFromFile returns the number of plural forms for a PO file by reading
+// the Plural-Forms header, falling back to the per-language default.
+func npluralsFromFile(poFile *po.File, lang string) int {
+	pluralForms := poFile.HeaderField("Plural-Forms")
+	if pluralForms == "" {
+		pluralForms = po.PluralFormsForLang(lang)
+	}
+	// Parse "nplurals=N; ..."
+	for _, part := range strings.Split(pluralForms, ";") {
+		part = strings.TrimSpace(part)
+		if strings.HasPrefix(part, "nplurals=") {
+			n, err := strconv.Atoi(strings.TrimPrefix(part, "nplurals="))
+			if err == nil && n > 0 {
+				return n
+			}
+		}
+	}
+	return 2 // safe default
+}
+
+// pluralTranslation holds the result for one entry: either a single string
+// (singular) or multiple strings (plural forms).
+type pluralTranslation struct {
+	singular string
+	plural   []string // non-nil only for entries with MsgIDPlural
+}
+
+// translateChunkWithPlurals translates a chunk of entries, correctly handling
+// plural forms. For entries that have a MsgIDPlural the AI is asked to return
+// all nplurals forms; singular entries produce a single string as before.
+func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemPrompt string, opts Options, rl *rateLimitState, nplurals int) ([]pluralTranslation, error) {
+	var userMsg strings.Builder
+	userMsg.WriteString("Translate these entries:\n\n")
+
+	for i, e := range entries {
+		if e.MsgIDPlural != "" {
+			userMsg.WriteString(fmt.Sprintf("%d. singular: %s | plural: %s\n",
+				i+1, escapeForPrompt(e.MsgID), escapeForPrompt(e.MsgIDPlural)))
+			userMsg.WriteString(fmt.Sprintf("   (return an array of exactly %d plural forms for the target language)\n", nplurals))
+		} else {
+			userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(e.MsgID)))
+		}
+		if len(e.References) > 0 {
+			userMsg.WriteString(fmt.Sprintf("   (context: %s)\n", strings.Join(e.References, ", ")))
+		}
+	}
+
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d elements. ", len(entries)))
+	userMsg.WriteString("For singular entries return a string. For plural entries (marked with 'singular: ... | plural: ...') return an array of strings (one per plural form).")
+
+	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
+	if err != nil {
+		return nil, err
+	}
+
+	return parsePluralTranslations(text, entries, nplurals)
+}
+
+// parsePluralTranslations parses the AI response into a slice of pluralTranslation.
+// Each element corresponds to the entry at the same index.
+func parsePluralTranslations(content string, entries []*po.Entry, nplurals int) ([]pluralTranslation, error) {
+	content = strings.TrimSpace(content)
+
+	// Strip markdown code blocks if present
+	if m := markdownCodeBlock.FindStringSubmatch(content); len(m) > 1 {
+		content = m[1]
+	}
+
+	// Find outer JSON array
+	startIdx := strings.Index(content, "[")
+	endIdx := strings.LastIndex(content, "]")
+	if startIdx >= 0 && endIdx > startIdx {
+		content = content[startIdx : endIdx+1]
+	}
+
+	content = fixGroffEscapesInJSON(content)
+
+	// Decode as []json.RawMessage so we can handle mixed string/array elements
+	var raw []json.RawMessage
+	if err := json.Unmarshal([]byte(content), &raw); err != nil {
+		return nil, fmt.Errorf("failed to parse translation response as JSON array: %w\nResponse: %s", err, truncate(content, 300))
+	}
+	if len(raw) == 0 {
+		return nil, fmt.Errorf("got 0 translations, expected %d", len(entries))
+	}
+
+	result := make([]pluralTranslation, len(entries))
+	for i, entry := range entries {
+		if i >= len(raw) {
+			break
+		}
+		elem := raw[i]
+
+		if entry.MsgIDPlural != "" {
+			// Expect a JSON array of strings
+			var forms []string
+			if err := json.Unmarshal(elem, &forms); err != nil {
+				// AI might have returned a plain string — use it as form[0] and duplicate
+				var s string
+				if err2 := json.Unmarshal(elem, &s); err2 == nil {
+					forms = make([]string, nplurals)
+					for j := range forms {
+						forms[j] = s
+					}
+				}
+			}
+			// Ensure exactly nplurals forms (pad with last form if short)
+			for len(forms) < nplurals {
+				if len(forms) > 0 {
+					forms = append(forms, forms[len(forms)-1])
+				} else {
+					forms = append(forms, "")
+				}
+			}
+			result[i] = pluralTranslation{plural: forms[:nplurals]}
+		} else {
+			// Expect a plain string; if AI returned array, take first element
+			var s string
+			if err := json.Unmarshal(elem, &s); err != nil {
+				var arr []string
+				if err2 := json.Unmarshal(elem, &arr); err2 == nil && len(arr) > 0 {
+					s = arr[0]
+				}
+			}
+			result[i] = pluralTranslation{singular: s}
+		}
+	}
+	return result, nil
+}
+
 // parseTranslations extracts a JSON array of strings from the AI response text.
 func parseTranslations(content string, expected int) ([]string, error) {
 	content = strings.TrimSpace(content)
@@ -1476,6 +1649,9 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 	systemPrompt := opts.resolvedPrompt()
 	done := 0
 
+	// Determine number of plural forms for this language once
+	nplurals := npluralsFromFile(poFile, opts.Language)
+
 	for i, chunk := range chunks {
 		select {
 		case <-ctx.Done():
@@ -1487,13 +1663,20 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 			opts.log("  Chunk %d/%d (%d entries)", i+1, len(chunks), len(chunk))
 		}
 
-		translations, err := translateChunk(ctx, chunk, systemPrompt, opts, rl)
-		if err != nil {
-			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+		if hasPluralEntries(chunk) {
+			// Use plural-aware path when any entry in the chunk has a plural form
+			translations, err := translateChunkWithPlurals(ctx, chunk, systemPrompt, opts, rl, nplurals)
+			if err != nil {
+				return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+			}
+			applyPluralTranslations(chunk, translations, opts.TranslateFuzzy)
+		} else {
+			translations, err := translateChunk(ctx, chunk, systemPrompt, opts, rl)
+			if err != nil {
+				return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+			}
+			applyTranslations(chunk, translations, opts.TranslateFuzzy)
 		}
-
-		// Apply translations
-		applyTranslations(chunk, translations, opts.TranslateFuzzy)
 
 		done += len(chunk)
 		if opts.OnProgress != nil {
@@ -1555,7 +1738,8 @@ func splitEntries(entries []*po.Entry, chunkSize int) [][]*po.Entry {
 	return chunks
 }
 
-// translateChunk translates a single chunk of entries.
+// translateChunk translates a single chunk of entries (singular only, no plural).
+// Kept for backward compatibility with non-PO callers.
 func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
 	// Build the user prompt
 	var userMsg strings.Builder
@@ -1576,11 +1760,51 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 	return parseTranslations(text, len(entries))
 }
 
+// hasPluralEntries reports whether any entry in the slice has a MsgIDPlural.
+func hasPluralEntries(entries []*po.Entry) bool {
+	for _, e := range entries {
+		if e.MsgIDPlural != "" {
+			return true
+		}
+	}
+	return false
+}
+
 // applyTranslations applies translated strings to PO entries.
 func applyTranslations(entries []*po.Entry, translations []string, clearFuzzy bool) {
 	for i, entry := range entries {
 		if i < len(translations) && translations[i] != "" {
 			entry.MsgStr = translations[i]
+			if entry.IsFuzzy() && clearFuzzy {
+				entry.SetFuzzy(false)
+			}
+		}
+	}
+}
+
+// applyPluralTranslations applies plural-aware translations to PO entries.
+// For plural entries it fills MsgStrPlural[0..N-1]; for singular entries it
+// sets MsgStr as before.
+func applyPluralTranslations(entries []*po.Entry, translations []pluralTranslation, clearFuzzy bool) {
+	for i, entry := range entries {
+		if i >= len(translations) {
+			break
+		}
+		t := translations[i]
+		if entry.MsgIDPlural != "" && len(t.plural) > 0 {
+			if entry.MsgStrPlural == nil {
+				entry.MsgStrPlural = make(map[int]string)
+			}
+			for j, form := range t.plural {
+				if form != "" {
+					entry.MsgStrPlural[j] = form
+				}
+			}
+			if entry.IsFuzzy() && clearFuzzy {
+				entry.SetFuzzy(false)
+			}
+		} else if entry.MsgIDPlural == "" && t.singular != "" {
+			entry.MsgStr = t.singular
 			if entry.IsFuzzy() && clearFuzzy {
 				entry.SetFuzzy(false)
 			}
@@ -2679,20 +2903,401 @@ func translateAndroidFile(ctx context.Context, file *android.File, sourceFile *a
 	return nil
 }
 
-// translateAndroidChunk sends a batch of Android string keys to the AI and gets translations back.
-// It looks up the source English values from the source file to provide context.
+// androidTranslationUnit represents a single translatable atom sent to the AI.
+// For KindString:      value is the string text.
+// For KindStringArray: value is one <item> text; itemIdx is its index in the array.
+// For KindPlurals:     value is one quantity form; quantity is its keyword.
+type androidTranslationUnit struct {
+	key      string // resource name
+	kind     android.EntryKind
+	value    string // source text
+	itemIdx  int    // KindStringArray: index into Items
+	quantity string // KindPlurals: quantity keyword
+}
+
+// translateAndroidChunk sends a batch of Android resource keys to the AI and
+// returns translations. Each key may expand to multiple units (array items,
+// plural forms), all sent in a single request.
 func translateAndroidChunk(ctx context.Context, keys []string, sourceFile *android.File, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
+	// Expand keys → translation units
+	units := buildAndroidUnits(keys, sourceFile)
+	if len(units) == 0 {
+		return nil, nil
+	}
+
 	var userMsg strings.Builder
 	userMsg.WriteString(fmt.Sprintf("Translate these Android app UI strings to %s:\n\n", opts.LanguageName))
-	for i, key := range keys {
-		// Get the source English value from the source file
-		value, _ := sourceFile.Get(key)
-		if value != "" {
-			userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(value)))
+	for i, u := range units {
+		if u.value != "" {
+			userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(u.value)))
 		} else {
-			// Fallback: use the key name as context
-			userMsg.WriteString(fmt.Sprintf("%d. [%s] (translate based on string resource name)\n", i+1, key))
+			userMsg.WriteString(fmt.Sprintf("%d. [%s] (translate based on string resource name)\n", i+1, u.key))
 		}
+	}
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(units)))
+
+	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
+	if err != nil {
+		return nil, err
+	}
+
+	return parseTranslations(text, len(units))
+}
+
+// buildAndroidUnits expands a list of resource keys into individual translation
+// units, one per translatable string atom.
+func buildAndroidUnits(keys []string, sourceFile *android.File) []androidTranslationUnit {
+	var units []androidTranslationUnit
+	for _, key := range keys {
+		e := sourceFile.GetEntry(key)
+		if e == nil {
+			// Key not in source — add a single unit with empty value
+			units = append(units, androidTranslationUnit{key: key, kind: android.KindString})
+			continue
+		}
+		switch e.Kind {
+		case android.KindString:
+			units = append(units, androidTranslationUnit{
+				key:   key,
+				kind:  android.KindString,
+				value: e.Value,
+			})
+		case android.KindStringArray:
+			for idx, item := range e.Items {
+				units = append(units, androidTranslationUnit{
+					key:     key,
+					kind:    android.KindStringArray,
+					value:   item,
+					itemIdx: idx,
+				})
+			}
+		case android.KindPlurals:
+			for _, q := range e.PluralOrder {
+				units = append(units, androidTranslationUnit{
+					key:      key,
+					kind:     android.KindPlurals,
+					value:    e.Plurals[q],
+					quantity: q,
+				})
+			}
+		}
+	}
+	return units
+}
+
+// applyAndroidTranslations applies a flat slice of translations (one per unit)
+// back to the target Android file. Units must be in the same order as returned
+// by buildAndroidUnits for the given keys.
+func applyAndroidTranslations(file *android.File, keys []string, translations []string) {
+	units := buildAndroidUnits(keys, file) // use target file to know structure
+
+	// Build a temporary accumulator for array/plural results
+	type arrayAcc struct {
+		items []string
+	}
+	type pluralAcc struct {
+		forms map[string]string
+	}
+	arrays := map[string]*arrayAcc{}
+	plurals := map[string]*pluralAcc{}
+
+	// Pre-populate accumulators with current values so partial translations
+	// don't wipe already-translated forms.
+	for _, key := range keys {
+		e := file.GetEntry(key)
+		if e == nil {
+			continue
+		}
+		switch e.Kind {
+		case android.KindStringArray:
+			acc := &arrayAcc{items: make([]string, len(e.Items))}
+			copy(acc.items, e.Items)
+			arrays[key] = acc
+		case android.KindPlurals:
+			acc := &pluralAcc{forms: make(map[string]string)}
+			for q, v := range e.Plurals {
+				acc.forms[q] = v
+			}
+			plurals[key] = acc
+		}
+	}
+
+	for i, u := range units {
+		if i >= len(translations) || translations[i] == "" {
+			continue
+		}
+		tr := translations[i]
+		switch u.kind {
+		case android.KindString:
+			file.Set(u.key, tr)
+		case android.KindStringArray:
+			acc, ok := arrays[u.key]
+			if !ok {
+				continue
+			}
+			if u.itemIdx < len(acc.items) {
+				acc.items[u.itemIdx] = tr
+			}
+		case android.KindPlurals:
+			acc, ok := plurals[u.key]
+			if !ok {
+				continue
+			}
+			acc.forms[u.quantity] = tr
+		}
+	}
+
+	// Flush accumulators back to file
+	for key, acc := range arrays {
+		file.SetItems(key, acc.items)
+	}
+	for key, acc := range plurals {
+		file.SetPlurals(key, acc.forms)
+	}
+}
+
+// saveAndroidFile saves an Android strings.xml file and logs the result.
+func saveAndroidFile(file *android.File, path string, opts Options) {
+	// Translated locale files omit translatable="false" resources — Android
+	// inherits them from the default values/strings.xml automatically.
+	if err := file.WriteTargetFile(path); err != nil {
+		opts.logError("Error saving %s: %v", path, err)
+	} else {
+		total, translated, _ := file.Stats()
+		opts.log("Saved %s (%d/%d translated)", path, translated, total)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// YAML translation
+// ---------------------------------------------------------------------------
+
+// YAMLLangTask holds a single YAML language file ready for translation.
+type YAMLLangTask struct {
+	// Lang is the BCP-47 language code (e.g. "ru", "de").
+	Lang string
+	// LangName is the human-readable language name (e.g. "Russian").
+	LangName string
+	// FilePath is the absolute path to write the translated file.
+	FilePath string
+	// File is the target YAML file (already synced from source).
+	File *yamlfile.File
+	// SourceFile is the source (English) YAML file.
+	SourceFile *yamlfile.File
+}
+
+// TranslateAllYAML translates YAML files for all language tasks.
+func TranslateAllYAML(ctx context.Context, langTasks []YAMLLangTask, opts Options) error {
+	if opts.ParallelMode == ParallelFullParallel {
+		return translateYAMLFullParallel(ctx, langTasks, opts)
+	}
+	return translateYAMLSequential(ctx, langTasks, opts)
+}
+
+// translateYAMLSequential translates YAML files one language at a time.
+func translateYAMLSequential(ctx context.Context, langTasks []YAMLLangTask, opts Options) error {
+	var failedLangs []string
+	for _, task := range langTasks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+
+		var keysToTranslate []string
+		if opts.RetranslateExisting {
+			keysToTranslate = task.File.Keys()
+		} else {
+			keysToTranslate = task.File.UntranslatedKeys()
+		}
+
+		if len(keysToTranslate) == 0 {
+			continue
+		}
+
+		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
+
+		if err := translateYAMLFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
+			if ctx.Err() != nil {
+				saveYAMLFile(task.File, task.FilePath, opts)
+				return ctx.Err()
+			}
+			opts.logError("Error translating %s: %v", task.Lang, err)
+			failedLangs = append(failedLangs, task.Lang)
+			continue
+		}
+
+		saveYAMLFile(task.File, task.FilePath, opts)
+	}
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translateYAMLFullParallel translates all YAML files in parallel.
+func translateYAMLFullParallel(ctx context.Context, langTasks []YAMLLangTask, opts Options) error {
+	rl := &rateLimitState{}
+
+	type flatTask struct {
+		lang     string
+		langName string
+		key      string
+		filePath string
+		file     *yamlfile.File
+		srcFile  *yamlfile.File
+	}
+
+	// Build flat list of per-language tasks.
+	var tasks []flatTask
+	for _, lt := range langTasks {
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = lt.File.Keys()
+		} else {
+			keys = lt.File.UntranslatedKeys()
+		}
+		if len(keys) > 0 {
+			tasks = append(tasks, flatTask{
+				lang:     lt.Lang,
+				langName: lt.LangName,
+				filePath: lt.FilePath,
+				file:     lt.File,
+				srcFile:  lt.SourceFile,
+			})
+		}
+	}
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	maxConcurrent := opts.MaxConcurrent
+	if maxConcurrent <= 0 {
+		maxConcurrent = len(tasks)
+	}
+
+	sem := make(chan struct{}, maxConcurrent)
+	var wg sync.WaitGroup
+	var failedMu sync.Mutex
+	var failedLangs []string
+
+	for _, t := range tasks {
+		t := t
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = t.file.Keys()
+		} else {
+			keys = t.file.UntranslatedKeys()
+		}
+		if len(keys) == 0 {
+			continue
+		}
+
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+
+			taskOpts := opts
+			taskOpts.Language = t.lang
+			taskOpts.LanguageName = t.langName
+
+			opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(keys))
+			if err := translateYAMLFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
+				if ctx.Err() == nil {
+					opts.logError("Error translating %s: %v", t.lang, err)
+					failedMu.Lock()
+					failedLangs = append(failedLangs, t.lang)
+					failedMu.Unlock()
+				}
+			} else {
+				saveYAMLFile(t.file, t.filePath, opts)
+			}
+		}()
+	}
+	wg.Wait()
+
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translateYAMLFile translates a YAML file using a new rate-limit state.
+func translateYAMLFile(ctx context.Context, file *yamlfile.File, srcFile *yamlfile.File, keys []string, opts Options) error {
+	rl := &rateLimitState{}
+	return translateYAMLFileWithRL(ctx, file, srcFile, keys, opts, rl)
+}
+
+// translateYAMLFileWithRL translates a YAML file using a shared rate-limit state.
+func translateYAMLFileWithRL(ctx context.Context, file *yamlfile.File, srcFile *yamlfile.File, keys []string, opts Options, rl *rateLimitState) error {
+	chunkSize := opts.effectiveChunkSize()
+	if chunkSize <= 0 {
+		chunkSize = len(keys)
+	}
+
+	srcVals := srcFile.SourceValues()
+	systemPrompt := opts.resolvedPrompt()
+	chunks := splitStrings(keys, chunkSize)
+	done := 0
+
+	for i, chunk := range chunks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		if opts.Verbose {
+			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
+		}
+
+		translations, err := translateYAMLChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
+		if err != nil {
+			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+		}
+
+		applyYAMLTranslations(file, chunk, translations)
+
+		done += len(chunk)
+		if opts.OnProgress != nil {
+			opts.OnProgress(opts.Language, done, len(keys))
+		}
+
+		if i < len(chunks)-1 && opts.RequestDelay > 0 {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(opts.RequestDelay):
+			}
+		}
+	}
+
+	return nil
+}
+
+// translateYAMLChunk sends a batch of YAML keys with source values to the AI.
+func translateYAMLChunk(ctx context.Context, keys []string, srcVals map[string]string, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
+	var userMsg strings.Builder
+	userMsg.WriteString(fmt.Sprintf("Translate these strings to %s:\n\n", opts.LanguageName))
+	for i, key := range keys {
+		src := srcVals[key]
+		if src == "" {
+			src = key
+		}
+		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(src)))
 	}
 	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
 
@@ -2704,8 +3309,8 @@ func translateAndroidChunk(ctx context.Context, keys []string, sourceFile *andro
 	return parseTranslations(text, len(keys))
 }
 
-// applyAndroidTranslations applies translated strings to the Android file.
-func applyAndroidTranslations(file *android.File, keys []string, translations []string) {
+// applyYAMLTranslations writes translated values back to the YAML file.
+func applyYAMLTranslations(file *yamlfile.File, keys []string, translations []string) {
 	for i, key := range keys {
 		if i < len(translations) && translations[i] != "" {
 			file.Set(key, translations[i])
@@ -2713,8 +3318,744 @@ func applyAndroidTranslations(file *android.File, keys []string, translations []
 	}
 }
 
-// saveAndroidFile saves an Android strings.xml file and logs the result.
-func saveAndroidFile(file *android.File, path string, opts Options) {
+// saveYAMLFile saves a YAML file and logs the result.
+func saveYAMLFile(file *yamlfile.File, path string, opts Options) {
+	if err := file.WriteFile(path); err != nil {
+		opts.logError("Error saving %s: %v", path, err)
+	} else {
+		total, translated, _ := file.Stats()
+		opts.log("Saved %s (%d/%d translated)", path, translated, total)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Markdown translation
+// ---------------------------------------------------------------------------
+
+// MarkdownLangTask holds a single Markdown language task ready for translation.
+type MarkdownLangTask struct {
+	// Lang is the BCP-47 language code.
+	Lang string
+	// LangName is the human-readable language name.
+	LangName string
+	// FilePath is the absolute path to write the translated file.
+	FilePath string
+	// File is the target Markdown file (synced from source).
+	File *mdfile.File
+	// SourceFile is the source Markdown file.
+	SourceFile *mdfile.File
+}
+
+// TranslateAllMarkdown translates Markdown files for all language tasks.
+func TranslateAllMarkdown(ctx context.Context, langTasks []MarkdownLangTask, opts Options) error {
+	if opts.ParallelMode == ParallelFullParallel {
+		return translateMarkdownFullParallel(ctx, langTasks, opts)
+	}
+	return translateMarkdownSequential(ctx, langTasks, opts)
+}
+
+// translateMarkdownSequential translates Markdown files one language at a time.
+func translateMarkdownSequential(ctx context.Context, langTasks []MarkdownLangTask, opts Options) error {
+	var failedLangs []string
+	for _, task := range langTasks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+
+		var keysToTranslate []string
+		if opts.RetranslateExisting {
+			keysToTranslate = task.File.Keys()
+		} else {
+			keysToTranslate = task.File.UntranslatedKeys()
+		}
+
+		if len(keysToTranslate) == 0 {
+			continue
+		}
+
+		opts.log("Translating %s (%s) — %d segments...", task.Lang, task.LangName, len(keysToTranslate))
+
+		if err := translateMarkdownFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
+			if ctx.Err() != nil {
+				saveMarkdownFile(task.File, task.FilePath, opts)
+				return ctx.Err()
+			}
+			opts.logError("Error translating %s: %v", task.Lang, err)
+			failedLangs = append(failedLangs, task.Lang)
+			continue
+		}
+
+		saveMarkdownFile(task.File, task.FilePath, opts)
+	}
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translateMarkdownFullParallel translates all Markdown files in parallel.
+func translateMarkdownFullParallel(ctx context.Context, langTasks []MarkdownLangTask, opts Options) error {
+	type flatTask struct {
+		lang     string
+		langName string
+		filePath string
+		file     *mdfile.File
+		srcFile  *mdfile.File
+	}
+
+	var tasks []flatTask
+	for _, lt := range langTasks {
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = lt.File.Keys()
+		} else {
+			keys = lt.File.UntranslatedKeys()
+		}
+		if len(keys) > 0 {
+			tasks = append(tasks, flatTask{
+				lang:     lt.Lang,
+				langName: lt.LangName,
+				filePath: lt.FilePath,
+				file:     lt.File,
+				srcFile:  lt.SourceFile,
+			})
+		}
+	}
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	maxConcurrent := opts.MaxConcurrent
+	if maxConcurrent <= 0 {
+		maxConcurrent = len(tasks)
+	}
+
+	sem := make(chan struct{}, maxConcurrent)
+	var wg sync.WaitGroup
+	var failedMu sync.Mutex
+	var failedLangs []string
+	rl := &rateLimitState{}
+
+	for _, t := range tasks {
+		t := t
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = t.file.Keys()
+		} else {
+			keys = t.file.UntranslatedKeys()
+		}
+		if len(keys) == 0 {
+			continue
+		}
+
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+
+			taskOpts := opts
+			taskOpts.Language = t.lang
+			taskOpts.LanguageName = t.langName
+
+			opts.log("Translating %s (%s) — %d segments...", t.lang, t.langName, len(keys))
+			if err := translateMarkdownFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
+				if ctx.Err() == nil {
+					opts.logError("Error translating %s: %v", t.lang, err)
+					failedMu.Lock()
+					failedLangs = append(failedLangs, t.lang)
+					failedMu.Unlock()
+				}
+			} else {
+				saveMarkdownFile(t.file, t.filePath, opts)
+			}
+		}()
+	}
+	wg.Wait()
+
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translateMarkdownFile translates a Markdown file.
+func translateMarkdownFile(ctx context.Context, file *mdfile.File, srcFile *mdfile.File, keys []string, opts Options) error {
+	rl := &rateLimitState{}
+	return translateMarkdownFileWithRL(ctx, file, srcFile, keys, opts, rl)
+}
+
+// translateMarkdownFileWithRL translates a Markdown file with a shared rate-limit state.
+func translateMarkdownFileWithRL(ctx context.Context, file *mdfile.File, srcFile *mdfile.File, keys []string, opts Options, rl *rateLimitState) error {
+	// Markdown segments can be large, so translate one at a time by default.
+	// Each segment is a complete heading+body block that should be translated atomically.
+	chunkSize := opts.effectiveChunkSize()
+	if chunkSize <= 0 {
+		chunkSize = 1
+	}
+
+	srcVals := srcFile.SourceValues()
+	systemPrompt := opts.resolvedPrompt()
+	chunks := splitStrings(keys, chunkSize)
+	done := 0
+
+	for i, chunk := range chunks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		if opts.Verbose {
+			opts.log("  Chunk %d/%d (%d segments)", i+1, len(chunks), len(chunk))
+		}
+
+		translations, err := translateMarkdownChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
+		if err != nil {
+			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+		}
+
+		applyMarkdownTranslations(file, chunk, translations)
+
+		done += len(chunk)
+		if opts.OnProgress != nil {
+			opts.OnProgress(opts.Language, done, len(keys))
+		}
+
+		if i < len(chunks)-1 && opts.RequestDelay > 0 {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(opts.RequestDelay):
+			}
+		}
+	}
+
+	return nil
+}
+
+// translateMarkdownChunk sends Markdown segments to the AI for translation.
+// Each segment is a complete section (heading + body) or a frontmatter field.
+func translateMarkdownChunk(ctx context.Context, keys []string, srcVals map[string]string, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
+	var userMsg strings.Builder
+	userMsg.WriteString(fmt.Sprintf("Translate these text segments to %s.\n", opts.LanguageName))
+	userMsg.WriteString("For Markdown segments, preserve all formatting, headings, code blocks, and inline markup.\n")
+	userMsg.WriteString("Return a JSON array with exactly the same number of translated strings.\n\n")
+	for i, key := range keys {
+		src := srcVals[key]
+		if src == "" {
+			src = key
+		}
+		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(src)))
+	}
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
+
+	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
+	if err != nil {
+		return nil, err
+	}
+
+	return parseTranslations(text, len(keys))
+}
+
+// applyMarkdownTranslations writes translated segments back to the Markdown file.
+func applyMarkdownTranslations(file *mdfile.File, keys []string, translations []string) {
+	for i, key := range keys {
+		if i < len(translations) && translations[i] != "" {
+			file.Set(key, translations[i])
+		}
+	}
+}
+
+// saveMarkdownFile saves a Markdown file and logs the result.
+func saveMarkdownFile(file *mdfile.File, path string, opts Options) {
+	if err := file.WriteFile(path); err != nil {
+		opts.logError("Error saving %s: %v", path, err)
+	} else {
+		total, translated, _ := file.Stats()
+		opts.log("Saved %s (%d/%d translated)", path, translated, total)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Properties (.properties) translation
+// ---------------------------------------------------------------------------
+
+// PropertiesLangTask holds a single .properties language file ready for translation.
+type PropertiesLangTask struct {
+	// Lang is the BCP-47 language code.
+	Lang string
+	// LangName is the human-readable language name.
+	LangName string
+	// FilePath is the absolute path to write the translated file.
+	FilePath string
+	// File is the target .properties file (synced from source).
+	File *propfile.File
+	// SourceFile is the source .properties file.
+	SourceFile *propfile.File
+}
+
+// TranslateAllProperties translates .properties files for all language tasks.
+func TranslateAllProperties(ctx context.Context, langTasks []PropertiesLangTask, opts Options) error {
+	if opts.ParallelMode == ParallelFullParallel {
+		return translatePropertiesFullParallel(ctx, langTasks, opts)
+	}
+	return translatePropertiesSequential(ctx, langTasks, opts)
+}
+
+// translatePropertiesSequential translates .properties files one language at a time.
+func translatePropertiesSequential(ctx context.Context, langTasks []PropertiesLangTask, opts Options) error {
+	var failedLangs []string
+	for _, task := range langTasks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+
+		var keysToTranslate []string
+		if opts.RetranslateExisting {
+			keysToTranslate = task.File.Keys()
+		} else {
+			keysToTranslate = task.File.UntranslatedKeys()
+		}
+
+		if len(keysToTranslate) == 0 {
+			continue
+		}
+
+		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
+
+		if err := translatePropertiesFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
+			if ctx.Err() != nil {
+				savePropertiesFile(task.File, task.FilePath, opts)
+				return ctx.Err()
+			}
+			opts.logError("Error translating %s: %v", task.Lang, err)
+			failedLangs = append(failedLangs, task.Lang)
+			continue
+		}
+
+		savePropertiesFile(task.File, task.FilePath, opts)
+	}
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translatePropertiesFullParallel translates all .properties files in parallel.
+func translatePropertiesFullParallel(ctx context.Context, langTasks []PropertiesLangTask, opts Options) error {
+	rl := &rateLimitState{}
+
+	type flatTask struct {
+		lang     string
+		langName string
+		filePath string
+		file     *propfile.File
+		srcFile  *propfile.File
+	}
+
+	var tasks []flatTask
+	for _, lt := range langTasks {
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = lt.File.Keys()
+		} else {
+			keys = lt.File.UntranslatedKeys()
+		}
+		if len(keys) > 0 {
+			tasks = append(tasks, flatTask{
+				lang:     lt.Lang,
+				langName: lt.LangName,
+				filePath: lt.FilePath,
+				file:     lt.File,
+				srcFile:  lt.SourceFile,
+			})
+		}
+	}
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	maxConcurrent := opts.MaxConcurrent
+	if maxConcurrent <= 0 {
+		maxConcurrent = len(tasks)
+	}
+
+	sem := make(chan struct{}, maxConcurrent)
+	var wg sync.WaitGroup
+	var failedMu sync.Mutex
+	var failedLangs []string
+
+	for _, t := range tasks {
+		t := t
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = t.file.Keys()
+		} else {
+			keys = t.file.UntranslatedKeys()
+		}
+		if len(keys) == 0 {
+			continue
+		}
+
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+
+			taskOpts := opts
+			taskOpts.Language = t.lang
+			taskOpts.LanguageName = t.langName
+
+			opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(keys))
+			if err := translatePropertiesFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
+				if ctx.Err() == nil {
+					opts.logError("Error translating %s: %v", t.lang, err)
+					failedMu.Lock()
+					failedLangs = append(failedLangs, t.lang)
+					failedMu.Unlock()
+				}
+			} else {
+				savePropertiesFile(t.file, t.filePath, opts)
+			}
+		}()
+	}
+	wg.Wait()
+
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translatePropertiesFile translates a .properties file using a new rate-limit state.
+func translatePropertiesFile(ctx context.Context, file *propfile.File, srcFile *propfile.File, keys []string, opts Options) error {
+	rl := &rateLimitState{}
+	return translatePropertiesFileWithRL(ctx, file, srcFile, keys, opts, rl)
+}
+
+// translatePropertiesFileWithRL translates a .properties file using a shared rate-limit state.
+func translatePropertiesFileWithRL(ctx context.Context, file *propfile.File, srcFile *propfile.File, keys []string, opts Options, rl *rateLimitState) error {
+	chunkSize := opts.effectiveChunkSize()
+	if chunkSize <= 0 {
+		chunkSize = len(keys)
+	}
+
+	srcVals := srcFile.SourceValues()
+	systemPrompt := opts.resolvedPrompt()
+	chunks := splitStrings(keys, chunkSize)
+	done := 0
+
+	for i, chunk := range chunks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		if opts.Verbose {
+			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
+		}
+
+		translations, err := translateYAMLChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
+		if err != nil {
+			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+		}
+
+		applyPropertiesTranslations(file, chunk, translations)
+
+		done += len(chunk)
+		if opts.OnProgress != nil {
+			opts.OnProgress(opts.Language, done, len(keys))
+		}
+
+		if i < len(chunks)-1 && opts.RequestDelay > 0 {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(opts.RequestDelay):
+			}
+		}
+	}
+
+	return nil
+}
+
+// applyPropertiesTranslations writes translated values back to the .properties file.
+func applyPropertiesTranslations(file *propfile.File, keys []string, translations []string) {
+	for i, key := range keys {
+		if i < len(translations) && translations[i] != "" {
+			file.Set(key, translations[i])
+		}
+	}
+}
+
+// savePropertiesFile saves a .properties file and logs the result.
+func savePropertiesFile(file *propfile.File, path string, opts Options) {
+	if err := file.WriteFile(path); err != nil {
+		opts.logError("Error saving %s: %v", path, err)
+	} else {
+		total, translated, _ := file.Stats()
+		opts.log("Saved %s (%d/%d translated)", path, translated, total)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Flutter ARB translation
+// ---------------------------------------------------------------------------
+
+// ARBLangTask holds a single ARB language file ready for translation.
+type ARBLangTask struct {
+	// Lang is the BCP-47 language code.
+	Lang string
+	// LangName is the human-readable language name.
+	LangName string
+	// FilePath is the absolute path to write the translated file.
+	FilePath string
+	// File is the target ARB file (synced from source).
+	File *arbfile.File
+	// SourceFile is the source ARB file.
+	SourceFile *arbfile.File
+}
+
+// TranslateAllARB translates ARB files for all language tasks.
+func TranslateAllARB(ctx context.Context, langTasks []ARBLangTask, opts Options) error {
+	if opts.ParallelMode == ParallelFullParallel {
+		return translateARBFullParallel(ctx, langTasks, opts)
+	}
+	return translateARBSequential(ctx, langTasks, opts)
+}
+
+// translateARBSequential translates ARB files one language at a time.
+func translateARBSequential(ctx context.Context, langTasks []ARBLangTask, opts Options) error {
+	var failedLangs []string
+	for _, task := range langTasks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+
+		var keysToTranslate []string
+		if opts.RetranslateExisting {
+			keysToTranslate = task.File.Keys()
+		} else {
+			keysToTranslate = task.File.UntranslatedKeys()
+		}
+
+		if len(keysToTranslate) == 0 {
+			continue
+		}
+
+		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
+
+		if err := translateARBFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
+			if ctx.Err() != nil {
+				saveARBFile(task.File, task.FilePath, opts)
+				return ctx.Err()
+			}
+			opts.logError("Error translating %s: %v", task.Lang, err)
+			failedLangs = append(failedLangs, task.Lang)
+			continue
+		}
+
+		saveARBFile(task.File, task.FilePath, opts)
+	}
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translateARBFullParallel translates all ARB files in parallel.
+func translateARBFullParallel(ctx context.Context, langTasks []ARBLangTask, opts Options) error {
+	rl := &rateLimitState{}
+
+	type flatTask struct {
+		lang     string
+		langName string
+		filePath string
+		file     *arbfile.File
+		srcFile  *arbfile.File
+	}
+
+	var tasks []flatTask
+	for _, lt := range langTasks {
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = lt.File.Keys()
+		} else {
+			keys = lt.File.UntranslatedKeys()
+		}
+		if len(keys) > 0 {
+			tasks = append(tasks, flatTask{
+				lang:     lt.Lang,
+				langName: lt.LangName,
+				filePath: lt.FilePath,
+				file:     lt.File,
+				srcFile:  lt.SourceFile,
+			})
+		}
+	}
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	maxConcurrent := opts.MaxConcurrent
+	if maxConcurrent <= 0 {
+		maxConcurrent = len(tasks)
+	}
+
+	sem := make(chan struct{}, maxConcurrent)
+	var wg sync.WaitGroup
+	var failedMu sync.Mutex
+	var failedLangs []string
+
+	for _, t := range tasks {
+		t := t
+		var keys []string
+		if opts.RetranslateExisting {
+			keys = t.file.Keys()
+		} else {
+			keys = t.file.UntranslatedKeys()
+		}
+		if len(keys) == 0 {
+			continue
+		}
+
+		wg.Add(1)
+		sem <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+
+			taskOpts := opts
+			taskOpts.Language = t.lang
+			taskOpts.LanguageName = t.langName
+
+			opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(keys))
+			if err := translateARBFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
+				if ctx.Err() == nil {
+					opts.logError("Error translating %s: %v", t.lang, err)
+					failedMu.Lock()
+					failedLangs = append(failedLangs, t.lang)
+					failedMu.Unlock()
+				}
+			} else {
+				saveARBFile(t.file, t.filePath, opts)
+			}
+		}()
+	}
+	wg.Wait()
+
+	if len(failedLangs) > 0 {
+		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+	}
+	return nil
+}
+
+// translateARBFile translates an ARB file using a new rate-limit state.
+func translateARBFile(ctx context.Context, file *arbfile.File, srcFile *arbfile.File, keys []string, opts Options) error {
+	rl := &rateLimitState{}
+	return translateARBFileWithRL(ctx, file, srcFile, keys, opts, rl)
+}
+
+// translateARBFileWithRL translates an ARB file using a shared rate-limit state.
+func translateARBFileWithRL(ctx context.Context, file *arbfile.File, srcFile *arbfile.File, keys []string, opts Options, rl *rateLimitState) error {
+	chunkSize := opts.effectiveChunkSize()
+	if chunkSize <= 0 {
+		chunkSize = len(keys)
+	}
+
+	srcVals := srcFile.SourceValues()
+	systemPrompt := opts.resolvedPrompt()
+	chunks := splitStrings(keys, chunkSize)
+	done := 0
+
+	for i, chunk := range chunks {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		if opts.Verbose {
+			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
+		}
+
+		translations, err := translateYAMLChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
+		if err != nil {
+			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
+		}
+
+		applyARBTranslations(file, chunk, translations)
+
+		done += len(chunk)
+		if opts.OnProgress != nil {
+			opts.OnProgress(opts.Language, done, len(keys))
+		}
+
+		if i < len(chunks)-1 && opts.RequestDelay > 0 {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(opts.RequestDelay):
+			}
+		}
+	}
+
+	return nil
+}
+
+// applyARBTranslations writes translated values back to the ARB file.
+func applyARBTranslations(file *arbfile.File, keys []string, translations []string) {
+	for i, key := range keys {
+		if i < len(translations) && translations[i] != "" {
+			file.Set(key, translations[i])
+		}
+	}
+}
+
+// saveARBFile saves an ARB file and logs the result.
+func saveARBFile(file *arbfile.File, path string, opts Options) {
 	if err := file.WriteFile(path); err != nil {
 		opts.logError("Error saving %s: %v", path, err)
 	} else {

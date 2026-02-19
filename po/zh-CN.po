@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-17 16:18+0000\n"
-"PO-Revision-Date: 2026-02-17 16:19+0000\n"
+"POT-Creation-Date: 2026-02-19 12:46+0000\n"
+"PO-Revision-Date: 2026-02-19 12:47+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh-CN\n"
@@ -15,213 +15,279 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: main.go:1012
+#: main.go:1038
+msgid "Languages to init (comma-separated, default: all from config)"
+msgstr "需初始化的语言（逗号分隔，默认：配置中所有语言）"
+
+#: main.go:1123
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Android 目标无需初始化 — 请直接使用 'lokit translate'。"
 
-#: main.go:1021
-#: main.go:2125
-msgid "Cannot read source language file %s: %v"
-msgstr "无法读取源语言文件 %s：%v"
+#: main.go:1155
+msgid "Cannot find source YAML file for language %q in %s"
+msgstr "无法在 %s 中找到语言 %q 的源 YAML 文件"
 
-#: main.go:1026
+#: main.go:1156
+msgid "Expected: %s"
+msgstr "期望值：%s"
+
+#: main.go:1162
+msgid "Cannot read source YAML file %s: %v"
+msgstr "无法读取源 YAML 文件 %s：%v"
+
+#: main.go:1166
+#: main.go:1230
+#: main.go:4160
+#: main.go:4380
 msgid "Source language (%s): %d keys"
 msgstr "源语言（%s）：%d 个键"
 
-#: main.go:1052
-#: main.go:1292
-#: main.go:3260
+#: main.go:1190
+#: main.go:3896
+#: main.go:4015
+#: main.go:4173
+#: main.go:4393
+msgid "Creating directory %s: %v"
+msgstr "正在创建目录 %s：%v"
+
+#: main.go:1194
+#: main.go:1256
+#: main.go:1496
+#: main.go:3497
+#: main.go:3914
+#: main.go:4177
+#: main.go:4397
 msgid "Creating %s: %v"
 msgstr "正在创建 %s：%v"
 
-#: main.go:1055
+#: main.go:1197
+#: main.go:1259
+#: main.go:4180
+#: main.go:4400
 msgid "Created: %s (%d keys)"
 msgstr "已创建：%s（%d 个键）"
 
-#: main.go:1071
-#: main.go:1670
-msgid "Updating %s: %v"
-msgstr "正在更新 %s：%v"
-
-#: main.go:1074
-msgid "Updated: %s (+%d new keys)"
-msgstr "已更新：%s（新增 %d 个键）"
-
-#: main.go:1077
-msgid "%s: up to date"
-msgstr "%s：已是最新"
-
-#: main.go:1081
-#: main.go:1314
-msgid "Summary: %d created, %d updated"
-msgstr "汇总：新建 %d 个，更新 %d 个"
-
-#: main.go:1084
-#: main.go:1243
-#: main.go:1320
-msgid "Init complete!"
-msgstr "初始化完成！"
-
-#: main.go:1097
-msgid "pandoc not found, skipping manpage generation from markdown"
-msgstr "未找到 pandoc，跳过从 markdown 生成 manpage"
-
-#: main.go:1112
-msgid "failed to list markdown files: %w"
-msgstr "无法列出 Markdown 文件：%w"
-
-#: main.go:1145
-msgid "Generating %s from %s"
-msgstr "正在从 %s 生成 %s"
-
-#: main.go:1150
-msgid "pandoc failed for %s: %w"
-msgstr "pandoc 执行失败：%s：%w"
-
-#: main.go:1155
-msgid "Failed to post-process %s: %v"
-msgstr "后处理 %s 失败：%v"
-
-#: main.go:1162
-msgid "Generated %d manpage(s) from markdown"
-msgstr "已从 markdown 生成 %d 个 manpage"
-
-#: main.go:1197
-msgid "po4a is not installed. Install with: sudo apt install po4a"
-msgstr "未安装 po4a。请使用以下命令安装：sudo apt install po4a"
-
-#: main.go:1202
-msgid "Failed to generate manpages from markdown: %v"
-msgstr "从 markdown 生成 manpage 失败：%v"
-
-#: main.go:1203
-msgid "Continuing anyway, po4a might fail if source files don't exist"
-msgstr "继续执行，如果源文件不存在，po4a 可能会失败"
-
-#: main.go:1206
-msgid "Running po4a --no-translations %s ..."
-msgstr "正在运行 po4a --no-translations %s ..."
-
-#: main.go:1212
-msgid "po4a failed: %v"
-msgstr "po4a 执行失败：%v"
-
-#: main.go:1214
-msgid "po4a updated POT and PO files"
-msgstr "po4a 已更新 POT 和 PO 文件"
-
-#: main.go:1256
-#: main.go:1300
-#: main.go:1747
-#: main.go:1881
+#: main.go:1205
+#: main.go:1460
+#: main.go:1504
+#: main.go:1974
+#: main.go:2108
+#: main.go:3756
+#: main.go:3923
+#: main.go:4025
+#: main.go:4035
+#: main.go:4185
+#: main.go:4258
+#: main.go:4405
+#: main.go:4478
 msgid "Reading %s: %v"
 msgstr "正在读取 %s：%v"
 
-#: main.go:1260
-msgid "Updating PO files for: %s"
-msgstr "正在为 %s 更新 PO 文件"
+#: main.go:1211
+#: main.go:1510
+#: main.go:3928
+#: main.go:4190
+#: main.go:4410
+msgid "Writing %s: %v"
+msgstr "正在写入 %s：%v"
 
-#: main.go:1268
-#: main.go:3255
-msgid "Creating directory for %s: %v"
-msgstr "正在为 %s 创建目录：%v"
+#: main.go:1214
+#: main.go:1513
+#: main.go:3931
+#: main.go:4193
+#: main.go:4413
+msgid "Updated: %s"
+msgstr "已更新：%s"
 
-#: main.go:128
+#: main.go:1218
+msgid "YAML init: %d created, %d updated"
+msgstr "YAML 初始化：新建 %d 个，更新 %d 个"
+
+#: main.go:1225
+#: main.go:2352
+msgid "Cannot read source language file %s: %v"
+msgstr "无法读取源语言文件 %s：%v"
+
+#: main.go:1275
+#: main.go:1897
+msgid "Updating %s: %v"
+msgstr "正在更新 %s：%v"
+
+#: main.go:1278
+msgid "Updated: %s (+%d new keys)"
+msgstr "已更新：%s（新增 %d 个键）"
+
+#: main.go:1281
+msgid "%s: up to date"
+msgstr "%s：已是最新"
+
+#: main.go:1285
+#: main.go:1518
+msgid "Summary: %d created, %d updated"
+msgstr "汇总：新建 %d 个，更新 %d 个"
+
+#: main.go:1288
+#: main.go:1447
+#: main.go:1524
+msgid "Init complete!"
+msgstr "初始化完成！"
+
+#: main.go:1301
+msgid "pandoc not found, skipping manpage generation from markdown"
+msgstr "未找到 pandoc，跳过从 markdown 生成 manpage"
+
+#: main.go:1316
+msgid "failed to list markdown files: %w"
+msgstr "无法列出 Markdown 文件：%w"
+
+#: main.go:132
 msgid "Localization Kit: AI-powered translation for multiple formats"
 msgstr "Localization Kit：多格式 AI 翻译工具"
 
-#: main.go:129
+#: main.go:133
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
-"Supported project types (auto-detected or configured via .lokit.yaml):\n"
+"Supported project types (auto-detected or configured via lokit.yaml):\n"
 "  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
 "  po4a        Documentation translation (man pages, groff/roff markup)\n"
 "  i18next     React/i18next JSON translation files\n"
 "  android     Android strings.xml resource files\n"
 "  json        Generic JSON translation files (recipes, blog posts)\n"
+"  yaml        YAML translation files\n"
+"  markdown    Markdown document translation\n"
+"  properties  Java .properties translation files\n"
+"  flutter     Flutter ARB (Application Resource Bundle) files\n"
 "\n"
 "Configuration:\n"
-"  Project settings are defined in .lokit.yaml at the project root.\n"
+"  Project settings are defined in lokit.yaml at the project root.\n"
 "  Each project can have multiple translation targets with different types.\n"
-"  See project examples for .lokit.yaml format.\n"
+"  See project examples for lokit.yaml format.\n"
 "\n"
 "Custom prompts:\n"
-"  AI translation prompts are loaded from ~/.local/share/lokit/prompts.json\n"
-"  (or $XDG_DATA_HOME/lokit/prompts.json). If the file does not exist,\n"
-"  built-in defaults are used. Prompt types: default, docs, i18next,\n"
-"  recipe, blogpost, android. Use {{targetLang}} as a placeholder for\n"
-"  the target language name.\n"
+"  AI translation prompts are stored in ~/.local/share/lokit/prompts.json\n"
+"  (or $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
+"  on first use with built-in defaults. Edit it to customize prompts per\n"
+"  content type: default, docs, i18next, recipe, blogpost, android, yaml,\n"
+"  markdown, properties, flutter.\n"
+"  Use {{targetLang}} as a placeholder for the target language name.\n"
 "\n"
 "AI Providers:\n"
 "  google         Google AI (Gemini) — API key\n"
 "  gemini         Gemini Code Assist — browser OAuth (free)\n"
 "  groq           Groq — API key required\n"
-"  opencode       OpenCode (multi-format dispatcher)\n"
+"  opencode       OpenCode Zen API (free models available without key)\n"
 "  copilot        GitHub Copilot (native OAuth, free)\n"
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
 "lokit — 本地化工具包：AI 驱动的多格式翻译。\n"
 "\n"
-"支持的项目类型（自动检测或通过 .lokit.yaml 配置）：\n"
-"  gettext     扁平（po/*.po）和嵌套（po/lang/*.po）PO 文件\n"
-"  po4a        文档翻译（man 页面，groff/roff 标记）\n"
+"支持的项目类型（自动检测或通过 lokit.yaml 配置）：\n"
+"  gettext     扁平（po/*.po）与嵌套（po/lang/*.po）PO 文件\n"
+"  po4a        文档翻译（man 手册页，groff/roff 标记）\n"
 "  i18next     React/i18next JSON 翻译文件\n"
 "  android     Android strings.xml 资源文件\n"
-"  json        通用 JSON 翻译文件（配方、博客文章）\n"
+"  json        通用 JSON 翻译文件（配方、博客）\n"
+"  yaml        YAML 翻译文件\n"
+"  markdown    Markdown 文档翻译\n"
+"  properties  Java .properties 翻译文件\n"
+"  flutter     Flutter ARB（应用资源包）文件\n"
 "\n"
 "配置说明：\n"
-"  项目设置在项目根目录的 .lokit.yaml 中定义。\n"
-"  每个项目可配置多个翻译目标，支持不同类型。\n"
-"  查看项目示例了解 .lokit.yaml 格式。\n"
+"  项目设置在项目根目录的 lokit.yaml 中定义。\n"
+"  每个项目可配置多个不同类型的翻译目标。\n"
+"  lokit.yaml 格式请参考项目示例。\n"
 "\n"
 "自定义提示词：\n"
-"  AI 翻译提示词从 ~/.local/share/lokit/prompts.json\n"
-"  （或 $XDG_DATA_HOME/lokit/prompts.json）加载。如文件不存在，\n"
-"  使用内置默认值。提示类型包括：default、docs、i18next、\n"
-"  recipe、blogpost、android。可用 {{targetLang}} 作为目标语言占位符。\n"
+"  AI 翻译提示词存储在 ~/.local/share/lokit/prompts.json\n"
+"  （或 $XDG_DATA_HOME/lokit/prompts.json）。首次使用时自动生成\n"
+"  内置默认值。可编辑该文件，按内容类型自定义提示词：default、docs、i18next、recipe、blogpost、android、yaml、markdown、properties、flutter。\n"
+"  使用 {{targetLang}} 作为目标语言占位符。\n"
 "\n"
-"AI 服务商：\n"
-"  google         Google AI（Gemini） — 需 API 密钥\n"
+"AI 提供商：\n"
+"  google         Google AI (Gemini) — API 密钥\n"
 "  gemini         Gemini Code Assist — 浏览器 OAuth（免费）\n"
 "  groq           Groq — 需 API 密钥\n"
-"  opencode       OpenCode（多格式分发器）\n"
+"  opencode       OpenCode Zen API（部分免费模型无需密钥）\n"
 "  copilot        GitHub Copilot（原生 OAuth，免费）\n"
 "  ollama         Ollama 本地服务器\n"
 "  custom-openai  自定义 OpenAI 兼容端点"
 
-#: main.go:1295
+#: main.go:1349
+msgid "Generating %s from %s"
+msgstr "正在从 %s 生成 %s"
+
+#: main.go:1354
+msgid "pandoc failed for %s: %w"
+msgstr "pandoc 执行失败：%s：%w"
+
+#: main.go:1359
+msgid "Failed to post-process %s: %v"
+msgstr "后处理 %s 失败：%v"
+
+#: main.go:1366
+msgid "Generated %d manpage(s) from markdown"
+msgstr "已从 markdown 生成 %d 个 manpage"
+
+#: main.go:1401
+msgid "po4a is not installed. Install with: sudo apt install po4a"
+msgstr "未安装 po4a。请使用以下命令安装：sudo apt install po4a"
+
+#: main.go:1406
+msgid "Failed to generate manpages from markdown: %v"
+msgstr "从 markdown 生成 manpage 失败：%v"
+
+#: main.go:1407
+msgid "Continuing anyway, po4a might fail if source files don't exist"
+msgstr "继续执行，如果源文件不存在，po4a 可能会失败"
+
+#: main.go:1410
+msgid "Running po4a --no-translations %s ..."
+msgstr "正在运行 po4a --no-translations %s ..."
+
+#: main.go:1416
+msgid "po4a failed: %v"
+msgstr "po4a 执行失败：%v"
+
+#: main.go:1418
+msgid "po4a updated POT and PO files"
+msgstr "po4a 已更新 POT 和 PO 文件"
+
+#: main.go:1464
+msgid "Updating PO files for: %s"
+msgstr "正在为 %s 更新 PO 文件"
+
+#: main.go:1472
+#: main.go:3492
+msgid "Creating directory for %s: %v"
+msgstr "正在为 %s 创建目录：%v"
+
+#: main.go:1499
 msgid "Created: %s"
 msgstr "已创建：%s"
 
-#: main.go:1306
-msgid "Writing %s: %v"
-msgstr "正在写入 %s：%v"
-
-#: main.go:1309
-msgid "Updated: %s"
-msgstr "已更新：%s"
-
-#: main.go:1359
+#: main.go:1563
 msgid "Translate files using AI"
 msgstr "使用 AI 翻译文件"
 
-#: main.go:1360
+#: main.go:1564
 msgid ""
 "Translate files using AI providers.\n"
 "\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, and generic\n"
-"JSON formats. Project type is auto-detected or configured via .lokit.yaml.\n"
+"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
+"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
+"auto-detected or configured via lokit.yaml.\n"
 "\n"
 "For gettext/po4a projects, automatically initializes if needed (extracts\n"
 "strings, creates PO files). Requires --provider and --model flags.\n"
 "\n"
-"Custom prompts are loaded from ~/.local/share/lokit/prompts.json (or\n"
-"$XDG_DATA_HOME/lokit/prompts.json). Each project type uses its own prompt\n"
-"template (default, docs, i18next, recipe, blogpost, android). If the file\n"
-"does not exist, built-in defaults are used. The --prompt flag overrides\n"
-"the loaded prompt for the current run.\n"
+"Custom prompts are stored in ~/.local/share/lokit/prompts.json (or\n"
+"$XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
+"on first use with built-in defaults. Each project type uses its own\n"
+"prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,\n"
+"properties, flutter). The --prompt flag overrides the loaded prompt for the\n"
+"current run.\n"
 "\n"
 "Examples:\n"
 "  # Translate a gettext project using GitHub Copilot (free)\n"
@@ -240,19 +306,22 @@ msgid ""
 "  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
 "    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
 "\n"
+"  # Translate a Flutter project\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 msgstr ""
-"使用 AI 服务商翻译文件。\n"
+"使用 AI 提供商翻译文件。\n"
 "\n"
-"支持 gettext PO、po4a、i18next JSON、Android strings.xml 和通用\n"
-"JSON 格式。项目类型自动检测或通过 .lokit.yaml 配置。\n"
+"支持 gettext PO、po4a、i18next JSON、Android strings.xml、通用 JSON、\n"
+"YAML、Markdown、Java .properties 和 Flutter ARB 格式。项目类型可自动检测，也可通过 lokit.yaml 配置。\n"
 "\n"
-"对于 gettext/po4a 项目，自动初始化（提取字符串，创建 PO 文件）。\n"
-"需指定 --provider 和 --model 参数。\n"
+"对于 gettext/po4a 项目，自动初始化（提取字符串，生成 PO 文件）。需指定 --provider 和 --model 参数。\n"
 "\n"
-"自定义提示词从 ~/.local/share/lokit/prompts.json（或\n"
-"$XDG_DATA_HOME/lokit/prompts.json）加载。每种项目类型使用独立提示模板（default、docs、i18next、recipe、blogpost、android）。如文件不存在，使用内置默认值。--prompt 参数可覆盖本次运行的提示。\n"
+"自定义提示词存储在 ~/.local/share/lokit/prompts.json（或\n"
+"$XDG_DATA_HOME/lokit/prompts.json）。首次使用时自动生成\n"
+"内置默认值。每种项目类型使用独立提示词（default、docs、i18next、recipe、blogpost、android、yaml、markdown、properties、flutter）。--prompt 参数可覆盖本次运行的提示词。\n"
 "\n"
 "示例：\n"
 "  # 使用 GitHub Copilot（免费）翻译 gettext 项目\n"
@@ -267,109 +336,112 @@ msgstr ""
 "  # 并行翻译指定语言\n"
 "  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
 "\n"
-"  # 使用自定义提示重新翻译全部\n"
+"  # 使用自定义提示词重新翻译全部内容\n"
 "  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
 "\n"
-"  # 预演（显示将要翻译的内容）\n"
+"  # 翻译 Flutter 项目\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # 预览（仅显示将被翻译的内容）\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 
-#: main.go:1408
+#: main.go:1617
 msgid "AI provider (required): google, gemini, groq, opencode, copilot, ollama, custom-openai"
 msgstr "AI 服务商（必填）：google、gemini、groq、opencode、copilot、ollama、custom-openai"
 
-#: main.go:1409
+#: main.go:1618
 msgid "Model name (required)"
 msgstr "模型名称（必填）"
 
-#: main.go:1410
-msgid "API key (or LOKIT_API_KEY env var)"
-msgstr "API 密钥（或 LOKIT_API_KEY 环境变量）"
+#: main.go:1619
+msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
+msgstr "API 密钥（或提供商环境变量：GOOGLE_API_KEY、GROQ_API_KEY、OPENAI_API_KEY、OPENCODE_API_KEY）"
 
-#: main.go:1411
+#: main.go:1620
 msgid "Custom API base URL"
 msgstr "自定义 API 基础 URL"
 
-#: main.go:1414
+#: main.go:1623
 msgid "Languages to translate (comma-separated, default: all with untranslated)"
 msgstr "需翻译的语言（逗号分隔，默认：所有未翻译）"
 
-#: main.go:1417
+#: main.go:1626
 msgid "Entries per API request (0 = all at once)"
 msgstr "每次 API 请求的条目数（0 = 一次全部）"
 
-#: main.go:1418
+#: main.go:1627
 msgid "Re-translate already translated entries"
 msgstr "重新翻译已翻译的条目"
 
-#: main.go:1419
+#: main.go:1628
 msgid "Translate fuzzy entries and clear fuzzy flag"
 msgstr "翻译模糊条目并清除模糊标记"
 
-#: main.go:1420
+#: main.go:1629
 msgid "Custom system prompt (use {{targetLang}} placeholder)"
 msgstr "自定义系统提示（使用 {{targetLang}} 占位符）"
 
-#: main.go:1421
+#: main.go:1630
 msgid "Enable detailed logging"
 msgstr "启用详细日志"
 
-#: main.go:1422
+#: main.go:1631
 msgid "Show what would be translated without calling AI"
 msgstr "仅显示将要翻译的内容，不调用 AI"
 
-#: main.go:1425
+#: main.go:1634
 msgid "Enable parallel translation"
 msgstr "启用并行翻译"
 
-#: main.go:1426
+#: main.go:1635
 msgid "Maximum concurrent tasks (with --parallel)"
 msgstr "最大并发任务数（配合 --parallel 使用）"
 
-#: main.go:1427
+#: main.go:1636
 msgid "Delay between parallel tasks"
 msgstr "并行任务间延迟"
 
-#: main.go:1430
+#: main.go:1639
 msgid "Request timeout (0 = provider default)"
 msgstr "请求超时时间（0 = 使用服务商默认值）"
 
-#: main.go:1431
+#: main.go:1640
 msgid "HTTP/HTTPS proxy URL"
 msgstr "HTTP/HTTPS 代理 URL"
 
-#: main.go:1432
+#: main.go:1641
 msgid "Maximum retries on rate limit (429)"
 msgstr "限流重试最大次数（429）"
 
-#: main.go:1437
+#: main.go:1646
 msgid "Google AI (Gemini) — API key required"
 msgstr "Google AI（Gemini） — 需 API 密钥"
 
-#: main.go:1438
+#: main.go:1647
 msgid "Gemini Code Assist — browser OAuth (free)"
 msgstr "Gemini Code Assist — 浏览器 OAuth（免费）"
 
-#: main.go:1439
+#: main.go:1648
 msgid "Groq — API key required"
 msgstr "Groq — 需 API 密钥"
 
-#: main.go:1440
+#: main.go:1649
 msgid "OpenCode — optional API key"
 msgstr "OpenCode — API 密钥可选"
 
-#: main.go:1441
+#: main.go:1650
 msgid "GitHub Copilot — native OAuth (free)"
 msgstr "GitHub Copilot — 原生 OAuth（免费）"
 
-#: main.go:1442
+#: main.go:1651
 msgid "Ollama local server"
 msgstr "Ollama 本地服务器"
 
-#: main.go:1443
+#: main.go:1652
 msgid "Custom OpenAI-compatible endpoint"
 msgstr "自定义 OpenAI 兼容端点"
 
-#: main.go:1514
+#: main.go:1717
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
@@ -377,220 +449,240 @@ msgstr ""
 "未指定服务商。请使用 --provider 选择 AI 翻译服务。\n"
 "\n"
 
-#: main.go:1532
-msgid "No targets defined in .lokit.yaml"
-msgstr ".lokit.yaml 中未定义目标"
-
-#: main.go:1544
-#: main.go:2272
-msgid "Interrupted, saving progress..."
-msgstr "已中断，正在保存进度..."
-
-#: main.go:1571
-msgid "[%s] No languages to translate, skipping"
-msgstr "[%s] 没有需要翻译的语言，已跳过"
-
-#: main.go:1580
-#: main.go:1586
-#: main.go:1592
-#: main.go:1598
-#: main.go:1604
-msgid "[%s] %v"
-msgstr "[%s] %v"
-
-#: main.go:1609
-msgid "[%s] Unknown target type %q, skipping"
-msgstr "[%s] 未知目标类型 %q，已跳过"
-
-#: main.go:1614
-#: main.go:2536
-msgid "Translation completed with errors"
-msgstr "翻译完成，但存在错误"
-
-#: main.go:1617
-msgid "All targets translated!"
-msgstr "所有目标已翻译！"
-
-#: main.go:164
+#: main.go:173
 msgid "Warning: Failed to load prompts: %v"
 msgstr "警告：加载提示词失败：%v"
 
-#: main.go:1651
-msgid "Extracting strings and updating PO files..."
-msgstr "正在提取字符串并更新 PO 文件..."
+#: main.go:1735
+msgid "No targets defined in lokit.yaml"
+msgstr "lokit.yaml 中未定义任何目标"
 
-#: main.go:1653
-msgid "Extraction failed: %v"
-msgstr "提取失败：%v"
+#: main.go:1747
+#: main.go:2499
+msgid "Interrupted, saving progress..."
+msgstr "已中断，正在保存进度..."
 
-#: main.go:1654
-msgid "Continuing with existing PO files"
-msgstr "继续使用现有的 PO 文件"
-
-#: main.go:166
+#: main.go:175
 msgid "Loaded prompts from %s"
 msgstr "已从 %s 加载提示词"
 
-#: main.go:1676
-#: main.go:1782
-#: main.go:1913
-#: main.go:1941
-#: main.go:1962
-#: main.go:2176
-msgid "Provider: %s (%s), Model: %s"
-msgstr "服务商：%s（%s），模型：%s"
+#: main.go:1774
+msgid "[%s] No languages to translate, skipping"
+msgstr "[%s] 没有需要翻译的语言，已跳过"
 
-#: main.go:1678
-#: main.go:1964
-#: main.go:2178
-msgid "Parallel: enabled, max concurrent: %d"
-msgstr "并行：已启用，最大并发数：%d"
+#: main.go:1783
+#: main.go:1789
+#: main.go:1795
+#: main.go:1801
+#: main.go:1807
+#: main.go:1813
+#: main.go:1819
+#: main.go:1825
+#: main.go:1831
+msgid "[%s] %v"
+msgstr "[%s] %v"
 
-#: main.go:1681
-#: main.go:1967
-msgid "Chunk size: %d"
-msgstr "分块大小：%d"
-
-#: main.go:1683
-#: main.go:1784
-msgid "PO dir: %s"
-msgstr "PO 目录：%s"
-
-#: main.go:1684
-#: main.go:1785
-#: main.go:1915
-#: main.go:1943
-#: main.go:1970
-msgid "Translating: %s"
-msgstr "正在翻译：%s"
-
-#: main.go:1692
-#: main.go:1793
-#: main.go:2003
-#: main.go:2210
-msgid "%s (%s): %d strings to translate"
-msgstr "%s（%s）：待翻译 %d 条字符串"
-
-#: main.go:1694
-msgid "%s: PO file not found, will be created"
-msgstr "%s：未找到 PO 文件，将自动创建"
-
-#: main.go:1720
-#: main.go:1820
-#: main.go:2033
-#: main.go:2290
-msgid "  %s: %d/%d"
-msgstr "  %s：%d/%d"
-
-#: main.go:173
+#: main.go:182
 msgid "default"
 msgstr "默认"
 
-#: main.go:176
+#: main.go:1836
+msgid "[%s] Unknown target type %q, skipping"
+msgstr "[%s] 未知目标类型 %q，已跳过"
+
+#: main.go:1841
+#: main.go:2763
+msgid "Translation completed with errors"
+msgstr "翻译完成，但存在错误"
+
+#: main.go:1844
+msgid "All targets translated!"
+msgstr "所有目标已翻译！"
+
+#: main.go:185
 msgid "Use \"%s [command] --help\" for more information about a command."
 msgstr "使用 \"%s [命令] --help\" 获取该命令的更多信息。"
 
-#: main.go:1769
-#: main.go:1902
-#: main.go:2083
-msgid "[%s] All translations complete!"
-msgstr "[%s] 所有翻译已完成！"
+#: main.go:1878
+msgid "Extracting strings and updating PO files..."
+msgstr "正在提取字符串并更新 PO 文件..."
 
-#: main.go:1783
-msgid "po4a config: %s"
-msgstr "po4a 配置：%s"
+#: main.go:1880
+msgid "Extraction failed: %v"
+msgstr "提取失败：%v"
 
-#: main.go:1795
-msgid "%s: PO file not found at %s"
-msgstr "%s：未在 %s 找到 PO 文件"
+#: main.go:1881
+msgid "Continuing with existing PO files"
+msgstr "继续使用现有的 PO 文件"
 
-#: main.go:182
+#: main.go:1903
+#: main.go:2009
+#: main.go:2140
+#: main.go:2168
+#: main.go:2189
+#: main.go:2403
+#: main.go:3664
+#: main.go:3945
+#: main.go:4205
+#: main.go:4425
+msgid "Provider: %s (%s), Model: %s"
+msgstr "服务商：%s（%s），模型：%s"
+
+#: main.go:1905
+#: main.go:2191
+#: main.go:2405
+#: main.go:3666
+#: main.go:3947
+#: main.go:4207
+#: main.go:4427
+msgid "Parallel: enabled, max concurrent: %d"
+msgstr "并行：已启用，最大并发数：%d"
+
+#: main.go:1908
+#: main.go:2194
+#: main.go:3669
+#: main.go:3950
+#: main.go:4210
+#: main.go:4430
+msgid "Chunk size: %d"
+msgstr "分块大小：%d"
+
+#: main.go:191
 msgid "Usage:"
 msgstr "用法:"
 
-#: main.go:1835
-msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
-msgstr "已使用文档专用翻译提示（保留 groff/man 标记）"
+#: main.go:1910
+#: main.go:2011
+msgid "PO dir: %s"
+msgstr "PO 目录：%s"
 
-#: main.go:1847
-msgid "PO files missing, running po4a initialization..."
-msgstr "缺少PO文件，正在运行po4a初始化..."
+#: main.go:1911
+#: main.go:2012
+#: main.go:2142
+#: main.go:2170
+#: main.go:2197
+#: main.go:3672
+#: main.go:3953
+#: main.go:4213
+#: main.go:4433
+msgid "Translating: %s"
+msgstr "正在翻译：%s"
 
-#: main.go:186
+#: main.go:1919
+#: main.go:2020
+#: main.go:2230
+#: main.go:2437
+#: main.go:3718
+#: main.go:3726
+#: main.go:4239
+#: main.go:4459
+msgid "%s (%s): %d strings to translate"
+msgstr "%s（%s）：待翻译 %d 条字符串"
+
+#: main.go:1921
+msgid "%s: PO file not found, will be created"
+msgstr "%s：未找到 PO 文件，将自动创建"
+
+#: main.go:1947
+#: main.go:2047
+#: main.go:2260
+#: main.go:2517
+msgid "  %s: %d/%d"
+msgstr "  %s：%d/%d"
+
+#: main.go:195
 msgid "Aliases:"
 msgstr "别名:"
 
-#: main.go:1867
-msgid "auto-init failed: %v"
-msgstr "自动初始化失败: %v"
-
-#: main.go:1878
-msgid "[%s] No PO file for %s at %s, skipping"
-msgstr "[%s] %s 的PO文件不存在于 %s，跳过"
-
-#: main.go:189
+#: main.go:198
 msgid "Examples:"
 msgstr "示例:"
 
-#: main.go:1914
-#: main.go:1942
-msgid "Translations dir: %s"
-msgstr "翻译目录：%s"
+#: main.go:1996
+#: main.go:2129
+#: main.go:2310
+msgid "[%s] All translations complete!"
+msgstr "[%s] 所有翻译已完成！"
 
-#: main.go:192
+#: main.go:201
 msgid "Available Commands:"
 msgstr "可用命令:"
 
-#: main.go:1969
-msgid "Res dir: %s"
-msgstr "资源目录：%s"
+#: main.go:2010
+msgid "po4a config: %s"
+msgstr "po4a 配置：%s"
 
-#: main.go:1976
-msgid "cannot read source strings.xml %s: %w"
-msgstr "无法读取源 strings.xml %s：%w"
+#: main.go:2022
+msgid "%s: PO file not found at %s"
+msgstr "%s：未在 %s 找到 PO 文件"
 
-#: main.go:1979
-msgid "Source strings: %d"
-msgstr "源字符串：%d"
+#: main.go:2062
+msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
+msgstr "已使用文档专用翻译提示（保留 groff/man 标记）"
 
-#: main.go:198
+#: main.go:207
 msgid "Additional Commands:"
 msgstr "附加命令:"
 
-#: main.go:1990
-#: main.go:2198
-msgid "%s (%s): %d strings to translate (file will be auto-created)"
-msgstr "%s（%s）：%d 条待翻译字符串（文件将自动创建）"
+#: main.go:2074
+msgid "PO files missing, running po4a initialization..."
+msgstr "缺少PO文件，正在运行po4a初始化..."
 
-#: main.go:201
+#: main.go:2094
+msgid "auto-init failed: %v"
+msgstr "自动初始化失败: %v"
+
+#: main.go:210
 msgid "Flags:"
 msgstr "选项:"
 
-#: main.go:204
+#: main.go:2105
+msgid "[%s] No PO file for %s at %s, skipping"
+msgstr "[%s] %s 的PO文件不存在于 %s，跳过"
+
+#: main.go:213
 msgid "Global Flags:"
 msgstr "全局选项:"
 
-#: main.go:2051
-msgid "Auto-creating %s with %d strings"
-msgstr "正在自动创建 %s，包含 %d 条字符串"
+#: main.go:2141
+#: main.go:2169
+#: main.go:3671
+#: main.go:3952
+#: main.go:4212
+#: main.go:4432
+msgid "Translations dir: %s"
+msgstr "翻译目录：%s"
 
-#: main.go:2056
-msgid "Added %d new strings to %s"
-msgstr "已向 %s 添加 %d 条新字符串"
-
-#: main.go:207
+#: main.go:216
 msgid "Additional help topics:"
 msgstr "其他帮助主题:"
 
-#: main.go:216
+#: main.go:2196
+msgid "Res dir: %s"
+msgstr "资源目录：%s"
+
+#: main.go:2203
+msgid "cannot read source strings.xml %s: %w"
+msgstr "无法读取源 strings.xml %s：%w"
+
+#: main.go:2206
+#: main.go:3693
+#: main.go:4222
+#: main.go:4442
+msgid "Source strings: %d"
+msgstr "源字符串：%d"
+
+#: main.go:2217
+#: main.go:2425
+#: main.go:3712
+msgid "%s (%s): %d strings to translate (file will be auto-created)"
+msgstr "%s（%s）：%d 条待翻译字符串（文件将自动创建）"
+
+#: main.go:225
 msgid "Help about any command"
 msgstr "获取任意命令的帮助"
 
-#: main.go:2166
-msgid "All UI translations are complete!"
-msgstr "所有界面翻译已完成！"
-
-#: main.go:217
+#: main.go:226
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
@@ -598,116 +690,132 @@ msgstr ""
 "Help 可为应用中的任意命令提供帮助。\n"
 "只需输入 %s help [命令路径] 查看详细信息。"
 
-#: main.go:2180
+#: main.go:2278
+msgid "Auto-creating %s with %d strings"
+msgstr "正在自动创建 %s，包含 %d 条字符串"
+
+#: main.go:2283
+msgid "Added %d new strings to %s"
+msgstr "已向 %s 添加 %d 条新字符串"
+
+#: main.go:2393
+msgid "All UI translations are complete!"
+msgstr "所有界面翻译已完成！"
+
+#: main.go:2407
 msgid "Parallel: disabled (sequential)"
 msgstr "并行：已禁用（顺序执行）"
 
-#: main.go:2182
+#: main.go:2409
 msgid "Source keys (%s): %d"
 msgstr "源键（%s）：%d"
 
-#: main.go:2185
+#: main.go:2412
 msgid "Translating UI strings: %s"
 msgstr "正在翻译界面字符串：%s"
 
-#: main.go:2220
+#: main.go:2447
 msgid "%s: recipe translations directory not found"
 msgstr "%s：未找到 recipe 翻译目录"
 
-#: main.go:2233
+#: main.go:2460
 msgid "%s: %d recipe files need translation"
 msgstr "%s：有 %d 个 recipe 文件需翻译"
 
-#: main.go:2239
-#: main.go:2446
+#: main.go:2466
+#: main.go:2673
 msgid "No blog posts found in %s"
 msgstr "在 %s 中未找到博客文章"
 
-#: main.go:2254
-msgid "%s: %d blog post(s) need translation"
-msgstr "%s：有 %d 篇博客文章需翻译"
-
-#: main.go:2256
-msgid "%s: all blog posts translated"
-msgstr "%s：所有博客文章已翻译"
-
-#: main.go:2321
-msgid "Auto-creating %s with %d keys"
-msgstr "正在自动创建 %s，包含 %d 个键"
-
-#: main.go:2341
-#: main.go:2428
-#: main.go:2525
-msgid "Translation interrupted, partial progress saved"
-msgstr "翻译中断，已保存部分进度"
-
-#: main.go:2344
-msgid "UI translation failed: %v"
-msgstr "界面翻译失败：%v"
-
-#: main.go:2352
-msgid "Translating recipe metadata..."
-msgstr "正在翻译 recipe 元数据..."
-
-#: main.go:2369
-msgid "Cannot read recipe directory for %s: %v"
-msgstr "无法读取 %s 的 recipe 目录：%v"
-
-#: main.go:239
+#: main.go:248
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "未知的帮助主题 %q\n"
 
-#: main.go:2417
-msgid "  %s: all recipe translations complete"
-msgstr "  %s：所有 recipe 翻译已完成"
+#: main.go:2481
+msgid "%s: %d blog post(s) need translation"
+msgstr "%s：有 %d 篇博客文章需翻译"
 
-#: main.go:2421
-msgid "  %s (%s): %d recipe files to translate"
-msgstr "  %s（%s）：有 %d 个 recipe 文件待翻译"
+#: main.go:2483
+msgid "%s: all blog posts translated"
+msgstr "%s：所有博客文章已翻译"
 
-#: main.go:2431
-msgid "Recipe translation failed for %s: %v"
-msgstr "%s 的 recipe 翻译失败：%v"
+#: main.go:2548
+msgid "Auto-creating %s with %d keys"
+msgstr "正在自动创建 %s，包含 %d 个键"
 
-#: main.go:2439
-msgid "Translating blog posts..."
-msgstr "正在翻译博客文章..."
+#: main.go:2568
+#: main.go:2655
+#: main.go:2752
+msgid "Translation interrupted, partial progress saved"
+msgstr "翻译中断，已保存部分进度"
 
-#: main.go:2465
-msgid "Cannot read source blog post %s: %v"
-msgstr "无法读取源博客文章 %s：%v"
+#: main.go:2571
+msgid "UI translation failed: %v"
+msgstr "界面翻译失败：%v"
 
-#: main.go:2477
-msgid "Error parsing %s, will recreate: %v"
-msgstr "解析 %s 出错，将重新创建：%v"
+#: main.go:2579
+msgid "Translating recipe metadata..."
+msgstr "正在翻译 recipe 元数据..."
 
-#: main.go:249
+#: main.go:258
 msgid "Project root directory"
 msgstr "项目根目录"
 
-#: main.go:2514
+#: main.go:2596
+msgid "Cannot read recipe directory for %s: %v"
+msgstr "无法读取 %s 的 recipe 目录：%v"
+
+#: main.go:2644
+msgid "  %s: all recipe translations complete"
+msgstr "  %s：所有 recipe 翻译已完成"
+
+#: main.go:2648
+msgid "  %s (%s): %d recipe files to translate"
+msgstr "  %s（%s）：有 %d 个 recipe 文件待翻译"
+
+#: main.go:2658
+msgid "Recipe translation failed for %s: %v"
+msgstr "%s 的 recipe 翻译失败：%v"
+
+#: main.go:2666
+msgid "Translating blog posts..."
+msgstr "正在翻译博客文章..."
+
+#: main.go:2692
+msgid "Cannot read source blog post %s: %v"
+msgstr "无法读取源博客文章 %s：%v"
+
+#: main.go:2704
+msgid "Error parsing %s, will recreate: %v"
+msgstr "解析 %s 出错，将重新创建：%v"
+
+#: main.go:2741
 msgid "  %s: all blog posts translated"
 msgstr "  %s：所有博客文章已翻译"
 
-#: main.go:2518
+#: main.go:2745
 msgid "  %s (%s): %d blog post(s) to translate"
 msgstr "  %s（%s）：有 %d 篇博客文章待翻译"
 
-#: main.go:2528
+#: main.go:2755
 msgid "Blog post translation failed for %s: %v"
 msgstr "%s 的博客文章翻译失败：%v"
 
-#: main.go:2539
+#: main.go:276
+msgid "this command"
+msgstr "此命令"
+
+#: main.go:2766
 msgid "Translation complete!"
 msgstr "翻译完成！"
 
-#: main.go:2549
+#: main.go:2776
 msgid "Manage provider authentication"
 msgstr "管理服务商认证"
 
-#: main.go:2550
+#: main.go:2777
 msgid ""
 "Manage authentication credentials for all AI providers.\n"
 "\n"
@@ -718,7 +826,7 @@ msgid ""
 "API key providers (paste your key):\n"
 "  google        Google AI Studio (Gemini API key)\n"
 "  groq          Groq Cloud (free tier available)\n"
-"  opencode      OpenCode proxy\n"
+"  opencode      OpenCode Zen API (free models available without key)\n"
 "  custom-openai Custom OpenAI-compatible endpoint\n"
 "\n"
 "No auth required:\n"
@@ -732,34 +840,38 @@ msgid ""
 "  lokit auth logout                        Remove all credentials\n"
 "  lokit auth list                          Show all stored credentials"
 msgstr ""
-"管理所有 AI 服务商的认证凭据。\n"
+"管理所有 AI 提供商的认证凭据。\n"
 "\n"
-"OAuth 服务商（交互式浏览器/设备流程）：\n"
-"  copilot       GitHub Copilot（设备码流程，GitHub 账号免费）\n"
+"OAuth 提供商（交互式浏览器/设备流程）：\n"
+"  copilot       GitHub Copilot（设备码流程，GitHub 账号免费使用）\n"
 "  gemini        Google Gemini Code Assist（浏览器 OAuth，免费额度：60 次/分钟）\n"
 "\n"
-"API 密钥服务商（粘贴你的密钥）：\n"
+"API 密钥提供商（粘贴您的密钥）：\n"
 "  google        Google AI Studio（Gemini API 密钥）\n"
 "  groq          Groq Cloud（提供免费额度）\n"
-"  opencode      OpenCode 代理\n"
+"  opencode      OpenCode Zen API（免费模型无需密钥）\n"
 "  custom-openai 自定义 OpenAI 兼容端点\n"
 "\n"
 "无需认证：\n"
-"  ollama        本地 Ollama 服务器\n"
+"  ollama        本地 Ollama 服务\n"
 "\n"
 "示例：\n"
-"  lokit auth login                         交互式选择服务商\n"
-"  lokit auth login --provider copilot      GitHub Copilot OAuth\n"
+"  lokit auth login                         交互式选择提供商\n"
+"  lokit auth login --provider copilot      使用 GitHub Copilot 进行 OAuth 登录\n"
 "  lokit auth login --provider google       存储 Google AI API 密钥\n"
 "  lokit auth logout --provider google      移除 Google API 密钥\n"
 "  lokit auth logout                        移除所有凭据\n"
-"  lokit auth list                          显示所有已存凭据"
+"  lokit auth list                          显示所有已存储凭据"
 
-#: main.go:2604
+#: main.go:278
+msgid "help for %s"
+msgstr "%s 的帮助"
+
+#: main.go:2831
 msgid "Authenticate with an AI provider"
 msgstr "使用 AI 服务商进行认证"
 
-#: main.go:2605
+#: main.go:2832
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -789,259 +901,263 @@ msgstr ""
 "  opencode      粘贴你的 OpenCode API 密钥\n"
 "  custom-openai 粘贴你的 API 密钥 + 端点 URL"
 
-#: main.go:2621
+#: main.go:2848
 msgid "Select provider to authenticate"
 msgstr "选择要认证的服务商"
 
-#: main.go:2630
+#: main.go:2857
 msgid "OAuth"
 msgstr "OAuth"
 
-#: main.go:2632
+#: main.go:2859
 msgid "API key"
 msgstr "API 密钥"
 
-#: main.go:2638
+#: main.go:2865
 msgid "Enter choice (number or name):"
 msgstr "请输入选择（编号或名称）："
 
-#: main.go:2642
-#: main.go:2850
-#: main.go:2889
-#: main.go:2911
+#: main.go:2869
+#: main.go:3077
+#: main.go:3116
+#: main.go:3138
 msgid "No input received"
 msgstr "未收到输入"
 
-#: main.go:2662
+#: main.go:2889
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
 msgstr "无效选项。请使用：lokit auth login --provider PROVIDER"
 
-#: main.go:267
-msgid "this command"
-msgstr "此命令"
-
-#: main.go:2687
-msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
-msgstr "未知服务商‘%s’。请运行 ‘lokit auth login’ 查看可选项。"
-
-#: main.go:269
-msgid "help for %s"
-msgstr "%s 的帮助"
-
-#: main.go:2693
-msgid "Provider to authenticate"
-msgstr "需认证的服务商"
-
-#: main.go:2709
-msgid "GitHub Copilot Authentication"
-msgstr "GitHub Copilot 认证"
-
-#: main.go:2712
-msgid "Open this URL in your browser:"
-msgstr "请在浏览器中打开此网址："
-
-#: main.go:2714
-msgid "Enter this code:"
-msgstr "请输入此验证码："
-
-#: main.go:2716
-#: main.go:2740
-msgid "Waiting for authorization..."
-msgstr "正在等待授权..."
-
-#: main.go:2720
-#: main.go:2744
-msgid "Authentication cancelled"
-msgstr "认证已取消"
-
-#: main.go:2723
-#: main.go:2747
-msgid "Authentication failed: %v"
-msgstr "认证失败：%v"
-
-#: main.go:2727
-msgid "Copilot authentication successful!"
-msgstr "Copilot 认证成功！"
-
-#: main.go:2728
-msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
-msgstr "现在您可以使用：lokit translate --provider copilot --model gpt-4o"
-
-#: main.go:2733
-msgid "Google Gemini Authentication"
-msgstr "Google Gemini 认证"
-
-#: main.go:2736
-msgid "Opening browser for Google sign-in..."
-msgstr "正在打开浏览器进行 Google 登录…"
-
-#: main.go:2738
-msgid "If the browser doesn't open, visit:"
-msgstr "如果浏览器未自动打开，请访问："
-
-#: main.go:2752
-msgid "Gemini authentication successful!"
-msgstr "Gemini 认证成功！"
-
-#: main.go:2758
-msgid "Token was saved but cannot be loaded"
-msgstr "令牌已保存但无法加载"
-
-#: main.go:2764
-msgid "Gemini Code Assist requires a GCP project ID to work in your region."
-msgstr "Gemini Code Assist 需要 GCP 项目 ID 才能在您所在地区使用。"
-
-#: main.go:2765
-msgid "Find your project ID at: https://console.cloud.google.com"
-msgstr "在此查找您的项目 ID：https://console.cloud.google.com"
-
-#: main.go:2766
-msgid "(Create a project if you don't have one, then enable the Gemini API)"
-msgstr "（如果没有项目，请先创建，然后启用 Gemini API）"
-
-#: main.go:2768
-msgid "GCP Project ID (or press Enter to skip):"
-msgstr "GCP 项目 ID（或回车跳过）："
-
-#: main.go:2780
-#: main.go:2792
-msgid "Code Assist setup failed: %v"
-msgstr "Code Assist 配置失败：%v"
-
-#: main.go:2781
-msgid "Project ID saved. You can try again later."
-msgstr "项目 ID 已保存。您可以稍后重试。"
-
-#: main.go:2783
-#: main.go:2796
-msgid "Code Assist project configured!"
-msgstr "Code Assist 项目已配置！"
-
-#: main.go:2786
-msgid "Skipped. You can set it later with:"
-msgstr "已跳过。您可以稍后通过以下命令设置："
-
-#: main.go:2787
-msgid "  lokit auth login --provider gemini"
-msgstr "  lokit auth login --provider gemini"
-
-#: main.go:2793
-msgid "OAuth login succeeded but Code Assist onboarding failed."
-msgstr "OAuth 登录成功，但 Code Assist 初始化失败。"
-
-#: main.go:2794
-msgid "This will be retried automatically on first translate."
-msgstr "首次翻译时将自动重试。"
-
-#: main.go:280
-#: main.go:1231
-#: main.go:1249
-#: main.go:1521
+#: main.go:289
+#: main.go:1435
+#: main.go:1453
+#: main.go:1724
 msgid "%v"
 msgstr "%v"
 
-#: main.go:2801
-msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
-msgstr "现在您可以使用：lokit translate --provider gemini --model gemini-2.5-flash"
+#: main.go:2914
+msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
+msgstr "未知服务商‘%s’。请运行 ‘lokit auth login’ 查看可选项。"
 
-#: main.go:2802
-msgid "(no API key needed when authenticated via OAuth)"
-msgstr "（通过 OAuth 认证后无需 API 密钥）"
+#: main.go:2920
+msgid "Provider to authenticate"
+msgstr "需认证的服务商"
 
-#: main.go:2832
-msgid "%s — API Key Setup"
-msgstr "%s — API 密钥设置"
+#: main.go:2936
+msgid "GitHub Copilot Authentication"
+msgstr "GitHub Copilot 认证"
 
-#: main.go:2835
-msgid "Get your API key from: %s%s%s"
-msgstr "在此获取您的 API 密钥：%s%s%s"
+#: main.go:2939
+msgid "Open this URL in your browser:"
+msgstr "请在浏览器中打开此网址："
 
-#: main.go:2842
-#: main.go:2904
-msgid "Current key"
-msgstr "当前密钥"
+#: main.go:2941
+msgid "Enter this code:"
+msgstr "请输入此验证码："
 
-#: main.go:2843
-msgid "Enter new key to replace, or press Enter to keep:"
-msgstr "输入新密钥进行替换，或回车保留原密钥："
+#: main.go:2943
+#: main.go:2967
+msgid "Waiting for authorization..."
+msgstr "正在等待授权..."
 
-#: main.go:2845
-msgid "Enter API key:"
-msgstr "请输入 API 密钥："
+#: main.go:2947
+#: main.go:2971
+msgid "Authentication cancelled"
+msgstr "认证已取消"
 
-#: main.go:2857
-msgid "Keeping existing key"
-msgstr "保留现有密钥"
+#: main.go:2950
+#: main.go:2974
+msgid "Authentication failed: %v"
+msgstr "认证失败：%v"
 
-#: main.go:2860
-msgid "No API key provided"
-msgstr "未提供 API 密钥"
+#: main.go:2954
+msgid "Copilot authentication successful!"
+msgstr "Copilot 认证成功！"
 
-#: main.go:2865
-msgid "Failed to save API key: %v"
-msgstr "保存 API 密钥失败：%v"
+#: main.go:2955
+msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
+msgstr "现在您可以使用：lokit translate --provider copilot --model gpt-4o"
 
-#: main.go:2869
-msgid "%s API key saved!"
-msgstr "%s API 密钥已保存！"
+#: main.go:2960
+msgid "Google Gemini Authentication"
+msgstr "Google Gemini 认证"
 
-#: main.go:2870
-msgid "You can now use: %s"
-msgstr "现在您可以使用：%s"
+#: main.go:2963
+msgid "Opening browser for Google sign-in..."
+msgstr "正在打开浏览器进行 Google 登录…"
 
-#: main.go:2875
-msgid "Custom OpenAI-Compatible Endpoint"
-msgstr "自定义 OpenAI 兼容端点"
+#: main.go:2965
+msgid "If the browser doesn't open, visit:"
+msgstr "如果浏览器未自动打开，请访问："
 
-#: main.go:2882
-msgid "Current endpoint"
-msgstr "当前端点"
+#: main.go:2979
+msgid "Gemini authentication successful!"
+msgstr "Gemini 认证成功！"
 
-#: main.go:2883
-msgid "Enter new endpoint URL, or press Enter to keep:"
-msgstr "输入新的端点 URL，或回车保留原 URL："
+#: main.go:2985
+msgid "Token was saved but cannot be loaded"
+msgstr "令牌已保存但无法加载"
 
-#: main.go:2885
-msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
-msgstr "请输入端点 URL（如：https://api.example.com/v1）："
+#: main.go:2991
+msgid "Gemini Code Assist requires a GCP project ID to work in your region."
+msgstr "Gemini Code Assist 需要 GCP 项目 ID 才能在您所在地区使用。"
 
-#: main.go:2898
-msgid "Endpoint URL is required"
-msgstr "必须填写端点 URL"
+#: main.go:2992
+msgid "Find your project ID at: https://console.cloud.google.com"
+msgstr "在此查找您的项目 ID：https://console.cloud.google.com"
 
-#: main.go:2905
-msgid "Enter new API key, or press Enter to keep (leave empty for none):"
-msgstr "输入新的 API 密钥，或回车保留（留空表示无）："
+#: main.go:2993
+msgid "(Create a project if you don't have one, then enable the Gemini API)"
+msgstr "（如果没有项目，请先创建，然后启用 Gemini API）"
 
-#: main.go:2907
-msgid "Enter API key (or press Enter if not required):"
-msgstr "请输入 API 密钥（如无需则回车）："
+#: main.go:2995
+msgid "GCP Project ID (or press Enter to skip):"
+msgstr "GCP 项目 ID（或回车跳过）："
 
-#: main.go:292
+#: main.go:3007
+#: main.go:3019
+msgid "Code Assist setup failed: %v"
+msgstr "Code Assist 配置失败：%v"
+
+#: main.go:3008
+msgid "Project ID saved. You can try again later."
+msgstr "项目 ID 已保存。您可以稍后重试。"
+
+#: main.go:301
 msgid "Show version information"
 msgstr "显示版本信息"
 
-#: main.go:2921
-msgid "Failed to save credentials: %v"
-msgstr "保存凭据失败：%v"
+#: main.go:3010
+#: main.go:3023
+msgid "Code Assist project configured!"
+msgstr "Code Assist 项目已配置！"
 
-#: main.go:2925
-msgid "Custom OpenAI endpoint saved!"
-msgstr "自定义 OpenAI 端点已保存！"
+#: main.go:3013
+msgid "Skipped. You can set it later with:"
+msgstr "已跳过。您可以稍后通过以下命令设置："
 
-#: main.go:2926
-msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
-msgstr "现在您可以使用：lokit translate --provider custom-openai --model MODEL_NAME"
+#: main.go:3014
+msgid "  lokit auth login --provider gemini"
+msgstr "  lokit auth login --provider gemini"
 
-#: main.go:293
+#: main.go:302
 msgid "Display version, commit hash, and build date."
 msgstr "显示版本、提交哈希和构建日期。"
 
-#: main.go:2935
+#: main.go:3020
+msgid "OAuth login succeeded but Code Assist onboarding failed."
+msgstr "OAuth 登录成功，但 Code Assist 初始化失败。"
+
+#: main.go:3021
+msgid "This will be retried automatically on first translate."
+msgstr "首次翻译时将自动重试。"
+
+#: main.go:3028
+msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr "现在您可以使用：lokit translate --provider gemini --model gemini-2.5-flash"
+
+#: main.go:3029
+msgid "(no API key needed when authenticated via OAuth)"
+msgstr "（通过 OAuth 认证后无需 API 密钥）"
+
+#: main.go:304
+msgid "lokit version %s"
+msgstr "lokit 版本 %s"
+
+#: main.go:305
+msgid "commit:"
+msgstr "提交："
+
+#: main.go:3059
+msgid "%s — API Key Setup"
+msgstr "%s — API 密钥设置"
+
+#: main.go:306
+msgid "built:"
+msgstr "构建："
+
+#: main.go:3062
+msgid "Get your API key from: %s%s%s"
+msgstr "在此获取您的 API 密钥：%s%s%s"
+
+#: main.go:3069
+#: main.go:3131
+msgid "Current key"
+msgstr "当前密钥"
+
+#: main.go:3070
+msgid "Enter new key to replace, or press Enter to keep:"
+msgstr "输入新密钥进行替换，或回车保留原密钥："
+
+#: main.go:3072
+msgid "Enter API key:"
+msgstr "请输入 API 密钥："
+
+#: main.go:3084
+msgid "Keeping existing key"
+msgstr "保留现有密钥"
+
+#: main.go:3087
+msgid "No API key provided"
+msgstr "未提供 API 密钥"
+
+#: main.go:3092
+msgid "Failed to save API key: %v"
+msgstr "保存 API 密钥失败：%v"
+
+#: main.go:3096
+msgid "%s API key saved!"
+msgstr "%s API 密钥已保存！"
+
+#: main.go:3097
+msgid "You can now use: %s"
+msgstr "现在您可以使用：%s"
+
+#: main.go:3102
+msgid "Custom OpenAI-Compatible Endpoint"
+msgstr "自定义 OpenAI 兼容端点"
+
+#: main.go:3109
+msgid "Current endpoint"
+msgstr "当前端点"
+
+#: main.go:3110
+msgid "Enter new endpoint URL, or press Enter to keep:"
+msgstr "输入新的端点 URL，或回车保留原 URL："
+
+#: main.go:3112
+msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
+msgstr "请输入端点 URL（如：https://api.example.com/v1）："
+
+#: main.go:3125
+msgid "Endpoint URL is required"
+msgstr "必须填写端点 URL"
+
+#: main.go:3132
+msgid "Enter new API key, or press Enter to keep (leave empty for none):"
+msgstr "输入新的 API 密钥，或回车保留（留空表示无）："
+
+#: main.go:3134
+msgid "Enter API key (or press Enter if not required):"
+msgstr "请输入 API 密钥（如无需则回车）："
+
+#: main.go:3148
+msgid "Failed to save credentials: %v"
+msgstr "保存凭据失败：%v"
+
+#: main.go:3152
+msgid "Custom OpenAI endpoint saved!"
+msgstr "自定义 OpenAI 端点已保存！"
+
+#: main.go:3153
+msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
+msgstr "现在您可以使用：lokit translate --provider custom-openai --model MODEL_NAME"
+
+#: main.go:3162
 msgid "Remove stored credentials"
 msgstr "移除已存储的凭据"
 
-#: main.go:2936
+#: main.go:3163
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -1063,237 +1179,227 @@ msgstr ""
 "  lokit auth logout --provider google      仅移除 Google API 密钥\n"
 "  lokit auth logout --provider gemini      仅移除 Gemini OAuth"
 
-#: main.go:295
-msgid "lokit version %s"
-msgstr "lokit 版本 %s"
-
-#: main.go:2951
-#: main.go:2977
+#: main.go:3178
+#: main.go:3204
 msgid "Failed to remove Copilot credentials: %v"
 msgstr "移除 Copilot 凭据失败：%v"
 
-#: main.go:2954
+#: main.go:3181
 msgid "Copilot credentials removed"
 msgstr "Copilot 凭据已移除"
 
-#: main.go:2957
-#: main.go:2981
+#: main.go:3184
+#: main.go:3208
 msgid "Failed to remove Gemini credentials: %v"
 msgstr "移除 Gemini 凭据失败：%v"
 
-#: main.go:296
-msgid "commit:"
-msgstr "提交："
-
-#: main.go:2960
+#: main.go:3187
 msgid "Gemini credentials removed"
 msgstr "Gemini 凭据已移除"
 
-#: main.go:2963
-#: main.go:2986
+#: main.go:3190
+#: main.go:3213
 msgid "Failed to remove %s credentials: %v"
 msgstr "移除 %s 凭据失败：%v"
 
-#: main.go:2966
+#: main.go:3193
 msgid "%s credentials removed"
 msgstr "%s 凭据已移除"
 
-#: main.go:2968
+#: main.go:3195
 msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
 msgstr "未知服务商“%s”。请运行 'lokit auth list' 查看可用服务商。"
 
-#: main.go:297
-msgid "built:"
-msgstr "构建："
-
-#: main.go:2991
-msgid "All stored credentials removed"
-msgstr "所有已存储凭据已移除"
-
-#: main.go:2996
-msgid "Provider to logout (default: all)"
-msgstr "需登出的服务商（默认：全部）"
-
-#: main.go:3015
-msgid "Show stored credentials and status"
-msgstr "显示已存储凭据及状态"
-
-#: main.go:3017
-msgid "Stored Credentials"
-msgstr "已存储凭据"
-
-#: main.go:3020
-msgid "OAuth Providers"
-msgstr "OAuth 服务商"
-
-#: main.go:3021
-msgid "copilot"
-msgstr "copilot"
-
-#: main.go:3022
-msgid "gemini"
-msgstr "gemini"
-
-#: main.go:3025
-msgid "API Key Providers"
-msgstr "API 密钥服务商"
-
-#: main.go:3038
-#: main.go:3045
-msgid "✓ configured"
-msgstr "✓ 已配置"
-
-#: main.go:3040
-#: main.go:3046
-msgid "endpoint:"
-msgstr "端点："
-
-#: main.go:3045
-msgid "no key"
-msgstr "无密钥"
-
-#: main.go:3049
-msgid "not configured"
-msgstr "未配置"
-
-#: main.go:3054
-msgid "Environment Variables"
-msgstr "环境变量"
-
-#: main.go:3057
-msgid "overrides stored keys"
-msgstr "覆盖已存储的密钥"
-
-#: main.go:3057
-#: main.go:3059
-msgid "LOKIT_API_KEY"
-msgstr "LOKIT_API_KEY"
-
-#: main.go:3059
-msgid "not set"
-msgstr "未设置"
-
-#: main.go:3080
-msgid "Scanning for source files in: %s"
-msgstr "正在扫描源文件目录：%s"
-
-#: main.go:3084
-msgid "scanning sources: %w"
-msgstr "扫描源文件：%w"
-
-#: main.go:3088
-msgid "no source files found (supported: %s)"
-msgstr "未找到源文件（支持类型：%s）"
-
-#: main.go:3107
-msgid "Found %d source files (%s)"
-msgstr "找到 %d 个源文件（%s）"
-
-#: main.go:312
+#: main.go:321
 msgid "Show project info and translation statistics"
 msgstr "显示项目信息和翻译统计"
 
-#: main.go:313
+#: main.go:3218
+msgid "All stored credentials removed"
+msgstr "所有已存储凭据已移除"
+
+#: main.go:322
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
 "Displays project type (gettext, po4a, i18next, android), file structure,\n"
 "detected languages, and per-language translation progress. For projects\n"
-"configured via .lokit.yaml, shows each target separately.\n"
+"configured via lokit.yaml, shows each target separately.\n"
 "\n"
 "Does not modify any files."
 msgstr ""
-"显示自动检测的项目结构和翻译统计。\n"
+"显示自动检测的项目结构和翻译统计信息。\n"
 "\n"
 "展示项目类型（gettext、po4a、i18next、android）、文件结构、\n"
-"检测到的语言及各语言翻译进度。对于通过 .lokit.yaml 配置的项目，\n"
-"分别显示每个目标。\n"
+"检测到的语言及各语言翻译进度。对于通过 lokit.yaml 配置的项目，分别显示每个目标。\n"
 "\n"
 "不会修改任何文件。"
 
-#: main.go:3131
+#: main.go:3223
+msgid "Provider to logout (default: all)"
+msgstr "需登出的服务商（默认：全部）"
+
+#: main.go:3242
+msgid "Show stored credentials and status"
+msgstr "显示已存储凭据及状态"
+
+#: main.go:3244
+msgid "Stored Credentials"
+msgstr "已存储凭据"
+
+#: main.go:3247
+msgid "OAuth Providers"
+msgstr "OAuth 服务商"
+
+#: main.go:3248
+msgid "copilot"
+msgstr "copilot"
+
+#: main.go:3249
+msgid "gemini"
+msgstr "gemini"
+
+#: main.go:3252
+msgid "API Key Providers"
+msgstr "API 密钥服务商"
+
+#: main.go:3265
+#: main.go:3272
+msgid "✓ configured"
+msgstr "✓ 已配置"
+
+#: main.go:3267
+#: main.go:3273
+msgid "endpoint:"
+msgstr "端点："
+
+#: main.go:3272
+msgid "no key"
+msgstr "无密钥"
+
+#: main.go:3276
+msgid "not configured"
+msgstr "未配置"
+
+#: main.go:3281
+msgid "Environment Variables"
+msgstr "环境变量"
+
+#: main.go:3295
+msgid "not set"
+msgstr "未设置"
+
+#: main.go:3317
+msgid "Scanning for source files in: %s"
+msgstr "正在扫描源文件目录：%s"
+
+#: main.go:3321
+msgid "scanning sources: %w"
+msgstr "扫描源文件：%w"
+
+#: main.go:3325
+msgid "no source files found (supported: %s)"
+msgstr "未找到源文件（支持类型：%s）"
+
+#: main.go:3344
+msgid "Found %d source files (%s)"
+msgstr "找到 %d 个源文件（%s）"
+
+#: main.go:3368
 msgid "Extracting from %d Go files (AST, keywords: %s)..."
 msgstr "正在从 %d 个 Go 文件中提取（AST，关键词：%s）..."
 
-#: main.go:3135
+#: main.go:3372
 msgid "Extracting from %d Go files with xgotext..."
 msgstr "正在通过 xgotext 从 %d 个 Go 文件中提取..."
 
-#: main.go:3142
+#: main.go:3379
 msgid "Extracting from %d non-Go files with xgettext..."
 msgstr "正在通过 xgettext 从 %d 个非 Go 文件中提取..."
 
-#: main.go:3145
+#: main.go:3382
 msgid "xgettext extraction failed: %w"
 msgstr "xgettext 提取失败：%w"
 
-#: main.go:3154
+#: main.go:3391
 msgid "Go extraction failed: %v"
 msgstr "Go 代码提取失败：%v"
 
-#: main.go:3155
+#: main.go:3392
 msgid "Continuing with xgettext results only"
 msgstr "仅继续使用 xgettext 的结果"
 
-#: main.go:3162
+#: main.go:3399
 msgid "Merging POT files..."
 msgstr "正在合并 POT 文件..."
 
-#: main.go:3164
+#: main.go:3401
 msgid "merging POT files: %w"
 msgstr "合并 POT 文件：%w"
 
-#: main.go:3172
+#: main.go:3409
 msgid "extraction failed: %w"
 msgstr "提取失败：%w"
 
-#: main.go:3180
-msgid "Go extraction failed: %w"
-msgstr "Go 提取失败：%w"
-
-#: main.go:3194
-msgid "Extracted %d strings to %s"
-msgstr "已提取 %d 条字符串到 %s"
-
-#: main.go:3196
-msgid "Extracted strings to %s"
-msgstr "已提取字符串到 %s"
-
-#: main.go:3214
-msgid "No POT template found, running extraction..."
-msgstr "未找到 POT 模板，正在执行提取..."
-
-#: main.go:3216
-msgid "Auto-extraction failed: %v"
-msgstr "自动提取失败：%v"
-
-#: main.go:3223
-msgid "Cannot auto-create %s: extraction produced no POT template"
-msgstr "无法自动创建 %s：提取未生成 POT 模板"
-
-#: main.go:3224
-msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
-msgstr "请检查源文件是否包含可翻译字符串（_()、N_() 等）"
-
-#: main.go:3231
-msgid "Cannot read POT template %s: %v"
-msgstr "无法读取 POT 模板 %s：%v"
-
-#: main.go:3264
-msgid "Auto-created %s from %s (%d entries)"
-msgstr "已从 %s 自动创建 %s（%d 条目）"
-
-#: main.go:332
-#: main.go:914
-#: main.go:1486
+#: main.go:341
+#: main.go:1025
+#: main.go:1695
 msgid "Config error: %v"
 msgstr "配置错误：%v"
 
-#: main.go:3336
+#: main.go:3417
+msgid "Go extraction failed: %w"
+msgstr "Go 提取失败：%w"
+
+#: main.go:3431
+msgid "Extracted %d strings to %s"
+msgstr "已提取 %d 条字符串到 %s"
+
+#: main.go:3433
+msgid "Extracted strings to %s"
+msgstr "已提取字符串到 %s"
+
+#: main.go:3451
+msgid "No POT template found, running extraction..."
+msgstr "未找到 POT 模板，正在执行提取..."
+
+#: main.go:3453
+msgid "Auto-extraction failed: %v"
+msgstr "自动提取失败：%v"
+
+#: main.go:3460
+msgid "Cannot auto-create %s: extraction produced no POT template"
+msgstr "无法自动创建 %s：提取未生成 POT 模板"
+
+#: main.go:3461
+msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
+msgstr "请检查源文件是否包含可翻译字符串（_()、N_() 等）"
+
+#: main.go:3468
+msgid "Cannot read POT template %s: %v"
+msgstr "无法读取 POT 模板 %s：%v"
+
+#: main.go:349
+#: main.go:1029
+#: main.go:1703
+msgid "No lokit.yaml found in %s"
+msgstr "%s 中未找到 lokit.yaml"
+
+#: main.go:350
+#: main.go:1030
+#: main.go:1704
+msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
+msgstr "创建 lokit.yaml 配置文件。格式参考请见 'lokit init --help'。"
+
+#: main.go:3501
+msgid "Auto-created %s from %s (%d entries)"
+msgstr "已从 %s 自动创建 %s（%d 条目）"
+
+#: main.go:3573
 msgid "check provider documentation"
 msgstr "查看服务商文档"
 
-#: main.go:3339
+#: main.go:3576
 msgid ""
 "--model is required for provider '%s'\n"
 "\n"
@@ -1309,7 +1415,15 @@ msgstr ""
 "\n"
 "用法：--provider %s --model MODEL_NAME"
 
-#: main.go:3353
+#: main.go:358
+msgid "Project"
+msgstr "项目"
+
+#: main.go:359
+msgid "Config"
+msgstr "配置"
+
+#: main.go:3590
 msgid ""
 "provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
@@ -1320,24 +1434,29 @@ msgid ""
 "  lokit auth login --provider gemini\n"
 "\n"
 "Option 3: Pass key directly:\n"
-"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n"
 "\n"
 "Get an API key from: https://aistudio.google.com/apikey"
 msgstr ""
-"服务商 'google' 需提供 API 密钥或 Gemini OAuth 登录\n"
+"provider 'google' 需要 API 密钥或 Gemini OAuth 登录\n"
 "\n"
-"方式一：存储 API 密钥：\n"
+"方案一：存储 API 密钥：\n"
 "  lokit auth login --provider google\n"
 "\n"
-"方式二：使用 Google OAuth 登录（免费额度：60 次/分钟）：\n"
+"方案二：使用 Google OAuth 登录（免费额度：60 次/分钟）：\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"方式三：直接传递密钥：\n"
-"  --api-key YOUR_KEY 或导出 LOKIT_API_KEY=YOUR_KEY\n"
+"方案三：直接传递密钥：\n"
+"  --api-key YOUR_KEY 或导出 GOOGLE_API_KEY=YOUR_KEY\n"
 "\n"
-"获取 API 密钥： https://aistudio.google.com/apikey"
+"获取 API 密钥：https://aistudio.google.com/apikey"
 
-#: main.go:3365
+#: main.go:360
+#: main.go:380
+msgid "Root"
+msgstr "根目录"
+
+#: main.go:3602
 msgid ""
 "provider 'gemini' requires Google OAuth login\n"
 "\n"
@@ -1355,7 +1474,11 @@ msgstr ""
 "此服务使用 Gemini Code Assist（免费额度：60 次/分钟）。\n"
 "如需 API 密钥访问，请使用 --provider google。"
 
-#: main.go:3374
+#: main.go:361
+msgid "Source lang"
+msgstr "源语言"
+
+#: main.go:3611
 msgid ""
 "provider 'groq' requires an API key\n"
 "\n"
@@ -1363,21 +1486,21 @@ msgid ""
 "  lokit auth login --provider groq\n"
 "\n"
 "Option 2: Pass key directly:\n"
-"  --api-key YOUR_KEY or export LOKIT_API_KEY=YOUR_KEY\n"
+"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n"
 "\n"
 "Get a free API key from: https://console.groq.com/keys"
 msgstr ""
-"服务商 'groq' 需提供 API 密钥\n"
+"provider 'groq' 需要 API 密钥\n"
 "\n"
-"方式一：存储你的 API 密钥：\n"
+"方案一：存储 API 密钥：\n"
 "  lokit auth login --provider groq\n"
 "\n"
-"方式二：直接传递密钥：\n"
-"  --api-key YOUR_KEY 或导出 LOKIT_API_KEY=YOUR_KEY\n"
+"方案二：直接传递密钥：\n"
+"  --api-key YOUR_KEY 或导出 GROQ_API_KEY=YOUR_KEY\n"
 "\n"
-"免费 API 密钥获取： https://console.groq.com/keys"
+"免费获取 API 密钥：https://console.groq.com/keys"
 
-#: main.go:3387
+#: main.go:3624
 msgid ""
 "provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
@@ -1393,7 +1516,7 @@ msgstr ""
 "\n"
 "此服务使用 GitHub Copilot（需有效 Copilot 订阅）。"
 
-#: main.go:3395
+#: main.go:3632
 msgid ""
 "provider 'custom-openai' requires an endpoint URL\n"
 "\n"
@@ -1411,19 +1534,13 @@ msgstr ""
 "方式二：直接传递：\n"
 "  --base-url https://api.example.com/v1"
 
-#: main.go:340
-#: main.go:918
-#: main.go:1494
-msgid "No .lokit.yaml found in %s"
-msgstr "在 %s 未找到 .lokit.yaml"
+#: main.go:364
+#: main.go:384
+#: main.go:386
+msgid "Languages"
+msgstr "语言"
 
-#: main.go:341
-#: main.go:919
-#: main.go:1495
-msgid "Create a .lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr "请创建 .lokit.yaml 配置文件。格式参考请参见 'lokit init --help'。"
-
-#: main.go:3410
+#: main.go:3647
 msgid ""
 "provider 'ollama' requires Ollama server to be running\n"
 "\n"
@@ -1441,210 +1558,345 @@ msgstr ""
 "  --provider copilot         （GitHub Copilot，免费）\n"
 "  --provider google          （需 API 密钥）"
 
-#: main.go:349
-msgid "Project"
-msgstr "项目"
-
-#: main.go:350
-msgid "Config"
-msgstr "配置"
-
-#: main.go:351
-#: main.go:371
-msgid "Root"
-msgstr "根目录"
-
-#: main.go:352
-msgid "Source lang"
-msgstr "源语言"
-
-#: main.go:355
-#: main.go:375
-#: main.go:377
-msgid "Languages"
-msgstr "语言"
-
-#: main.go:357
+#: main.go:366
 msgid "Targets"
 msgstr "目标"
 
-#: main.go:361
-#: main.go:938
-#: main.go:1527
+#: main.go:3685
+msgid "cannot find source YAML file for language %q in %s"
+msgstr "无法在 %s 中找到语言 %q 的源 YAML 文件"
+
+#: main.go:3690
+msgid "cannot read source YAML %s: %w"
+msgstr "无法读取源 YAML %s：%w"
+
+#: main.go:370
+#: main.go:1049
+#: main.go:1730
 msgid "Config resolve error: %v"
 msgstr "配置解析错误：%v"
 
-#: main.go:377
+#: main.go:3772
+msgid "No YAML files to translate"
+msgstr "没有可翻译的 YAML 文件"
+
+#: main.go:3801
+#: main.go:4301
+#: main.go:4521
+msgid "  %s: %d/%d strings"
+msgstr "  %s：%d/%d 条字符串"
+
+#: main.go:3836
+msgid "Source segments"
+msgstr "源片段"
+
+#: main.go:386
 msgid "none detected"
 msgstr "未检测到"
 
-#: main.go:409
-msgid "POT"
-msgstr "POT"
+#: main.go:3880
+msgid "Cannot find source Markdown files in %s"
+msgstr "无法在 %s 中找到源 Markdown 文件"
 
-#: main.go:409
-#: main.go:477
-#: main.go:542
+#: main.go:3881
+msgid "Expected: %s/*.md"
+msgstr "期望值：%s/*.md"
+
+#: main.go:3885
+msgid "Source language (%s): %d files"
+msgstr "源语言（%s）：%d 个文件"
+
+#: main.go:3906
+msgid "Cannot read source Markdown file %s: %v"
+msgstr "无法读取源 Markdown 文件 %s：%v"
+
+#: main.go:3917
+msgid "Created: %s (%d segments)"
+msgstr "已创建：%s（%d 个片段）"
+
+#: main.go:3937
+msgid "Markdown init: %d created, %d updated"
+msgstr "Markdown 初始化：新建 %d 个，更新 %d 个"
+
+#: main.go:3959
+msgid "cannot find source Markdown files in %s"
+msgstr "无法在 %s 中找到源 Markdown 文件"
+
+#: main.go:3969
+msgid "Source segments: %d (%d files)"
+msgstr "源片段：%d（%d 个文件）"
+
+#: main.go:4001
+msgid "%s (%s): %d segments to translate"
+msgstr "%s（%s）：%d 个待翻译片段"
+
+#: main.go:4052
+msgid "No Markdown files to translate"
+msgstr "没有可翻译的 Markdown 文件"
+
+#: main.go:4081
+msgid "  %s: %d/%d segments"
+msgstr "  %s：%d/%d 个片段"
+
+#: main.go:4150
+msgid "Cannot find source .properties file: %s"
+msgstr "无法找到源 .properties 文件：%s"
+
+#: main.go:4156
+msgid "Cannot read source .properties file %s: %v"
+msgstr "无法读取源 .properties 文件 %s：%v"
+
+#: main.go:4198
+msgid "Properties init: %d created, %d updated"
+msgstr "Properties 初始化：新建 %d 个，更新 %d 个"
+
+#: main.go:4219
+msgid "cannot read source .properties file %s: %w"
+msgstr "无法读取源 .properties 文件 %s：%w"
+
+#: main.go:426
+#: main.go:494
+#: main.go:559
+#: main.go:606
+#: main.go:3823
+#: main.go:4100
+#: main.go:4320
 msgid "not found"
 msgstr "未找到"
 
-#: main.go:409
+#: main.go:426
+msgid "POT"
+msgstr "POT"
+
+#: main.go:426
 msgid "run 'lokit init'"
 msgstr "运行 'lokit init'"
 
-#: main.go:413
-#: main.go:546
-#: main.go:589
+#: main.go:4274
+msgid "No .properties files to translate"
+msgstr "没有可翻译的 .properties 文件"
+
+#: main.go:430
+#: main.go:563
+#: main.go:674
 msgid "Source strings"
 msgstr "源字符串"
 
-#: main.go:417
-#: main.go:446
-#: main.go:593
-#: main.go:653
-msgid "Fuzzy"
-msgstr "模糊"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
-msgid "Progress"
-msgstr "进度"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
-msgid "Done"
-msgstr "完成"
-
-#: main.go:417
-#: main.go:446
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:653
-#: main.go:698
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
 msgid "Lang"
 msgstr "语言"
 
-#: main.go:417
-#: main.go:485
-#: main.go:550
-#: main.go:593
-#: main.go:698
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr "完成"
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr "模糊"
+
+#: main.go:434
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
 msgid "Left"
 msgstr "剩余"
 
-#: main.go:424
-#: main.go:454
-#: main.go:493
-#: main.go:558
-#: main.go:609
-#: main.go:661
-#: main.go:710
-#: main.go:753
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Progress"
+msgstr "进度"
+
+#: main.go:4370
+msgid "Cannot find source ARB file: %s"
+msgstr "无法找到源 ARB 文件：%s"
+
+#: main.go:4376
+msgid "Cannot read source ARB file %s: %v"
+msgstr "无法读取源 ARB 文件 %s：%v"
+
+#: main.go:441
+#: main.go:471
+#: main.go:510
+#: main.go:575
+#: main.go:635
+#: main.go:694
+#: main.go:746
+#: main.go:795
+#: main.go:838
+#: main.go:3848
+#: main.go:4121
+#: main.go:4341
 msgid "missing"
 msgstr "缺失"
 
-#: main.go:442
+#: main.go:4418
+msgid "Flutter ARB init: %d created, %d updated"
+msgstr "Flutter ARB 初始化：新建 %d 个，更新 %d 个"
+
+#: main.go:4439
+msgid "cannot read source ARB file %s: %w"
+msgstr "无法读取源 ARB 文件 %s：%w"
+
+#: main.go:4494
+msgid "No ARB files to translate"
+msgstr "没有可翻译的 ARB 文件"
+
+#: main.go:459
 msgid "po4a config"
 msgstr "po4a 配置"
 
-#: main.go:446
-#: main.go:653
+#: main.go:463
+#: main.go:738
 msgid "Total"
 msgstr "总计"
 
-#: main.go:472
+#: main.go:489
+#: main.go:593
+#: main.go:3817
+#: main.go:4095
+#: main.go:4315
 msgid "Translations"
 msgstr "翻译"
 
-#: main.go:477
-#: main.go:542
+#: main.go:494
+#: main.go:559
+#: main.go:606
+#: main.go:612
+#: main.go:3823
+#: main.go:4100
+#: main.go:4106
+#: main.go:4320
+#: main.go:4326
 msgid "Source"
 msgstr "源"
 
-#: main.go:481
-#: main.go:693
+#: main.go:498
+#: main.go:616
+#: main.go:778
+#: main.go:4110
+#: main.go:4330
 msgid "Source keys"
 msgstr "源键"
 
-#: main.go:513
-#: main.go:794
+#: main.go:530
+#: main.go:879
 msgid "Blog Posts (%d posts)"
 msgstr "博客文章（%d 篇）"
 
-#: main.go:538
+#: main.go:555
 msgid "Res dir"
 msgstr "资源目录"
 
-#: main.go:584
+#: main.go:612
+#: main.go:4106
+#: main.go:4326
+msgid "parse error: %v"
+msgstr "解析错误：%v"
+
+#: main.go:642
+#: main.go:4128
+#: main.go:4348
+msgid "parse error"
+msgstr "解析错误"
+
+#: main.go:669
 msgid "No translatable strings found in %s"
 msgstr "在 %s 中未找到可翻译字符串"
 
-#: main.go:588
+#: main.go:673
 msgid "Translation Statistics"
 msgstr "翻译统计"
 
-#: main.go:629
+#: main.go:714
 msgid "Translation gaps:"
 msgstr "翻译缺口："
 
-#: main.go:633
+#: main.go:718
 msgid "%d untranslated"
 msgstr "%d 未翻译"
 
-#: main.go:636
+#: main.go:721
 msgid "%d fuzzy"
 msgstr "%d 模糊"
 
-#: main.go:650
+#: main.go:735
 msgid "Documentation Statistics"
 msgstr "文档统计"
 
-#: main.go:680
+#: main.go:765
 msgid "No language files detected in %s"
 msgstr "在 %s 中未检测到语言文件"
 
-#: main.go:691
+#: main.go:776
 msgid "UI Translation Statistics"
 msgstr "界面翻译统计"
 
-#: main.go:740
+#: main.go:825
 msgid "Recipe Translations"
 msgstr "配方翻译"
 
-#: main.go:825
+#: main.go:910
 msgid "Prepare translation files (extract strings, create/update PO)"
 msgstr "准备翻译文件（提取字符串，创建/更新 PO 文件）"
 
-#: main.go:826
+#: main.go:911
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"
-"Requires a .lokit.yaml configuration file in the project root.\n"
+"Requires a lokit.yaml configuration file in the project root.\n"
 "\n"
 "For gettext projects: runs xgettext to extract strings into a POT template,\n"
 "then creates or updates PO files for each language.\n"
 "\n"
 "For po4a projects: runs 'po4a --no-translations' to update templates.\n"
 "\n"
-"For i18next projects: creates missing language files with empty translations.\n"
+"For i18next/json/yaml/properties/flutter projects: creates missing language\n"
+"files with empty translations.\n"
 "\n"
-"For Android projects: no init step needed — use 'lokit translate' directly.\n"
+"For android/markdown projects: no init step needed — use 'lokit translate'\n"
+"directly.\n"
 "\n"
 "This command is idempotent — safe to run multiple times. Existing\n"
 "translations are preserved when updating files.\n"
 "\n"
-"CONFIG FORMAT (.lokit.yaml)\n"
+"CONFIG FORMAT (lokit.yaml)\n"
 "\n"
 "  source_lang: en                    # Source language (default: en)\n"
 "  languages: [ru, de, fr, es, ...]   # Target languages\n"
@@ -1674,6 +1926,18 @@ msgid ""
 "\n"
 "  android — Android strings.xml\n"
 "    res_dir: app/src/main/res        # Android res/ directory\n"
+"\n"
+"  yaml — YAML key/value translations\n"
+"    translations_dir: translations   # YAML files directory\n"
+"\n"
+"  markdown — Markdown document translation\n"
+"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"\n"
+"  properties — Java .properties translations\n"
+"    translations_dir: translations   # .properties files directory\n"
+"\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1711,33 +1975,46 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations"
+"      translations_dir: public/translations\n"
+"\n"
+"  # Flutter application\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: flutter\n"
+"      translations_dir: lib/l10n\n"
+"\n"
+"  # Java application with .properties\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: properties\n"
+"      translations_dir: src/main/resources"
 msgstr ""
 "提取可翻译字符串并创建/更新翻译文件。\n"
 "\n"
-"项目根目录需有 .lokit.yaml 配置文件。\n"
+"需要在项目根目录下有 lokit.yaml 配置文件。\n"
 "\n"
 "对于 gettext 项目：运行 xgettext 提取字符串到 POT 模板，\n"
 "然后为每种语言创建或更新 PO 文件。\n"
 "\n"
 "对于 po4a 项目：运行 'po4a --no-translations' 更新模板。\n"
 "\n"
-"对于 i18next 项目：为缺失的语言文件创建空翻译。\n"
+"对于 i18next/json/yaml/properties/flutter 项目：为缺失的语言\n"
+"文件创建空翻译。\n"
 "\n"
-"对于 Android 项目：无需初始化步骤 — 可直接使用 'lokit translate'。\n"
+"对于 android/markdown 项目：无需初始化步骤 — 直接使用 'lokit translate'。\n"
 "\n"
-"此命令具幂等性 — 可安全多次运行。更新文件时会保留已有翻译。\n"
+"本命令具幂等性 — 可多次运行，更新文件时会保留已有翻译。\n"
 "\n"
-"配置格式（.lokit.yaml）\n"
+"配置格式（lokit.yaml）\n"
 "\n"
 "  source_lang: en                    # 源语言（默认：en）\n"
 "  languages: [ru, de, fr, es, ...]   # 目标语言\n"
 "\n"
 "  targets:\n"
 "    - name: myproject                # 显示名称\n"
-"      type: gettext                  # 目标类型（见下文）\n"
+"      type: gettext                  # 目标类型（见下）\n"
 "      root: .                        # 工作目录（默认：.）\n"
-"      # ... 类型相关选项\n"
+"      # ... 类型特定选项\n"
 "\n"
 "目标类型\n"
 "\n"
@@ -1745,9 +2022,9 @@ msgstr ""
 "    po_dir: po                       # PO 文件目录（默认：po）\n"
 "    pot_file: po/messages.pot        # POT 模板路径\n"
 "    sources: [src, scripts]          # 扫描目录（默认：root）\n"
-"    keywords: [_, N_, gettext]       # xgettext 关键词（默认：标准集）\n"
+"    keywords: [_, N_, gettext]       # xgettext 关键字（默认标准集）\n"
 "\n"
-"  po4a — 文档翻译（man 手册、AsciiDoc 等）\n"
+"  po4a — 文档翻译（man 手册页、AsciiDoc 等）\n"
 "    po4a_config: po4a.cfg            # po4a.cfg 路径（默认：po4a.cfg）\n"
 "\n"
 "  i18next — i18next JSON 翻译\n"
@@ -1759,10 +2036,22 @@ msgstr ""
 "  android — Android strings.xml\n"
 "    res_dir: app/src/main/res        # Android res/ 目录\n"
 "\n"
+"  yaml — YAML 键值翻译\n"
+"    translations_dir: translations   # YAML 文件目录\n"
+"\n"
+"  markdown — Markdown 文档翻译\n"
+"    translations_dir: translations   # 根目录；文件位于 translations/LANG/\n"
+"\n"
+"  properties — Java .properties 翻译\n"
+"    translations_dir: translations   # .properties 文件目录\n"
+"\n"
+"  flutter — Flutter ARB（应用资源包）\n"
+"    translations_dir: lib/l10n       # ARB 文件目录（app_LANG.arb）\n"
+"\n"
 "通用选项（所有目标类型适用）\n"
 "\n"
 "  languages: [ru, de]               # 覆盖全局语言列表\n"
-"  prompt: \"自定义翻译提示...\"      # 覆盖 AI 翻译提示\n"
+"  prompt: \"自定义翻译...\"         # 覆盖 AI 翻译提示词\n"
 "\n"
 "示例\n"
 "\n"
@@ -1775,11 +2064,11 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # Go 项目，带包装函数\n"
+"  # 带包装函数的 Go 项目\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
-"      sources: [.]\n"
+"      sources: [.] \n"
 "      keywords: [T, N]\n"
 "\n"
 "  # 文档 + 代码\n"
@@ -1795,8 +2084,16 @@ msgstr ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations"
-
-#: main.go:927
-msgid "Languages to init (comma-separated, default: all from config)"
-msgstr "需初始化的语言（逗号分隔，默认：配置中所有语言）"
+"      translations_dir: public/translations\n"
+"\n"
+"  # Flutter 应用\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: flutter\n"
+"      translations_dir: lib/l10n\n"
+"\n"
+"  # Java 应用（.properties）\n"
+"  targets:\n"
+"    - name: app\n"
+"      type: properties\n"
+"      translations_dir: src/main/resources"
