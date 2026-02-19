@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-19 12:46+0000\n"
+"POT-Creation-Date: 2026-02-19 15:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1494,11 +1494,11 @@ msgid "not found"
 msgstr ""
 
 #: main.go:426
-msgid "POT"
+msgid "run 'lokit init'"
 msgstr ""
 
 #: main.go:426
-msgid "run 'lokit init'"
+msgid "POT"
 msgstr ""
 
 #: main.go:4274
@@ -1509,41 +1509,6 @@ msgstr ""
 #: main.go:563
 #: main.go:674
 msgid "Source strings"
-msgstr ""
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Lang"
-msgstr ""
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Done"
-msgstr ""
-
-#: main.go:434
-#: main.go:463
-#: main.go:678
-#: main.go:738
-msgid "Fuzzy"
 msgstr ""
 
 #: main.go:434
@@ -1570,6 +1535,41 @@ msgstr ""
 #: main.go:4114
 #: main.go:4334
 msgid "Progress"
+msgstr ""
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr ""
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr ""
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Lang"
 msgstr ""
 
 #: main.go:4370
@@ -1739,7 +1739,7 @@ msgid ""
 "TARGET TYPES\n"
 "\n"
 "  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
-"    po_dir: po                       # PO files directory (default: po)\n"
+"    dir: po                          # PO files directory (required)\n"
 "    pot_file: po/messages.pot        # POT template path\n"
 "    sources: [src, scripts]          # Directories to scan (default: root)\n"
 "    keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)\n"
@@ -1748,25 +1748,25 @@ msgid ""
 "    po4a_config: po4a.cfg            # Path to po4a.cfg (default: po4a.cfg)\n"
 "\n"
 "  i18next — i18next JSON translations\n"
-"    translations_dir: public/translations  # JSON files directory\n"
+"    dir: public/translations         # JSON files directory (required)\n"
 "\n"
 "  json — Simple JSON translations { \"key\": \"value\" }\n"
-"    translations_dir: translations   # JSON files directory\n"
+"    dir: translations                # JSON files directory (required)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Android res/ directory\n"
+"    dir: app/src/main/res            # Android res/ directory (required)\n"
 "\n"
 "  yaml — YAML key/value translations\n"
-"    translations_dir: translations   # YAML files directory\n"
+"    dir: translations                # YAML files directory (required)\n"
 "\n"
 "  markdown — Markdown document translation\n"
-"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"    dir: translations                # Root dir; files at translations/LANG/ (required)\n"
 "\n"
 "  properties — Java .properties translations\n"
-"    translations_dir: translations   # .properties files directory\n"
+"    dir: translations                # .properties files directory (required)\n"
 "\n"
 "  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
+"    dir: lib/l10n                    # ARB files directory (required)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1804,18 +1804,18 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
 "  # Flutter application\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
 "  # Java application with .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"
 msgstr ""
 

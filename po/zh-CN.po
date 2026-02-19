@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-19 12:46+0000\n"
-"PO-Revision-Date: 2026-02-19 12:47+0000\n"
+"POT-Creation-Date: 2026-02-19 15:20+0000\n"
+"PO-Revision-Date: 2026-02-19 15:22+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh-CN\n"
@@ -1665,12 +1665,12 @@ msgid "not found"
 msgstr "未找到"
 
 #: main.go:426
-msgid "POT"
-msgstr "POT"
-
-#: main.go:426
 msgid "run 'lokit init'"
 msgstr "运行 'lokit init'"
+
+#: main.go:426
+msgid "POT"
+msgstr "POT"
 
 #: main.go:4274
 msgid "No .properties files to translate"
@@ -1681,41 +1681,6 @@ msgstr "没有可翻译的 .properties 文件"
 #: main.go:674
 msgid "Source strings"
 msgstr "源字符串"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Lang"
-msgstr "语言"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Done"
-msgstr "完成"
-
-#: main.go:434
-#: main.go:463
-#: main.go:678
-#: main.go:738
-msgid "Fuzzy"
-msgstr "模糊"
 
 #: main.go:434
 #: main.go:502
@@ -1742,6 +1707,41 @@ msgstr "剩余"
 #: main.go:4334
 msgid "Progress"
 msgstr "进度"
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr "模糊"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr "完成"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Lang"
+msgstr "语言"
 
 #: main.go:4370
 msgid "Cannot find source ARB file: %s"
@@ -1910,7 +1910,7 @@ msgid ""
 "TARGET TYPES\n"
 "\n"
 "  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
-"    po_dir: po                       # PO files directory (default: po)\n"
+"    dir: po                          # PO files directory (required)\n"
 "    pot_file: po/messages.pot        # POT template path\n"
 "    sources: [src, scripts]          # Directories to scan (default: root)\n"
 "    keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)\n"
@@ -1919,25 +1919,25 @@ msgid ""
 "    po4a_config: po4a.cfg            # Path to po4a.cfg (default: po4a.cfg)\n"
 "\n"
 "  i18next — i18next JSON translations\n"
-"    translations_dir: public/translations  # JSON files directory\n"
+"    dir: public/translations         # JSON files directory (required)\n"
 "\n"
 "  json — Simple JSON translations { \"key\": \"value\" }\n"
-"    translations_dir: translations   # JSON files directory\n"
+"    dir: translations                # JSON files directory (required)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Android res/ directory\n"
+"    dir: app/src/main/res            # Android res/ directory (required)\n"
 "\n"
 "  yaml — YAML key/value translations\n"
-"    translations_dir: translations   # YAML files directory\n"
+"    dir: translations                # YAML files directory (required)\n"
 "\n"
 "  markdown — Markdown document translation\n"
-"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"    dir: translations                # Root dir; files at translations/LANG/ (required)\n"
 "\n"
 "  properties — Java .properties translations\n"
-"    translations_dir: translations   # .properties files directory\n"
+"    dir: translations                # .properties files directory (required)\n"
 "\n"
 "  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
+"    dir: lib/l10n                    # ARB files directory (required)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1975,87 +1975,87 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
 "  # Flutter application\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
 "  # Java application with .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"
 msgstr ""
-"提取可翻译字符串并创建/更新翻译文件。\n"
+"提取可翻译的字符串并创建/更新翻译文件。\n"
 "\n"
-"需要在项目根目录下有 lokit.yaml 配置文件。\n"
+"需要在项目根目录中提供 lokit.yaml 配置文件。\n"
 "\n"
-"对于 gettext 项目：运行 xgettext 提取字符串到 POT 模板，\n"
+"对于 gettext 项目：运行 xgettext 将字符串提取到 POT 模板中，\n"
 "然后为每种语言创建或更新 PO 文件。\n"
 "\n"
 "对于 po4a 项目：运行 'po4a --no-translations' 更新模板。\n"
 "\n"
-"对于 i18next/json/yaml/properties/flutter 项目：为缺失的语言\n"
-"文件创建空翻译。\n"
+"对于 i18next/json/yaml/properties/flutter 项目：创建缺失的语言文件，\n"
+"内容为空翻译。\n"
 "\n"
 "对于 android/markdown 项目：无需初始化步骤 — 直接使用 'lokit translate'。\n"
 "\n"
-"本命令具幂等性 — 可多次运行，更新文件时会保留已有翻译。\n"
+"此命令是幂等的 — 可安全多次运行。更新文件时会保留现有翻译。\n"
 "\n"
-"配置格式（lokit.yaml）\n"
+"配置格式 (lokit.yaml)\n"
 "\n"
 "  source_lang: en                    # 源语言（默认：en）\n"
 "  languages: [ru, de, fr, es, ...]   # 目标语言\n"
 "\n"
 "  targets:\n"
 "    - name: myproject                # 显示名称\n"
-"      type: gettext                  # 目标类型（见下）\n"
+"      type: gettext                  # 目标类型（见下文）\n"
 "      root: .                        # 工作目录（默认：.）\n"
-"      # ... 类型特定选项\n"
+"      # ... 特定类型的选项\n"
 "\n"
 "目标类型\n"
 "\n"
-"  gettext — 源代码字符串提取（shell、python、C、Go 等）\n"
-"    po_dir: po                       # PO 文件目录（默认：po）\n"
+"  gettext — 源代码字符串提取（shell, python, C, Go 等）\n"
+"    dir: po                          # PO 文件目录（必填）\n"
 "    pot_file: po/messages.pot        # POT 模板路径\n"
 "    sources: [src, scripts]          # 扫描目录（默认：root）\n"
-"    keywords: [_, N_, gettext]       # xgettext 关键字（默认标准集）\n"
+"    keywords: [_, N_, gettext]       # xgettext 关键字（默认：标准集）\n"
 "\n"
 "  po4a — 文档翻译（man 手册页、AsciiDoc 等）\n"
 "    po4a_config: po4a.cfg            # po4a.cfg 路径（默认：po4a.cfg）\n"
 "\n"
 "  i18next — i18next JSON 翻译\n"
-"    translations_dir: public/translations  # JSON 文件目录\n"
+"    dir: public/translations         # JSON 文件目录（必填）\n"
 "\n"
 "  json — 简单 JSON 翻译 { \"key\": \"value\" }\n"
-"    translations_dir: translations   # JSON 文件目录\n"
+"    dir: translations                # JSON 文件目录（必填）\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Android res/ 目录\n"
+"    dir: app/src/main/res            # Android res/ 目录（必填）\n"
 "\n"
-"  yaml — YAML 键值翻译\n"
-"    translations_dir: translations   # YAML 文件目录\n"
+"  yaml — YAML 键/值翻译\n"
+"    dir: translations                # YAML 文件目录（必填）\n"
 "\n"
 "  markdown — Markdown 文档翻译\n"
-"    translations_dir: translations   # 根目录；文件位于 translations/LANG/\n"
+"    dir: translations                # 根目录；文件位于 translations/LANG/（必填）\n"
 "\n"
 "  properties — Java .properties 翻译\n"
-"    translations_dir: translations   # .properties 文件目录\n"
+"    dir: translations                # .properties 文件目录（必填）\n"
 "\n"
 "  flutter — Flutter ARB（应用资源包）\n"
-"    translations_dir: lib/l10n       # ARB 文件目录（app_LANG.arb）\n"
+"    dir: lib/l10n                    # ARB 文件目录（必填）\n"
 "\n"
-"通用选项（所有目标类型适用）\n"
+"通用选项（适用于所有目标类型）\n"
 "\n"
 "  languages: [ru, de]               # 覆盖全局语言列表\n"
-"  prompt: \"自定义翻译...\"         # 覆盖 AI 翻译提示词\n"
+"  prompt: \"Custom translation...\"   # 覆盖 AI 翻译提示\n"
 "\n"
 "示例\n"
 "\n"
-"  # 使用 gettext 的 shell 脚本\n"
+"  # 使用 gettext 的 Shell 脚本\n"
 "  source_lang: en\n"
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
@@ -2068,7 +2068,7 @@ msgstr ""
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
-"      sources: [.] \n"
+"      sources: [.]\n"
 "      keywords: [T, N]\n"
 "\n"
 "  # 文档 + 代码\n"
@@ -2084,16 +2084,16 @@ msgstr ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
 "  # Flutter 应用\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
-"  # Java 应用（.properties）\n"
+"  # 使用 .properties 的 Java 应用\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-19 12:46+0000\n"
-"PO-Revision-Date: 2026-02-19 12:47+0000\n"
+"POT-Creation-Date: 2026-02-19 15:20+0000\n"
+"PO-Revision-Date: 2026-02-19 15:20+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ar\n"
@@ -1672,12 +1672,12 @@ msgid "not found"
 msgstr "غير موجود"
 
 #: main.go:426
-msgid "POT"
-msgstr "POT"
-
-#: main.go:426
 msgid "run 'lokit init'"
 msgstr "نفذ 'lokit init'"
+
+#: main.go:426
+msgid "POT"
+msgstr "POT"
 
 #: main.go:4274
 msgid "No .properties files to translate"
@@ -1688,41 +1688,6 @@ msgstr "لا توجد ملفات .properties للترجمة"
 #: main.go:674
 msgid "Source strings"
 msgstr "سلاسل المصدر"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Lang"
-msgstr "اللغة"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Done"
-msgstr "تم"
-
-#: main.go:434
-#: main.go:463
-#: main.go:678
-#: main.go:738
-msgid "Fuzzy"
-msgstr "غامض"
 
 #: main.go:434
 #: main.go:502
@@ -1749,6 +1714,41 @@ msgstr "متبقي"
 #: main.go:4334
 msgid "Progress"
 msgstr "التقدم"
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr "غامض"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr "تم"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Lang"
+msgstr "اللغة"
 
 #: main.go:4370
 msgid "Cannot find source ARB file: %s"
@@ -1917,7 +1917,7 @@ msgid ""
 "TARGET TYPES\n"
 "\n"
 "  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
-"    po_dir: po                       # PO files directory (default: po)\n"
+"    dir: po                          # PO files directory (required)\n"
 "    pot_file: po/messages.pot        # POT template path\n"
 "    sources: [src, scripts]          # Directories to scan (default: root)\n"
 "    keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)\n"
@@ -1926,25 +1926,25 @@ msgid ""
 "    po4a_config: po4a.cfg            # Path to po4a.cfg (default: po4a.cfg)\n"
 "\n"
 "  i18next — i18next JSON translations\n"
-"    translations_dir: public/translations  # JSON files directory\n"
+"    dir: public/translations         # JSON files directory (required)\n"
 "\n"
 "  json — Simple JSON translations { \"key\": \"value\" }\n"
-"    translations_dir: translations   # JSON files directory\n"
+"    dir: translations                # JSON files directory (required)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Android res/ directory\n"
+"    dir: app/src/main/res            # Android res/ directory (required)\n"
 "\n"
 "  yaml — YAML key/value translations\n"
-"    translations_dir: translations   # YAML files directory\n"
+"    dir: translations                # YAML files directory (required)\n"
 "\n"
 "  markdown — Markdown document translation\n"
-"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"    dir: translations                # Root dir; files at translations/LANG/ (required)\n"
 "\n"
 "  properties — Java .properties translations\n"
-"    translations_dir: translations   # .properties files directory\n"
+"    dir: translations                # .properties files directory (required)\n"
 "\n"
 "  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
+"    dir: lib/l10n                    # ARB files directory (required)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1982,88 +1982,88 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
 "  # Flutter application\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
 "  # Java application with .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"
 msgstr ""
 "استخراج النصوص القابلة للترجمة وإنشاء/تحديث ملفات الترجمة.\n"
 "\n"
-"يتطلب وجود ملف إعدادات lokit.yaml في جذر المشروع.\n"
+"يتطلب ملف تكوين lokit.yaml في جذر المشروع.\n"
 "\n"
-"بالنسبة لمشاريع gettext: يتم تشغيل xgettext لاستخراج النصوص إلى قالب POT،\n"
+"لمشاريع gettext: يتم تشغيل xgettext لاستخراج النصوص إلى قالب POT،\n"
 "ثم إنشاء أو تحديث ملفات PO لكل لغة.\n"
 "\n"
-"بالنسبة لمشاريع po4a: يتم تشغيل 'po4a --no-translations' لتحديث القوالب.\n"
+"لمشاريع po4a: يتم تشغيل 'po4a --no-translations' لتحديث القوالب.\n"
 "\n"
-"بالنسبة لمشاريع i18next/json/yaml/properties/flutter: يتم إنشاء ملفات اللغات\n"
-"الناقصة بترجمات فارغة.\n"
+"لمشاريع i18next/json/yaml/properties/flutter: يتم إنشاء ملفات اللغات\n"
+"المفقودة مع ترجمات فارغة.\n"
 "\n"
-"بالنسبة لمشاريع android/markdown: لا حاجة لخطوة التهيئة — استخدم 'lokit translate'\n"
+"لمشاريع android/markdown: لا حاجة إلى خطوة تهيئة — استخدم 'lokit translate'\n"
 "مباشرة.\n"
 "\n"
-"هذا الأمر يمكن تشغيله عدة مرات بدون مشاكل. الترجمات الحالية تبقى محفوظة عند تحديث الملفات.\n"
+"هذا الأمر يمكن تشغيله عدة مرات بأمان — يتم الحفاظ على الترجمات الحالية عند تحديث الملفات.\n"
 "\n"
-"تنسيق الإعدادات (lokit.yaml)\n"
+"صيغة التكوين (lokit.yaml)\n"
 "\n"
 "  source_lang: en                    # لغة المصدر (الافتراضي: en)\n"
 "  languages: [ru, de, fr, es, ...]   # اللغات المستهدفة\n"
 "\n"
 "  targets:\n"
-"    - name: myproject                # اسم العرض\n"
+"    - name: myproject                # الاسم المعروض\n"
 "      type: gettext                  # نوع الهدف (انظر أدناه)\n"
-"      root: .                        # مجلد العمل (الافتراضي: .)\n"
+"      root: .                        # دليل العمل (الافتراضي: .)\n"
 "      # ... خيارات خاصة بالنوع\n"
 "\n"
 "أنواع الأهداف\n"
 "\n"
-"  gettext — استخراج نصوص الشيفرة المصدرية (shell، python، C، Go، إلخ)\n"
-"    po_dir: po                       # مجلد ملفات PO (الافتراضي: po)\n"
+"  gettext — استخراج النصوص من الشيفرة المصدرية (shell, python, C, Go, إلخ)\n"
+"    dir: po                          # دليل ملفات PO (إلزامي)\n"
 "    pot_file: po/messages.pot        # مسار قالب POT\n"
-"    sources: [src, scripts]          # مجلدات الفحص (الافتراضي: root)\n"
-"    keywords: [_, N_, gettext]       # كلمات xgettext (الافتراضي: مجموعة قياسية)\n"
+"    sources: [src, scripts]          # الأدلة المطلوب مسحها (الافتراضي: root)\n"
+"    keywords: [_, N_, gettext]       # كلمات xgettext المفتاحية (الافتراضي: مجموعة قياسية)\n"
 "\n"
 "  po4a — ترجمة الوثائق (صفحات man، AsciiDoc، إلخ)\n"
 "    po4a_config: po4a.cfg            # مسار po4a.cfg (الافتراضي: po4a.cfg)\n"
 "\n"
-"  i18next — ترجمات i18next JSON\n"
-"    translations_dir: public/translations  # مجلد ملفات JSON\n"
+"  i18next — ترجمات JSON باستخدام i18next\n"
+"    dir: public/translations         # دليل ملفات JSON (إلزامي)\n"
 "\n"
 "  json — ترجمات JSON بسيطة { \"key\": \"value\" }\n"
-"    translations_dir: translations   # مجلد ملفات JSON\n"
+"    dir: translations                # دليل ملفات JSON (إلزامي)\n"
 "\n"
-"  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # مجلد res/ لنظام Android\n"
+"  android — ملفات strings.xml لنظام Android\n"
+"    dir: app/src/main/res            # دليل res/ لنظام Android (إلزامي)\n"
 "\n"
-"  yaml — ترجمات YAML بنمط مفتاح/قيمة\n"
-"    translations_dir: translations   # مجلد ملفات YAML\n"
+"  yaml — ترجمات YAML بنمط المفتاح/القيمة\n"
+"    dir: translations                # دليل ملفات YAML (إلزامي)\n"
 "\n"
 "  markdown — ترجمة مستندات Markdown\n"
-"    translations_dir: translations   # المجلد الجذري؛ الملفات في translations/LANG/\n"
+"    dir: translations                # الدليل الجذر؛ الملفات في translations/LANG/ (إلزامي)\n"
 "\n"
-"  properties — ترجمات Java .properties\n"
-"    translations_dir: translations   # مجلد ملفات .properties\n"
+"  properties — ترجمات ملفات .properties الخاصة بجافا\n"
+"    dir: translations                # دليل ملفات .properties (إلزامي)\n"
 "\n"
-"  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    translations_dir: lib/l10n       # مجلد ملفات ARB (app_LANG.arb)\n"
+"  flutter — ملفات ARB (حزمة موارد التطبيقات) الخاصة بـ Flutter\n"
+"    dir: lib/l10n                    # دليل ملفات ARB (إلزامي)\n"
 "\n"
 "خيارات عامة (جميع أنواع الأهداف)\n"
 "\n"
 "  languages: [ru, de]               # تجاوز قائمة اللغات العامة\n"
-"  prompt: \"ترجمة مخصصة...\"         # تجاوز مطالبة الترجمة بالذكاء الاصطناعي\n"
+"  prompt: \"ترجمة مخصصة...\"          # تجاوز نص المطالبة للترجمة الآلية\n"
 "\n"
 "أمثلة\n"
 "\n"
-"  # سكريبتات shell مع gettext\n"
+"  # سكربتات Shell باستخدام gettext\n"
 "  source_lang: en\n"
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
@@ -2072,14 +2072,14 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # مشروع Go مع دوال تغليف\n"
+"  # مشروع Go مع دوال مغلفة\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
 "      sources: [.]\n"
 "      keywords: [T, N]\n"
 "\n"
-"  # وثائق + شيفرة\n"
+"  # الوثائق + الشيفرة\n"
 "  targets:\n"
 "    - name: code\n"
 "      type: gettext\n"
@@ -2092,16 +2092,16 @@ msgstr ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
 "  # تطبيق Flutter\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
 "  # تطبيق Java مع .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"

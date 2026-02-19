@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-19 12:46+0000\n"
-"PO-Revision-Date: 2026-02-19 12:47+0000\n"
+"POT-Creation-Date: 2026-02-19 15:20+0000\n"
+"PO-Revision-Date: 2026-02-19 15:21+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1672,12 +1672,12 @@ msgid "not found"
 msgstr "見つかりません"
 
 #: main.go:426
-msgid "POT"
-msgstr "POT"
-
-#: main.go:426
 msgid "run 'lokit init'"
 msgstr "'lokit init' を実行してください"
+
+#: main.go:426
+msgid "POT"
+msgstr "POT"
 
 #: main.go:4274
 msgid "No .properties files to translate"
@@ -1688,41 +1688,6 @@ msgstr "翻訳対象の.propertiesファイルがありません"
 #: main.go:674
 msgid "Source strings"
 msgstr "ソース文字列"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Lang"
-msgstr "言語"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Done"
-msgstr "完了"
-
-#: main.go:434
-#: main.go:463
-#: main.go:678
-#: main.go:738
-msgid "Fuzzy"
-msgstr "ファジー"
 
 #: main.go:434
 #: main.go:502
@@ -1749,6 +1714,41 @@ msgstr "残り"
 #: main.go:4334
 msgid "Progress"
 msgstr "進捗"
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr "ファジー"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr "完了"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Lang"
+msgstr "言語"
 
 #: main.go:4370
 msgid "Cannot find source ARB file: %s"
@@ -1917,7 +1917,7 @@ msgid ""
 "TARGET TYPES\n"
 "\n"
 "  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
-"    po_dir: po                       # PO files directory (default: po)\n"
+"    dir: po                          # PO files directory (required)\n"
 "    pot_file: po/messages.pot        # POT template path\n"
 "    sources: [src, scripts]          # Directories to scan (default: root)\n"
 "    keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)\n"
@@ -1926,25 +1926,25 @@ msgid ""
 "    po4a_config: po4a.cfg            # Path to po4a.cfg (default: po4a.cfg)\n"
 "\n"
 "  i18next — i18next JSON translations\n"
-"    translations_dir: public/translations  # JSON files directory\n"
+"    dir: public/translations         # JSON files directory (required)\n"
 "\n"
 "  json — Simple JSON translations { \"key\": \"value\" }\n"
-"    translations_dir: translations   # JSON files directory\n"
+"    dir: translations                # JSON files directory (required)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Android res/ directory\n"
+"    dir: app/src/main/res            # Android res/ directory (required)\n"
 "\n"
 "  yaml — YAML key/value translations\n"
-"    translations_dir: translations   # YAML files directory\n"
+"    dir: translations                # YAML files directory (required)\n"
 "\n"
 "  markdown — Markdown document translation\n"
-"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"    dir: translations                # Root dir; files at translations/LANG/ (required)\n"
 "\n"
 "  properties — Java .properties translations\n"
-"    translations_dir: translations   # .properties files directory\n"
+"    dir: translations                # .properties files directory (required)\n"
 "\n"
 "  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
+"    dir: lib/l10n                    # ARB files directory (required)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1982,85 +1982,86 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
 "  # Flutter application\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
 "  # Java application with .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"
 msgstr ""
-"翻訳対象文字列を抽出し、翻訳ファイルを作成・更新します。\n"
+"翻訳可能な文字列を抽出し、翻訳ファイルを作成または更新します。\n"
 "\n"
-"プロジェクトルートにlokit.yaml設定ファイルが必要です。\n"
+"プロジェクトルートに lokit.yaml 設定ファイルが必要です。\n"
 "\n"
-"gettextプロジェクト: xgettextで文字列を抽出し、POTテンプレートを作成、各言語のPOファイルを作成・更新します。\n"
+"gettext プロジェクトの場合: xgettext を実行して文字列を POT テンプレートに抽出し、\n"
+"各言語の PO ファイルを作成または更新します。\n"
 "\n"
-"po4aプロジェクト: 'po4a --no-translations'でテンプレートを更新します。\n"
+"po4a プロジェクトの場合: 'po4a --no-translations' を実行してテンプレートを更新します。\n"
 "\n"
-"i18next/json/yaml/properties/flutterプロジェクト: 未作成の言語ファイルを空翻訳で作成します。\n"
+"i18next/json/yaml/properties/flutter プロジェクトの場合: 空の翻訳を含む言語ファイルを作成します。\n"
 "\n"
-"android/markdownプロジェクト: 初期化不要 — 'lokit translate'を直接利用してください。\n"
+"android/markdown プロジェクトの場合: 初期化ステップは不要です — 'lokit translate' を直接使用してください。\n"
 "\n"
-"このコマンドは冪等です — 複数回実行しても安全です。既存の翻訳はファイル更新時に保持されます。\n"
+"このコマンドは冪等性を持ち、複数回実行しても安全です。ファイルを更新する際、既存の翻訳は保持されます。\n"
 "\n"
-"【設定書式例（lokit.yaml）】\n"
+"設定フォーマット (lokit.yaml)\n"
 "\n"
-"  source_lang: en                    # ソース言語（デフォルト: en）\n"
-"  languages: [ru, de, fr, es, ...]   # 翻訳対象言語\n"
+"  source_lang: en                    # ソース言語 (デフォルト: en)\n"
+"  languages: [ru, de, fr, es, ...]   # 対象言語\n"
 "\n"
 "  targets:\n"
 "    - name: myproject                # 表示名\n"
-"      type: gettext                  # ターゲットタイプ（下記参照）\n"
-"      root: .                        # 作業ディレクトリ（デフォルト: .）\n"
-"      # ... タイプ別オプション\n"
+"      type: gettext                  # ターゲットタイプ (以下を参照)\n"
+"      root: .                        # 作業ディレクトリ (デフォルト: .)\n"
+"      # ... タイプ固有のオプション\n"
 "\n"
-"【ターゲットタイプ】\n"
+"ターゲットタイプ\n"
 "\n"
-"  gettext — ソースコード文字列抽出（shell, python, C, Go等）\n"
-"    po_dir: po                       # POファイルディレクトリ（デフォルト: po）\n"
-"    pot_file: po/messages.pot        # POTテンプレートパス\n"
-"    sources: [src, scripts]          # スキャン対象ディレクトリ（デフォルト: root）\n"
-"    keywords: [_, N_, gettext]       # xgettextキーワード（デフォルト: 標準セット）\n"
+"  gettext — ソースコード文字列の抽出 (shell, python, C, Go など)\n"
+"    dir: po                          # PO ファイルディレクトリ (必須)\n"
+"    pot_file: po/messages.pot        # POT テンプレートのパス\n"
+"    sources: [src, scripts]          # スキャン対象ディレクトリ (デフォルト: ルート)\n"
+"    keywords: [_, N_, gettext]       # xgettext キーワード (デフォルト: 標準セット)\n"
 "\n"
-"  po4a — ドキュメント翻訳（manページ、AsciiDoc等）\n"
-"    po4a_config: po4a.cfg            # po4a.cfgパス（デフォルト: po4a.cfg）\n"
+"  po4a — ドキュメント翻訳 (man ページ、AsciiDoc など)\n"
+"    po4a_config: po4a.cfg            # po4a.cfg のパス (デフォルト: po4a.cfg)\n"
 "\n"
-"  i18next — i18next JSON翻訳\n"
-"    translations_dir: public/translations  # JSONファイルディレクトリ\n"
+"  i18next — i18next JSON 翻訳\n"
+"    dir: public/translations         # JSON ファイルディレクトリ (必須)\n"
 "\n"
-"  json — シンプルなJSON翻訳 { \"key\": \"value\" }\n"
-"    translations_dir: translations   # JSONファイルディレクトリ\n"
+"  json — シンプルな JSON 翻訳 { \"key\": \"value\" }\n"
+"    dir: translations                # JSON ファイルディレクトリ (必須)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Android res/ディレクトリ\n"
+"    dir: app/src/main/res            # Android res/ ディレクトリ (必須)\n"
 "\n"
-"  yaml — YAMLキー/値翻訳\n"
-"    translations_dir: translations   # YAMLファイルディレクトリ\n"
+"  yaml — YAML キー/値翻訳\n"
+"    dir: translations                # YAML ファイルディレクトリ (必須)\n"
 "\n"
-"  markdown — Markdownドキュメント翻訳\n"
-"    translations_dir: translations   # ルートディレクトリ; translations/LANG/配下に配置\n"
+"  markdown — Markdown ドキュメント翻訳\n"
+"    dir: translations                # ルートディレクトリ; ファイルは translations/LANG/ に配置 (必須)\n"
 "\n"
-"  properties — Java .properties翻訳\n"
-"    translations_dir: translations   # .propertiesファイルディレクトリ\n"
+"  properties — Java .properties 翻訳\n"
+"    dir: translations                # .properties ファイルディレクトリ (必須)\n"
 "\n"
-"  flutter — Flutter ARB（Application Resource Bundle）\n"
-"    translations_dir: lib/l10n       # ARBファイルディレクトリ（app_LANG.arb）\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    dir: lib/l10n                    # ARB ファイルディレクトリ (必須)\n"
 "\n"
-"【共通オプション（全ターゲットタイプ共通）】\n"
+"共通オプション (すべてのターゲットタイプ)\n"
 "\n"
 "  languages: [ru, de]               # グローバル言語リストを上書き\n"
-"  prompt: \"カスタム翻訳...\"         # AI翻訳プロンプトを上書き\n"
+"  prompt: \"カスタム翻訳...\"          # AI 翻訳プロンプトを上書き\n"
 "\n"
-"【使用例】\n"
+"使用例\n"
 "\n"
-"  # gettext対応シェルスクリプト\n"
+"  # gettext を使用したシェルスクリプト\n"
 "  source_lang: en\n"
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
@@ -2069,14 +2070,14 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # ラッパー関数を使うGoプロジェクト\n"
+"  # ラッパー関数を使用した Go プロジェクト\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
 "      sources: [.]\n"
 "      keywords: [T, N]\n"
 "\n"
-"  # ドキュメント＋コード\n"
+"  # ドキュメント + コード\n"
 "  targets:\n"
 "    - name: code\n"
 "      type: gettext\n"
@@ -2085,20 +2086,20 @@ msgstr ""
 "      type: po4a\n"
 "      po4a_config: docs/po4a.cfg\n"
 "\n"
-"  # i18nextウェブアプリケーション\n"
+"  # i18next ウェブアプリケーション\n"
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
-"  # Flutterアプリケーション\n"
+"  # Flutter アプリケーション\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
-"  # Javaアプリ（.properties）\n"
+"  # Java アプリケーション (.properties)\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"

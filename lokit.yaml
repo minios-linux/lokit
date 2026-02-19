@@ -4,7 +4,7 @@ languages: [ar, de, es, fr, it, ja, ko, pl, pt-BR, ru, tr, uk, zh-CN]
 targets:
   - name: lokit
     type: gettext
-    po_dir: po
+    dir: po
     pot_file: po/lokit.pot
     sources: [.]
     keywords: [T, "N:1,2"]

@@ -89,7 +89,7 @@ source_lang: en
 targets:
   - name: app
     type: gettext
-    po_dir: po
+    dir: po
 
   - name: docs
     type: po4a
@@ -99,12 +99,12 @@ targets:
   - name: website
     type: i18next
     root: submodules/site
-    translations_dir: public/translations
+    dir: public/translations
     languages: [de, es, fr, pt_BR, ru]
 
   - name: mobile
     type: flutter
-    translations_dir: lib/l10n
+    dir: lib/l10n
 ```
 
 Then:
@@ -134,8 +134,8 @@ targets:
     root: .                    # Working directory relative to config (default: .)
 
     # --- gettext options ---
-    po_dir: po                 # PO directory relative to root (default: po)
-    pot_file: po/messages.pot  # POT template path (default: po/messages.pot)
+    dir: po                    # Base directory for this target (required)
+    pot_file: po/messages.pot  # POT template path (default: dir/messages.pot)
     sources: [src/**/*.sh]     # Source globs for xgettext
     keywords: [_, N_, gettext] # xgettext keywords
 
@@ -143,15 +143,15 @@ targets:
     po4a_config: po4a.cfg      # po4a config path relative to root
 
     # --- i18next / json options ---
-    translations_dir: public/translations  # JSON directory
+    dir: public/translations           # JSON directory
     recipes_dir: data/recipes              # Per-recipe translations (i18next)
     blog_dir: data/blog                    # Blog post translations (i18next)
 
     # --- android options ---
-    res_dir: app/src/main/res  # Android res/ directory
+    dir: app/src/main/res      # Android res/ directory
 
     # --- yaml / properties / flutter / markdown options ---
-    translations_dir: translations  # Files directory
+    dir: translations               # Files directory
 
     # --- overrides ---
     languages: [de, es, fr]    # Override global language list
@@ -173,11 +173,11 @@ targets:
 
 **yaml** — For YAML key-value translation files (`translations/LANG.yaml`).
 
-**markdown** — For Markdown document translation. Files organized as `translations_dir/LANG/file.md`.
+**markdown** — For Markdown document translation. Files organized as `dir/LANG/file.md`.
 
-**properties** — For Java `.properties` files (`translations_dir/LANG.properties`).
+**properties** — For Java `.properties` files (`dir/LANG.properties`).
 
-**flutter** — For Flutter ARB files (`translations_dir/app_LANG.arb`).
+**flutter** — For Flutter ARB files (`dir/app_LANG.arb`).
 
 ## Commands
 
@@ -265,7 +265,7 @@ languages: [de, es, fr, id, it, pt, pt_BR, ru]
 targets:
   - name: scripts
     type: gettext
-    po_dir: po
+    dir: po
 
   - name: manpages
     type: po4a
@@ -275,7 +275,7 @@ targets:
   - name: cli-tool
     type: gettext
     root: submodules/my-tool
-    po_dir: po
+    dir: po
 ```
 
 ```bash
@@ -291,7 +291,7 @@ source_lang: en
 targets:
   - name: app
     type: flutter
-    translations_dir: lib/l10n
+    dir: lib/l10n
 ```
 
 ```bash
@@ -308,7 +308,7 @@ source_lang: en
 targets:
   - name: app
     type: properties
-    translations_dir: src/main/resources
+    dir: src/main/resources
 ```
 
 ### Parallel translation with proxy

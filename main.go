@@ -940,7 +940,7 @@ CONFIG FORMAT (lokit.yaml)
 TARGET TYPES
 
   gettext — Source code string extraction (shell, python, C, Go, etc.)
-    po_dir: po                       # PO files directory (default: po)
+    dir: po                          # PO files directory (required)
     pot_file: po/messages.pot        # POT template path
     sources: [src, scripts]          # Directories to scan (default: root)
     keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)
@@ -949,25 +949,25 @@ TARGET TYPES
     po4a_config: po4a.cfg            # Path to po4a.cfg (default: po4a.cfg)
 
   i18next — i18next JSON translations
-    translations_dir: public/translations  # JSON files directory
+    dir: public/translations         # JSON files directory (required)
 
   json — Simple JSON translations { "key": "value" }
-    translations_dir: translations   # JSON files directory
+    dir: translations                # JSON files directory (required)
 
   android — Android strings.xml
-    res_dir: app/src/main/res        # Android res/ directory
+    dir: app/src/main/res            # Android res/ directory (required)
 
   yaml — YAML key/value translations
-    translations_dir: translations   # YAML files directory
+    dir: translations                # YAML files directory (required)
 
   markdown — Markdown document translation
-    translations_dir: translations   # Root dir; files at translations/LANG/
+    dir: translations                # Root dir; files at translations/LANG/ (required)
 
   properties — Java .properties translations
-    translations_dir: translations   # .properties files directory
+    dir: translations                # .properties files directory (required)
 
   flutter — Flutter ARB (Application Resource Bundle)
-    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)
+    dir: lib/l10n                    # ARB files directory (required)
 
 COMMON OPTIONS (all target types)
 
@@ -1005,19 +1005,19 @@ EXAMPLES
   targets:
     - name: frontend
       type: i18next
-      translations_dir: public/translations
+      dir: public/translations
 
   # Flutter application
   targets:
     - name: app
       type: flutter
-      translations_dir: lib/l10n
+      dir: lib/l10n
 
   # Java application with .properties
   targets:
     - name: app
       type: properties
-      translations_dir: src/main/resources`),
+      dir: src/main/resources`),
 		Run: func(cmd *cobra.Command, args []string) {
 			// Require lokit.yaml
 			lf, err := config.LoadLokitFile(rootDir)
@@ -1064,7 +1064,7 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string) {
 				Root:        rt.AbsRoot,
 				Name:        rt.Target.Name,
 				Version:     "0.0.0",
-				PODir:       filepath.Join(rt.AbsRoot, rt.Target.PODir),
+				PODir:       rt.AbsPODir(),
 				POTFile:     filepath.Join(rt.AbsRoot, rt.Target.POTFile),
 				POStructure: config.POStructureFlat,
 				Languages:   langs,
@@ -3810,8 +3810,8 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 // ---------------------------------------------------------------------------
 
 // showConfigMarkdownStats shows translation stats for a Markdown target.
-// Source files live in translations_dir/SOURCE_LANG/*.md and targets in
-// translations_dir/LANG/*.md.
+// Source files live in dir/SOURCE_LANG/*.md and targets in
+// dir/LANG/*.md.
 func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 	transDir := rt.AbsTranslationsDir()
 	keyVal(T("Translations"), transDir)
@@ -3938,7 +3938,7 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 }
 
 // translateMarkdownTarget translates Markdown files for a single target.
-// Source: translations_dir/SOURCE_LANG/*.md → Target: translations_dir/LANG/*.md
+// Source: dir/SOURCE_LANG/*.md -> Target: dir/LANG/*.md
 func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
 	transDir := rt.AbsTranslationsDir()
 

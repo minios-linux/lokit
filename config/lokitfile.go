@@ -37,11 +37,11 @@ type Target struct {
 	Type string `yaml:"type"`
 	// Root is the working directory relative to lokit.yaml (default ".").
 	Root string `yaml:"root,omitempty"`
+	// Dir is the unified directory option for targets that need a base directory.
+	Dir string `yaml:"dir,omitempty"`
 
 	// --- gettext options ---
 
-	// PODir is the PO directory relative to Root (default "po").
-	PODir string `yaml:"po_dir,omitempty"`
 	// POTFile is the POT template file relative to Root.
 	POTFile string `yaml:"pot_file,omitempty"`
 	// Sources are source files/globs to scan for translatable strings.
@@ -58,17 +58,10 @@ type Target struct {
 
 	// --- i18next / json options ---
 
-	// TranslationsDir is the directory containing JSON translation files.
-	TranslationsDir string `yaml:"translations_dir,omitempty"`
 	// RecipesDir is the directory with per-recipe translation files (i18next).
 	RecipesDir string `yaml:"recipes_dir,omitempty"`
 	// BlogDir is the directory with blog posts + translations (i18next).
 	BlogDir string `yaml:"blog_dir,omitempty"`
-
-	// --- android options ---
-
-	// ResDir is the Android res/ directory relative to Root (default "app/src/main/res").
-	ResDir string `yaml:"res_dir,omitempty"`
 
 	// --- overrides ---
 
@@ -112,6 +105,29 @@ const TargetTypeFlutter = "flutter"
 // LokitFileName is the default config file name.
 const LokitFileName = "lokit.yaml"
 
+func validateNoDeprecatedTargetKeys(data []byte, path string) error {
+	var raw struct {
+		Targets []map[string]any `yaml:"targets"`
+	}
+	if err := yaml.Unmarshal(data, &raw); err != nil {
+		return nil
+	}
+
+	for i, t := range raw.Targets {
+		for oldKey := range map[string]struct{}{
+			"po_dir":           {},
+			"translations_dir": {},
+			"res_dir":          {},
+		} {
+			if _, ok := t[oldKey]; ok {
+				return fmt.Errorf("%s: target #%d uses unsupported key %q; use \"dir\"", path, i+1, oldKey)
+			}
+		}
+	}
+
+	return nil
+}
+
 // LoadLokitFile loads and validates lokit.yaml from the given directory.
 // Returns nil if no lokit.yaml exists.
 func LoadLokitFile(rootDir string) (*LokitFile, error) {
@@ -122,6 +138,10 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("reading %s: %w", path, err)
+	}
+
+	if err := validateNoDeprecatedTargetKeys(data, path); err != nil {
+		return nil, err
 	}
 
 	var lf LokitFile
@@ -162,40 +182,39 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 
 		switch t.Type {
 		case TargetTypeGettext:
-			if t.PODir == "" {
-				t.PODir = "po"
+			if t.Dir == "" {
+				return nil, fmt.Errorf("%s: target %q (gettext) requires \"dir\" (e.g. dir: po)", path, t.Name)
 			}
 			if t.POTFile == "" {
-				t.POTFile = filepath.Join(t.PODir, "messages.pot")
+				t.POTFile = filepath.Join(t.Dir, "messages.pot")
 			}
 		case TargetTypePo4a:
 			if t.Po4aConfig == "" {
-				// Try to find po4a.cfg relative to root
 				t.Po4aConfig = "po4a.cfg"
 			}
 		case TargetTypeI18Next, TargetTypeJSON:
-			if t.TranslationsDir == "" {
-				t.TranslationsDir = "public/translations"
+			if t.Dir == "" {
+				return nil, fmt.Errorf("%s: target %q (%s) requires \"dir\" (e.g. dir: public/translations)", path, t.Name, t.Type)
 			}
 		case TargetTypeAndroid:
-			if t.ResDir == "" {
-				t.ResDir = "app/src/main/res"
+			if t.Dir == "" {
+				return nil, fmt.Errorf("%s: target %q (android) requires \"dir\" (e.g. dir: app/src/main/res)", path, t.Name)
 			}
 		case TargetTypeYAML:
-			if t.TranslationsDir == "" {
-				t.TranslationsDir = "translations"
+			if t.Dir == "" {
+				return nil, fmt.Errorf("%s: target %q (yaml) requires \"dir\" (e.g. dir: translations)", path, t.Name)
 			}
 		case TargetTypeMarkdown:
-			if t.TranslationsDir == "" {
-				t.TranslationsDir = "docs"
+			if t.Dir == "" {
+				return nil, fmt.Errorf("%s: target %q (markdown) requires \"dir\" (e.g. dir: docs)", path, t.Name)
 			}
 		case TargetTypeProperties:
-			if t.TranslationsDir == "" {
-				t.TranslationsDir = "translations"
+			if t.Dir == "" {
+				return nil, fmt.Errorf("%s: target %q (properties) requires \"dir\" (e.g. dir: translations)", path, t.Name)
 			}
 		case TargetTypeFlutter:
-			if t.TranslationsDir == "" {
-				t.TranslationsDir = "lib/l10n"
+			if t.Dir == "" {
+				return nil, fmt.Errorf("%s: target %q (flutter) requires \"dir\" (e.g. dir: lib/l10n)", path, t.Name)
 			}
 		default:
 			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, json, android, yaml, markdown, properties, flutter)", path, t.Name, t.Type)
@@ -248,7 +267,7 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 func detectTargetLanguages(t Target, absRoot string) []string {
 	switch t.Type {
 	case TargetTypeGettext:
-		poDir := filepath.Join(absRoot, t.PODir)
+		poDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesFlat(poDir)
 
 	case TargetTypePo4a:
@@ -261,31 +280,31 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 		return DetectLanguagesNested(poDir)
 
 	case TargetTypeI18Next:
-		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		transDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesI18Next(transDir)
 
 	case TargetTypeJSON:
-		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		transDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesJSON(transDir)
 
 	case TargetTypeAndroid:
-		resDir := filepath.Join(absRoot, t.ResDir)
+		resDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesAndroid(resDir)
 
 	case TargetTypeYAML:
-		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		transDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesYAML(transDir)
 
 	case TargetTypeMarkdown:
-		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		transDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesMarkdown(transDir)
 
 	case TargetTypeProperties:
-		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		transDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesProperties(transDir)
 
 	case TargetTypeFlutter:
-		transDir := filepath.Join(absRoot, t.TranslationsDir)
+		transDir := filepath.Join(absRoot, t.Dir)
 		return detectLanguagesFlutter(transDir)
 	}
 	return nil
@@ -424,7 +443,7 @@ func detectLanguagesFlutter(dir string) []string {
 
 // AbsPODir returns the absolute PO directory for a gettext target.
 func (rt *ResolvedTarget) AbsPODir() string {
-	return filepath.Join(rt.AbsRoot, rt.Target.PODir)
+	return filepath.Join(rt.AbsRoot, rt.Target.Dir)
 }
 
 // AbsPOTFile returns the absolute POT file path for a gettext target.
@@ -439,12 +458,12 @@ func (rt *ResolvedTarget) AbsPo4aConfig() string {
 
 // AbsTranslationsDir returns the absolute translations dir for i18next/json targets.
 func (rt *ResolvedTarget) AbsTranslationsDir() string {
-	return filepath.Join(rt.AbsRoot, rt.Target.TranslationsDir)
+	return filepath.Join(rt.AbsRoot, rt.Target.Dir)
 }
 
 // AbsResDir returns the absolute Android res/ directory for android targets.
 func (rt *ResolvedTarget) AbsResDir() string {
-	return filepath.Join(rt.AbsRoot, rt.Target.ResDir)
+	return filepath.Join(rt.AbsRoot, rt.Target.Dir)
 }
 
 // POPath returns the .po file path for a language in a gettext target.

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-19 12:46+0000\n"
-"PO-Revision-Date: 2026-02-19 12:47+0000\n"
+"POT-Creation-Date: 2026-02-19 15:20+0000\n"
+"PO-Revision-Date: 2026-02-19 15:22+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -1671,12 +1671,12 @@ msgid "not found"
 msgstr "не найдено"
 
 #: main.go:426
-msgid "POT"
-msgstr "POT"
-
-#: main.go:426
 msgid "run 'lokit init'"
 msgstr "выполните 'lokit init'"
+
+#: main.go:426
+msgid "POT"
+msgstr "POT"
 
 #: main.go:4274
 msgid "No .properties files to translate"
@@ -1687,41 +1687,6 @@ msgstr "Нет .properties-файлов для перевода"
 #: main.go:674
 msgid "Source strings"
 msgstr "Исходные строки"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Lang"
-msgstr "Язык"
-
-#: main.go:434
-#: main.go:463
-#: main.go:502
-#: main.go:567
-#: main.go:620
-#: main.go:678
-#: main.go:738
-#: main.go:783
-#: main.go:3840
-#: main.go:4114
-#: main.go:4334
-msgid "Done"
-msgstr "Готово"
-
-#: main.go:434
-#: main.go:463
-#: main.go:678
-#: main.go:738
-msgid "Fuzzy"
-msgstr "Неточный"
 
 #: main.go:434
 #: main.go:502
@@ -1748,6 +1713,41 @@ msgstr "Осталось"
 #: main.go:4334
 msgid "Progress"
 msgstr "Прогресс"
+
+#: main.go:434
+#: main.go:463
+#: main.go:678
+#: main.go:738
+msgid "Fuzzy"
+msgstr "Неточный"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Done"
+msgstr "Готово"
+
+#: main.go:434
+#: main.go:463
+#: main.go:502
+#: main.go:567
+#: main.go:620
+#: main.go:678
+#: main.go:738
+#: main.go:783
+#: main.go:3840
+#: main.go:4114
+#: main.go:4334
+msgid "Lang"
+msgstr "Язык"
 
 #: main.go:4370
 msgid "Cannot find source ARB file: %s"
@@ -1916,7 +1916,7 @@ msgid ""
 "TARGET TYPES\n"
 "\n"
 "  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
-"    po_dir: po                       # PO files directory (default: po)\n"
+"    dir: po                          # PO files directory (required)\n"
 "    pot_file: po/messages.pot        # POT template path\n"
 "    sources: [src, scripts]          # Directories to scan (default: root)\n"
 "    keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)\n"
@@ -1925,25 +1925,25 @@ msgid ""
 "    po4a_config: po4a.cfg            # Path to po4a.cfg (default: po4a.cfg)\n"
 "\n"
 "  i18next — i18next JSON translations\n"
-"    translations_dir: public/translations  # JSON files directory\n"
+"    dir: public/translations         # JSON files directory (required)\n"
 "\n"
 "  json — Simple JSON translations { \"key\": \"value\" }\n"
-"    translations_dir: translations   # JSON files directory\n"
+"    dir: translations                # JSON files directory (required)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Android res/ directory\n"
+"    dir: app/src/main/res            # Android res/ directory (required)\n"
 "\n"
 "  yaml — YAML key/value translations\n"
-"    translations_dir: translations   # YAML files directory\n"
+"    dir: translations                # YAML files directory (required)\n"
 "\n"
 "  markdown — Markdown document translation\n"
-"    translations_dir: translations   # Root dir; files at translations/LANG/\n"
+"    dir: translations                # Root dir; files at translations/LANG/ (required)\n"
 "\n"
 "  properties — Java .properties translations\n"
-"    translations_dir: translations   # .properties files directory\n"
+"    dir: translations                # .properties files directory (required)\n"
 "\n"
 "  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    translations_dir: lib/l10n       # ARB files directory (app_LANG.arb)\n"
+"    dir: lib/l10n                    # ARB files directory (required)\n"
 "\n"
 "COMMON OPTIONS (all target types)\n"
 "\n"
@@ -1981,84 +1981,85 @@ msgid ""
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
 "  # Flutter application\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
 "  # Java application with .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"
 msgstr ""
 "Извлечение переводимых строк и создание/обновление файлов перевода.\n"
 "\n"
-"Требуется конфигурационный файл lokit.yaml в корне проекта.\n"
+"Требуется конфигурационный файл lokit.yaml в корневой директории проекта.\n"
 "\n"
-"Для проектов gettext: запускает xgettext для извлечения строк в POT-шаблон,\n"
-"затем создаёт или обновляет PO-файлы для каждого языка.\n"
+"Для проектов gettext: выполняется xgettext для извлечения строк в POT-шаблон,\n"
+"затем создаются или обновляются PO-файлы для каждого языка.\n"
 "\n"
-"Для проектов po4a: запускает 'po4a --no-translations' для обновления шаблонов.\n"
+"Для проектов po4a: выполняется 'po4a --no-translations' для обновления шаблонов.\n"
 "\n"
-"Для i18next/json/yaml/properties/flutter: создаёт отсутствующие языковые\n"
+"Для проектов i18next/json/yaml/properties/flutter: создаются отсутствующие языковые\n"
 "файлы с пустыми переводами.\n"
 "\n"
-"Для android/markdown: инициализация не требуется — используйте 'lokit translate'.\n"
+"Для проектов android/markdown: шаг инициализации не требуется — используйте\n"
+"'lokit translate' напрямую.\n"
 "\n"
-"Команда идемпотентна — безопасно запускать несколько раз. При обновлении\n"
-"существующие переводы сохраняются.\n"
+"Эта команда идемпотентна — безопасно запускать несколько раз. Существующие\n"
+"переводы сохраняются при обновлении файлов.\n"
 "\n"
 "ФОРМАТ КОНФИГУРАЦИИ (lokit.yaml)\n"
 "\n"
-"  source_lang: en                    # Язык-источник (по умолчанию: en)\n"
+"  source_lang: en                    # Исходный язык (по умолчанию: en)\n"
 "  languages: [ru, de, fr, es, ...]   # Целевые языки\n"
 "\n"
 "  targets:\n"
 "    - name: myproject                # Отображаемое имя\n"
 "      type: gettext                  # Тип цели (см. ниже)\n"
 "      root: .                        # Рабочая директория (по умолчанию: .)\n"
-"      # ... специфичные параметры\n"
+"      # ... параметры для конкретного типа\n"
 "\n"
 "ТИПЫ ЦЕЛЕЙ\n"
 "\n"
-"  gettext — Извлечение строк из кода (shell, python, C, Go и др.)\n"
-"    po_dir: po                       # Каталог PO-файлов (по умолчанию: po)\n"
+"  gettext — Извлечение строк из исходного кода (shell, python, C, Go и т.д.)\n"
+"    dir: po                          # Директория для PO-файлов (обязательно)\n"
 "    pot_file: po/messages.pot        # Путь к POT-шаблону\n"
-"    sources: [src, scripts]          # Каталоги для сканирования (по умолчанию: root)\n"
-"    keywords: [_, N_, gettext]       # Ключевые слова xgettext (по умолчанию: стандарт)\n"
+"    sources: [src, scripts]          # Директории для сканирования (по умолчанию: root)\n"
+"    keywords: [_, N_, gettext]       # Ключевые слова для xgettext (по умолчанию: стандартный набор)\n"
 "\n"
-"  po4a — Перевод документации (man-страницы, AsciiDoc и др.)\n"
+"  po4a — Перевод документации (man-страницы, AsciiDoc и т.д.)\n"
 "    po4a_config: po4a.cfg            # Путь к po4a.cfg (по умолчанию: po4a.cfg)\n"
 "\n"
 "  i18next — JSON-переводы для i18next\n"
-"    translations_dir: public/translations  # Каталог JSON-файлов\n"
+"    dir: public/translations         # Директория для JSON-файлов (обязательно)\n"
 "\n"
 "  json — Простые JSON-переводы { \"key\": \"value\" }\n"
-"    translations_dir: translations   # Каталог JSON-файлов\n"
+"    dir: translations                # Директория для JSON-файлов (обязательно)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    res_dir: app/src/main/res        # Каталог Android res/\n"
+"    dir: app/src/main/res            # Директория res/ для Android (обязательно)\n"
 "\n"
-"  yaml — YAML-переводы (key/value)\n"
-"    translations_dir: translations   # Каталог YAML-файлов\n"
+"  yaml — YAML-переводы ключ/значение\n"
+"    dir: translations                # Директория для YAML-файлов (обязательно)\n"
 "\n"
 "  markdown — Перевод Markdown-документов\n"
-"    translations_dir: translations   # Корень; файлы в translations/LANG/\n"
+"    dir: translations                # Корневая директория; файлы в translations/LANG/ (обязательно)\n"
 "\n"
 "  properties — Переводы Java .properties\n"
-"    translations_dir: translations   # Каталог .properties\n"
+"    dir: translations                # Директория для .properties-файлов (обязательно)\n"
 "\n"
 "  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    translations_dir: lib/l10n       # Каталог ARB-файлов (app_LANG.arb)\n"
+"    dir: lib/l10n                    # Директория для ARB-файлов (обязательно)\n"
 "\n"
-"ОБЩИЕ ОПЦИИ (для всех типов целей)\n"
+"ОБЩИЕ ПАРАМЕТРЫ (для всех типов целей)\n"
 "\n"
-"  languages: [ru, de]               # Переопределить глобальный список языков\n"
-"  prompt: \"Пользовательский перевод...\"   # Переопределить промпт ИИ\n"
+"  languages: [ru, de]               # Переопределение глобального списка языков\n"
+"  prompt: \"Custom translation...\"   # Переопределение подсказки для AI-перевода\n"
 "\n"
 "ПРИМЕРЫ\n"
 "\n"
@@ -2071,7 +2072,7 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # Go-проект с обёртками\n"
+"  # Go-проект с обёрточными функциями\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
@@ -2087,20 +2088,20 @@ msgstr ""
 "      type: po4a\n"
 "      po4a_config: docs/po4a.cfg\n"
 "\n"
-"  # Веб-приложение i18next\n"
+"  # Веб-приложение на i18next\n"
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
-"      translations_dir: public/translations\n"
+"      dir: public/translations\n"
 "\n"
-"  # Flutter-приложение\n"
+"  # Приложение на Flutter\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
-"      translations_dir: lib/l10n\n"
+"      dir: lib/l10n\n"
 "\n"
 "  # Java-приложение с .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
-"      translations_dir: src/main/resources"
+"      dir: src/main/resources"
