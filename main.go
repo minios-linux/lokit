@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -23,6 +24,7 @@ import (
 	"github.com/minios-linux/lokit/gemini"
 	. "github.com/minios-linux/lokit/i18n"
 	"github.com/minios-linux/lokit/i18next"
+	"github.com/minios-linux/lokit/lockfile"
 	"github.com/minios-linux/lokit/mdfile"
 	"github.com/minios-linux/lokit/merge"
 	po "github.com/minios-linux/lokit/pofile"
@@ -66,6 +68,32 @@ func logWarning(format string, args ...any) {
 
 func logError(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, colorRed+"  ✗ "+colorReset+format+"\n", args...)
+}
+
+// compileLockedPatterns compiles locked_patterns strings into regexps.
+// Invalid patterns are logged as warnings and skipped.
+func compileLockedPatterns(patterns []string) []*regexp.Regexp {
+	if len(patterns) == 0 {
+		return nil
+	}
+	var compiled []*regexp.Regexp
+	for _, p := range patterns {
+		re, err := regexp.Compile(p)
+		if err != nil {
+			logWarning(T("Invalid locked_pattern %q: %v"), p, err)
+			continue
+		}
+		compiled = append(compiled, re)
+	}
+	return compiled
+}
+
+// setExclusionOpts populates the locked/ignored key fields on translate.Options
+// from the given target configuration.
+func setExclusionOpts(opts *translate.Options, t *config.Target) {
+	opts.LockedKeys = t.LockedKeys
+	opts.IgnoredKeys = t.IgnoredKeys
+	opts.LockedPatterns = compileLockedPatterns(t.LockedPatterns)
 }
 
 // progressBar renders a text progress bar: [████████░░░░] 75%
@@ -163,14 +191,6 @@ Configuration:
   Each project can have multiple translation targets with different types.
   See project examples for lokit.yaml format.
 
-Custom prompts:
-  AI translation prompts are stored in ~/.local/share/lokit/prompts.json
-  (or $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
-  on first use with built-in defaults. Edit it to customize prompts per
-  content type: default, docs, i18next, recipe, blogpost, android, yaml,
-  markdown, properties, flutter.
-  Use {{targetLang}} as a placeholder for the target language name.
-
 AI Providers:
   google         Google AI (Gemini) — API key
   gemini         Gemini Code Assist — browser OAuth (free)
@@ -181,15 +201,6 @@ AI Providers:
   custom-openai  Custom OpenAI-compatible endpoint`),
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			// Load custom prompts from default locations if available
-			promptsPath, err := translate.LoadPromptsFromDefaultLocations()
-			if err != nil {
-				logError(T("Warning: Failed to load prompts: %v"), err)
-			} else if promptsPath != "" {
-				logInfo(T("Loaded prompts from %s"), promptsPath)
-			}
-		},
 	}
 
 	// Register template helper functions
@@ -1571,6 +1582,7 @@ func newTranslateCmd() *cobra.Command {
 		prompt      string
 		verbose     bool
 		dryRun      bool
+		force       bool
 
 		// Parallelization
 		parallel      bool
@@ -1595,12 +1607,21 @@ auto-detected or configured via lokit.yaml.
 For gettext/po4a projects, automatically initializes if needed (extracts
 strings, creates PO files). Requires --provider and --model flags.
 
-Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
-$XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
-on first use with built-in defaults. Each project type uses its own
-prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
-properties, flutter). The --prompt flag overrides the loaded prompt for the
-current run.
+Incremental translation: lokit tracks source string checksums in lokit.lock.
+Only new or changed strings are sent to the AI provider, saving tokens and
+time. Use --force to ignore the lock file and re-translate everything.
+
+Key filtering: configure per-target in lokit.yaml:
+  ignored_keys  — keys excluded from translation entirely (never sent to AI)
+  locked_keys   — keys whose translations are preserved (skipped even with
+                  --retranslate; only --force overrides)
+  locked_patterns — regex patterns matching keys treated as locked
+                  (e.g. "^brand_.*" locks all brand_ prefixed keys)
+
+Each target type has a built-in system prompt optimized for its format.
+Use the --prompt flag to override it for the current run, or set prompt:
+in lokit.yaml target config for a permanent override.
+Use {{targetLang}} as a placeholder for the target language name.
 
 Examples:
   # Translate a gettext project using GitHub Copilot (free)
@@ -1614,6 +1635,9 @@ Examples:
 
   # Translate specific languages in parallel
   lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+  # Force full re-translation (ignore lock file)
+  lokit translate --provider copilot --model gpt-4o --force
 
   # Re-translate everything with a custom prompt
   lokit translate --provider copilot --model gpt-4o --retranslate \
@@ -1631,7 +1655,7 @@ Examples:
 				baseURL:   baseURL,
 				chunkSize: chunkSize, retranslate: retranslate,
 				fuzzy: fuzzy, prompt: prompt, verbose: verbose,
-				dryRun: dryRun, parallel: parallel,
+				dryRun: dryRun, force: force, parallel: parallel,
 				maxConcurrent: maxConcurrent, requestDelay: requestDelay,
 				timeout: timeout, proxy: proxy, maxRetries: maxRetries,
 			})
@@ -1654,6 +1678,7 @@ Examples:
 	cmd.Flags().StringVar(&prompt, "prompt", "", T("Custom system prompt (use {{targetLang}} placeholder)"))
 	cmd.Flags().BoolVar(&verbose, "verbose", false, T("Enable detailed logging"))
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, T("Show what would be translated without calling AI"))
+	cmd.Flags().BoolVar(&force, "force", false, T("Ignore lock file and re-translate all changed entries"))
 
 	// Parallelization
 	cmd.Flags().BoolVar(&parallel, "parallel", false, T("Enable parallel translation"))
@@ -1706,11 +1731,12 @@ type translateArgs struct {
 	chunkSize                        int
 	retranslate, fuzzy               bool
 	prompt                           string
-	verbose, dryRun, parallel        bool
+	verbose, dryRun, force, parallel bool
 	maxConcurrent                    int
 	requestDelay, timeout            time.Duration
 	proxy                            string
 	maxRetries                       int
+	lockFile                         *lockfile.LockFile // loaded once, shared across targets
 }
 
 func runTranslate(a translateArgs) {
@@ -1760,6 +1786,17 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 		logError(T("No targets defined in lokit.yaml"))
 		os.Exit(1)
 	}
+
+	// Load lock file for incremental translation
+	lockF, err := lockfile.Load(rootDir)
+	if err != nil {
+		logWarning(T("Could not load lock file: %v"), err)
+		lockF = &lockfile.LockFile{
+			Version:   lockfile.Version,
+			Checksums: make(map[string]map[string]string),
+		}
+	}
+	a.lockFile = lockF
 
 	// Setup signal handling
 	ctx, cancel := context.WithCancel(context.Background())
@@ -1860,6 +1897,11 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 		default:
 			logWarning(T("[%s] Unknown target type %q, skipping"), rt.Target.Name, rt.Target.Type)
 		}
+	}
+
+	// Save lock file (even if there were errors, to preserve progress)
+	if err := a.lockFile.Save(); err != nil {
+		logWarning(T("Could not save lock file: %v"), err)
 	}
 
 	if hadErrors {
@@ -1968,6 +2010,9 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		SystemPrompt:        a.prompt,
 		PromptType:          "default", // Use default gettext prompt template
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
 		OnProgress: func(lang string, done, total int) {
 			logInfo(T("  %s: %d/%d"), lang, done, total)
 		},
@@ -1978,6 +2023,8 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			logError(format, args...)
 		},
 	}
+
+	setExclusionOpts(&opts, &rt.Target)
 
 	// Override prompt from target config
 	if rt.Target.Prompt != "" && opts.SystemPrompt == "" {
@@ -2068,6 +2115,9 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		SystemPrompt:        a.prompt,
 		PromptType:          "docs", // Use docs-specific prompt template
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
 		OnProgress: func(lang string, done, total int) {
 			logInfo(T("  %s: %d/%d"), lang, done, total)
 		},
@@ -2078,6 +2128,8 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 			logError(format, args...)
 		},
 	}
+
+	setExclusionOpts(&opts, &rt.Target)
 
 	// Override prompt from target config
 	if rt.Target.Prompt != "" && a.prompt == "" {
@@ -2182,7 +2234,7 @@ func translateI18NextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		proj.BlogPostsDir = filepath.Join(rt.AbsRoot, rt.Target.BlogDir)
 	}
 
-	runTranslateI18Next(proj, prov, a)
+	runTranslateI18Next(proj, &rt.Target, prov, a)
 	return nil
 }
 
@@ -2203,7 +2255,7 @@ func translateJSONTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		Languages:  langs,
 	}
 
-	runTranslateI18Next(proj, prov, a)
+	runTranslateI18Next(proj, &rt.Target, prov, a)
 	return nil
 }
 
@@ -2281,6 +2333,9 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		SystemPrompt:        systemPrompt,
 		PromptType:          "android", // Use Android-specific prompt template
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
 		OnProgress: func(lang string, done, total int) {
 			logInfo(T("  %s: %d/%d"), lang, done, total)
 		},
@@ -2291,6 +2346,8 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			logError(format, args...)
 		},
 	}
+
+	setExclusionOpts(&opts, &rt.Target)
 
 	// Build language tasks
 	var langTasks []translate.AndroidLangTask
@@ -2369,7 +2426,7 @@ func filterOutLang(langs []string, exclude string) []string {
 // i18next translate
 // ---------------------------------------------------------------------------
 
-func runTranslateI18Next(proj *config.Project, prov translate.Provider, a translateArgs) {
+func runTranslateI18Next(proj *config.Project, target *config.Target, prov translate.Provider, a translateArgs) {
 	// Load source language file for key reference
 	srcPath := proj.I18NextPath(proj.SourceLang)
 	srcFile, err := i18next.ParseFile(srcPath)
@@ -2538,6 +2595,9 @@ func runTranslateI18Next(proj *config.Project, prov translate.Provider, a transl
 		SystemPrompt:        a.prompt,  // User-provided custom prompt
 		PromptType:          "i18next", // Use i18next-specific prompt template
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          proj.Name,
+		ForceTranslate:      a.force,
 		OnProgress: func(lang string, done, total int) {
 			logInfo(T("  %s: %d/%d"), lang, done, total)
 		},
@@ -2547,6 +2607,10 @@ func runTranslateI18Next(proj *config.Project, prov translate.Provider, a transl
 		OnError: func(format string, args ...any) {
 			logError(format, args...)
 		},
+	}
+
+	if target != nil {
+		setExclusionOpts(&opts, target)
 	}
 
 	// Translate UI strings
@@ -3798,7 +3862,11 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		return nil
 	}
 
-	systemPrompt := rt.Target.Prompt
+	// Prompt priority: --prompt flag > lokit.yaml target prompt > built-in default
+	systemPrompt := a.prompt
+	if systemPrompt == "" {
+		systemPrompt = rt.Target.Prompt
+	}
 
 	parallelMode := translate.ParallelSequential
 	if a.parallel {
@@ -3808,6 +3876,7 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	opts := translate.Options{
 		Provider:            prov,
 		SystemPrompt:        systemPrompt,
+		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
 		ChunkSize:           a.chunkSize,
 		RequestDelay:        a.requestDelay,
@@ -3816,6 +3885,9 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
 		OnLog: func(format string, args ...any) {
 			logInfo(format, args...)
 		},
@@ -3826,6 +3898,8 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 			logInfo(T("  %s: %d/%d strings"), lang, done, total)
 		},
 	}
+
+	setExclusionOpts(&opts, &rt.Target)
 
 	return translate.TranslateAllYAML(ctx, tasks, opts)
 }
@@ -4079,7 +4153,11 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 		return nil
 	}
 
-	systemPrompt := rt.Target.Prompt
+	// Prompt priority: --prompt flag > lokit.yaml target prompt > built-in default
+	systemPrompt := a.prompt
+	if systemPrompt == "" {
+		systemPrompt = rt.Target.Prompt
+	}
 
 	parallelMode := translate.ParallelSequential
 	if a.parallel {
@@ -4089,6 +4167,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	opts := translate.Options{
 		Provider:            prov,
 		SystemPrompt:        systemPrompt,
+		PromptType:          "docs",
 		RetranslateExisting: a.retranslate,
 		ChunkSize:           a.chunkSize,
 		RequestDelay:        a.requestDelay,
@@ -4097,6 +4176,9 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
 		OnLog: func(format string, args ...any) {
 			logInfo(format, args...)
 		},
@@ -4107,6 +4189,8 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 			logInfo(T("  %s: %d/%d segments"), lang, done, total)
 		},
 	}
+
+	setExclusionOpts(&opts, &rt.Target)
 
 	return translate.TranslateAllMarkdown(ctx, tasks, opts)
 }
@@ -4302,6 +4386,12 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 		return nil
 	}
 
+	// Prompt priority: --prompt flag > lokit.yaml target prompt > built-in default
+	systemPrompt := a.prompt
+	if systemPrompt == "" {
+		systemPrompt = rt.Target.Prompt
+	}
+
 	parallelMode := translate.ParallelSequential
 	if a.parallel {
 		parallelMode = translate.ParallelFullParallel
@@ -4309,7 +4399,8 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 
 	opts := translate.Options{
 		Provider:            prov,
-		SystemPrompt:        rt.Target.Prompt,
+		SystemPrompt:        systemPrompt,
+		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
 		ChunkSize:           a.chunkSize,
 		RequestDelay:        a.requestDelay,
@@ -4318,6 +4409,9 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
 		OnLog: func(format string, args ...any) {
 			logInfo(format, args...)
 		},
@@ -4328,6 +4422,8 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 			logInfo(T("  %s: %d/%d strings"), lang, done, total)
 		},
 	}
+
+	setExclusionOpts(&opts, &rt.Target)
 
 	return translate.TranslateAllProperties(ctx, tasks, opts)
 }
@@ -4523,6 +4619,12 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		return nil
 	}
 
+	// Prompt priority: --prompt flag > lokit.yaml target prompt > built-in default
+	systemPrompt := a.prompt
+	if systemPrompt == "" {
+		systemPrompt = rt.Target.Prompt
+	}
+
 	parallelMode := translate.ParallelSequential
 	if a.parallel {
 		parallelMode = translate.ParallelFullParallel
@@ -4530,7 +4632,8 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 
 	opts := translate.Options{
 		Provider:            prov,
-		SystemPrompt:        rt.Target.Prompt,
+		SystemPrompt:        systemPrompt,
+		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
 		ChunkSize:           a.chunkSize,
 		RequestDelay:        a.requestDelay,
@@ -4539,6 +4642,9 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
 		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
 		OnLog: func(format string, args ...any) {
 			logInfo(format, args...)
 		},
@@ -4549,6 +4655,8 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			logInfo(T("  %s: %d/%d strings"), lang, done, total)
 		},
 	}
+
+	setExclusionOpts(&opts, &rt.Target)
 
 	return translate.TranslateAllARB(ctx, tasks, opts)
 }

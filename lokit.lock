@@ -1,0 +1,1614 @@
+version: 1
+checksums:
+    lokit/ar:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/de:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/es:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/fr:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/it:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/ja:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/ko:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/pl:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/pt-BR:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/ru:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/tr:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/uk:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f
+    lokit/zh-CN:
+        'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
+        'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Custom prompts are stored in ~/.local/share/lokit/prompts.json (or
+            $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically
+            on first use with built-in defaults. Each project type uses its own
+            prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,
+            properties, flutter). The --prompt flag overrides the loaded prompt for the
+            current run.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : daaba0df96c07e415a07f84ea17acda0
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files). Requires --provider and --model flags.
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 59172b63fd08c23d1e78c1c65001cf33
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files (recipes, blog posts)
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : 0a653588a5309ba5d21dbd23cee1201f

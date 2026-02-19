@@ -14,8 +14,6 @@ import (
 	"math"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -28,10 +26,10 @@ import (
 	"github.com/minios-linux/lokit/copilot"
 	"github.com/minios-linux/lokit/gemini"
 	"github.com/minios-linux/lokit/i18next"
+	"github.com/minios-linux/lokit/lockfile"
 	"github.com/minios-linux/lokit/mdfile"
 	po "github.com/minios-linux/lokit/pofile"
 	"github.com/minios-linux/lokit/propfile"
-	"github.com/minios-linux/lokit/settings"
 	"github.com/minios-linux/lokit/yamlfile"
 )
 
@@ -62,105 +60,10 @@ const (
 // System Prompts Configuration
 // ---------------------------------------------------------------------------
 
-// PromptsConfig holds all system prompts loaded from prompts.json
-type PromptsConfig struct {
-	Prompts map[string]string `json:"prompts"`
-}
-
-// globalPrompts holds the loaded prompts configuration
-var globalPrompts *PromptsConfig
-
-// LoadPromptsFromFile loads system prompts from a JSON file.
-// If the file doesn't exist or can't be loaded, it returns nil (will use embedded defaults).
-func LoadPromptsFromFile(path string) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		// File not found is not an error - we'll use embedded defaults
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return fmt.Errorf("failed to read prompts file: %w", err)
-	}
-
-	var config PromptsConfig
-	if err := json.Unmarshal(data, &config); err != nil {
-		return fmt.Errorf("failed to parse prompts file: %w", err)
-	}
-
-	globalPrompts = &config
-	return nil
-}
-
-// defaultPromptsMap returns all built-in system prompts as a map.
-func defaultPromptsMap() map[string]string {
-	return map[string]string{
-		"default":  DefaultSystemPrompt,
-		"docs":     DocsSystemPrompt,
-		"i18next":  I18NextSystemPrompt,
-		"recipe":   RecipeSystemPrompt,
-		"blogpost": BlogPostSystemPrompt,
-		"android":  AndroidSystemPrompt,
-	}
-}
-
-// createDefaultPromptsFile writes the built-in prompts to path as a formatted JSON file.
-func createDefaultPromptsFile(path string) error {
-	config := PromptsConfig{
-		Prompts: defaultPromptsMap(),
-	}
-	data, err := json.MarshalIndent(config, "", "  ")
-	if err != nil {
-		return fmt.Errorf("marshaling default prompts: %w", err)
-	}
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0700); err != nil {
-		return fmt.Errorf("creating prompts directory: %w", err)
-	}
-	if err := os.WriteFile(path, data, 0644); err != nil {
-		return fmt.Errorf("writing default prompts file: %w", err)
-	}
-	return nil
-}
-
-// LoadPromptsFromDefaultLocations tries to load prompts from the user data directory.
-// Default location: ~/.local/share/lokit/prompts.json (or $XDG_DATA_HOME/lokit/prompts.json)
-// This matches the location where auth.json is stored.
-// If the file does not exist, it is created with built-in default prompts.
-// Returns the path of the loaded prompts file, or empty string on error.
-func LoadPromptsFromDefaultLocations() (string, error) {
-	path, err := settings.PromptsFilePath()
-	if err != nil {
-		return "", fmt.Errorf("cannot determine prompts file path: %w", err)
-	}
-
-	// If the file doesn't exist, create it with defaults
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := createDefaultPromptsFile(path); err != nil {
-			return "", fmt.Errorf("creating default prompts file: %w", err)
-		}
-	}
-
-	if err := LoadPromptsFromFile(path); err != nil {
-		return "", err
-	}
-
-	if globalPrompts != nil {
-		return path, nil
-	}
-
-	return "", nil
-}
-
-// getPrompt returns the system prompt for a given content type.
-// If custom prompts are loaded, it uses them; otherwise falls back to embedded defaults.
+// getPrompt returns the built-in system prompt for a given content type.
+// Prompt types: default, docs, i18next, recipe, blogpost, android.
+// Unknown types fall back to DefaultSystemPrompt.
 func getPrompt(promptType string) string {
-	if globalPrompts != nil {
-		if prompt, ok := globalPrompts.Prompts[promptType]; ok && prompt != "" {
-			return prompt
-		}
-	}
-
-	// Fallback to embedded defaults
 	switch promptType {
 	case "default":
 		return DefaultSystemPrompt
@@ -369,6 +272,23 @@ type Options struct {
 	OnError func(format string, args ...any)
 	// Verbose enables detailed logging.
 	Verbose bool
+	// LockFile is the lock file for incremental translation.
+	// If nil, all entries are translated (no incremental skipping).
+	LockFile *lockfile.LockFile
+	// LockTarget is the target key in the lock file (e.g. "gettext-ui", "i18next-web").
+	// Used to scope checksums per target.
+	LockTarget string
+	// ForceTranslate if true, ignores lock file and translates everything.
+	// Different from RetranslateExisting: that re-translates already-translated
+	// entries; this bypasses the lock file's "unchanged source" check.
+	ForceTranslate bool
+	// LockedKeys lists keys whose existing translations must not be overwritten.
+	// Locked keys are skipped even with --retranslate. Use --force to override.
+	LockedKeys []string
+	// IgnoredKeys lists keys completely excluded from translation.
+	IgnoredKeys []string
+	// LockedPatterns lists regex patterns; matching keys are treated as locked.
+	LockedPatterns []*regexp.Regexp
 }
 
 func (o *Options) log(format string, args ...any) {
@@ -1678,6 +1598,9 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 			applyTranslations(chunk, translations, opts.TranslateFuzzy)
 		}
 
+		// Update lock file checksums for successfully translated entries
+		updateLockFileForPO(chunk, opts)
+
 		done += len(chunk)
 		if opts.OnProgress != nil {
 			opts.OnProgress(opts.Language, done, total)
@@ -1719,7 +1642,172 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 			toTranslate = append(toTranslate, e)
 		}
 	}
+
+	// Apply ignored/locked key filters
+	if len(opts.IgnoredKeys) > 0 || len(opts.LockedKeys) > 0 || len(opts.LockedPatterns) > 0 {
+		var filtered []*po.Entry
+		ignoredCount := 0
+		lockedCount := 0
+		for _, e := range toTranslate {
+			if isKeyIgnored(e.MsgID, opts) {
+				ignoredCount++
+				continue
+			}
+			if isKeyLocked(e.MsgID, opts) {
+				lockedCount++
+				continue
+			}
+			filtered = append(filtered, e)
+		}
+		if ignoredCount > 0 {
+			opts.log("  Skipping %d ignored entries", ignoredCount)
+		}
+		if lockedCount > 0 {
+			opts.log("  Skipping %d locked entries", lockedCount)
+		}
+		toTranslate = filtered
+	}
+
+	// Apply lock file filter: skip entries whose source hasn't changed
+	if opts.LockFile != nil && !opts.ForceTranslate && len(toTranslate) > 0 {
+		var changed []*po.Entry
+		for _, e := range toTranslate {
+			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
+			content := lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
+			lockTarget := opts.LockTarget + "/" + opts.Language
+			if opts.LockFile.IsChanged(lockTarget, key, content) {
+				changed = append(changed, e)
+			}
+		}
+		if skipped := len(toTranslate) - len(changed); skipped > 0 {
+			opts.log("  Lock file: skipping %d unchanged entries", skipped)
+		}
+		toTranslate = changed
+	}
+
 	return toTranslate
+}
+
+// filterChangedKeys filters out keys whose source content hasn't changed
+// since the last translation (based on the lock file). Used by all key-value
+// formats: i18next, Android, YAML, Markdown, Properties, ARB.
+// The sourceValues map provides key -> source content for hashing.
+// If sourceValues is nil, the key itself is used as the source content
+// (as in i18next where keys are natural English text).
+func filterChangedKeys(keys []string, sourceValues map[string]string, opts Options) []string {
+	if opts.LockFile == nil || opts.ForceTranslate || len(keys) == 0 {
+		return keys
+	}
+
+	lockTarget := opts.LockTarget + "/" + opts.Language
+	var changed []string
+	for _, key := range keys {
+		content := key
+		if sourceValues != nil {
+			if v, ok := sourceValues[key]; ok && v != "" {
+				content = lockfile.KVEntryContent(key, v)
+			}
+		}
+		if opts.LockFile.IsChanged(lockTarget, key, content) {
+			changed = append(changed, key)
+		}
+	}
+	if skipped := len(keys) - len(changed); skipped > 0 {
+		opts.log("  Lock file: skipping %d unchanged keys", skipped)
+	}
+	return changed
+}
+
+// isKeyIgnored returns true if a key should be completely excluded from translation.
+func isKeyIgnored(key string, opts Options) bool {
+	for _, k := range opts.IgnoredKeys {
+		if k == key {
+			return true
+		}
+	}
+	return false
+}
+
+// isKeyLocked returns true if a key has a locked translation that should not be overwritten.
+// Locked keys are skipped even with --retranslate. Only --force overrides locked keys.
+func isKeyLocked(key string, opts Options) bool {
+	if opts.ForceTranslate {
+		return false
+	}
+	for _, k := range opts.LockedKeys {
+		if k == key {
+			return true
+		}
+	}
+	for _, re := range opts.LockedPatterns {
+		if re.MatchString(key) {
+			return true
+		}
+	}
+	return false
+}
+
+// filterExcludedKeys removes ignored and locked keys from the list.
+// Ignored keys are always removed. Locked keys are removed unless --force is set.
+// Returns the filtered key list.
+func filterExcludedKeys(keys []string, opts Options) []string {
+	if len(opts.IgnoredKeys) == 0 && len(opts.LockedKeys) == 0 && len(opts.LockedPatterns) == 0 {
+		return keys
+	}
+
+	var filtered []string
+	ignoredCount := 0
+	lockedCount := 0
+	for _, key := range keys {
+		if isKeyIgnored(key, opts) {
+			ignoredCount++
+			continue
+		}
+		if isKeyLocked(key, opts) {
+			lockedCount++
+			continue
+		}
+		filtered = append(filtered, key)
+	}
+	if ignoredCount > 0 {
+		opts.log("  Skipping %d ignored keys", ignoredCount)
+	}
+	if lockedCount > 0 {
+		opts.log("  Skipping %d locked keys", lockedCount)
+	}
+	return filtered
+}
+
+// updateLockFileForPO updates the lock file with checksums for successfully
+// translated PO entries.
+func updateLockFileForPO(entries []*po.Entry, opts Options) {
+	if opts.LockFile == nil {
+		return
+	}
+	lockTarget := opts.LockTarget + "/" + opts.Language
+	for _, e := range entries {
+		key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
+		content := lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
+		opts.LockFile.Update(lockTarget, key, content)
+	}
+}
+
+// updateLockFileForKV updates the lock file with checksums for successfully
+// translated key-value entries.
+func updateLockFileForKV(keys []string, sourceValues map[string]string, opts Options) {
+	if opts.LockFile == nil {
+		return
+	}
+	lockTarget := opts.LockTarget + "/" + opts.Language
+	for _, key := range keys {
+		content := key
+		if sourceValues != nil {
+			if v, ok := sourceValues[key]; ok && v != "" {
+				content = lockfile.KVEntryContent(key, v)
+			}
+		}
+		opts.LockFile.Update(lockTarget, key, content)
+	}
 }
 
 // splitEntries divides entries into chunks of the given size.
@@ -2133,6 +2221,12 @@ func translateJSONSequential(ctx context.Context, langTasks []JSONLangTask, opts
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
 
+		// Apply ignored/locked key filters
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+
+		// Apply lock file filter (i18next keys are natural English text)
+		keysToTranslate = filterChangedKeys(keysToTranslate, nil, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -2148,6 +2242,9 @@ func translateJSONSequential(ctx context.Context, langTasks []JSONLangTask, opts
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
+
+		// Update lock file after successful translation
+		updateLockFileForKV(keysToTranslate, nil, taskOpts)
 
 		saveJSONFile(task.File, task.FilePath, opts)
 	}
@@ -2181,6 +2278,14 @@ func translateJSONFullParallel(ctx context.Context, langTasks []JSONLangTask, op
 		} else {
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
+
+		// Apply lock file filter
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+		keysToTranslate = filterChangedKeys(keysToTranslate, nil, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -2194,9 +2299,6 @@ func translateJSONFullParallel(ctx context.Context, langTasks []JSONLangTask, op
 		total := int64(len(keysToTranslate))
 		done := int64(0)
 
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
 		systemPrompt := taskOpts.resolvedPrompt()
 
 		for _, chunk := range chunks {
@@ -2235,6 +2337,11 @@ func translateJSONFullParallel(ctx context.Context, langTasks []JSONLangTask, op
 		mu.Lock()
 		applyJSONTranslations(ft.file, ft.keys, translations)
 		mu.Unlock()
+
+		// Update lock file (thread-safe via internal mutex)
+		taskOpts := opts
+		taskOpts.Language = ft.lang
+		updateLockFileForKV(ft.keys, nil, taskOpts)
 
 		newDone := atomic.AddInt64(ft.done, int64(len(ft.keys)))
 		if opts.OnProgress != nil {
@@ -2702,6 +2809,34 @@ type AndroidLangTask struct {
 	SourceFile *android.File // Source (English) file for looking up original values
 }
 
+// androidSourceValues extracts source values from an Android source file
+// for lock file hashing. Each key maps to a string representation of its
+// source content (value for strings, joined items for arrays, joined plurals).
+func androidSourceValues(sourceFile *android.File) map[string]string {
+	if sourceFile == nil {
+		return nil
+	}
+	vals := make(map[string]string)
+	for _, e := range sourceFile.Entries {
+		if !e.IsTranslatable() || e.IsComment() {
+			continue
+		}
+		switch e.Kind {
+		case android.KindString:
+			vals[e.Name] = e.Value
+		case android.KindStringArray:
+			vals[e.Name] = strings.Join(e.Items, "\x00")
+		case android.KindPlurals:
+			var parts []string
+			for _, q := range e.PluralOrder {
+				parts = append(parts, q+"="+e.Plurals[q])
+			}
+			vals[e.Name] = strings.Join(parts, "\x00")
+		}
+	}
+	return vals
+}
+
 // TranslateAllAndroid translates multiple Android strings.xml files according to opts.ParallelMode.
 func TranslateAllAndroid(ctx context.Context, langTasks []AndroidLangTask, opts Options) error {
 	if opts.ParallelMode == ParallelFullParallel {
@@ -2732,6 +2867,13 @@ func translateAndroidSequential(ctx context.Context, langTasks []AndroidLangTask
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
 
+		// Apply ignored/locked key filters
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+
+		// Apply lock file filter using source file values
+		srcVals := androidSourceValues(task.SourceFile)
+		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -2747,6 +2889,9 @@ func translateAndroidSequential(ctx context.Context, langTasks []AndroidLangTask
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
+
+		// Update lock file after successful translation
+		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
 
 		saveAndroidFile(task.File, task.FilePath, opts)
 	}
@@ -2781,6 +2926,15 @@ func translateAndroidFullParallel(ctx context.Context, langTasks []AndroidLangTa
 		} else {
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
+
+		// Apply lock file filter
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		taskOpts.LanguageName = task.LangName
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+		srcVals := androidSourceValues(task.SourceFile)
+		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -2794,9 +2948,6 @@ func translateAndroidFullParallel(ctx context.Context, langTasks []AndroidLangTa
 		total := int64(len(keysToTranslate))
 		done := int64(0)
 
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
 		systemPrompt := taskOpts.resolvedPrompt()
 
 		for _, chunk := range chunks {
@@ -2836,6 +2987,12 @@ func translateAndroidFullParallel(ctx context.Context, langTasks []AndroidLangTa
 		mu.Lock()
 		applyAndroidTranslations(ft.file, ft.keys, translations)
 		mu.Unlock()
+
+		// Update lock file (thread-safe via internal mutex)
+		taskOpts := opts
+		taskOpts.Language = ft.lang
+		srcVals := androidSourceValues(ft.sourceFile)
+		updateLockFileForKV(ft.keys, srcVals, taskOpts)
 
 		newDone := atomic.AddInt64(ft.done, int64(len(ft.keys)))
 		if opts.OnProgress != nil {
@@ -3115,6 +3272,13 @@ func translateYAMLSequential(ctx context.Context, langTasks []YAMLLangTask, opts
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
 
+		// Apply ignored/locked key filters
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+
+		// Apply lock file filter using source file values
+		srcVals := task.SourceFile.SourceValues()
+		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -3130,6 +3294,9 @@ func translateYAMLSequential(ctx context.Context, langTasks []YAMLLangTask, opts
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
+
+		// Update lock file after successful translation
+		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
 
 		saveYAMLFile(task.File, task.FilePath, opts)
 	}
@@ -3161,6 +3328,14 @@ func translateYAMLFullParallel(ctx context.Context, langTasks []YAMLLangTask, op
 		} else {
 			keys = lt.File.UntranslatedKeys()
 		}
+
+		// Apply lock file filter
+		taskOpts := opts
+		taskOpts.Language = lt.Lang
+		keys = filterExcludedKeys(keys, taskOpts)
+		srcVals := lt.SourceFile.SourceValues()
+		keys = filterChangedKeys(keys, srcVals, taskOpts)
+
 		if len(keys) > 0 {
 			tasks = append(tasks, flatTask{
 				lang:     lt.Lang,
@@ -3194,6 +3369,7 @@ func translateYAMLFullParallel(ctx context.Context, langTasks []YAMLLangTask, op
 		} else {
 			keys = t.file.UntranslatedKeys()
 		}
+		// Lock file filter already applied during task building above
 		if len(keys) == 0 {
 			continue
 		}
@@ -3223,6 +3399,9 @@ func translateYAMLFullParallel(ctx context.Context, langTasks []YAMLLangTask, op
 					failedMu.Unlock()
 				}
 			} else {
+				// Update lock file after successful translation
+				srcVals := t.srcFile.SourceValues()
+				updateLockFileForKV(keys, srcVals, taskOpts)
 				saveYAMLFile(t.file, t.filePath, opts)
 			}
 		}()
@@ -3375,6 +3554,13 @@ func translateMarkdownSequential(ctx context.Context, langTasks []MarkdownLangTa
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
 
+		// Apply ignored/locked key filters
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+
+		// Apply lock file filter using source file values
+		srcVals := task.SourceFile.SourceValues()
+		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -3390,6 +3576,9 @@ func translateMarkdownSequential(ctx context.Context, langTasks []MarkdownLangTa
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
+
+		// Update lock file after successful translation
+		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
 
 		saveMarkdownFile(task.File, task.FilePath, opts)
 	}
@@ -3417,6 +3606,14 @@ func translateMarkdownFullParallel(ctx context.Context, langTasks []MarkdownLang
 		} else {
 			keys = lt.File.UntranslatedKeys()
 		}
+
+		// Apply lock file filter
+		taskOpts := opts
+		taskOpts.Language = lt.Lang
+		keys = filterExcludedKeys(keys, taskOpts)
+		srcVals := lt.SourceFile.SourceValues()
+		keys = filterChangedKeys(keys, srcVals, taskOpts)
+
 		if len(keys) > 0 {
 			tasks = append(tasks, flatTask{
 				lang:     lt.Lang,
@@ -3451,6 +3648,7 @@ func translateMarkdownFullParallel(ctx context.Context, langTasks []MarkdownLang
 		} else {
 			keys = t.file.UntranslatedKeys()
 		}
+		// Lock file filter already applied during task building above
 		if len(keys) == 0 {
 			continue
 		}
@@ -3480,6 +3678,9 @@ func translateMarkdownFullParallel(ctx context.Context, langTasks []MarkdownLang
 					failedMu.Unlock()
 				}
 			} else {
+				// Update lock file after successful translation
+				srcVals := t.srcFile.SourceValues()
+				updateLockFileForKV(keys, srcVals, taskOpts)
 				saveMarkdownFile(t.file, t.filePath, opts)
 			}
 		}()
@@ -3637,6 +3838,13 @@ func translatePropertiesSequential(ctx context.Context, langTasks []PropertiesLa
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
 
+		// Apply ignored/locked key filters
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+
+		// Apply lock file filter using source file values
+		srcVals := task.SourceFile.SourceValues()
+		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -3652,6 +3860,9 @@ func translatePropertiesSequential(ctx context.Context, langTasks []PropertiesLa
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
+
+		// Update lock file after successful translation
+		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
 
 		savePropertiesFile(task.File, task.FilePath, opts)
 	}
@@ -3681,6 +3892,14 @@ func translatePropertiesFullParallel(ctx context.Context, langTasks []Properties
 		} else {
 			keys = lt.File.UntranslatedKeys()
 		}
+
+		// Apply lock file filter
+		taskOpts := opts
+		taskOpts.Language = lt.Lang
+		keys = filterExcludedKeys(keys, taskOpts)
+		srcVals := lt.SourceFile.SourceValues()
+		keys = filterChangedKeys(keys, srcVals, taskOpts)
+
 		if len(keys) > 0 {
 			tasks = append(tasks, flatTask{
 				lang:     lt.Lang,
@@ -3714,6 +3933,7 @@ func translatePropertiesFullParallel(ctx context.Context, langTasks []Properties
 		} else {
 			keys = t.file.UntranslatedKeys()
 		}
+		// Lock file filter already applied during task building above
 		if len(keys) == 0 {
 			continue
 		}
@@ -3743,6 +3963,9 @@ func translatePropertiesFullParallel(ctx context.Context, langTasks []Properties
 					failedMu.Unlock()
 				}
 			} else {
+				// Update lock file after successful translation
+				srcVals := t.srcFile.SourceValues()
+				updateLockFileForKV(keys, srcVals, taskOpts)
 				savePropertiesFile(t.file, t.filePath, opts)
 			}
 		}()
@@ -3874,6 +4097,13 @@ func translateARBSequential(ctx context.Context, langTasks []ARBLangTask, opts O
 			keysToTranslate = task.File.UntranslatedKeys()
 		}
 
+		// Apply ignored/locked key filters
+		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+
+		// Apply lock file filter using source file values
+		srcVals := task.SourceFile.SourceValues()
+		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
+
 		if len(keysToTranslate) == 0 {
 			continue
 		}
@@ -3889,6 +4119,9 @@ func translateARBSequential(ctx context.Context, langTasks []ARBLangTask, opts O
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
+
+		// Update lock file after successful translation
+		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
 
 		saveARBFile(task.File, task.FilePath, opts)
 	}
@@ -3918,6 +4151,14 @@ func translateARBFullParallel(ctx context.Context, langTasks []ARBLangTask, opts
 		} else {
 			keys = lt.File.UntranslatedKeys()
 		}
+
+		// Apply ignored/locked key filters and lock file filter
+		taskOpts := opts
+		taskOpts.Language = lt.Lang
+		keys = filterExcludedKeys(keys, taskOpts)
+		srcVals := lt.SourceFile.SourceValues()
+		keys = filterChangedKeys(keys, srcVals, taskOpts)
+
 		if len(keys) > 0 {
 			tasks = append(tasks, flatTask{
 				lang:     lt.Lang,
@@ -3951,6 +4192,7 @@ func translateARBFullParallel(ctx context.Context, langTasks []ARBLangTask, opts
 		} else {
 			keys = t.file.UntranslatedKeys()
 		}
+		// Excluded/lock file filters already applied during task building above
 		if len(keys) == 0 {
 			continue
 		}
@@ -3980,6 +4222,9 @@ func translateARBFullParallel(ctx context.Context, langTasks []ARBLangTask, opts
 					failedMu.Unlock()
 				}
 			} else {
+				// Update lock file after successful translation
+				srcVals := t.srcFile.SourceValues()
+				updateLockFileForKV(keys, srcVals, taskOpts)
 				saveARBFile(t.file, t.filePath, opts)
 			}
 		}()

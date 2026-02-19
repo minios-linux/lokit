@@ -120,6 +120,15 @@ When `lokit.yaml` exists, lokit uses it as the sole source of truth — no auto-
 
 ### Schema
 
+A [JSON Schema](lokit.schema.json) is available for editor autocompletion and validation.
+To enable it in VS Code, add to the top of your `lokit.yaml`:
+
+```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/main/lokit.schema.json
+```
+
+Reference:
+
 ```yaml
 # Default languages for all targets
 languages: [de, es, fr, id, it, pt, pt_BR, ru]
@@ -221,6 +230,7 @@ lokit translate --provider copilot --model gpt-4o
   --retranslate             Re-translate already translated entries
   --fuzzy                   Translate fuzzy entries (default: true)
   --dry-run                 Show what would be translated
+  --force                   Ignore lock file, re-translate all entries
   --prompt string           Custom system prompt ({{targetLang}} placeholder)
   --proxy string            HTTP/HTTPS proxy URL
   --api-key string          API key (or provider env var)
@@ -350,7 +360,6 @@ lokit translate --provider copilot --model gpt-4o --dry-run
 All user data is stored in `~/.local/share/lokit/` (respects `$XDG_DATA_HOME`):
 
 - **`auth.json`** — OAuth tokens and API keys (permissions: `0600`)
-- **`prompts.json`** — AI system prompts (created automatically on first use)
 
 ### Credentials
 
@@ -359,24 +368,67 @@ All user data is stored in `~/.local/share/lokit/` (respects `$XDG_DATA_HOME`):
 2. Provider-specific environment variable (`GOOGLE_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, `OPENCODE_API_KEY`)
 3. Stored credentials in `auth.json`
 
-### Custom Prompts
+### System Prompts
 
-On first use, lokit creates `prompts.json` with all built-in system prompts. Edit it to customize translation behavior per content type:
+Each target type has a built-in system prompt optimized for its format (gettext, po4a/docs, i18next, recipe, blogpost, android). Prompts can be customized in two ways:
 
-| Key | Used for |
-|-----|----------|
-| `default` | gettext UI strings |
-| `docs` | po4a / man-pages (groff markup) |
-| `i18next` | i18next JSON |
-| `recipe` | App catalog metadata |
-| `blogpost` | Blog post content |
-| `android` | Android strings.xml |
-| `yaml` | YAML translation files |
-| `markdown` | Markdown documents |
-| `properties` | Java .properties files |
-| `flutter` | Flutter ARB files |
+- **Per target** — set `prompt:` in the target config in `lokit.yaml`
+- **Per run** — use the `--prompt` flag on the command line
 
-Use `{{targetLang}}` as a placeholder for the target language name in prompt text.
+The `--prompt` flag takes priority over the `lokit.yaml` target prompt, which takes priority over the built-in default. Use `{{targetLang}}` as a placeholder for the target language name.
+
+## Incremental Translation (lokit.lock)
+
+lokit tracks MD5 checksums of source strings in a `lokit.lock` file (stored next to `lokit.yaml`). On subsequent runs, only new or changed strings are sent to the AI provider, saving tokens and time.
+
+- **Automatic** — no configuration needed. The lock file is created on the first `lokit translate` run and updated after each translation.
+- **Per-target tracking** — checksums are stored per target and language, so changes in one target don't trigger re-translation of others.
+- **Force re-translation** — use `--force` to ignore the lock file and re-translate all entries:
+  ```bash
+  lokit translate --provider copilot --model gpt-4o --force
+  ```
+- **Safe to delete** — removing `lokit.lock` simply causes a full translation on the next run.
+- **Commit to VCS** — it's recommended to commit `lokit.lock` to version control so that CI and teammates benefit from incremental translation.
+
+## Key Filtering (locked_keys / ignored_keys / locked_patterns)
+
+You can control which keys are translated per target in `lokit.yaml`:
+
+```yaml
+targets:
+  - name: ui
+    format: i18next
+    translations_dir: translations
+    source_lang: en
+    languages: [ru, de, fr]
+
+    # Keys excluded from translation entirely (never sent to AI)
+    ignored_keys:
+      - debug_label
+      - internal_test_string
+
+    # Hand-curated translations preserved as-is (skipped even with --retranslate)
+    locked_keys:
+      - app_name
+      - copyright_notice
+
+    # Regex patterns — matching keys treated as locked
+    locked_patterns:
+      - "^brand_.*"
+      - "^legal_"
+```
+
+**Semantics:**
+
+| Field | Effect | Overridden by |
+|-------|--------|---------------|
+| `ignored_keys` | Key is completely skipped, as if it doesn't exist | — |
+| `locked_keys` | Existing translation is preserved, key is not re-translated | `--force` |
+| `locked_patterns` | Same as `locked_keys` but matches keys by regex | `--force` |
+
+- `ignored_keys` are always skipped, even with `--force`.
+- `locked_keys` and `locked_patterns` are skipped during normal and `--retranslate` runs. Only `--force` overrides them.
+- These settings work with all formats: gettext PO, po4a, i18next, Android, YAML, Markdown, .properties, and Flutter ARB.
 
 ## Project Structure Support
 

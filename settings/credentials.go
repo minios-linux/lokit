@@ -1,5 +1,5 @@
 // Package settings provides unified storage for lokit user settings,
-// including authentication credentials and AI translation prompts.
+// including authentication credentials.
 //
 // All settings are stored in the XDG data directory:
 //
@@ -7,7 +7,6 @@
 //
 // Files stored:
 //   - auth.json     — Authentication credentials (OAuth tokens and API keys)
-//   - prompts.json  — AI translation system prompts (customizable by user)
 //
 // Auth.json format:
 // The file is a JSON object keyed by provider ID, where each value is a
@@ -109,16 +108,6 @@ func FilePath() string {
 		return ""
 	}
 	return p
-}
-
-// PromptsFilePath returns the path to the prompts.json file.
-// Default: ~/.local/share/lokit/prompts.json (or $XDG_DATA_HOME/lokit/prompts.json).
-func PromptsFilePath() (string, error) {
-	dir, err := dataDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(dir, "prompts.json"), nil
 }
 
 // DataDir returns the lokit data directory path.

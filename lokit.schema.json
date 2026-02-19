@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/minios-linux/lokit/main/lokit.schema.json",
+  "title": "lokit.yaml",
+  "description": "Configuration file for lokit — AI-powered localization management tool.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "source_lang": {
+      "type": "string",
+      "default": "en",
+      "description": "Source language code (BCP 47). Inherited by all targets unless overridden.",
+      "examples": ["en", "ru", "pt-BR"]
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Default target language list. Inherited by targets that don't specify their own.",
+      "examples": [["ru", "de", "fr", "es", "ja", "zh-CN"]]
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Translation targets. Each target describes a set of files to translate.",
+      "items": {
+        "$ref": "#/$defs/target"
+      }
+    }
+  },
+  "required": ["targets"],
+  "$defs": {
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable target name shown in status and logs."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "gettext",
+            "po4a",
+            "i18next",
+            "json",
+            "android",
+            "yaml",
+            "markdown",
+            "properties",
+            "flutter"
+          ],
+          "description": "Translation format type."
+        },
+        "root": {
+          "type": "string",
+          "default": ".",
+          "description": "Working directory relative to lokit.yaml. All other paths are relative to this."
+        },
+        "dir": {
+          "type": "string",
+          "description": "Base directory for translation files (relative to root). Required for most target types.\n\ngettext: PO directory (e.g. \"po\")\ni18next/json: translations directory (e.g. \"public/translations\")\nandroid: res/ directory (e.g. \"app/src/main/res\")\nyaml: translations directory (e.g. \"translations\")\nmarkdown: documents directory (e.g. \"docs\")\nproperties: translations directory (e.g. \"translations\")\nflutter: l10n directory (e.g. \"lib/l10n\")"
+        },
+        "source_lang": {
+          "type": "string",
+          "description": "Source language code for this target. Overrides the global source_lang.",
+          "examples": ["en"]
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Target languages for this target. Overrides the global languages list."
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Custom system prompt for AI translation. Overrides the built-in prompt for this target type.\nUse {{targetLang}} as a placeholder for the target language name.",
+          "examples": ["Translate to {{targetLang}}. Use informal tone."]
+        },
+        "pot_file": {
+          "type": "string",
+          "description": "Path to the POT template file relative to root (gettext only). Defaults to \"<dir>/messages.pot\".",
+          "examples": ["po/messages.pot"]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Source files or directories to scan for translatable strings (gettext only).",
+          "examples": [[".", "src/"]]
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "xgettext keyword functions for string extraction (gettext only). Default: [\"_\", \"N_\", \"gettext\", \"eval_gettext\"].",
+          "examples": [["T", "N:1,2"]]
+        },
+        "po4a_config": {
+          "type": "string",
+          "default": "po4a.cfg",
+          "description": "Path to po4a.cfg relative to root (po4a only).",
+          "examples": ["po4a.cfg"]
+        },
+        "recipes_dir": {
+          "type": "string",
+          "description": "Directory with per-recipe translation files (i18next only).",
+          "examples": ["public/data/recipe-translations"]
+        },
+        "blog_dir": {
+          "type": "string",
+          "description": "Directory with blog posts and translations (i18next only).",
+          "examples": ["data/blog/posts"]
+        },
+        "locked_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Keys whose existing translations must not be overwritten. Locked keys are skipped during translation even with --retranslate. Use --force to override.",
+          "examples": [["app_name", "copyright_notice"]]
+        },
+        "ignored_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Keys completely excluded from translation. Ignored keys are never sent to the AI provider, even with --force.",
+          "examples": [["debug_label", "internal_test_string"]]
+        },
+        "locked_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "regex"
+          },
+          "description": "Regex patterns matching keys to treat as locked. Keys matching any pattern are skipped during translation. Use --force to override.",
+          "examples": [["^brand_.*", "^legal_"]]
+        }
+      },
+      "if": {
+        "not": {
+          "properties": {
+            "type": { "const": "po4a" }
+          }
+        }
+      },
+      "then": {
+        "required": ["dir"]
+      }
+    }
+  }
+}

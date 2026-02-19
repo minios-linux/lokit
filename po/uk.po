@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-19 15:45+0000\n"
-"PO-Revision-Date: 2026-02-19 15:22+0000\n"
+"POT-Creation-Date: 2026-02-19 21:11+0000\n"
+"PO-Revision-Date: 2026-02-19 20:59+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: uk\n"
@@ -15,176 +15,394 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: main.go:1063
+#: main.go:1074
 msgid "Languages to init (comma-separated, default: all from config)"
 msgstr "Мови для ініціалізації (через кому, за замовчуванням: всі з конфігурації)"
 
-#: main.go:1148
+#: main.go:1159
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Для цілей Android ініціалізація не потрібна — використовуйте 'lokit translate' напряму."
 
-#: main.go:1180
+#: main.go:1191
 msgid "Cannot find source YAML file for language %q in %s"
 msgstr "Не вдалося знайти вихідний YAML-файл для мови %q у %s"
 
-#: main.go:1181
+#: main.go:1192
 msgid "Expected: %s"
 msgstr "Очікується: %s"
 
-#: main.go:1187
+#: main.go:1198
 msgid "Cannot read source YAML file %s: %v"
 msgstr "Не вдалося прочитати вихідний YAML-файл %s: %v"
 
-#: main.go:1191
-#: main.go:1255
-#: main.go:4187
-#: main.go:4408
+#: main.go:1202
+#: main.go:1266
+#: main.go:4271
+#: main.go:4504
 msgid "Source language (%s): %d keys"
 msgstr "Мова джерела (%s): %d ключів"
 
-#: main.go:1215
-#: main.go:3922
-#: main.go:4041
-#: main.go:4200
-#: main.go:4421
+#: main.go:1226
+#: main.go:3996
+#: main.go:4115
+#: main.go:4284
+#: main.go:4517
 msgid "Creating directory %s: %v"
 msgstr "Створення директорії %s: %v"
 
-#: main.go:1219
-#: main.go:1281
-#: main.go:1521
-#: main.go:3522
-#: main.go:3940
-#: main.go:4204
-#: main.go:4425
+#: main.go:1230
+#: main.go:1292
+#: main.go:1532
+#: main.go:3586
+#: main.go:4014
+#: main.go:4288
+#: main.go:4521
 msgid "Creating %s: %v"
 msgstr "Створення %s: %v"
 
-#: main.go:1222
-#: main.go:1284
-#: main.go:4207
-#: main.go:4428
+#: main.go:1233
+#: main.go:1295
+#: main.go:4291
+#: main.go:4524
 msgid "Created: %s (%d keys)"
 msgstr "Створено: %s (%d ключів)"
 
-#: main.go:1230
-#: main.go:1485
-#: main.go:1529
-#: main.go:1999
-#: main.go:2133
-#: main.go:3781
-#: main.go:3949
-#: main.go:4051
-#: main.go:4061
-#: main.go:4212
-#: main.go:4285
-#: main.go:4433
-#: main.go:4506
+#: main.go:1241
+#: main.go:1496
+#: main.go:1540
+#: main.go:2046
+#: main.go:2185
+#: main.go:3845
+#: main.go:4023
+#: main.go:4125
+#: main.go:4135
+#: main.go:4296
+#: main.go:4369
+#: main.go:4529
+#: main.go:4602
 msgid "Reading %s: %v"
 msgstr "Зчитування %s: %v"
 
-#: main.go:1236
-#: main.go:1535
-#: main.go:3954
-#: main.go:4217
-#: main.go:4438
+#: main.go:1247
+#: main.go:1546
+#: main.go:4028
+#: main.go:4301
+#: main.go:4534
 msgid "Writing %s: %v"
 msgstr "Запис %s: %v"
 
-#: main.go:1239
-#: main.go:1538
-#: main.go:3957
-#: main.go:4220
-#: main.go:4441
+#: main.go:1250
+#: main.go:1549
+#: main.go:4031
+#: main.go:4304
+#: main.go:4537
 msgid "Updated: %s"
 msgstr "Оновлено: %s"
 
-#: main.go:1243
+#: main.go:1254
 msgid "YAML init: %d created, %d updated"
 msgstr "YAML ініціалізація: створено %d, оновлено %d"
 
-#: main.go:1250
-#: main.go:2377
+#: main.go:1261
+#: main.go:2434
 msgid "Cannot read source language file %s: %v"
 msgstr "Не вдалося прочитати файл мовного джерела %s: %v"
 
-#: main.go:1300
-#: main.go:1922
+#: main.go:1311
+#: main.go:1964
 msgid "Updating %s: %v"
 msgstr "Оновлення %s: %v"
 
-#: main.go:1303
+#: main.go:1314
 msgid "Updated: %s (+%d new keys)"
 msgstr "Оновлено: %s (+%d нових ключів)"
 
-#: main.go:1306
+#: main.go:1317
 msgid "%s: up to date"
 msgstr "%s: актуально"
 
-#: main.go:1310
-#: main.go:1543
+#: main.go:1321
+#: main.go:1554
 msgid "Summary: %d created, %d updated"
 msgstr "Підсумок: %d створено, %d оновлено"
 
-#: main.go:1313
-#: main.go:1472
-#: main.go:1549
+#: main.go:1324
+#: main.go:1483
+#: main.go:1560
 msgid "Init complete!"
 msgstr "Ініціалізацію завершено!"
 
-#: main.go:1326
+#: main.go:1337
 msgid "pandoc not found, skipping manpage generation from markdown"
 msgstr "pandoc не знайдено, пропускаю генерацію man-сторінки з markdown"
 
-#: main.go:1341
+#: main.go:1352
 msgid "failed to list markdown files: %w"
 msgstr "не вдалося отримати список файлів Markdown: %w"
 
-#: main.go:1374
+#: main.go:1385
 msgid "Generating %s from %s"
 msgstr "Генерую %s з %s"
 
-#: main.go:1379
+#: main.go:1390
 msgid "pandoc failed for %s: %w"
 msgstr "помилка Pandoc для %s: %w"
 
-#: main.go:1384
+#: main.go:1395
 msgid "Failed to post-process %s: %v"
 msgstr "Не вдалося обробити %s: %v"
 
-#: main.go:1391
+#: main.go:1402
 msgid "Generated %d manpage(s) from markdown"
 msgstr "Згенеровано %d man-сторінок з markdown"
 
-#: main.go:1426
+#: main.go:1437
 msgid "po4a is not installed. Install with: sudo apt install po4a"
 msgstr "po4a не встановлено. Встановіть командою: sudo apt install po4a"
 
-#: main.go:1431
+#: main.go:1442
 msgid "Failed to generate manpages from markdown: %v"
 msgstr "Не вдалося згенерувати man-сторінки з markdown: %v"
 
-#: main.go:1432
+#: main.go:1443
 msgid "Continuing anyway, po4a might fail if source files don't exist"
 msgstr "Продовжуємо, po4a може не спрацювати, якщо вихідні файли відсутні"
 
-#: main.go:1435
+#: main.go:1446
 msgid "Running po4a --no-translations %s ..."
 msgstr "Виконую po4a --no-translations %s ..."
 
-#: main.go:1441
+#: main.go:1452
 msgid "po4a failed: %v"
 msgstr "po4a завершився з помилкою: %v"
 
-#: main.go:1443
+#: main.go:1454
 msgid "po4a updated POT and PO files"
 msgstr "po4a оновив файли POT та PO"
 
-#: main.go:147
+#: main.go:1500
+msgid "Updating PO files for: %s"
+msgstr "Оновлення PO-файлів для: %s"
+
+#: main.go:1508
+#: main.go:3581
+msgid "Creating directory for %s: %v"
+msgstr "Створення директорії для %s: %v"
+
+#: main.go:1535
+msgid "Created: %s"
+msgstr "Створено: %s"
+
+#: main.go:1600
+msgid "Translate files using AI"
+msgstr "Перекладайте файли за допомогою AI"
+
+#: main.go:1601
+msgid ""
+"Translate files using AI providers.\n"
+"\n"
+"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
+"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
+"auto-detected or configured via lokit.yaml.\n"
+"\n"
+"For gettext/po4a projects, automatically initializes if needed (extracts\n"
+"strings, creates PO files). Requires --provider and --model flags.\n"
+"\n"
+"Incremental translation: lokit tracks source string checksums in lokit.lock.\n"
+"Only new or changed strings are sent to the AI provider, saving tokens and\n"
+"time. Use --force to ignore the lock file and re-translate everything.\n"
+"\n"
+"Key filtering: configure per-target in lokit.yaml:\n"
+"  ignored_keys  — keys excluded from translation entirely (never sent to AI)\n"
+"  locked_keys   — keys whose translations are preserved (skipped even with\n"
+"                  --retranslate; only --force overrides)\n"
+"  locked_patterns — regex patterns matching keys treated as locked\n"
+"                  (e.g. \"^brand_.*\" locks all brand_ prefixed keys)\n"
+"\n"
+"Each target type has a built-in system prompt optimized for its format.\n"
+"Use the --prompt flag to override it for the current run, or set prompt:\n"
+"in lokit.yaml target config for a permanent override.\n"
+"Use {{targetLang}} as a placeholder for the target language name.\n"
+"\n"
+"Examples:\n"
+"  # Translate a gettext project using GitHub Copilot (free)\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # Translate an Android project using Gemini (free, OAuth)\n"
+"  lokit translate --provider gemini --model gemini-2.5-flash\n"
+"\n"
+"  # Translate an i18next project using Google AI (API key)\n"
+"  lokit translate --provider google --model gemini-2.5-flash\n"
+"\n"
+"  # Translate specific languages in parallel\n"
+"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
+"\n"
+"  # Force full re-translation (ignore lock file)\n"
+"  lokit translate --provider copilot --model gpt-4o --force\n"
+"\n"
+"  # Re-translate everything with a custom prompt\n"
+"  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
+"    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
+"\n"
+"  # Translate a Flutter project\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # Dry run (show what would be translated)\n"
+"  lokit translate --provider copilot --model gpt-4o --dry-run"
+msgstr ""
+"Переклад файлів за допомогою AI-провайдерів.\n"
+"\n"
+"Підтримуються формати gettext PO, po4a, i18next JSON, Android strings.xml, загальний JSON,\n"
+"YAML, Markdown, Java .properties та Flutter ARB. Тип проєкту визначається автоматично або налаштовується через lokit.yaml.\n"
+"\n"
+"Для проєктів gettext/po4a автоматично виконується ініціалізація за потреби (екстракція\n"
+"рядків, створення PO-файлів). Вимагає прапорці --provider та --model.\n"
+"\n"
+"Інкрементний переклад: lokit відстежує контрольні суми вихідних рядків у lokit.lock.\n"
+"Тільки нові або змінені рядки надсилаються до AI-провайдера, що економить токени та час. Використовуйте --force, щоб ігнорувати файл блокування та перекласти все заново.\n"
+"\n"
+"Фільтрація ключів: налаштовується для кожної цілі в lokit.yaml:\n"
+"  ignored_keys  — ключі, які повністю виключаються з перекладу (ніколи не надсилаються до AI)\n"
+"  locked_keys   — ключі, переклади яких зберігаються (пропускаються навіть із\n"
+"                  --retranslate; лише --force їх перевизначає)\n"
+"  locked_patterns — регулярні вирази для ключів, які вважаються заблокованими\n"
+"                  (наприклад, \"^brand_.*\" блокує всі ключі з префіксом brand_)\n"
+"\n"
+"Кожен тип цілі має вбудовану системну підказку, оптимізовану для свого формату.\n"
+"Використовуйте прапорець --prompt, щоб перевизначити її для поточного запуску, або задайте prompt:\n"
+"у конфігурації цілі в lokit.yaml для постійного перевизначення.\n"
+"Використовуйте {{targetLang}} як заповнювач для назви цільової мови.\n"
+"\n"
+"Приклади:\n"
+"  # Переклад проєкту gettext за допомогою GitHub Copilot (безкоштовно)\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # Переклад проєкту Android за допомогою Gemini (безкоштовно, OAuth)\n"
+"  lokit translate --provider gemini --model gemini-2.5-flash\n"
+"\n"
+"  # Переклад проєкту i18next за допомогою Google AI (ключ API)\n"
+"  lokit translate --provider google --model gemini-2.5-flash\n"
+"\n"
+"  # Переклад конкретних мов паралельно\n"
+"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
+"\n"
+"  # Повторний повний переклад (ігнорувати файл блокування)\n"
+"  lokit translate --provider copilot --model gpt-4o --force\n"
+"\n"
+"  # Повторний переклад із власною підказкою\n"
+"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
+"\n"
+"  # Переклад проєкту Flutter\n"
+"  lokit translate --provider copilot --model gpt-4o\n"
+"\n"
+"  # Сухий запуск (показати, що буде перекладено)\n"
+"  lokit translate --provider copilot --model gpt-4o --dry-run"
+
+#: main.go:1666
+msgid "AI provider (required): google, gemini, groq, opencode, copilot, ollama, custom-openai"
+msgstr "AI-провайдер (обов'язково): google, gemini, groq, opencode, copilot, ollama, custom-openai"
+
+#: main.go:1667
+msgid "Model name (required)"
+msgstr "Назва моделі (обов'язково)"
+
+#: main.go:1668
+msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
+msgstr "API-ключ (або змінна середовища провайдера: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
+
+#: main.go:1669
+msgid "Custom API base URL"
+msgstr "Користувацький базовий URL API"
+
+#: main.go:1672
+msgid "Languages to translate (comma-separated, default: all with untranslated)"
+msgstr "Мови для перекладу (через кому, за замовчуванням: всі з неперекладеними)"
+
+#: main.go:1675
+msgid "Entries per API request (0 = all at once)"
+msgstr "Кількість записів на запит до API (0 = всі одразу)"
+
+#: main.go:1676
+msgid "Re-translate already translated entries"
+msgstr "Повторно перекладати вже перекладені записи"
+
+#: main.go:1677
+msgid "Translate fuzzy entries and clear fuzzy flag"
+msgstr "Перекладати fuzzy-записи та прибирати прапор fuzzy"
+
+#: main.go:1678
+msgid "Custom system prompt (use {{targetLang}} placeholder)"
+msgstr "Користувацький системний промпт (використовуйте плейсхолдер {{targetLang}})"
+
+#: main.go:1679
+msgid "Enable detailed logging"
+msgstr "Увімкнути детальне логування"
+
+#: main.go:1680
+msgid "Show what would be translated without calling AI"
+msgstr "Показати, що буде перекладено, без звернення до AI"
+
+#: main.go:1681
+msgid "Ignore lock file and re-translate all changed entries"
+msgstr "Ігнорувати файл блокування та повторно перекласти всі змінені записи"
+
+#: main.go:1684
+msgid "Enable parallel translation"
+msgstr "Увімкнути паралельний переклад"
+
+#: main.go:1685
+msgid "Maximum concurrent tasks (with --parallel)"
+msgstr "Максимальна кількість одночасних задач (з --parallel)"
+
+#: main.go:1686
+msgid "Delay between parallel tasks"
+msgstr "Затримка між паралельними задачами"
+
+#: main.go:1689
+msgid "Request timeout (0 = provider default)"
+msgstr "Таймаут запиту (0 = стандартний для провайдера)"
+
+#: main.go:1690
+msgid "HTTP/HTTPS proxy URL"
+msgstr "URL HTTP/HTTPS проксі"
+
+#: main.go:1691
+msgid "Maximum retries on rate limit (429)"
+msgstr "Максимальна кількість повторів при обмеженні швидкості (429)"
+
+#: main.go:1696
+msgid "Google AI (Gemini) — API key required"
+msgstr "Google AI (Gemini) — потрібен API-ключ"
+
+#: main.go:1697
+msgid "Gemini Code Assist — browser OAuth (free)"
+msgstr "Gemini Code Assist — браузерний OAuth (безкоштовно)"
+
+#: main.go:1698
+msgid "Groq — API key required"
+msgstr "Groq — потрібен API-ключ"
+
+#: main.go:1699
+msgid "OpenCode — optional API key"
+msgstr "OpenCode — API-ключ необов'язковий"
+
+#: main.go:1700
+msgid "GitHub Copilot — native OAuth (free)"
+msgstr "GitHub Copilot — нативний OAuth (безкоштовно)"
+
+#: main.go:1701
+msgid "Ollama local server"
+msgstr "Локальний сервер Ollama"
+
+#: main.go:1702
+msgid "Custom OpenAI-compatible endpoint"
+msgstr "Користувацький endpoint сумісний з OpenAI"
+
+#: main.go:175
 msgid "Localization Kit: AI-powered translation for multiple formats"
 msgstr "Localization Kit: переклад на основі AI для різних форматів"
 
-#: main.go:148
+#: main.go:176
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
@@ -204,14 +422,6 @@ msgid ""
 "  Each project can have multiple translation targets with different types.\n"
 "  See project examples for lokit.yaml format.\n"
 "\n"
-"Custom prompts:\n"
-"  AI translation prompts are stored in ~/.local/share/lokit/prompts.json\n"
-"  (or $XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
-"  on first use with built-in defaults. Edit it to customize prompts per\n"
-"  content type: default, docs, i18next, recipe, blogpost, android, yaml,\n"
-"  markdown, properties, flutter.\n"
-"  Use {{targetLang}} as a placeholder for the target language name.\n"
-"\n"
 "AI Providers:\n"
 "  google         Google AI (Gemini) — API key\n"
 "  gemini         Gemini Code Assist — browser OAuth (free)\n"
@@ -221,234 +431,34 @@ msgid ""
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
-"lokit — Localization Kit: переклад на основі AI для різних форматів.\n"
+"lokit — Localization Kit: AI-переклад для багатьох форматів.\n"
 "\n"
-"Підтримувані типи проєктів (автоматично визначаються або налаштовуються через lokit.yaml):\n"
+"Підтримувані типи проєктів (автовизначення або налаштування через lokit.yaml):\n"
 "  gettext     Плоскі (po/*.po) та вкладені (po/lang/*.po) PO-файли\n"
-"  po4a        Переклад документації (man-сторінки, groff/roff розмітка)\n"
+"  po4a        Переклад документації (man-сторінки, розмітка groff/roff)\n"
 "  i18next     JSON-файли перекладу для React/i18next\n"
-"  android     Ресурсні файли Android strings.xml\n"
+"  android     Файли ресурсів Android strings.xml\n"
 "  json        Загальні JSON-файли перекладу (рецепти, блоги)\n"
 "  yaml        YAML-файли перекладу\n"
-"  markdown    Переклад Markdown-документів\n"
-"  properties  Переклад Java .properties-файлів\n"
-"  flutter     Flutter ARB (Application Resource Bundle) файли\n"
+"  markdown    Переклад документів Markdown\n"
+"  properties  Файли перекладу Java .properties\n"
+"  flutter     Файли Flutter ARB (Application Resource Bundle)\n"
 "\n"
 "Конфігурація:\n"
-"  Налаштування проєкту визначаються у lokit.yaml у корені проєкту.\n"
-"  Кожен проєкт може мати кілька цільових перекладів різних типів.\n"
-"  Дивіться приклади форматів lokit.yaml.\n"
+"  Налаштування проєкту визначаються у lokit.yaml у кореневій папці проєкту.\n"
+"  Кожен проєкт може мати кілька цільових форматів перекладу.\n"
+"  Дивіться приклади проєктів для формату lokit.yaml.\n"
 "\n"
-"Користувацькі промпти:\n"
-"  AI-промпти зберігаються у ~/.local/share/lokit/prompts.json\n"
-"  (або $XDG_DATA_HOME/lokit/prompts.json). Файл створюється автоматично\n"
-"  при першому запуску з вбудованими значеннями. Редагуйте для налаштування\n"
-"  промптів під тип контенту: default, docs, i18next, recipe, blogpost, android, yaml,\n"
-"  markdown, properties, flutter.\n"
-"  Використовуйте {{targetLang}} як змінну для назви цільової мови.\n"
-"\n"
-"AI-провайдери:\n"
+"AI-постачальники:\n"
 "  google         Google AI (Gemini) — API-ключ\n"
-"  gemini         Gemini Code Assist — браузерний OAuth (безкоштовно)\n"
+"  gemini         Gemini Code Assist — OAuth у браузері (безкоштовно)\n"
 "  groq           Groq — потрібен API-ключ\n"
-"  opencode       OpenCode Zen API (безкоштовні моделі без ключа)\n"
-"  copilot        GitHub Copilot (нативний OAuth, безкоштовно)\n"
+"  opencode       OpenCode Zen API (безкоштовні моделі доступні без ключа)\n"
+"  copilot        GitHub Copilot (вбудований OAuth, безкоштовно)\n"
 "  ollama         Локальний сервер Ollama\n"
-"  custom-openai  Кастомний endpoint сумісний з OpenAI"
+"  custom-openai  Користувацький сумісний з OpenAI кінцевий пункт"
 
-#: main.go:1489
-msgid "Updating PO files for: %s"
-msgstr "Оновлення PO-файлів для: %s"
-
-#: main.go:1497
-#: main.go:3517
-msgid "Creating directory for %s: %v"
-msgstr "Створення директорії для %s: %v"
-
-#: main.go:1524
-msgid "Created: %s"
-msgstr "Створено: %s"
-
-#: main.go:1588
-msgid "Translate files using AI"
-msgstr "Перекладайте файли за допомогою AI"
-
-#: main.go:1589
-msgid ""
-"Translate files using AI providers.\n"
-"\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
-"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
-"auto-detected or configured via lokit.yaml.\n"
-"\n"
-"For gettext/po4a projects, automatically initializes if needed (extracts\n"
-"strings, creates PO files). Requires --provider and --model flags.\n"
-"\n"
-"Custom prompts are stored in ~/.local/share/lokit/prompts.json (or\n"
-"$XDG_DATA_HOME/lokit/prompts.json). The file is created automatically\n"
-"on first use with built-in defaults. Each project type uses its own\n"
-"prompt (default, docs, i18next, recipe, blogpost, android, yaml, markdown,\n"
-"properties, flutter). The --prompt flag overrides the loaded prompt for the\n"
-"current run.\n"
-"\n"
-"Examples:\n"
-"  # Translate a gettext project using GitHub Copilot (free)\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Translate an Android project using Gemini (free, OAuth)\n"
-"  lokit translate --provider gemini --model gemini-2.5-flash\n"
-"\n"
-"  # Translate an i18next project using Google AI (API key)\n"
-"  lokit translate --provider google --model gemini-2.5-flash\n"
-"\n"
-"  # Translate specific languages in parallel\n"
-"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
-"\n"
-"  # Re-translate everything with a custom prompt\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
-"    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
-"\n"
-"  # Translate a Flutter project\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Dry run (show what would be translated)\n"
-"  lokit translate --provider copilot --model gpt-4o --dry-run"
-msgstr ""
-"Перекладайте файли через AI-провайдерів.\n"
-"\n"
-"Підтримуються формати: gettext PO, po4a, i18next JSON, Android strings.xml, загальний JSON,\n"
-"YAML, Markdown, Java .properties та Flutter ARB. Тип проєкту визначається\n"
-"автоматично або налаштовується через lokit.yaml.\n"
-"\n"
-"Для проєктів gettext/po4a автоматично ініціалізується при потребі (витягує\n"
-"рядки, створює PO-файли). Потрібні прапори --provider та --model.\n"
-"\n"
-"Користувацькі промпти зберігаються у ~/.local/share/lokit/prompts.json (або\n"
-"$XDG_DATA_HOME/lokit/prompts.json). Файл створюється автоматично\n"
-"при першому запуску з дефолтними значеннями. Кожен тип проєкту використовує\n"
-"свій промпт (default, docs, i18next, recipe, blogpost, android, yaml, markdown,\n"
-"properties, flutter). Прапор --prompt замінює завантажений промпт для\n"
-"поточної сесії.\n"
-"\n"
-"Приклади:\n"
-"  # Переклад проєкту gettext через GitHub Copilot (безкоштовно)\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Переклад Android-проєкту через Gemini (безкоштовно, OAuth)\n"
-"  lokit translate --provider gemini --model gemini-2.5-flash\n"
-"\n"
-"  # Переклад i18next-проєкту через Google AI (API-ключ)\n"
-"  lokit translate --provider google --model gemini-2.5-flash\n"
-"\n"
-"  # Переклад кількох мов паралельно\n"
-"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
-"\n"
-"  # Переклад всього з кастомним промптом\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
-"\n"
-"  # Переклад Flutter-проєкту\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Тестовий запуск (показати, що буде перекладено)\n"
-"  lokit translate --provider copilot --model gpt-4o --dry-run"
-
-#: main.go:1642
-msgid "AI provider (required): google, gemini, groq, opencode, copilot, ollama, custom-openai"
-msgstr "AI-провайдер (обов'язково): google, gemini, groq, opencode, copilot, ollama, custom-openai"
-
-#: main.go:1643
-msgid "Model name (required)"
-msgstr "Назва моделі (обов'язково)"
-
-#: main.go:1644
-msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
-msgstr "API-ключ (або змінна середовища провайдера: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
-
-#: main.go:1645
-msgid "Custom API base URL"
-msgstr "Користувацький базовий URL API"
-
-#: main.go:1648
-msgid "Languages to translate (comma-separated, default: all with untranslated)"
-msgstr "Мови для перекладу (через кому, за замовчуванням: всі з неперекладеними)"
-
-#: main.go:1651
-msgid "Entries per API request (0 = all at once)"
-msgstr "Кількість записів на запит до API (0 = всі одразу)"
-
-#: main.go:1652
-msgid "Re-translate already translated entries"
-msgstr "Повторно перекладати вже перекладені записи"
-
-#: main.go:1653
-msgid "Translate fuzzy entries and clear fuzzy flag"
-msgstr "Перекладати fuzzy-записи та прибирати прапор fuzzy"
-
-#: main.go:1654
-msgid "Custom system prompt (use {{targetLang}} placeholder)"
-msgstr "Користувацький системний промпт (використовуйте плейсхолдер {{targetLang}})"
-
-#: main.go:1655
-msgid "Enable detailed logging"
-msgstr "Увімкнути детальне логування"
-
-#: main.go:1656
-msgid "Show what would be translated without calling AI"
-msgstr "Показати, що буде перекладено, без звернення до AI"
-
-#: main.go:1659
-msgid "Enable parallel translation"
-msgstr "Увімкнути паралельний переклад"
-
-#: main.go:1660
-msgid "Maximum concurrent tasks (with --parallel)"
-msgstr "Максимальна кількість одночасних задач (з --parallel)"
-
-#: main.go:1661
-msgid "Delay between parallel tasks"
-msgstr "Затримка між паралельними задачами"
-
-#: main.go:1664
-msgid "Request timeout (0 = provider default)"
-msgstr "Таймаут запиту (0 = стандартний для провайдера)"
-
-#: main.go:1665
-msgid "HTTP/HTTPS proxy URL"
-msgstr "URL HTTP/HTTPS проксі"
-
-#: main.go:1666
-msgid "Maximum retries on rate limit (429)"
-msgstr "Максимальна кількість повторів при обмеженні швидкості (429)"
-
-#: main.go:1671
-msgid "Google AI (Gemini) — API key required"
-msgstr "Google AI (Gemini) — потрібен API-ключ"
-
-#: main.go:1672
-msgid "Gemini Code Assist — browser OAuth (free)"
-msgstr "Gemini Code Assist — браузерний OAuth (безкоштовно)"
-
-#: main.go:1673
-msgid "Groq — API key required"
-msgstr "Groq — потрібен API-ключ"
-
-#: main.go:1674
-msgid "OpenCode — optional API key"
-msgstr "OpenCode — API-ключ необов'язковий"
-
-#: main.go:1675
-msgid "GitHub Copilot — native OAuth (free)"
-msgstr "GitHub Copilot — нативний OAuth (безкоштовно)"
-
-#: main.go:1676
-msgid "Ollama local server"
-msgstr "Локальний сервер Ollama"
-
-#: main.go:1677
-msgid "Custom OpenAI-compatible endpoint"
-msgstr "Користувацький endpoint сумісний з OpenAI"
-
-#: main.go:1742
+#: main.go:1768
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
@@ -456,248 +466,264 @@ msgstr ""
 "Провайдер не вказаний. Використайте --provider для вибору AI-сервісу перекладу.\n"
 "\n"
 
-#: main.go:1760
+#: main.go:1786
 msgid "No targets defined in lokit.yaml"
 msgstr "У lokit.yaml не визначено жодних цілей"
 
-#: main.go:1772
-#: main.go:2524
+#: main.go:1793
+msgid "Could not load lock file: %v"
+msgstr "Не вдалося завантажити файл блокування: %v"
+
+#: main.go:1809
+#: main.go:2581
 msgid "Interrupted, saving progress..."
 msgstr "Перервано, зберігаю прогрес..."
 
-#: main.go:1799
+#: main.go:1836
 msgid "[%s] No languages to translate, skipping"
 msgstr "[%s] Немає мов для перекладу, пропускаю"
 
-#: main.go:1808
-#: main.go:1814
-#: main.go:1820
-#: main.go:1826
-#: main.go:1832
-#: main.go:1838
-#: main.go:1844
-#: main.go:1850
-#: main.go:1856
+#: main.go:1845
+#: main.go:1851
+#: main.go:1857
+#: main.go:1863
+#: main.go:1869
+#: main.go:1875
+#: main.go:1881
+#: main.go:1887
+#: main.go:1893
 msgid "[%s] %v"
 msgstr "[%s] %v"
 
-#: main.go:1861
+#: main.go:1898
 msgid "[%s] Unknown target type %q, skipping"
 msgstr "[%s] Невідомий тип цілі %q, пропускаю"
 
-#: main.go:1866
-#: main.go:2788
+#: main.go:1904
+msgid "Could not save lock file: %v"
+msgstr "Не вдалося зберегти файл блокування: %v"
+
+#: main.go:1908
+#: main.go:2852
 msgid "Translation completed with errors"
 msgstr "Переклад завершено з помилками"
 
-#: main.go:1869
+#: main.go:1911
 msgid "All targets translated!"
 msgstr "Усі цілі перекладено!"
 
-#: main.go:188
-msgid "Warning: Failed to load prompts: %v"
-msgstr "Попередження: Не вдалося завантажити підказки: %v"
-
-#: main.go:190
-msgid "Loaded prompts from %s"
-msgstr "Підказки завантажено з %s"
-
-#: main.go:1903
+#: main.go:1945
 msgid "Extracting strings and updating PO files..."
 msgstr "Витягаємо рядки та оновлюємо PO-файли..."
 
-#: main.go:1905
+#: main.go:1947
 msgid "Extraction failed: %v"
 msgstr "Помилка під час витягання: %v"
 
-#: main.go:1906
+#: main.go:1948
 msgid "Continuing with existing PO files"
 msgstr "Продовжуємо з наявними PO-файлами"
 
-#: main.go:1928
-#: main.go:2034
-#: main.go:2165
-#: main.go:2193
-#: main.go:2214
-#: main.go:2428
-#: main.go:3689
-#: main.go:3971
-#: main.go:4232
-#: main.go:4453
+#: main.go:1970
+#: main.go:2081
+#: main.go:2217
+#: main.go:2245
+#: main.go:2266
+#: main.go:2485
+#: main.go:3753
+#: main.go:4045
+#: main.go:4316
+#: main.go:4549
 msgid "Provider: %s (%s), Model: %s"
 msgstr "Провайдер: %s (%s), Модель: %s"
 
-#: main.go:1930
-#: main.go:2216
-#: main.go:2430
-#: main.go:3691
-#: main.go:3973
-#: main.go:4234
-#: main.go:4455
+#: main.go:1972
+#: main.go:2268
+#: main.go:2487
+#: main.go:3755
+#: main.go:4047
+#: main.go:4318
+#: main.go:4551
 msgid "Parallel: enabled, max concurrent: %d"
 msgstr "Паралельно: увімкнено, макс. одночасно: %d"
 
-#: main.go:1933
-#: main.go:2219
-#: main.go:3694
-#: main.go:3976
-#: main.go:4237
-#: main.go:4458
+#: main.go:1975
+#: main.go:2271
+#: main.go:3758
+#: main.go:4050
+#: main.go:4321
+#: main.go:4554
 msgid "Chunk size: %d"
 msgstr "Розмір блоку: %d"
 
-#: main.go:1935
-#: main.go:2036
+#: main.go:1977
+#: main.go:2083
 msgid "PO dir: %s"
 msgstr "PO директорія: %s"
 
-#: main.go:1936
-#: main.go:2037
-#: main.go:2167
-#: main.go:2195
-#: main.go:2222
-#: main.go:3697
-#: main.go:3979
-#: main.go:4240
-#: main.go:4461
+#: main.go:1978
+#: main.go:2084
+#: main.go:2219
+#: main.go:2247
+#: main.go:2274
+#: main.go:3761
+#: main.go:4053
+#: main.go:4324
+#: main.go:4557
 msgid "Translating: %s"
 msgstr "Переклад: %s"
 
-#: main.go:1944
-#: main.go:2045
-#: main.go:2255
-#: main.go:2462
-#: main.go:3743
-#: main.go:3751
-#: main.go:4266
-#: main.go:4487
+#: main.go:1986
+#: main.go:2092
+#: main.go:2307
+#: main.go:2519
+#: main.go:3807
+#: main.go:3815
+#: main.go:4350
+#: main.go:4583
 msgid "%s (%s): %d strings to translate"
 msgstr "%s (%s): %d рядків для перекладу"
 
-#: main.go:1946
+#: main.go:1988
 msgid "%s: PO file not found, will be created"
 msgstr "%s: PO-файл не знайдено, буде створено"
 
-#: main.go:197
-msgid "default"
-msgstr "типово"
-
-#: main.go:1972
-#: main.go:2072
-#: main.go:2285
-#: main.go:2542
+#: main.go:2017
+#: main.go:2122
+#: main.go:2340
+#: main.go:2602
 msgid "  %s: %d/%d"
 msgstr "  %s: %d/%d"
 
-#: main.go:200
-msgid "Use \"%s [command] --help\" for more information about a command."
-msgstr "Використовуйте \"%s [command] --help\" для отримання додаткової інформації про команду."
-
-#: main.go:2021
-#: main.go:2154
-#: main.go:2335
+#: main.go:2068
+#: main.go:2206
+#: main.go:2392
 msgid "[%s] All translations complete!"
 msgstr "[%s] Усі переклади завершено!"
 
-#: main.go:2035
+#: main.go:208
+msgid "default"
+msgstr "типово"
+
+#: main.go:2082
 msgid "po4a config: %s"
 msgstr "po4a конфіг: %s"
 
-#: main.go:2047
+#: main.go:2094
 msgid "%s: PO file not found at %s"
 msgstr "%s: PO-файл не знайдено за адресою %s"
 
-#: main.go:206
-msgid "Usage:"
-msgstr "Використання:"
+#: main.go:211
+msgid "Use \"%s [command] --help\" for more information about a command."
+msgstr "Використовуйте \"%s [command] --help\" для отримання додаткової інформації про команду."
 
-#: main.go:2087
+#: main.go:2139
 msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
 msgstr "Використовується спеціальний підказ для перекладу документації (збереження groff/man-розмітки)"
 
-#: main.go:2099
+#: main.go:2151
 msgid "PO files missing, running po4a initialization..."
 msgstr "PO-файли відсутні, запуск ініціалізації po4a..."
 
-#: main.go:210
-msgid "Aliases:"
-msgstr "Псевдоніми:"
+#: main.go:217
+msgid "Usage:"
+msgstr "Використання:"
 
-#: main.go:2119
+#: main.go:2171
 msgid "auto-init failed: %v"
 msgstr "автоініціалізація не вдалася: %v"
 
-#: main.go:213
-msgid "Examples:"
-msgstr "Приклади:"
-
-#: main.go:2130
+#: main.go:2182
 msgid "[%s] No PO file for %s at %s, skipping"
 msgstr "[%s] Немає PO-файлу для %s у %s, пропуск"
 
-#: main.go:216
-msgid "Available Commands:"
-msgstr "Доступні команди:"
+#: main.go:221
+msgid "Aliases:"
+msgstr "Псевдоніми:"
 
-#: main.go:2166
-#: main.go:2194
-#: main.go:3696
-#: main.go:3978
-#: main.go:4239
-#: main.go:4460
+#: main.go:2218
+#: main.go:2246
+#: main.go:3760
+#: main.go:4052
+#: main.go:4323
+#: main.go:4556
 msgid "Translations dir: %s"
 msgstr "Директорія перекладів: %s"
 
-#: main.go:222
-msgid "Additional Commands:"
-msgstr "Додаткові команди:"
+#: main.go:224
+msgid "Examples:"
+msgstr "Приклади:"
 
-#: main.go:2221
+#: main.go:227
+msgid "Available Commands:"
+msgstr "Доступні команди:"
+
+#: main.go:2273
 msgid "Res dir: %s"
 msgstr "Res директорія: %s"
 
-#: main.go:2228
+#: main.go:2280
 msgid "cannot read source strings.xml %s: %w"
 msgstr "неможливо прочитати вихідний strings.xml %s: %w"
 
-#: main.go:2231
-#: main.go:3718
-#: main.go:4249
-#: main.go:4470
+#: main.go:2283
+#: main.go:3782
+#: main.go:4333
+#: main.go:4566
 msgid "Source strings: %d"
 msgstr "Рядки джерела: %d"
 
-#: main.go:2242
-#: main.go:2450
-#: main.go:3737
+#: main.go:2294
+#: main.go:2507
+#: main.go:3801
 msgid "%s (%s): %d strings to translate (file will be auto-created)"
 msgstr "%s (%s): %d рядків для перекладу (файл буде створено автоматично)"
 
-#: main.go:225
+#: main.go:233
+msgid "Additional Commands:"
+msgstr "Додаткові команди:"
+
+#: main.go:236
 msgid "Flags:"
 msgstr "Прапорці:"
 
-#: main.go:228
-msgid "Global Flags:"
-msgstr "Глобальні прапорці:"
-
-#: main.go:2303
+#: main.go:2360
 msgid "Auto-creating %s with %d strings"
 msgstr "Автоматичне створення %s з %d рядками"
 
-#: main.go:2308
+#: main.go:2365
 msgid "Added %d new strings to %s"
 msgstr "Додано %d нових рядків до %s"
 
-#: main.go:231
+#: main.go:239
+msgid "Global Flags:"
+msgstr "Глобальні прапорці:"
+
+#: main.go:242
 msgid "Additional help topics:"
 msgstr "Додаткові розділи довідки:"
 
-#: main.go:240
+#: main.go:2475
+msgid "All UI translations are complete!"
+msgstr "Усі переклади інтерфейсу завершено!"
+
+#: main.go:2489
+msgid "Parallel: disabled (sequential)"
+msgstr "Паралельно: вимкнено (послідовно)"
+
+#: main.go:2491
+msgid "Source keys (%s): %d"
+msgstr "Ключі джерела (%s): %d"
+
+#: main.go:2494
+msgid "Translating UI strings: %s"
+msgstr "Переклад рядків інтерфейсу: %s"
+
+#: main.go:251
 msgid "Help about any command"
 msgstr "Довідка щодо будь-якої команди"
 
-#: main.go:241
+#: main.go:252
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
@@ -705,120 +731,104 @@ msgstr ""
 "Довідка надає інформацію про будь-яку команду в застосунку.\n"
 "Просто введіть %s help [шлях до команди] для повної інформації."
 
-#: main.go:2418
-msgid "All UI translations are complete!"
-msgstr "Усі переклади інтерфейсу завершено!"
-
-#: main.go:2432
-msgid "Parallel: disabled (sequential)"
-msgstr "Паралельно: вимкнено (послідовно)"
-
-#: main.go:2434
-msgid "Source keys (%s): %d"
-msgstr "Ключі джерела (%s): %d"
-
-#: main.go:2437
-msgid "Translating UI strings: %s"
-msgstr "Переклад рядків інтерфейсу: %s"
-
-#: main.go:2472
+#: main.go:2529
 msgid "%s: recipe translations directory not found"
 msgstr "%s: директорію перекладів рецептів не знайдено"
 
-#: main.go:2485
+#: main.go:2542
 msgid "%s: %d recipe files need translation"
 msgstr "%s: потрібно перекласти %d файлів рецептів"
 
-#: main.go:2491
-#: main.go:2698
+#: main.go:2548
+#: main.go:2762
 msgid "No blog posts found in %s"
 msgstr "Не знайдено жодного блогу в %s"
 
-#: main.go:2506
+#: main.go:2563
 msgid "%s: %d blog post(s) need translation"
 msgstr "%s: потрібно перекласти %d публікацій блогу"
 
-#: main.go:2508
+#: main.go:2565
 msgid "%s: all blog posts translated"
 msgstr "%s: усі пости блогу перекладено"
 
-#: main.go:2573
+#: main.go:2637
 msgid "Auto-creating %s with %d keys"
 msgstr "Автоматичне створення %s з %d ключами"
 
-#: main.go:2593
-#: main.go:2680
-#: main.go:2777
+#: main.go:2657
+#: main.go:2744
+#: main.go:2841
 msgid "Translation interrupted, partial progress saved"
 msgstr "Переклад перервано, частковий прогрес збережено"
 
-#: main.go:2596
+#: main.go:2660
 msgid "UI translation failed: %v"
 msgstr "Помилка перекладу інтерфейсу: %v"
 
-#: main.go:2604
+#: main.go:2668
 msgid "Translating recipe metadata..."
 msgstr "Переклад метаданих рецептів..."
 
-#: main.go:2621
+#: main.go:2685
 msgid "Cannot read recipe directory for %s: %v"
 msgstr "Не вдалося прочитати директорію рецептів для %s: %v"
 
-#: main.go:263
+#: main.go:2733
+msgid "  %s: all recipe translations complete"
+msgstr "  %s: усі переклади рецептів завершено"
+
+#: main.go:2737
+msgid "  %s (%s): %d recipe files to translate"
+msgstr "  %s (%s): %d файлів рецептів для перекладу"
+
+#: main.go:274
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "Невідома тема довідки %q\n"
 
-#: main.go:2669
-msgid "  %s: all recipe translations complete"
-msgstr "  %s: усі переклади рецептів завершено"
-
-#: main.go:2673
-msgid "  %s (%s): %d recipe files to translate"
-msgstr "  %s (%s): %d файлів рецептів для перекладу"
-
-#: main.go:2683
+#: main.go:2747
 msgid "Recipe translation failed for %s: %v"
 msgstr "Помилка перекладу рецепта для %s: %v"
 
-#: main.go:2691
+#: main.go:2755
 msgid "Translating blog posts..."
 msgstr "Переклад публікацій блогу..."
 
-#: main.go:2717
+#: main.go:2781
 msgid "Cannot read source blog post %s: %v"
 msgstr "Не вдалося прочитати вихідний пост блогу %s: %v"
 
-#: main.go:2729
+#: main.go:2793
 msgid "Error parsing %s, will recreate: %v"
 msgstr "Помилка розбору %s, буде створено заново: %v"
 
-#: main.go:273
-msgid "Project root directory"
-msgstr "Коренева директорія проєкту"
-
-#: main.go:2766
+#: main.go:2830
 msgid "  %s: all blog posts translated"
 msgstr "  %s: усі пости блогу перекладено"
 
-#: main.go:2770
+#: main.go:2834
 msgid "  %s (%s): %d blog post(s) to translate"
 msgstr "  %s (%s): %d публікацій блогу для перекладу"
 
-#: main.go:2780
+#: main.go:284
+msgid "Project root directory"
+msgstr "Коренева директорія проєкту"
+
+#: main.go:2844
 msgid "Blog post translation failed for %s: %v"
 msgstr "Помилка перекладу посту блогу для %s: %v"
 
-#: main.go:2791
+#: main.go:2855
 msgid "Translation complete!"
 msgstr "Переклад завершено!"
 
-#: main.go:2801
+#: main.go:2865
 msgid "Manage provider authentication"
 msgstr "Керування автентифікацією провайдера"
 
-#: main.go:2802
+#: main.go:2866
 msgid ""
 "Manage authentication credentials for all AI providers.\n"
 "\n"
@@ -866,11 +876,11 @@ msgstr ""
 "  lokit auth logout                        Видалити всі облікові дані\n"
 "  lokit auth list                          Показати всі збережені облікові дані"
 
-#: main.go:2856
+#: main.go:2920
 msgid "Authenticate with an AI provider"
 msgstr "Автентифікація з AI-провайдером"
 
-#: main.go:2857
+#: main.go:2921
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -900,259 +910,251 @@ msgstr ""
 "  opencode      Вставте ваш API-ключ OpenCode\n"
 "  custom-openai Вставте API-ключ + URL endpoint"
 
-#: main.go:2873
+#: main.go:2937
 msgid "Select provider to authenticate"
 msgstr "Оберіть провайдера для автентифікації"
 
-#: main.go:2882
+#: main.go:2946
 msgid "OAuth"
 msgstr "OAuth"
 
-#: main.go:2884
+#: main.go:2948
 msgid "API key"
 msgstr "API-ключ"
 
-#: main.go:2890
+#: main.go:2954
 msgid "Enter choice (number or name):"
 msgstr "Введіть вибір (номер або назва):"
 
-#: main.go:2894
-#: main.go:3102
-#: main.go:3141
-#: main.go:3163
+#: main.go:2958
+#: main.go:3166
+#: main.go:3205
+#: main.go:3227
 msgid "No input received"
 msgstr "Вхідні дані не отримано"
 
-#: main.go:291
-msgid "this command"
-msgstr "ця команда"
-
-#: main.go:2914
+#: main.go:2978
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
 msgstr "Неправильний вибір. Використайте: lokit auth login --provider PROVIDER"
 
-#: main.go:293
-msgid "help for %s"
-msgstr "довідка для %s"
-
-#: main.go:2939
+#: main.go:3003
 msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
 msgstr "Невідомий провайдер '%s'. Запустіть 'lokit auth login' для перегляду опцій."
 
-#: main.go:2945
+#: main.go:3009
 msgid "Provider to authenticate"
 msgstr "Провайдер для авторизації"
 
-#: main.go:2961
+#: main.go:302
+msgid "this command"
+msgstr "ця команда"
+
+#: main.go:3025
 msgid "GitHub Copilot Authentication"
 msgstr "GitHub Copilot автентифікація"
 
-#: main.go:2964
+#: main.go:3028
 msgid "Open this URL in your browser:"
 msgstr "Відкрийте цю URL-адресу у вашому браузері:"
 
-#: main.go:2966
+#: main.go:3030
 msgid "Enter this code:"
 msgstr "Введіть цей код:"
 
-#: main.go:2968
-#: main.go:2992
+#: main.go:3032
+#: main.go:3056
 msgid "Waiting for authorization..."
 msgstr "Очікування авторизації..."
 
-#: main.go:2972
-#: main.go:2996
+#: main.go:3036
+#: main.go:3060
 msgid "Authentication cancelled"
 msgstr "Автентифікацію скасовано"
 
-#: main.go:2975
-#: main.go:2999
+#: main.go:3039
+#: main.go:3063
 msgid "Authentication failed: %v"
 msgstr "Помилка автентифікації: %v"
 
-#: main.go:2979
+#: main.go:304
+msgid "help for %s"
+msgstr "довідка для %s"
+
+#: main.go:3043
 msgid "Copilot authentication successful!"
 msgstr "Copilot автентифікація успішна!"
 
-#: main.go:2980
+#: main.go:3044
 msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
 msgstr "Тепер ви можете використовувати: lokit translate --provider copilot --model gpt-4o"
 
-#: main.go:2985
+#: main.go:3049
 msgid "Google Gemini Authentication"
 msgstr "Автентифікація Google Gemini"
 
-#: main.go:2988
+#: main.go:3052
 msgid "Opening browser for Google sign-in..."
 msgstr "Відкриваємо браузер для входу через Google..."
 
-#: main.go:2990
+#: main.go:3054
 msgid "If the browser doesn't open, visit:"
 msgstr "Якщо браузер не відкрився, перейдіть за адресою:"
 
-#: main.go:3004
+#: main.go:3068
 msgid "Gemini authentication successful!"
 msgstr "Успішна автентифікація Gemini!"
 
-#: main.go:3010
+#: main.go:3074
 msgid "Token was saved but cannot be loaded"
 msgstr "Токен збережено, але не вдалося завантажити"
 
-#: main.go:3016
+#: main.go:3080
 msgid "Gemini Code Assist requires a GCP project ID to work in your region."
 msgstr "Для роботи Gemini Code Assist у вашому регіоні потрібен ідентифікатор проєкту GCP."
 
-#: main.go:3017
+#: main.go:3081
 msgid "Find your project ID at: https://console.cloud.google.com"
 msgstr "Знайдіть свій ідентифікатор проєкту тут: https://console.cloud.google.com"
 
-#: main.go:3018
+#: main.go:3082
 msgid "(Create a project if you don't have one, then enable the Gemini API)"
 msgstr "(Створіть проєкт, якщо у вас його ще немає, потім увімкніть Gemini API)"
 
-#: main.go:3020
+#: main.go:3084
 msgid "GCP Project ID (or press Enter to skip):"
 msgstr "GCP Project ID (або натисніть Enter для пропуску):"
 
-#: main.go:3032
-#: main.go:3044
+#: main.go:3096
+#: main.go:3108
 msgid "Code Assist setup failed: %v"
 msgstr "Не вдалося налаштувати Code Assist: %v"
 
-#: main.go:3033
+#: main.go:3097
 msgid "Project ID saved. You can try again later."
 msgstr "Ідентифікатор проєкту збережено. Ви можете спробувати ще раз пізніше."
 
-#: main.go:3035
-#: main.go:3048
+#: main.go:3099
+#: main.go:3112
 msgid "Code Assist project configured!"
 msgstr "Проєкт для Code Assist налаштовано!"
 
-#: main.go:3038
+#: main.go:3102
 msgid "Skipped. You can set it later with:"
 msgstr "Пропущено. Ви можете налаштувати це пізніше за допомогою:"
 
-#: main.go:3039
+#: main.go:3103
 msgid "  lokit auth login --provider gemini"
 msgstr "  lokit auth login --provider gemini"
 
-#: main.go:304
-#: main.go:1460
-#: main.go:1478
-#: main.go:1749
-msgid "%v"
-msgstr "%v"
-
-#: main.go:3045
+#: main.go:3109
 msgid "OAuth login succeeded but Code Assist onboarding failed."
 msgstr "Вхід через OAuth пройшов успішно, але налаштування Code Assist не вдалося."
 
-#: main.go:3046
+#: main.go:3110
 msgid "This will be retried automatically on first translate."
 msgstr "Це буде автоматично повторено під час першого перекладу."
 
-#: main.go:3053
+#: main.go:3117
 msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
 msgstr "Тепер ви можете використовувати: lokit translate --provider gemini --model gemini-2.5-flash"
 
-#: main.go:3054
+#: main.go:3118
 msgid "(no API key needed when authenticated via OAuth)"
 msgstr "(API-ключ не потрібен при автентифікації через OAuth)"
 
-#: main.go:3084
+#: main.go:3148
 msgid "%s — API Key Setup"
 msgstr "%s — налаштування API-ключа"
 
-#: main.go:3087
+#: main.go:315
+#: main.go:1471
+#: main.go:1489
+#: main.go:1775
+msgid "%v"
+msgstr "%v"
+
+#: main.go:3151
 msgid "Get your API key from: %s%s%s"
 msgstr "Отримайте свій API-ключ тут: %s%s%s"
 
-#: main.go:3094
-#: main.go:3156
+#: main.go:3158
+#: main.go:3220
 msgid "Current key"
 msgstr "Поточний ключ"
 
-#: main.go:3095
+#: main.go:3159
 msgid "Enter new key to replace, or press Enter to keep:"
 msgstr "Введіть новий ключ для заміни або натисніть Enter, щоб залишити:"
 
-#: main.go:3097
+#: main.go:3161
 msgid "Enter API key:"
 msgstr "Введіть API-ключ:"
 
-#: main.go:3109
+#: main.go:3173
 msgid "Keeping existing key"
 msgstr "Зберігаємо існуючий ключ"
 
-#: main.go:3112
+#: main.go:3176
 msgid "No API key provided"
 msgstr "API-ключ не вказано"
 
-#: main.go:3117
+#: main.go:3181
 msgid "Failed to save API key: %v"
 msgstr "Не вдалося зберегти API-ключ: %v"
 
-#: main.go:3121
+#: main.go:3185
 msgid "%s API key saved!"
 msgstr "%s API-ключ збережено!"
 
-#: main.go:3122
+#: main.go:3186
 msgid "You can now use: %s"
 msgstr "Тепер ви можете використовувати: %s"
 
-#: main.go:3127
+#: main.go:3191
 msgid "Custom OpenAI-Compatible Endpoint"
 msgstr "Користувацький сумісний з OpenAI endpoint"
 
-#: main.go:3134
+#: main.go:3198
 msgid "Current endpoint"
 msgstr "Поточний endpoint"
 
-#: main.go:3135
+#: main.go:3199
 msgid "Enter new endpoint URL, or press Enter to keep:"
 msgstr "Введіть новий URL endpoint або натисніть Enter, щоб залишити:"
 
-#: main.go:3137
+#: main.go:3201
 msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
 msgstr "Введіть URL endpoint (наприклад, https://api.example.com/v1):"
 
-#: main.go:3150
+#: main.go:3214
 msgid "Endpoint URL is required"
 msgstr "Потрібно вказати URL endpoint"
 
-#: main.go:3157
+#: main.go:3221
 msgid "Enter new API key, or press Enter to keep (leave empty for none):"
 msgstr "Введіть новий API-ключ або натисніть Enter, щоб залишити (залиште порожнім для відсутності):"
 
-#: main.go:3159
+#: main.go:3223
 msgid "Enter API key (or press Enter if not required):"
 msgstr "Введіть API-ключ (або натисніть Enter, якщо не потрібен):"
 
-#: main.go:316
-msgid "Show version information"
-msgstr "Показати інформацію про версію"
-
-#: main.go:317
-msgid "Display version, commit hash, and build date."
-msgstr "Показати версію, хеш коміту та дату збірки."
-
-#: main.go:3173
+#: main.go:3237
 msgid "Failed to save credentials: %v"
 msgstr "Не вдалося зберегти облікові дані: %v"
 
-#: main.go:3177
+#: main.go:3241
 msgid "Custom OpenAI endpoint saved!"
 msgstr "Користувацький OpenAI endpoint збережено!"
 
-#: main.go:3178
+#: main.go:3242
 msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
 msgstr "Тепер ви можете використовувати: lokit translate --provider custom-openai --model MODEL_NAME"
 
-#: main.go:3187
+#: main.go:3251
 msgid "Remove stored credentials"
 msgstr "Видалити збережені облікові дані"
 
-#: main.go:3188
+#: main.go:3252
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -1174,128 +1176,152 @@ msgstr ""
 "  lokit auth logout --provider google      Видалити лише API-ключ Google\n"
 "  lokit auth logout --provider gemini      Видалити лише Gemini OAuth"
 
-#: main.go:319
-msgid "lokit version %s"
-msgstr "lokit версія %s"
-
-#: main.go:320
-msgid "commit:"
-msgstr "коміт:"
-
-#: main.go:3203
-#: main.go:3229
+#: main.go:3267
+#: main.go:3293
 msgid "Failed to remove Copilot credentials: %v"
 msgstr "Не вдалося видалити облікові дані Copilot: %v"
 
-#: main.go:3206
+#: main.go:327
+msgid "Show version information"
+msgstr "Показати інформацію про версію"
+
+#: main.go:3270
 msgid "Copilot credentials removed"
 msgstr "Облікові дані Copilot видалено"
 
-#: main.go:3209
-#: main.go:3233
+#: main.go:3273
+#: main.go:3297
 msgid "Failed to remove Gemini credentials: %v"
 msgstr "Не вдалося видалити облікові дані Gemini: %v"
 
-#: main.go:321
-msgid "built:"
-msgstr "зібрано:"
-
-#: main.go:3212
+#: main.go:3276
 msgid "Gemini credentials removed"
 msgstr "Облікові дані Gemini видалено"
 
-#: main.go:3215
-#: main.go:3238
+#: main.go:3279
+#: main.go:3302
 msgid "Failed to remove %s credentials: %v"
 msgstr "Не вдалося видалити облікові дані %s: %v"
 
-#: main.go:3218
+#: main.go:328
+msgid "Display version, commit hash, and build date."
+msgstr "Показати версію, хеш коміту та дату збірки."
+
+#: main.go:3282
 msgid "%s credentials removed"
 msgstr "Облікові дані %s видалено"
 
-#: main.go:3220
+#: main.go:3284
 msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
 msgstr "Невідомий провайдер '%s'. Виконайте 'lokit auth list', щоб переглянути список провайдерів."
 
-#: main.go:3243
+#: main.go:330
+msgid "lokit version %s"
+msgstr "lokit версія %s"
+
+#: main.go:3307
 msgid "All stored credentials removed"
 msgstr "Всі збережені облікові дані видалено"
 
-#: main.go:3248
+#: main.go:331
+msgid "commit:"
+msgstr "коміт:"
+
+#: main.go:3312
 msgid "Provider to logout (default: all)"
 msgstr "Провайдер для виходу (за замовчуванням: всі)"
 
-#: main.go:3267
+#: main.go:332
+msgid "built:"
+msgstr "зібрано:"
+
+#: main.go:3331
 msgid "Show stored credentials and status"
 msgstr "Показати збережені облікові дані та статус"
 
-#: main.go:3269
+#: main.go:3333
 msgid "Stored Credentials"
 msgstr "Збережені облікові дані"
 
-#: main.go:3272
+#: main.go:3336
 msgid "OAuth Providers"
 msgstr "OAuth-провайдери"
 
-#: main.go:3273
+#: main.go:3337
 msgid "copilot"
 msgstr "copilot"
 
-#: main.go:3274
+#: main.go:3338
 msgid "gemini"
 msgstr "gemini"
 
-#: main.go:3277
+#: main.go:3341
 msgid "API Key Providers"
 msgstr "Провайдери API-ключів"
 
-#: main.go:3290
-#: main.go:3297
+#: main.go:3354
+#: main.go:3361
 msgid "✓ configured"
 msgstr "✓ налаштовано"
 
-#: main.go:3292
-#: main.go:3298
+#: main.go:3356
+#: main.go:3362
 msgid "endpoint:"
 msgstr "endpoint:"
 
-#: main.go:3297
+#: main.go:3361
 msgid "no key"
 msgstr "немає ключа"
 
-#: main.go:3301
+#: main.go:3365
 msgid "not configured"
 msgstr "не налаштовано"
 
-#: main.go:3306
+#: main.go:3370
 msgid "Environment Variables"
 msgstr "Змінні середовища"
 
-#: main.go:3320
+#: main.go:3384
 msgid "not set"
 msgstr "не встановлено"
 
-#: main.go:3342
+#: main.go:3406
 msgid "Scanning for source files in: %s"
 msgstr "Сканування вихідних файлів у: %s"
 
-#: main.go:3346
+#: main.go:3410
 msgid "scanning sources: %w"
 msgstr "сканування джерел: %w"
 
-#: main.go:3350
+#: main.go:3414
 msgid "no source files found (supported: %s)"
 msgstr "не знайдено вихідних файлів (підтримуються: %s)"
 
-#: main.go:336
-msgid "Show project info and translation statistics"
-msgstr "Показати інформацію про проєкт і статистику перекладу"
-
-#: main.go:3369
+#: main.go:3433
 msgid "Found %d source files (%s)"
 msgstr "Знайдено %d вихідних файлів (%s)"
 
-#: main.go:337
+#: main.go:3457
+msgid "Extracting from %d Go files (AST, keywords: %s)..."
+msgstr "Витягнення з %d Go-файлів (AST, ключові слова: %s)..."
+
+#: main.go:3461
+msgid "Extracting from %d Go files with xgotext..."
+msgstr "Витягнення з %d Go-файлів за допомогою xgotext..."
+
+#: main.go:3468
+msgid "Extracting from %d non-Go files with xgettext..."
+msgstr "Витягнення з %d не-Go-файлів за допомогою xgettext..."
+
+#: main.go:347
+msgid "Show project info and translation statistics"
+msgstr "Показати інформацію про проєкт і статистику перекладу"
+
+#: main.go:3471
+msgid "xgettext extraction failed: %w"
+msgstr "помилка витягу xgettext: %w"
+
+#: main.go:348
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
@@ -1313,89 +1339,67 @@ msgstr ""
 "\n"
 "Файли не змінюються."
 
-#: main.go:3393
-msgid "Extracting from %d Go files (AST, keywords: %s)..."
-msgstr "Витягнення з %d Go-файлів (AST, ключові слова: %s)..."
-
-#: main.go:3397
-msgid "Extracting from %d Go files with xgotext..."
-msgstr "Витягнення з %d Go-файлів за допомогою xgotext..."
-
-#: main.go:3404
-msgid "Extracting from %d non-Go files with xgettext..."
-msgstr "Витягнення з %d не-Go-файлів за допомогою xgettext..."
-
-#: main.go:3407
-msgid "xgettext extraction failed: %w"
-msgstr "помилка витягу xgettext: %w"
-
-#: main.go:3416
+#: main.go:3480
 msgid "Go extraction failed: %v"
 msgstr "Помилка витягнення з Go: %v"
 
-#: main.go:3417
+#: main.go:3481
 msgid "Continuing with xgettext results only"
 msgstr "Продовжуємо лише з результатами xgettext"
 
-#: main.go:3424
+#: main.go:3488
 msgid "Merging POT files..."
 msgstr "Об’єднання POT-файлів..."
 
-#: main.go:3426
+#: main.go:3490
 msgid "merging POT files: %w"
 msgstr "злиття POT-файлів: %w"
 
-#: main.go:3434
+#: main.go:3498
 msgid "extraction failed: %w"
 msgstr "помилка витягу: %w"
 
-#: main.go:3442
+#: main.go:3506
 msgid "Go extraction failed: %w"
 msgstr "помилка витягу Go: %w"
 
-#: main.go:3456
+#: main.go:3520
 msgid "Extracted %d strings to %s"
 msgstr "Витягнуто %d рядків у %s"
 
-#: main.go:3458
+#: main.go:3522
 msgid "Extracted strings to %s"
 msgstr "Витягнуто рядки у %s"
 
-#: main.go:3476
+#: main.go:3540
 msgid "No POT template found, running extraction..."
 msgstr "POT-шаблон не знайдено, запускаємо витягнення..."
 
-#: main.go:3478
+#: main.go:3542
 msgid "Auto-extraction failed: %v"
 msgstr "Автовитягнення не вдалося: %v"
 
-#: main.go:3485
+#: main.go:3549
 msgid "Cannot auto-create %s: extraction produced no POT template"
 msgstr "Не вдалося автоматично створити %s: витягнення не дало POT-шаблону"
 
-#: main.go:3486
+#: main.go:3550
 msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
 msgstr "Перевірте, що у вихідних файлах є рядки для перекладу (_(), N_() тощо)"
 
-#: main.go:3493
+#: main.go:3557
 msgid "Cannot read POT template %s: %v"
 msgstr "Не вдалося прочитати POT-шаблон %s: %v"
 
-#: main.go:3526
+#: main.go:3590
 msgid "Auto-created %s from %s (%d entries)"
 msgstr "Автоматично створено %s з %s (%d записів)"
 
-#: main.go:356
-#: main.go:1050
-#: main.go:1720
-msgid "Config error: %v"
-msgstr "Помилка конфігурації: %v"
-
-#: main.go:3598
+#: main.go:3662
 msgid "check provider documentation"
 msgstr "перевірте документацію провайдера"
 
-#: main.go:3601
+#: main.go:3665
 msgid ""
 "--model is required for provider '%s'\n"
 "\n"
@@ -1411,7 +1415,13 @@ msgstr ""
 "\n"
 "Використання: --provider %s --model MODEL_NAME"
 
-#: main.go:3615
+#: main.go:367
+#: main.go:1061
+#: main.go:1746
+msgid "Config error: %v"
+msgstr "Помилка конфігурації: %v"
+
+#: main.go:3679
 msgid ""
 "provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
@@ -1439,7 +1449,7 @@ msgstr ""
 "\n"
 "Отримати API-ключ: https://aistudio.google.com/apikey"
 
-#: main.go:3627
+#: main.go:3691
 msgid ""
 "provider 'gemini' requires Google OAuth login\n"
 "\n"
@@ -1457,7 +1467,7 @@ msgstr ""
 "Використовується Gemini Code Assist (безкоштовний тариф: 60 запитів/хв).\n"
 "Для доступу через API-ключ використовуйте --provider google."
 
-#: main.go:3636
+#: main.go:3700
 msgid ""
 "provider 'groq' requires an API key\n"
 "\n"
@@ -1479,13 +1489,7 @@ msgstr ""
 "\n"
 "Отримати безкоштовний API-ключ: https://console.groq.com/keys"
 
-#: main.go:364
-#: main.go:1054
-#: main.go:1728
-msgid "No lokit.yaml found in %s"
-msgstr "Не знайдено lokit.yaml у %s"
-
-#: main.go:3649
+#: main.go:3713
 msgid ""
 "provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
@@ -1501,13 +1505,7 @@ msgstr ""
 "\n"
 "Використовується GitHub Copilot (потрібна активна підписка Copilot)."
 
-#: main.go:365
-#: main.go:1055
-#: main.go:1729
-msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr "Створіть конфігураційний файл lokit.yaml. Формат дивіться у 'lokit init --help'."
-
-#: main.go:3657
+#: main.go:3721
 msgid ""
 "provider 'custom-openai' requires an endpoint URL\n"
 "\n"
@@ -1525,7 +1523,7 @@ msgstr ""
 "Варіант 2: Передати напряму:\n"
 "  --base-url https://api.example.com/v1"
 
-#: main.go:3672
+#: main.go:3736
 msgid ""
 "provider 'ollama' requires Ollama server to be running\n"
 "\n"
@@ -1543,348 +1541,364 @@ msgstr ""
 "  --provider copilot         (GitHub Copilot, безкоштовно)\n"
 "  --provider google          (потрібен API-ключ)"
 
-#: main.go:3710
+#: main.go:375
+#: main.go:1065
+#: main.go:1754
+msgid "No lokit.yaml found in %s"
+msgstr "Не знайдено lokit.yaml у %s"
+
+#: main.go:376
+#: main.go:1066
+#: main.go:1755
+msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
+msgstr "Створіть конфігураційний файл lokit.yaml. Формат дивіться у 'lokit init --help'."
+
+#: main.go:3774
 msgid "cannot find source YAML file for language %q in %s"
 msgstr "Не вдалося знайти вихідний YAML-файл для мови %q у %s"
 
-#: main.go:3715
+#: main.go:3779
 msgid "cannot read source YAML %s: %w"
 msgstr "Не вдалося прочитати вихідний YAML %s: %w"
 
-#: main.go:373
+#: main.go:384
 msgid "Project"
 msgstr "Проєкт"
 
-#: main.go:374
+#: main.go:385
 msgid "Config"
 msgstr "Конфіг"
 
-#: main.go:375
-#: main.go:395
+#: main.go:386
+#: main.go:406
 msgid "Root"
 msgstr "Корінь"
 
-#: main.go:376
-msgid "Source lang"
-msgstr "Мова джерела"
-
-#: main.go:379
-#: main.go:399
-#: main.go:401
-msgid "Languages"
-msgstr "Мови"
-
-#: main.go:3797
+#: main.go:3861
 msgid "No YAML files to translate"
 msgstr "Немає YAML-файлів для перекладу"
 
-#: main.go:381
-msgid "Targets"
-msgstr "Цілі"
+#: main.go:387
+msgid "Source lang"
+msgstr "Мова джерела"
 
-#: main.go:3826
-#: main.go:4328
-#: main.go:4549
+#: main.go:3898
+#: main.go:4422
+#: main.go:4655
 msgid "  %s: %d/%d strings"
 msgstr "  %s: %d/%d рядків"
 
-#: main.go:385
-#: main.go:1074
-#: main.go:1755
-msgid "Config resolve error: %v"
-msgstr "Помилка розбору конфігурації: %v"
+#: main.go:390
+#: main.go:410
+#: main.go:412
+msgid "Languages"
+msgstr "Мови"
 
-#: main.go:3861
+#: main.go:392
+msgid "Targets"
+msgstr "Цілі"
+
+#: main.go:3935
 msgid "Source segments"
 msgstr "Вихідні сегменти"
 
-#: main.go:3906
+#: main.go:396
+#: main.go:1085
+#: main.go:1781
+msgid "Config resolve error: %v"
+msgstr "Помилка розбору конфігурації: %v"
+
+#: main.go:3980
 msgid "Cannot find source Markdown files in %s"
 msgstr "Не вдалося знайти вихідні Markdown-файли у %s"
 
-#: main.go:3907
+#: main.go:3981
 msgid "Expected: %s/*.md"
 msgstr "Очікується: %s/*.md"
 
-#: main.go:3911
+#: main.go:3985
 msgid "Source language (%s): %d files"
 msgstr "Мова оригіналу (%s): %d файлів"
 
-#: main.go:3932
+#: main.go:4006
 msgid "Cannot read source Markdown file %s: %v"
 msgstr "Не вдалося прочитати вихідний Markdown-файл %s: %v"
 
-#: main.go:3943
+#: main.go:4017
 msgid "Created: %s (%d segments)"
 msgstr "Створено: %s (%d сегментів)"
 
-#: main.go:3963
+#: main.go:4037
 msgid "Markdown init: %d created, %d updated"
 msgstr "Markdown ініціалізація: створено %d, оновлено %d"
 
-#: main.go:3985
+#: main.go:4059
 msgid "cannot find source Markdown files in %s"
 msgstr "Не вдалося знайти вихідні Markdown-файли у %s"
 
-#: main.go:3995
+#: main.go:4069
 msgid "Source segments: %d (%d files)"
 msgstr "Вихідні сегменти: %d (%d файлів)"
 
-#: main.go:401
-msgid "none detected"
-msgstr "не виявлено"
-
-#: main.go:4027
+#: main.go:4101
 msgid "%s (%s): %d segments to translate"
 msgstr "%s (%s): %d сегментів для перекладу"
 
-#: main.go:4078
+#: main.go:412
+msgid "none detected"
+msgstr "не виявлено"
+
+#: main.go:4152
 msgid "No Markdown files to translate"
 msgstr "Немає Markdown-файлів для перекладу"
 
-#: main.go:4107
+#: main.go:4189
 msgid "  %s: %d/%d segments"
 msgstr "  %s: %d/%d сегментів"
 
-#: main.go:4177
+#: main.go:4261
 msgid "Cannot find source .properties file: %s"
 msgstr "Не вдалося знайти вихідний .properties-файл: %s"
 
-#: main.go:4183
+#: main.go:4267
 msgid "Cannot read source .properties file %s: %v"
 msgstr "Не вдалося прочитати вихідний .properties-файл %s: %v"
 
-#: main.go:4225
+#: main.go:4309
 msgid "Properties init: %d created, %d updated"
 msgstr "Properties ініціалізація: створено %d, оновлено %d"
 
-#: main.go:4246
+#: main.go:4330
 msgid "cannot read source .properties file %s: %w"
 msgstr "Не вдалося прочитати вихідний .properties-файл %s: %w"
 
-#: main.go:4301
+#: main.go:4385
 msgid "No .properties files to translate"
 msgstr "Немає .properties-файлів для перекладу"
 
-#: main.go:4398
+#: main.go:4494
 msgid "Cannot find source ARB file: %s"
 msgstr "Не вдалося знайти вихідний ARB-файл: %s"
 
-#: main.go:4404
+#: main.go:4500
 msgid "Cannot read source ARB file %s: %v"
 msgstr "Не вдалося прочитати вихідний ARB-файл %s: %v"
 
-#: main.go:441
-#: main.go:511
-#: main.go:577
-#: main.go:625
-#: main.go:3848
-#: main.go:4126
-#: main.go:4347
-msgid "not found"
-msgstr "не знайдено"
-
-#: main.go:441
-msgid "run 'lokit init'"
-msgstr "виконайте 'lokit init'"
-
-#: main.go:441
+#: main.go:452
 msgid "POT"
 msgstr "POT"
 
-#: main.go:4446
+#: main.go:452
+msgid "run 'lokit init'"
+msgstr "виконайте 'lokit init'"
+
+#: main.go:452
+#: main.go:522
+#: main.go:588
+#: main.go:636
+#: main.go:3922
+#: main.go:4210
+#: main.go:4443
+msgid "not found"
+msgstr "не знайдено"
+
+#: main.go:4542
 msgid "Flutter ARB init: %d created, %d updated"
 msgstr "Flutter ARB ініціалізація: створено %d, оновлено %d"
 
-#: main.go:445
-#: main.go:581
-#: main.go:694
+#: main.go:456
+#: main.go:592
+#: main.go:705
 msgid "Source strings"
 msgstr "Рядки джерела"
 
-#: main.go:4467
+#: main.go:4563
 msgid "cannot read source ARB file %s: %w"
 msgstr "Не вдалося прочитати вихідний ARB-файл %s: %w"
 
-#: main.go:450
-#: main.go:480
-#: main.go:520
-#: main.go:586
-#: main.go:640
-#: main.go:699
-#: main.go:760
-#: main.go:806
-#: main.go:3866
-#: main.go:4141
-#: main.go:4362
-msgid "Lang"
-msgstr "Мова"
-
-#: main.go:450
-#: main.go:480
-#: main.go:520
-#: main.go:586
-#: main.go:640
-#: main.go:699
-#: main.go:760
-#: main.go:806
-#: main.go:3866
-#: main.go:4141
-#: main.go:4362
+#: main.go:461
+#: main.go:491
+#: main.go:531
+#: main.go:597
+#: main.go:651
+#: main.go:710
+#: main.go:771
+#: main.go:817
+#: main.go:3940
+#: main.go:4225
+#: main.go:4458
 msgid "Progress"
 msgstr "Прогрес"
 
-#: main.go:450
-#: main.go:480
-#: main.go:520
-#: main.go:586
-#: main.go:640
-#: main.go:699
-#: main.go:760
-#: main.go:806
-#: main.go:3866
-#: main.go:4141
-#: main.go:4362
+#: main.go:461
+#: main.go:491
+#: main.go:531
+#: main.go:597
+#: main.go:651
+#: main.go:710
+#: main.go:771
+#: main.go:817
+#: main.go:3940
+#: main.go:4225
+#: main.go:4458
+msgid "Lang"
+msgstr "Мова"
+
+#: main.go:461
+#: main.go:491
+#: main.go:531
+#: main.go:597
+#: main.go:651
+#: main.go:710
+#: main.go:771
+#: main.go:817
+#: main.go:3940
+#: main.go:4225
+#: main.go:4458
 msgid "Done"
 msgstr "Готово"
 
-#: main.go:450
-#: main.go:480
-#: main.go:699
-#: main.go:760
+#: main.go:461
+#: main.go:491
+#: main.go:710
+#: main.go:771
 msgid "Fuzzy"
 msgstr "Нечіткий"
 
-#: main.go:450
-#: main.go:520
-#: main.go:586
-#: main.go:640
-#: main.go:699
-#: main.go:806
-#: main.go:3866
-#: main.go:4141
-#: main.go:4362
+#: main.go:461
+#: main.go:531
+#: main.go:597
+#: main.go:651
+#: main.go:710
+#: main.go:817
+#: main.go:3940
+#: main.go:4225
+#: main.go:4458
 msgid "Left"
 msgstr "Залишилось"
 
-#: main.go:4522
+#: main.go:4618
 msgid "No ARB files to translate"
 msgstr "Немає ARB-файлів для перекладу"
 
-#: main.go:457
-#: main.go:488
-#: main.go:528
-#: main.go:594
-#: main.go:655
-#: main.go:715
-#: main.go:768
-#: main.go:818
-#: main.go:862
-#: main.go:3874
-#: main.go:4148
-#: main.go:4369
+#: main.go:468
+#: main.go:499
+#: main.go:539
+#: main.go:605
+#: main.go:666
+#: main.go:726
+#: main.go:779
+#: main.go:829
+#: main.go:873
+#: main.go:3948
+#: main.go:4232
+#: main.go:4465
 msgid "missing"
 msgstr "відсутній"
 
-#: main.go:475
+#: main.go:486
 msgid "po4a config"
 msgstr "конфіг po4a"
 
-#: main.go:480
-#: main.go:760
+#: main.go:491
+#: main.go:771
 msgid "Total"
 msgstr "Всього"
 
-#: main.go:506
-#: main.go:612
-#: main.go:3842
-#: main.go:4121
-#: main.go:4342
+#: main.go:517
+#: main.go:623
+#: main.go:3916
+#: main.go:4205
+#: main.go:4438
 msgid "Translations"
 msgstr "Переклади"
 
-#: main.go:511
-#: main.go:577
-#: main.go:625
-#: main.go:631
-#: main.go:3848
-#: main.go:4126
-#: main.go:4132
-#: main.go:4347
-#: main.go:4353
+#: main.go:522
+#: main.go:588
+#: main.go:636
+#: main.go:642
+#: main.go:3922
+#: main.go:4210
+#: main.go:4216
+#: main.go:4443
+#: main.go:4449
 msgid "Source"
 msgstr "Джерело"
 
-#: main.go:515
-#: main.go:635
-#: main.go:800
-#: main.go:4136
-#: main.go:4357
+#: main.go:526
+#: main.go:646
+#: main.go:811
+#: main.go:4220
+#: main.go:4453
 msgid "Source keys"
 msgstr "Ключі джерела"
 
-#: main.go:548
-#: main.go:903
+#: main.go:559
+#: main.go:914
 msgid "Blog Posts (%d posts)"
 msgstr "Блог-пости (%d постів)"
 
-#: main.go:573
+#: main.go:584
 msgid "Res dir"
 msgstr "Res директорія"
 
-#: main.go:631
-#: main.go:4132
-#: main.go:4353
+#: main.go:642
+#: main.go:4216
+#: main.go:4449
 msgid "parse error: %v"
 msgstr "помилка парсингу: %v"
 
-#: main.go:662
-#: main.go:4155
-#: main.go:4376
+#: main.go:673
+#: main.go:4239
+#: main.go:4472
 msgid "parse error"
 msgstr "помилка парсингу"
 
-#: main.go:689
+#: main.go:700
 msgid "No translatable strings found in %s"
 msgstr "Не знайдено рядків для перекладу у %s"
 
-#: main.go:693
+#: main.go:704
 msgid "Translation Statistics"
 msgstr "Статистика перекладу"
 
-#: main.go:735
+#: main.go:746
 msgid "Translation gaps:"
 msgstr "Прогалини в перекладі:"
 
-#: main.go:739
+#: main.go:750
 msgid "%d untranslated"
 msgstr "%d не перекладено"
 
-#: main.go:742
+#: main.go:753
 msgid "%d fuzzy"
 msgstr "%d fuzzy"
 
-#: main.go:756
+#: main.go:767
 msgid "Documentation Statistics"
 msgstr "Статистика документації"
 
-#: main.go:787
+#: main.go:798
 msgid "No language files detected in %s"
 msgstr "Не виявлено мовних файлів у %s"
 
-#: main.go:798
+#: main.go:809
 msgid "UI Translation Statistics"
 msgstr "Статистика перекладу інтерфейсу"
 
-#: main.go:848
+#: main.go:83
+msgid "Invalid locked_pattern %q: %v"
+msgstr "Недійсний locked_pattern %q: %v"
+
+#: main.go:859
 msgid "Recipe Translations"
 msgstr "Переклади рецептів"
 
-#: main.go:935
+#: main.go:946
 msgid "Prepare translation files (extract strings, create/update PO)"
 msgstr "Підготувати файли перекладу (витягти рядки, створити/оновити PO)"
 
-#: main.go:936
+#: main.go:947
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"

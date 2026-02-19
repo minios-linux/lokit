@@ -69,6 +69,18 @@ type Target struct {
 	Languages []string `yaml:"languages,omitempty"`
 	// Prompt overrides the system prompt for this target.
 	Prompt string `yaml:"prompt,omitempty"`
+
+	// --- key filtering ---
+
+	// LockedKeys lists keys whose existing translations must not be overwritten.
+	// Locked keys are skipped during translation even with --retranslate.
+	// Use --force to override locked keys.
+	LockedKeys []string `yaml:"locked_keys,omitempty"`
+	// IgnoredKeys lists keys that are completely excluded from translation.
+	// Ignored keys are never sent to the AI provider.
+	IgnoredKeys []string `yaml:"ignored_keys,omitempty"`
+	// LockedPatterns lists regex patterns; keys matching any pattern are treated as locked.
+	LockedPatterns []string `yaml:"locked_patterns,omitempty"`
 }
 
 // TargetTypeGettext is used for gettext PO projects (shell, python, C source code).
