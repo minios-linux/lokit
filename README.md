@@ -40,6 +40,18 @@
 
 ## Installation
 
+### One-line installer (recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/master/install.sh | bash
+```
+
+Install specific version:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/master/install.sh | bash -s -- --version v0.6.0
+```
+
 ### From source
 
 ```bash
@@ -124,7 +136,7 @@ A [JSON Schema](lokit.schema.json) is available for editor autocompletion and va
 To enable it in VS Code, add to the top of your `lokit.yaml`:
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/main/lokit.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/master/lokit.schema.json
 ```
 
 Reference:
@@ -442,24 +454,6 @@ Without `lokit.yaml`, lokit auto-detects:
 
 **i18next** — `translations/<lang>.json` or `public/translations/<lang>.json`
 
-## GitHub Actions & Releases
-
-### CI/CD Workflows
-
-- **CI** — Tests, builds, and lints on every push/PR
-- **Release** — Builds multi-platform binaries on version tags
-
-### Creating a Release
-
-```bash
-git tag v0.2.0
-git push origin v0.2.0
-```
-
-Automated build for Linux and macOS (amd64, arm64) with binary uploads.
-
-View releases: https://github.com/minios-linux/lokit/releases
-
 ## Development
 
 Built with Go 1.23+:
@@ -475,7 +469,3 @@ MIT License — see [LICENSE](LICENSE) file for details.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Author
-
-MiniOS Linux Team

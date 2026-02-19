@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/master/lokit.schema.json
+
 source_lang: en
 languages: [ar, de, es, fr, it, ja, ko, pl, pt-BR, ru, tr, uk, zh-CN]
 
