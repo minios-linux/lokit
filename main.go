@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/minios-linux/lokit/android"
 	"github.com/minios-linux/lokit/arbfile"
@@ -114,6 +115,20 @@ func langFlag(lang string) string {
 		return meta.Flag
 	}
 	return ""
+}
+
+func langColumnWidth(langs []string) int {
+	width := 4
+	for _, lang := range langs {
+		if w := utf8.RuneCountInString(lang); w > width {
+			width = w
+		}
+	}
+	return width
+}
+
+func langCell(lang string, width int) string {
+	return fmt.Sprintf("%s %-*s", langFlag(lang), width, lang)
 }
 
 // ---------------------------------------------------------------------------
@@ -428,17 +443,18 @@ func showConfigGettextStats(rt config.ResolvedTarget, langs []string) {
 	}
 
 	keyVal(T("Source strings"), fmt.Sprintf("%d", potTotal))
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 52)+colorReset)
 
 	for _, lang := range langs {
 		poPath := rt.POPath(lang)
 		poFile, err := po.ParseFile(poPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %-4s %s  %s%s%s\n", langFlag(lang), progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n", langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -448,8 +464,8 @@ func showConfigGettextStats(rt config.ResolvedTarget, langs []string) {
 			percent = translated * 100 / potTotal
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, fuzzy, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, untranslated)
 	}
 }
 
@@ -457,18 +473,19 @@ func showConfigGettextStats(rt config.ResolvedTarget, langs []string) {
 func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
 	cfgPath := rt.AbsPo4aConfig()
 	keyVal(T("po4a config"), cfgPath)
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Total"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Total"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 52)+colorReset)
 
 	for _, lang := range langs {
 		poPath := rt.DocsPOPath(lang)
 		catalog, err := po.ParseFile(poPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -478,8 +495,8 @@ func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
 			percent = (translated * 100) / total
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, fuzzy, total)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, total)
 	}
 }
 
@@ -496,18 +513,19 @@ func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcKeys := len(srcFile.Translations)
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcKeys, rt.Target.SourceLang))
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	for _, lang := range langs {
 		filePath := filepath.Join(transDir, lang+".json")
 		file, err := i18next.ParseFile(filePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -517,8 +535,8 @@ func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
 			percent = translated * 100 / srcKeys
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
 	}
 
 	// Blog post stats
@@ -541,8 +559,8 @@ func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
 				if len(slugs) > 0 {
 					percent = translated * 100 / len(slugs)
 				}
-				fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d/%d\n",
-					langFlag(lang), lang, progressBar(percent, 16), translated, len(slugs))
+				fmt.Fprintf(os.Stderr, "  %s %s %5d/%d\n",
+					langCell(lang, langWidth), progressBar(percent, 16), translated, len(slugs))
 			}
 		}
 	}
@@ -561,18 +579,19 @@ func showConfigAndroidStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source strings"), fmt.Sprintf("%d (%s)", srcTotal, rt.Target.SourceLang))
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	for _, lang := range langs {
 		filePath := android.StringsXMLPath(resDir, lang)
 		file, err := android.ParseFile(filePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -582,8 +601,8 @@ func showConfigAndroidStats(rt config.ResolvedTarget, langs []string) {
 			percent = translated * 100 / srcTotal
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
 	}
 }
 
@@ -614,10 +633,11 @@ func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	for _, lang := range langs {
@@ -631,15 +651,15 @@ func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
 			}
 		}
 		if filePath == "" {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
 		file, err := yamlfile.ParseFile(filePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("parse error"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("parse error"), colorReset)
 			continue
 		}
 
@@ -650,8 +670,8 @@ func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
 			percent = translated * 100 / srcTotal
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
 	}
 }
 
@@ -672,10 +692,11 @@ func showStatsTable(proj *config.Project, potPath string) {
 
 	sectionHeader(T("Translation Statistics"))
 	keyVal(T("Source strings"), fmt.Sprintf("%d", potTotal))
+	langWidth := langColumnWidth(proj.Languages)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 52)+colorReset)
 
 	type langIssue struct {
@@ -690,8 +711,8 @@ func showStatsTable(proj *config.Project, potPath string) {
 
 		poFile, err := po.ParseFile(poPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -701,8 +722,8 @@ func showStatsTable(proj *config.Project, potPath string) {
 			percent = translated * 100 / potTotal
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, fuzzy, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, untranslated)
 
 		if untranslated > 0 || fuzzy > 0 {
 			issues = append(issues, langIssue{lang, untranslated, fuzzy})
@@ -733,17 +754,18 @@ func showPo4aStats(proj *config.Project) {
 	}
 
 	sectionHeader(T("Documentation Statistics"))
+	langWidth := langColumnWidth(proj.Languages)
 
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Total"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Total"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 52)+colorReset)
 
 	for _, lang := range proj.Languages {
 		poPath := proj.POPath(lang)
 		catalog, err := po.ParseFile(poPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -753,8 +775,8 @@ func showPo4aStats(proj *config.Project) {
 			percent = (translated * 100) / total
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, fuzzy, total)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, total)
 	}
 
 	fmt.Fprintln(os.Stderr)
@@ -777,10 +799,11 @@ func showI18NextStats(proj *config.Project) {
 	if srcKeys > 0 {
 		keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcKeys, proj.SourceLang))
 	}
+	langWidth := langColumnWidth(proj.Languages)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	// Skip source language
@@ -791,8 +814,8 @@ func showI18NextStats(proj *config.Project) {
 		filePath := proj.I18NextPath(lang)
 		file, err := i18next.ParseFile(filePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -802,8 +825,8 @@ func showI18NextStats(proj *config.Project) {
 			percent = translated * 100 / srcKeys
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
 	}
 
 	// Recipe translation stats
@@ -823,6 +846,7 @@ func showI18NextStats(proj *config.Project) {
 
 func showRecipeTransStats(proj *config.Project) {
 	sectionHeader(T("Recipe Translations"))
+	langWidth := langColumnWidth(proj.Languages)
 
 	for _, lang := range proj.Languages {
 		if lang == proj.SourceLang {
@@ -834,8 +858,8 @@ func showRecipeTransStats(proj *config.Project) {
 		}
 		entries, err := os.ReadDir(langDir)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -865,8 +889,8 @@ func showRecipeTransStats(proj *config.Project) {
 			percent = fullyTranslated * 100 / total
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d/%d\n",
-			langFlag(lang), lang, progressBar(percent, 16), fullyTranslated, total)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d/%d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), fullyTranslated, total)
 	}
 }
 
@@ -877,6 +901,7 @@ func showBlogTransStats(proj *config.Project) {
 	}
 
 	sectionHeader(fmt.Sprintf(T("Blog Posts (%d posts)"), len(slugs)))
+	langWidth := langColumnWidth(proj.Languages)
 
 	for _, lang := range proj.Languages {
 		if lang == proj.SourceLang {
@@ -893,8 +918,8 @@ func showBlogTransStats(proj *config.Project) {
 		if len(slugs) > 0 {
 			percent = translated * 100 / len(slugs)
 		}
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d/%d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, len(slugs))
+		fmt.Fprintf(os.Stderr, "  %s %s %5d/%d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, len(slugs))
 	}
 }
 
@@ -3834,18 +3859,19 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 		}
 	}
 	keyVal(T("Source segments"), fmt.Sprintf("%d (%s, %d files)", srcTotal, srcLang, len(srcFiles)))
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	for _, lang := range langs {
 		langDir := filepath.Join(transDir, lang)
 		files, _ := filepath.Glob(filepath.Join(langDir, "*.md"))
 		if len(files) == 0 {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
@@ -3864,8 +3890,8 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 		if srcTotal > 0 {
 			percent = translated * 100 / srcTotal
 		}
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
 	}
 }
 
@@ -4108,24 +4134,25 @@ func showConfigPropertiesStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	for _, lang := range langs {
 		filePath := filepath.Join(transDir, lang+".properties")
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
 		file, err := propfile.ParseFile(filePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("parse error"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("parse error"), colorReset)
 			continue
 		}
 
@@ -4135,8 +4162,8 @@ func showConfigPropertiesStats(rt config.ResolvedTarget, langs []string) {
 		if srcTotal > 0 {
 			percent = translated * 100 / srcTotal
 		}
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
 	}
 }
 
@@ -4328,24 +4355,25 @@ func showConfigFlutterStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
+	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-6s %-22s %5s %5s%s\n",
-		colorDim, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	for _, lang := range langs {
 		filePath := filepath.Join(transDir, "app_"+lang+".arb")
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("missing"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
 		file, err := arbfile.ParseFile(filePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "  %s %-4s %s  %s%s%s\n",
-				langFlag(lang), lang, progressBar(0, 16), colorYellow, T("parse error"), colorReset)
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("parse error"), colorReset)
 			continue
 		}
 
@@ -4355,8 +4383,8 @@ func showConfigFlutterStats(rt config.ResolvedTarget, langs []string) {
 		if srcTotal > 0 {
 			percent = translated * 100 / srcTotal
 		}
-		fmt.Fprintf(os.Stderr, "  %s %-4s %s %5d %5d\n",
-			langFlag(lang), lang, progressBar(percent, 16), translated, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
 	}
 }
 
