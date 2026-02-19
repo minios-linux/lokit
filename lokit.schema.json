@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/minios-linux/lokit/master/lokit.schema.json",
+  "$id": "https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/lokit.schema.json",
   "title": "lokit.yaml",
   "description": "Configuration file for lokit — AI-powered localization management tool.",
   "type": "object",

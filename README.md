@@ -43,13 +43,23 @@
 ### One-line installer (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash
 ```
 
 Install specific version:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/master/install.sh | bash -s -- --version v0.6.0
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.6.0
+```
+
+Install options:
+
+```bash
+# Custom install directory
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --install-dir "$HOME/bin"
+
+# Do not modify shell rc files
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --no-modify-path
 ```
 
 ### From source
@@ -136,7 +146,7 @@ A [JSON Schema](lokit.schema.json) is available for editor autocompletion and va
 To enable it in VS Code, add to the top of your `lokit.yaml`:
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/master/lokit.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/lokit.schema.json
 ```
 
 Reference:
