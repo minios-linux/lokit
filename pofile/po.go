@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/minios-linux/lokit/langmeta"
 )
 
 // Entry represents a single translatable message in a PO file.
@@ -610,48 +612,15 @@ func PluralFormsForLang(lang string) string {
 
 // LangNameNative returns the native name of a language.
 func LangNameNative(lang string) string {
-	names := map[string]string{
-		"ar":    "العربية",
-		"bg":    "Български",
-		"cs":    "Čeština",
-		"da":    "Dansk",
-		"de":    "Deutsch",
-		"el":    "Ελληνικά",
-		"en":    "English",
-		"es":    "Español",
-		"fi":    "Suomi",
-		"fr":    "Français",
-		"he":    "עברית",
-		"hi":    "हिन्दी",
-		"hr":    "Hrvatski",
-		"hu":    "Magyar",
-		"id":    "Bahasa Indonesia",
-		"it":    "Italiano",
-		"ja":    "日本語",
-		"ko":    "한국어",
-		"lt":    "Lietuvių",
-		"lv":    "Latviešu",
-		"ms":    "Bahasa Melayu",
-		"nl":    "Nederlands",
-		"no":    "Norsk",
-		"nb":    "Norsk bokmål",
-		"nn":    "Norsk nynorsk",
-		"pl":    "Polski",
-		"pt":    "Português",
-		"pt_BR": "Português (Brasil)",
-		"ro":    "Română",
-		"ru":    "Русский",
-		"sk":    "Slovenčina",
-		"sr":    "Српски",
-		"sv":    "Svenska",
-		"th":    "ไทย",
-		"tr":    "Türkçe",
-		"uk":    "Українська",
-		"vi":    "Tiếng Việt",
-		"zh":    "中文",
+	m := langmeta.Resolve(lang)
+	if m.Name != lang {
+		return m.Name
 	}
-	if name, ok := names[lang]; ok {
-		return name
+	// Try underscore variant (e.g. pt_BR -> pt-BR)
+	if normalized := strings.ReplaceAll(lang, "-", "_"); normalized != lang {
+		if m = langmeta.Resolve(normalized); m.Name != normalized {
+			return m.Name
+		}
 	}
 	return lang
 }

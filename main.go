@@ -137,11 +137,36 @@ func keyVal(key, value string) {
 	fmt.Fprintf(os.Stderr, "  %s%-14s%s %s\n", colorDim, key, colorReset, value)
 }
 
+func flagFromRegion(region string) string {
+	if len(region) != 2 {
+		return ""
+	}
+	region = strings.ToUpper(region)
+	runes := []rune(region)
+	if runes[0] < 'A' || runes[0] > 'Z' || runes[1] < 'A' || runes[1] > 'Z' {
+		return ""
+	}
+	const regionalOffset = 0x1F1E6 - 'A'
+	return string([]rune{runes[0] + regionalOffset, runes[1] + regionalOffset})
+}
+
 // langFlag returns the flag emoji for a language code, or empty string if unknown.
 func langFlag(lang string) string {
-	if meta, ok := i18next.LangMeta[lang]; ok {
+	meta := i18next.ResolveMeta(lang)
+	if meta.Flag != "" {
 		return meta.Flag
 	}
+	normalized := strings.ReplaceAll(lang, "_", "-")
+	// Locale fallback: xx-YY -> derive flag from region (YY).
+	if parts := strings.SplitN(normalized, "-", 2); len(parts) == 2 {
+		if f := flagFromRegion(parts[1]); f != "" {
+			return f
+		}
+		if m := i18next.ResolveMeta(parts[0]); m.Flag != "" {
+			return m.Flag
+		}
+	}
+
 	return ""
 }
 
@@ -1277,10 +1302,7 @@ func runInitI18Next(proj *config.Project) {
 
 		if err != nil {
 			// Create new file with all keys empty
-			meta := i18next.Meta{Name: lang, Flag: ""}
-			if lm, ok := i18next.LangMeta[lang]; ok {
-				meta = lm
-			}
+			meta := i18next.ResolveMeta(lang)
 			file = &i18next.File{
 				Meta:         meta,
 				Translations: make(map[string]string),
@@ -2287,10 +2309,7 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			filePath := android.StringsXMLPath(resDir, lang)
 			file, err := android.ParseFile(filePath)
 			if err != nil {
-				langName := lang
-				if meta, ok := i18next.LangMeta[lang]; ok {
-					langName = meta.Name
-				}
+				langName := i18next.ResolveMeta(lang).Name
 				logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, srcTotal)
 				continue
 			}
@@ -2300,10 +2319,7 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 				_, count, _ = file.Stats()
 				count = srcTotal // retranslate all
 			}
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
 		}
 		return nil
@@ -2374,10 +2390,7 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			}
 		}
 
-		langName := lang
-		if meta, ok := i18next.LangMeta[lang]; ok {
-			langName = meta.Name
-		}
+		langName := i18next.ResolveMeta(lang).Name
 
 		langTasks = append(langTasks, translate.AndroidLangTask{
 			Lang:       lang,
@@ -2500,10 +2513,7 @@ func runTranslateI18Next(proj *config.Project, target *config.Target, prov trans
 			filePath := proj.I18NextPath(lang)
 			file, err := i18next.ParseFile(filePath)
 			if err != nil {
-				langName := lang
-				if meta, ok := i18next.LangMeta[lang]; ok {
-					langName = meta.Name
-				}
+				langName := i18next.ResolveMeta(lang).Name
 				logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, len(srcKeys))
 				continue
 			}
@@ -2512,10 +2522,7 @@ func runTranslateI18Next(proj *config.Project, target *config.Target, prov trans
 			if a.retranslate {
 				count = len(file.Keys())
 			}
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
 		}
 		if hasRecipes {
@@ -2623,10 +2630,7 @@ func runTranslateI18Next(proj *config.Project, target *config.Target, prov trans
 			file, err := i18next.ParseFile(filePath)
 			if err != nil {
 				// Auto-create file with all keys empty
-				meta := i18next.Meta{Name: lang, Flag: ""}
-				if lm, ok := i18next.LangMeta[lang]; ok {
-					meta = lm
-				}
+				meta := i18next.ResolveMeta(lang)
 				file = &i18next.File{
 					Meta:         meta,
 					Translations: make(map[string]string),
@@ -2637,10 +2641,7 @@ func runTranslateI18Next(proj *config.Project, target *config.Target, prov trans
 				logInfo(T("Auto-creating %s with %d keys"), filePath, len(srcKeys))
 			}
 
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 
 			langTasks = append(langTasks, translate.JSONLangTask{
 				Lang:     lang,
@@ -2686,10 +2687,7 @@ func runTranslateI18Next(proj *config.Project, target *config.Target, prov trans
 				continue
 			}
 
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 
 			// Build recipe tasks — find untranslated recipe files
 			var recipeTasks []translate.RecipeTask
@@ -2766,10 +2764,7 @@ func runTranslateI18Next(proj *config.Project, target *config.Target, prov trans
 					break
 				}
 
-				langName := lang
-				if meta, ok := i18next.LangMeta[lang]; ok {
-					langName = meta.Name
-				}
+				langName := i18next.ResolveMeta(lang).Name
 
 				// Build blog post tasks
 				var blogTasks []translate.BlogPostTask
@@ -3415,25 +3410,27 @@ func doExtract(proj *config.Project) error {
 			strings.Join(extract.SupportedExtensionsList(), ", "))
 	}
 
-	// Make file paths relative to the project root so xgettext writes short
-	// #: references (e.g. "scripts/main.sh:42" instead of
-	// "/home/user/project/scripts/main.sh:42").
-	// Use proj.Root when available (set from --root flag or target root);
-	// fall back to cwd for backward compatibility with auto-detected projects.
+	// Base directory for path normalization and xgettext working directory.
 	baseDir := proj.Root
 	if baseDir == "" {
 		baseDir, _ = os.Getwd()
 	}
-	for i, f := range allFiles {
-		if rel, err := filepath.Rel(baseDir, f); err == nil {
-			allFiles[i] = rel
-		}
+	if absBase, err := filepath.Abs(baseDir); err == nil {
+		baseDir = absBase
 	}
 
 	logInfo(T("Found %d source files (%s)"), len(allFiles), extract.DescribeFiles(allFiles))
 
 	// Split into Go files (need xgotext) and everything else (need xgettext)
 	goFiles, otherFiles := extract.SplitGoFiles(allFiles)
+	otherFilesForXgettext := make([]string, 0, len(otherFiles))
+	for _, f := range otherFiles {
+		if rel, err := filepath.Rel(baseDir, f); err == nil {
+			otherFilesForXgettext = append(otherFilesForXgettext, rel)
+		} else {
+			otherFilesForXgettext = append(otherFilesForXgettext, f)
+		}
+	}
 
 	potFile := proj.POTFile
 	var finalPOT string
@@ -3466,7 +3463,7 @@ func doExtract(proj *config.Project) error {
 	case len(otherFiles) > 0 && len(goFiles) > 0:
 		// Both Go and non-Go files: extract separately, then merge
 		logInfo(T("Extracting from %d non-Go files with xgettext..."), len(otherFiles))
-		xgettextResult, err := extract.RunXgettext(otherFiles, potFile, proj.Name, proj.Version, proj.BugsEmail, proj.Keywords)
+		xgettextResult, err := extract.RunXgettext(otherFilesForXgettext, potFile, proj.Name, proj.Version, proj.BugsEmail, proj.Keywords, baseDir)
 		if err != nil {
 			return fmt.Errorf(T("xgettext extraction failed: %w"), err)
 		}
@@ -3493,7 +3490,7 @@ func doExtract(proj *config.Project) error {
 
 	case len(otherFiles) > 0:
 		// Only non-Go files
-		result, err := extract.RunXgettext(otherFiles, potFile, proj.Name, proj.Version, proj.BugsEmail, proj.Keywords)
+		result, err := extract.RunXgettext(otherFilesForXgettext, potFile, proj.Name, proj.Version, proj.BugsEmail, proj.Keywords, baseDir)
 		if err != nil {
 			return fmt.Errorf(T("extraction failed: %w"), err)
 		}
@@ -3792,10 +3789,7 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 				}
 			}
 
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 
 			if filePath == "" {
 				logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, srcTotal)
@@ -3820,10 +3814,7 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	// Build translate tasks.
 	var tasks []translate.YAMLLangTask
 	for _, lang := range langs {
-		langName := lang
-		if meta, ok := i18next.LangMeta[lang]; ok {
-			langName = meta.Name
-		}
+		langName := i18next.ResolveMeta(lang).Name
 
 		// Find or init target file.
 		filePath := ""
@@ -4070,10 +4061,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 
 	if a.dryRun {
 		for _, lang := range langs {
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 			langDir := filepath.Join(transDir, lang)
 			count := 0
 			for _, srcPath := range srcFiles {
@@ -4106,10 +4094,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	// Build tasks — one per (lang, file) pair.
 	var tasks []translate.MarkdownLangTask
 	for _, lang := range langs {
-		langName := lang
-		if meta, ok := i18next.LangMeta[lang]; ok {
-			langName = meta.Name
-		}
+		langName := i18next.ResolveMeta(lang).Name
 		langDir := filepath.Join(transDir, lang)
 		if err := os.MkdirAll(langDir, 0755); err != nil {
 			logError(T("Creating directory %s: %v"), langDir, err)
@@ -4334,10 +4319,7 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 
 	if a.dryRun {
 		for _, lang := range langs {
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 			targetPath := filepath.Join(transDir, lang+".properties")
 			count := srcTotal
 			if !a.retranslate {
@@ -4354,10 +4336,7 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 
 	var tasks []translate.PropertiesLangTask
 	for _, lang := range langs {
-		langName := lang
-		if meta, ok := i18next.LangMeta[lang]; ok {
-			langName = meta.Name
-		}
+		langName := i18next.ResolveMeta(lang).Name
 		targetPath := filepath.Join(transDir, lang+".properties")
 
 		var targetFile *propfile.File
@@ -4567,10 +4546,7 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 
 	if a.dryRun {
 		for _, lang := range langs {
-			langName := lang
-			if meta, ok := i18next.LangMeta[lang]; ok {
-				langName = meta.Name
-			}
+			langName := i18next.ResolveMeta(lang).Name
 			targetPath := filepath.Join(transDir, "app_"+lang+".arb")
 			count := srcTotal
 			if !a.retranslate {
@@ -4587,10 +4563,7 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 
 	var tasks []translate.ARBLangTask
 	for _, lang := range langs {
-		langName := lang
-		if meta, ok := i18next.LangMeta[lang]; ok {
-			langName = meta.Name
-		}
+		langName := i18next.ResolveMeta(lang).Name
 		targetPath := filepath.Join(transDir, "app_"+lang+".arb")
 
 		var targetFile *arbfile.File

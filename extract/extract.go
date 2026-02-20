@@ -242,10 +242,11 @@ func DetectedLanguages(files []string) []string {
 //   - pkgVersion: package version for the POT header
 //   - bugsEmail: bug report email for the POT header
 //   - keywords: xgettext keyword functions; if empty, defaultKeywords are used
+//   - workDir: working directory for xgettext (empty = current process cwd)
 //
 // Returns an ExtractResult on success.
 // xgettext warnings are suppressed; only errors cause failure.
-func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string, keywords []string) (*ExtractResult, error) {
+func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string, keywords []string, workDir string) (*ExtractResult, error) {
 	if len(files) == 0 {
 		return nil, fmt.Errorf("no source files to extract from")
 	}
@@ -260,6 +261,9 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 	if err := os.MkdirAll(filepath.Dir(potFile), 0755); err != nil {
 		return nil, fmt.Errorf("creating output directory: %w", err)
 	}
+	// Start from a clean POT file to avoid stale source references accumulating
+	// across runs when using --join-existing in the shell pass.
+	_ = os.Remove(potFile)
 
 	// Use custom keywords or defaults
 	kws := defaultKeywords
@@ -328,6 +332,9 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 	// --language=Shell --join-existing to merge into the same POT.
 	if len(regularFiles) > 0 {
 		cmd := exec.Command(xgettextPath, args...)
+		if workDir != "" {
+			cmd.Dir = workDir
+		}
 		var stderrBuf strings.Builder
 		cmd.Stderr = &stderrBuf
 		if err := cmd.Run(); err != nil {
@@ -346,13 +353,20 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 			"--language=Shell",
 		}
 		if len(regularFiles) > 0 {
-			shellArgs = append(shellArgs, "--join-existing")
+			// Use --join-existing only when the first pass actually produced a POT.
+			// xgettext may skip creating the file when no strings are found.
+			if _, err := os.Stat(potFile); err == nil {
+				shellArgs = append(shellArgs, "--join-existing")
+			}
 		}
 		for _, kw := range kws {
 			shellArgs = append(shellArgs, "--keyword="+kw)
 		}
 		shellArgs = append(shellArgs, shellFiles...)
 		cmd := exec.Command(xgettextPath, shellArgs...)
+		if workDir != "" {
+			cmd.Dir = workDir
+		}
 		var stderrBuf strings.Builder
 		cmd.Stderr = &stderrBuf
 		if err := cmd.Run(); err != nil {

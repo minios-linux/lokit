@@ -202,7 +202,7 @@ func (f *File) SourceValues() map[string]string {
 // Marshal serialises the file back to .properties format.
 func (f *File) Marshal() ([]byte, error) {
 	var buf bytes.Buffer
-	for i, ln := range f.lines {
+	for _, ln := range f.lines {
 		switch ln.kind {
 		case lineBlank:
 			buf.WriteByte('\n')
@@ -215,7 +215,6 @@ func (f *File) Marshal() ([]byte, error) {
 			buf.WriteString(ln.value)
 			buf.WriteByte('\n')
 		}
-		_ = i
 	}
 	return buf.Bytes(), nil
 }

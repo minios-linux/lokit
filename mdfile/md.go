@@ -50,12 +50,6 @@ type File struct {
 	fmKeys []string
 	// fmNode is the raw YAML node for front matter round-trip.
 	fmNode *yaml.Node
-	// sectionCount is how many body sections exist.
-	sectionCount int
-	// sectionSeps holds the separator string (heading/hr) that STARTS each section.
-	// sectionSeps[0] is the separator before sections[0] body text (may be empty
-	// if there's content before the first heading).
-	sectionSeps []string
 }
 
 // ---------------------------------------------------------------------------
@@ -137,7 +131,6 @@ func Parse(data []byte) (*File, error) {
 
 	var spans []sectionSpan
 
-	prev := 0
 	if len(delims) == 0 {
 		// No headings/hrs — the whole body is one section.
 		body := strings.TrimSpace(text)
@@ -161,7 +154,6 @@ func Parse(data []byte) (*File, error) {
 			body := strings.TrimSpace(text[loc[1]:bodyEnd])
 			spans = append(spans, sectionSpan{sep: sep, body: body})
 		}
-		_ = prev
 	}
 
 	for i, sp := range spans {
@@ -182,9 +174,7 @@ func Parse(data []byte) (*File, error) {
 		idx := len(f.segments)
 		f.segments = append(f.segments, Segment{Key: key, Value: val})
 		f.index[key] = idx
-		f.sectionSeps = append(f.sectionSeps, sp.sep)
 	}
-	f.sectionCount = len(spans)
 
 	return f, nil
 }
@@ -300,21 +290,15 @@ func (f *File) Marshal() ([]byte, error) {
 	}
 
 	// Body sections.
-	secIdx := 0
 	for _, seg := range f.segments {
 		if strings.HasPrefix(seg.Key, "fm:") {
 			continue
 		}
 		if seg.Value == "" {
-			secIdx++
 			continue
-		}
-		if secIdx > 0 || f.hasFrontmatter {
-			// Separate sections with a blank line.
 		}
 		buf.WriteString(strings.TrimSpace(seg.Value))
 		buf.WriteString("\n\n")
-		secIdx++
 	}
 
 	result := bytes.TrimRight(buf.Bytes(), "\n")
@@ -348,8 +332,6 @@ func NewTranslationFile(src *File) *File {
 		index:          make(map[string]int),
 		hasFrontmatter: src.hasFrontmatter,
 		fmKeys:         append([]string{}, src.fmKeys...),
-		sectionCount:   src.sectionCount,
-		sectionSeps:    append([]string{}, src.sectionSeps...),
 	}
 
 	// Deep-copy fmNode.
@@ -396,8 +378,6 @@ func SyncKeys(src, target *File) {
 	target.fmKeys = rebuilt.fmKeys
 	target.fmNode = rebuilt.fmNode
 	target.hasFrontmatter = rebuilt.hasFrontmatter
-	target.sectionCount = rebuilt.sectionCount
-	target.sectionSeps = rebuilt.sectionSeps
 }
 
 // insideRanges returns true if pos falls within any of the given [start,end) ranges.

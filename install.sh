@@ -22,14 +22,14 @@ Usage: install.sh [options]
 
 Options:
   -h, --help              Display this help message
-  -v, --version <version> Install a specific version (example: v0.6.0)
+  -v, --version <version> Install a specific version (example: v0.7.0)
   -b, --binary <path>     Install from a local binary instead of downloading
       --install-dir <dir> Install directory (default: ~/.lokit/bin)
       --no-modify-path    Don't modify shell config files
 
 Examples:
   curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash
-  curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.6.0
+  curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.7.0
   ./install.sh --binary ./lokit
 EOF
 }

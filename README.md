@@ -49,7 +49,7 @@ curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/maste
 Install specific version:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.6.0
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.7.0
 ```
 
 Install options:
