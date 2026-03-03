@@ -1,12 +1,29 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/lokit.schema.json
+# yaml-language-server: $schema=./lokit.schema.json
 
 source_lang: en
-languages: [ar, de, es, fr, it, ja, ko, pl, pt-BR, ru, tr, uk, zh-CN]
+languages:
+  - ar
+  - de
+  - es
+  - fr
+  - it
+  - ja
+  - ko
+  - pl
+  - pt-BR
+  - ru
+  - tr
+  - uk
+  - zh-CN
 
 targets:
   - name: lokit
     type: gettext
+    root: .
     dir: po
-    pot_file: po/lokit.pot
-    sources: [.]
-    keywords: [T, "N:1,2"]
+    pot: lokit.pot
+    sources:
+      - .
+    keywords:
+      - T
+      - "N:1,2"

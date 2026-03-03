@@ -1,6 +1,6 @@
 # lokit — Localization Kit
 
-**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, and generic JSON formats — either auto-detected or configured via `lokit.yaml`.
+**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, vue-i18n JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, and generic JSON formats — either auto-detected or configured via `lokit.yaml`.
 
 ## Features
 
@@ -19,6 +19,7 @@
 | **gettext** | `.po` / `.pot` | Source code strings (shell, Python, C, Go) |
 | **po4a** | `.po` + `po4a.cfg` | Documentation / manpages |
 | **i18next** | `.json` | Web apps with i18next |
+| **vue-i18n** | `.json` | Vue apps with nested JSON locales |
 | **json** | `.json` | Simple JSON key-value translations |
 | **android** | `strings.xml` | Android resource files |
 | **yaml** | `.yaml` / `.yml` | YAML key-value translations |
@@ -49,7 +50,7 @@ curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/maste
 Install specific version:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.7.0
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.8.0
 ```
 
 Install options:
@@ -116,13 +117,13 @@ targets:
   - name: docs
     type: po4a
     root: manpages
-    po4a_config: po4a.cfg
+    config: po4a.cfg
 
   - name: website
     type: i18next
     root: submodules/site
     dir: public/translations
-    languages: [de, es, fr, pt_BR, ru]
+    languages: [de, es, fr, pt-BR, ru]
 
   - name: mobile
     type: flutter
@@ -146,17 +147,27 @@ A [JSON Schema](lokit.schema.json) is available for editor autocompletion and va
 To enable it in VS Code, add to the top of your `lokit.yaml`:
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/lokit.schema.json
+# yaml-language-server: $schema=./lokit.schema.json
 ```
 
 Reference:
 
 ```yaml
 # Default languages for all targets
-languages: [de, es, fr, id, it, pt, pt_BR, ru]
+languages: [de, es, fr, id, it, pt, pt-BR, ru]
 
 # Source language (default: en)
 source_lang: en
+
+# Optional default provider for `lokit translate`
+provider:
+  id: copilot
+  model: gpt-4o
+  # base_url is supported only for custom-openai and ollama
+  # base_url: http://localhost:11434
+  # prompt: "Translate to {{targetLang}} with concise style."
+  # settings:
+  #   temperature: 0.3
 
 # Translation targets
 targets:
@@ -166,23 +177,23 @@ targets:
 
     # --- gettext options ---
     dir: po                    # Base directory for this target (required)
-    pot_file: po/messages.pot  # POT template path (default: dir/messages.pot)
+    pot: messages.pot          # POT template filename in dir (required)
     sources: [src/**/*.sh]     # Source globs for xgettext
     keywords: [_, N_, gettext] # xgettext keywords
 
     # --- po4a options ---
-    po4a_config: po4a.cfg      # po4a config path relative to root
+    config: po4a.cfg           # po4a config path relative to root
 
-    # --- i18next / json options ---
-    dir: public/translations           # JSON directory
-    recipes_dir: data/recipes              # Per-recipe translations (i18next)
-    blog_dir: data/blog                    # Blog post translations (i18next)
+    # --- i18next / vue-i18n / json options ---
+    dir: public/translations      # JSON directory
+    pattern: "{lang}/common.json" # Required per-language file layout
 
     # --- android options ---
     dir: app/src/main/res      # Android res/ directory
 
     # --- yaml / properties / flutter / markdown options ---
-    dir: translations               # Files directory
+    dir: translations              # Files directory
+    pattern: "locale_{lang}.yaml" # Required for yaml/properties/flutter
 
     # --- overrides ---
     languages: [de, es, fr]    # Override global language list
@@ -198,17 +209,41 @@ targets:
 
 **i18next** — For web applications using i18next. JSON files with `_meta` block.
 
+**vue-i18n** — For Vue applications with nested JSON locale files (for example `buttons.save: "Save"` in JSON object form).
+
 **json** — For simple JSON translations. JSON files with `translations` block.
 
 **android** — For Android applications. Translates `strings.xml` resource files.
 
-**yaml** — For YAML key-value translation files (`translations/LANG.yaml`).
+**yaml** — For YAML key-value translation files. Define `pattern` (example: `{lang}.yaml`).
 
 **markdown** — For Markdown document translation. Files organized as `dir/LANG/file.md`.
 
-**properties** — For Java `.properties` files (`dir/LANG.properties`).
+**properties** — For Java `.properties` files. Define `pattern` (example: `messages_{lang}.properties`).
 
-**flutter** — For Flutter ARB files (`dir/app_LANG.arb`).
+**flutter** — For Flutter ARB files. Define `pattern` (example: `app_{lang}.arb`).
+
+### Custom file layouts with `pattern`
+
+For file-per-language targets (`i18next`, `vue-i18n`, `json`, `yaml`, `properties`, `flutter`),
+you must define `pattern`.
+
+- `pattern` is relative to `dir`
+- it must contain `{lang}`
+- examples: `{lang}.json`, `{lang}/common.json`, `locale_{lang}.properties`, `app_{lang}.arb`
+
+```yaml
+targets:
+  - name: frontend
+    type: i18next
+    dir: frontend/src/i18n
+    pattern: "{lang}/common.json"
+
+  - name: java
+    type: properties
+    dir: src/main/resources/i18n
+    pattern: "messages_{lang}.properties"
+```
 
 ## Commands
 
@@ -232,7 +267,7 @@ lokit init --lang ru,de        # Specific languages
 
 - Runs `xgettext` for gettext projects
 - Runs `po4a --no-translations` for po4a projects
-- Creates missing language files for i18next, json, yaml, properties, flutter
+- Creates missing language files for i18next, vue-i18n, json, yaml, properties, flutter
 - Idempotent — safe to run repeatedly
 
 ### `lokit translate`
@@ -243,24 +278,23 @@ Translates using AI:
 lokit translate --provider copilot --model gpt-4o
 
 # All flags:
-  --provider string         AI provider (required)
-  --model string            Model name (required)
-  --lang string             Languages (comma-separated, default: all untranslated)
-  --parallel                Enable parallel translation
-  --max-concurrent int      Max concurrent tasks (default: 3)
-  --chunk-size int          Entries per API request (0 = all at once)
-  --retranslate             Re-translate already translated entries
+  --provider string         AI provider (or set provider.id in lokit.yaml)
+  --model string            Model name (or set provider.model in lokit.yaml)
+  --lang, -l string         Languages (comma-separated, default: all untranslated)
+  --parallel[=N]            Enable parallel translation (default workers: 3)
+  --chunk int               Entries per API request (0 = all at once)
+  --all, -a                 Translate all entries, including already translated ones
   --fuzzy                   Translate fuzzy entries (default: true)
   --dry-run                 Show what would be translated
-  --force                   Ignore lock file, re-translate all entries
+  --force, -f               Ignore lock file, re-translate all entries
   --prompt string           Custom system prompt ({{targetLang}} placeholder)
   --proxy string            HTTP/HTTPS proxy URL
   --api-key string          API key (or provider env var)
   --base-url string         Custom API endpoint
   --timeout duration        Request timeout (0 = provider default)
-  --max-retries int         Retries on rate limit (default: 3)
-  --request-delay duration  Delay between parallel tasks
-  --verbose                 Detailed logging
+  --retries int             Retries on rate limit (default: 3)
+  --delay duration          Delay between translation requests
+  --verbose, -v             Detailed logging
 ```
 
 ### `lokit auth`
@@ -293,25 +327,27 @@ Show version, commit hash, and build date.
 
 ```yaml
 # lokit.yaml
-languages: [de, es, fr, id, it, pt, pt_BR, ru]
+languages: [de, es, fr, id, it, pt, pt-BR, ru]
 targets:
   - name: scripts
     type: gettext
     dir: po
+    pot: messages.pot
 
   - name: manpages
     type: po4a
     root: manpages
-    po4a_config: po4a.cfg
+    config: po4a.cfg
 
   - name: cli-tool
     type: gettext
     root: submodules/my-tool
     dir: po
+    pot: messages.pot
 ```
 
 ```bash
-lokit translate --provider copilot --model gpt-4o --parallel --max-concurrent 10
+lokit translate --provider copilot --model gpt-4o --parallel=10
 ```
 
 ### Flutter application
@@ -324,6 +360,7 @@ targets:
   - name: app
     type: flutter
     dir: lib/l10n
+    pattern: app_{lang}.arb
 ```
 
 ```bash
@@ -341,6 +378,7 @@ targets:
   - name: app
     type: properties
     dir: src/main/resources
+    pattern: messages_{lang}.properties
 ```
 
 ### Parallel translation with proxy
@@ -348,7 +386,7 @@ targets:
 ```bash
 lokit translate \
   --provider copilot --model gpt-4.1 \
-  --parallel --max-concurrent 10 --chunk-size 50 \
+  --parallel=10 --chunk 50 \
   --proxy "http://proxy:8080"
 ```
 
@@ -392,7 +430,7 @@ All user data is stored in `~/.local/share/lokit/` (respects `$XDG_DATA_HOME`):
 
 ### System Prompts
 
-Each target type has a built-in system prompt optimized for its format (gettext, po4a/docs, i18next, recipe, blogpost, android). Prompts can be customized in two ways:
+Each target type has a built-in system prompt optimized for its format (gettext, po4a/docs, i18next/vue-i18n/json, android, yaml, markdown, properties, flutter). Prompts can be customized in two ways:
 
 - **Per target** — set `prompt:` in the target config in `lokit.yaml`
 - **Per run** — use the `--prompt` flag on the command line
@@ -419,8 +457,9 @@ You can control which keys are translated per target in `lokit.yaml`:
 ```yaml
 targets:
   - name: ui
-    format: i18next
-    translations_dir: translations
+    type: i18next
+    dir: translations
+    pattern: "{lang}.json"
     source_lang: en
     languages: [ru, de, fr]
 
@@ -429,7 +468,7 @@ targets:
       - debug_label
       - internal_test_string
 
-    # Hand-curated translations preserved as-is (skipped even with --retranslate)
+    # Hand-curated translations preserved as-is (skipped even with --all)
     locked_keys:
       - app_name
       - copyright_notice
@@ -449,7 +488,7 @@ targets:
 | `locked_patterns` | Same as `locked_keys` but matches keys by regex | `--force` |
 
 - `ignored_keys` are always skipped, even with `--force`.
-- `locked_keys` and `locked_patterns` are skipped during normal and `--retranslate` runs. Only `--force` overrides them.
+- `locked_keys` and `locked_patterns` are skipped during normal and `--all` runs. Only `--force` overrides them.
 - These settings work with all formats: gettext PO, po4a, i18next, Android, YAML, Markdown, .properties, and Flutter ARB.
 
 ## Project Structure Support

@@ -21,16 +21,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/minios-linux/lokit/android"
-	"github.com/minios-linux/lokit/arbfile"
 	"github.com/minios-linux/lokit/copilot"
 	"github.com/minios-linux/lokit/gemini"
-	"github.com/minios-linux/lokit/i18next"
+	"github.com/minios-linux/lokit/internal/format/android"
+	arbfile "github.com/minios-linux/lokit/internal/format/arb"
+	"github.com/minios-linux/lokit/internal/format/i18next"
+	mdfile "github.com/minios-linux/lokit/internal/format/markdown"
+	po "github.com/minios-linux/lokit/internal/format/po"
+	propfile "github.com/minios-linux/lokit/internal/format/properties"
+	yamlfile "github.com/minios-linux/lokit/internal/format/yaml"
 	"github.com/minios-linux/lokit/lockfile"
-	"github.com/minios-linux/lokit/mdfile"
-	po "github.com/minios-linux/lokit/pofile"
-	"github.com/minios-linux/lokit/propfile"
-	"github.com/minios-linux/lokit/yamlfile"
 )
 
 // ---------------------------------------------------------------------------
@@ -61,7 +61,7 @@ const (
 // ---------------------------------------------------------------------------
 
 // getPrompt returns the built-in system prompt for a given content type.
-// Prompt types: default, docs, i18next, recipe, blogpost, android.
+// Prompt types: default, docs, i18next, android.
 // Unknown types fall back to DefaultSystemPrompt.
 func getPrompt(promptType string) string {
 	switch promptType {
@@ -71,10 +71,6 @@ func getPrompt(promptType string) string {
 		return DocsSystemPrompt
 	case "i18next":
 		return I18NextSystemPrompt
-	case "recipe":
-		return RecipeSystemPrompt
-	case "blogpost":
-		return BlogPostSystemPrompt
 	case "android":
 		return AndroidSystemPrompt
 	default:
@@ -176,6 +172,18 @@ type Provider struct {
 	Proxy string
 	// Timeout is the request timeout.
 	Timeout time.Duration
+	// Temperature controls randomness (0..2). If 0, default is used.
+	Temperature float64
+}
+
+func providerTemperature(prov Provider) float64 {
+	if prov.Temperature <= 0 {
+		return 0.3
+	}
+	if prov.Temperature > 2 {
+		return 2
+	}
+	return prov.Temperature
 }
 
 // DefaultProviders returns the pre-configured provider definitions.
@@ -261,7 +269,7 @@ type Options struct {
 	TranslateFuzzy bool
 	// SystemPrompt overrides the default system prompt.
 	SystemPrompt string
-	// PromptType specifies which prompt to use: "default", "docs", "i18next", "recipe", "blogpost", "android".
+	// PromptType specifies which prompt to use: "default", "docs", "i18next", "android".
 	// If SystemPrompt is set, this is ignored.
 	PromptType string
 	// OnProgress is called after each batch/chunk is translated.
@@ -798,7 +806,7 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 		if prov.APIKey != "" {
 			headers["x-goog-api-key"] = prov.APIKey
 		}
-		body, err = buildGeminiRequest(systemPrompt, userPrompt, 0.3)
+		body, err = buildGeminiRequest(systemPrompt, userPrompt, providerTemperature(prov))
 
 	case formatAnthropic:
 		endpoint = strings.TrimRight(prov.BaseURL, "/") + "/messages"
@@ -826,7 +834,7 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 		if prov.APIKey != "" {
 			headers["Authorization"] = "Bearer " + prov.APIKey
 		}
-		body, err = buildOpenAIChatRequest(prov.Model, systemPrompt, userPrompt, 0.3)
+		body, err = buildOpenAIChatRequest(prov.Model, systemPrompt, userPrompt, providerTemperature(prov))
 	}
 
 	if err != nil {
@@ -878,7 +886,7 @@ func callGeminiViaOpenCode(ctx context.Context, prov Provider, systemPrompt, use
 		headers["x-goog-api-key"] = prov.APIKey
 	}
 
-	body, err := buildGeminiRequest(systemPrompt, userPrompt, 0.3)
+	body, err := buildGeminiRequest(systemPrompt, userPrompt, providerTemperature(prov))
 	if err != nil {
 		return "", err
 	}
@@ -969,7 +977,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 	}
 
 	// Build OpenAI chat completions request body
-	body, err := buildOpenAIChatRequest(prov.Model, systemPrompt, userPrompt, 0.3)
+	body, err := buildOpenAIChatRequest(prov.Model, systemPrompt, userPrompt, providerTemperature(prov))
 	if err != nil {
 		return "", fmt.Errorf("building request: %w", err)
 	}
@@ -1134,7 +1142,7 @@ func callGeminiOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 	accessToken := token.Access
 
 	// Build the inner Gemini-native request body (Vertex format)
-	innerBody, err := buildGeminiRequest(systemPrompt, userPrompt, 0.3)
+	innerBody, err := buildGeminiRequest(systemPrompt, userPrompt, providerTemperature(prov))
 	if err != nil {
 		return "", fmt.Errorf("building request: %w", err)
 	}
@@ -2147,48 +2155,12 @@ TECHNICAL REQUIREMENTS:
 - Do NOT translate technical terms that are standard in English (unless they have established translations).
 - Return ONLY the JSON array, no explanations or markdown code blocks.`
 
-// RecipeSystemPrompt is the system prompt for translating recipe metadata
-// (app names, descriptions, long descriptions).
-const RecipeSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating application metadata (names, descriptions) for a software catalog or app store.
-
-CONTEXT AWARENESS:
-- These are software application descriptions for an application catalog
-- Each entry has a name, short description, and optionally a long HTML description
-- The audience is users browsing for software to install
-- Tone: clear, informative, matching standard app store descriptions
-
-IMPORTANT TRANSLATION PRINCIPLES:
-- Translate for NATURALNESS and FLUENCY in {{targetLang}}, not word-for-word
-- Use established IT terminology standard in {{targetLang}}
-- Keep the same level of technical detail as the original
-- Application names that are proper nouns should NOT be translated
-- Short descriptions should remain concise (one line)
-
-TECHNICAL REQUIREMENTS:
-- Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
-- Preserve ALL HTML tags exactly as-is (<p>, <ul>, <li>, <code>, etc.)
-- Preserve all technical terms, command names, and file paths
-- Keep brand names and application names unchanged
-- Return ONLY the JSON array, no explanations or markdown code blocks.`
-
 // JSONLangTask is a language translation task for i18next JSON files.
 type JSONLangTask struct {
 	Lang     string
 	LangName string
 	File     *i18next.File
 	FilePath string
-}
-
-// RecipeTask is a single recipe translation task.
-type RecipeTask struct {
-	RecipeID string
-	Lang     string
-	FilePath string
-	Recipe   *i18next.RecipeTranslation
-	// Source fields from English (for context)
-	SourceName            string
-	SourceDescription     string
-	SourceLongDescription string
 }
 
 // TranslateAllJSON translates multiple i18next JSON files according to opts.ParallelMode.
@@ -2459,277 +2431,6 @@ func splitStrings(items []string, chunkSize int) [][]string {
 		chunks = append(chunks, items[i:end])
 	}
 	return chunks
-}
-
-// recipeFieldRef identifies a specific field in a specific recipe task.
-type recipeFieldRef struct {
-	taskIdx int
-	field   string // "name", "description", "longDescription"
-}
-
-// TranslateRecipes translates recipe metadata files in batch.
-// It groups recipe fields into chunks and translates them efficiently.
-func TranslateRecipes(ctx context.Context, tasks []RecipeTask, opts Options) error {
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	rl := &rateLimitState{}
-	systemPrompt := opts.resolvedPrompt()
-
-	// Flatten all fields that need translation into a single list
-	var fields []recipeFieldRef
-	var texts []string
-
-	for i, task := range tasks {
-		if task.Recipe.Name == "" && task.SourceName != "" {
-			fields = append(fields, recipeFieldRef{i, "name"})
-			texts = append(texts, task.SourceName)
-		}
-		if task.Recipe.Description == "" && task.SourceDescription != "" {
-			fields = append(fields, recipeFieldRef{i, "description"})
-			texts = append(texts, task.SourceDescription)
-		}
-		if task.Recipe.LongDescription == "" && task.SourceLongDescription != "" {
-			fields = append(fields, recipeFieldRef{i, "longDescription"})
-			texts = append(texts, task.SourceLongDescription)
-		}
-	}
-
-	if len(texts) == 0 {
-		return nil
-	}
-
-	chunkSize := opts.effectiveChunkSize()
-	if chunkSize == 0 {
-		chunkSize = 50 // Default chunk size for recipes
-	}
-
-	chunks := splitStrings(texts, chunkSize)
-	fieldChunks := splitFieldRefs(fields, chunkSize)
-
-	done := 0
-	var failedChunks int
-
-	for i, chunk := range chunks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		if opts.Verbose {
-			opts.log("  Recipe chunk %d/%d (%d fields)", i+1, len(chunks), len(chunk))
-		}
-
-		var userMsg strings.Builder
-		userMsg.WriteString(fmt.Sprintf("Translate these application descriptions to %s:\n\n", opts.LanguageName))
-		for j, text := range chunk {
-			userMsg.WriteString(fmt.Sprintf("%d. %s\n", j+1, escapeForPrompt(text)))
-		}
-		userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(chunk)))
-
-		text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
-		if err != nil {
-			opts.logError("Recipe translation chunk %d/%d failed: %v", i+1, len(chunks), err)
-			failedChunks++
-			continue
-		}
-
-		translations, err := parseTranslations(text, len(chunk))
-		if err != nil {
-			opts.logError("Recipe translation chunk %d/%d: parse error: %v", i+1, len(chunks), err)
-			failedChunks++
-			continue
-		}
-
-		// Apply translations to the correct recipe fields
-		for j, ref := range fieldChunks[i] {
-			if j < len(translations) && translations[j] != "" {
-				switch ref.field {
-				case "name":
-					tasks[ref.taskIdx].Recipe.Name = translations[j]
-				case "description":
-					tasks[ref.taskIdx].Recipe.Description = translations[j]
-				case "longDescription":
-					tasks[ref.taskIdx].Recipe.LongDescription = translations[j]
-				}
-			}
-		}
-
-		done += len(chunk)
-		if opts.OnProgress != nil {
-			opts.OnProgress(opts.Language, done, len(texts))
-		}
-
-		if i < len(chunks)-1 && opts.RequestDelay > 0 {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(opts.RequestDelay):
-			}
-		}
-	}
-
-	// Save all modified recipe files
-	saved := 0
-	for _, task := range tasks {
-		if task.Recipe.Name != "" || task.Recipe.Description != "" {
-			if err := task.Recipe.WriteRecipeFile(task.FilePath); err != nil {
-				opts.logError("Error saving %s: %v", task.FilePath, err)
-			} else {
-				saved++
-			}
-		}
-	}
-
-	if saved > 0 {
-		opts.log("Saved %d recipe translation files", saved)
-	}
-
-	if failedChunks > 0 {
-		return fmt.Errorf("%d recipe translation chunks failed", failedChunks)
-	}
-	return nil
-}
-
-// splitFieldRefs splits a slice of recipeFieldRef into chunks.
-func splitFieldRefs(items []recipeFieldRef, chunkSize int) [][]recipeFieldRef {
-	if chunkSize <= 0 || chunkSize >= len(items) {
-		return [][]recipeFieldRef{items}
-	}
-	var chunks [][]recipeFieldRef
-	for i := 0; i < len(items); i += chunkSize {
-		end := i + chunkSize
-		if end > len(items) {
-			end = len(items)
-		}
-		chunks = append(chunks, items[i:end])
-	}
-	return chunks
-}
-
-// ---------------------------------------------------------------------------
-// Blog post translation support
-// ---------------------------------------------------------------------------
-
-// BlogPostSystemPrompt is the system prompt for translating blog post content.
-const BlogPostSystemPrompt = `You are a professional translator specializing in technical blog posts and articles. You are translating blog posts for a software project website.
-
-CONTEXT AWARENESS:
-- The audience is technical users interested in software, technology, and project updates
-- Blog posts may discuss features, releases, community updates, and technical topics
-- Tone: professional yet friendly, matching the original post's voice
-- Use IT/software terminology standard in {{targetLang}}
-
-IMPORTANT TRANSLATION PRINCIPLES:
-- Translate for NATURALNESS and FLUENCY in {{targetLang}}, not word-for-word
-- Use idiomatic expressions natural to {{targetLang}}
-- Adapt sentence structure to match {{targetLang}} conventions
-- Maintain the original tone, energy, and intent
-- Preserve the blog post's personality and style
-
-TECHNICAL REQUIREMENTS:
-- Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
-- Preserve ALL Markdown formatting exactly as-is: links [text](url), **bold**, *italic*, headers, lists, code blocks
-- Preserve all URLs unchanged
-- Keep brand names and proper nouns unchanged
-- Do NOT translate technical terms that are standard in English (unless they have established translations)
-- Return ONLY the JSON array, no explanations or markdown code blocks.`
-
-// BlogPostTask is a single blog post translation task.
-type BlogPostTask struct {
-	Slug     string
-	Lang     string
-	FilePath string
-	Post     *i18next.BlogPost
-	// Source fields from English
-	SourceTitle   string
-	SourceExcerpt string
-	SourceContent string
-}
-
-// TranslateBlogPosts translates blog post files.
-// Each blog post has 3 translatable fields: title, excerpt, content.
-// We send all fields of a single post in one API request for context coherence.
-func TranslateBlogPosts(ctx context.Context, tasks []BlogPostTask, opts Options) error {
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	rl := &rateLimitState{}
-	var failedPosts int
-
-	for i, task := range tasks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		// Determine which fields need translation
-		var sourceStrings []string
-		var fieldNames []string
-
-		if (task.Post.Title == "" || opts.RetranslateExisting) && task.SourceTitle != "" {
-			sourceStrings = append(sourceStrings, task.SourceTitle)
-			fieldNames = append(fieldNames, "title")
-		}
-		if (task.Post.Excerpt == "" || opts.RetranslateExisting) && task.SourceExcerpt != "" {
-			sourceStrings = append(sourceStrings, task.SourceExcerpt)
-			fieldNames = append(fieldNames, "excerpt")
-		}
-		if (task.Post.Content == "" || opts.RetranslateExisting) && task.SourceContent != "" {
-			sourceStrings = append(sourceStrings, task.SourceContent)
-			fieldNames = append(fieldNames, "content")
-		}
-
-		if len(sourceStrings) == 0 {
-			continue
-		}
-
-		opts.log("  Blog post %d/%d: %s (%d fields)", i+1, len(tasks), task.Slug, len(sourceStrings))
-
-		// Translate
-		translations, err := translateJSONChunk(ctx, sourceStrings, opts.resolvedPrompt(), opts, rl)
-		if err != nil {
-			opts.logError("Blog post %s translation failed: %v", task.Slug, err)
-			failedPosts++
-			continue
-		}
-
-		if len(translations) != len(sourceStrings) {
-			opts.logError("Blog post %s: expected %d translations, got %d", task.Slug, len(sourceStrings), len(translations))
-			failedPosts++
-			continue
-		}
-
-		// Apply translations
-		for j, field := range fieldNames {
-			switch field {
-			case "title":
-				task.Post.Title = translations[j]
-			case "excerpt":
-				task.Post.Excerpt = translations[j]
-			case "content":
-				task.Post.Content = translations[j]
-			}
-		}
-
-		// Update timestamp
-		task.Post.UpdatedAt = time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
-
-		// Save
-		if err := task.Post.WriteBlogPost(task.FilePath); err != nil {
-			opts.logError("Error saving blog post %s: %v", task.FilePath, err)
-			failedPosts++
-		}
-	}
-
-	if failedPosts > 0 {
-		return fmt.Errorf("%d blog post(s) failed to translate", failedPosts)
-	}
-	return nil
 }
 
 // ---------------------------------------------------------------------------

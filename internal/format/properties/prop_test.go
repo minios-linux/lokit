@@ -1,4 +1,4 @@
-package propfile
+package properties
 
 import (
 	"strings"

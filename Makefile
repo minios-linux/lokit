@@ -6,7 +6,7 @@ COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
 DATE := $(shell date -u +"%Y-%m-%d %H:%M:%S UTC")
 
 # Build flags (-s -w strips symbol table and DWARF debug info)
-LDFLAGS := -ldflags "-s -w -X 'main.version=$(VERSION)' -X 'main.commit=$(COMMIT)' -X 'main.date=$(DATE)'"
+LDFLAGS := -ldflags "-s -w -X 'github.com/minios-linux/lokit/internal/cli.version=$(VERSION)' -X 'github.com/minios-linux/lokit/internal/cli.commit=$(COMMIT)' -X 'github.com/minios-linux/lokit/internal/cli.date=$(DATE)'"
 
 # Binary name
 BINARY := lokit

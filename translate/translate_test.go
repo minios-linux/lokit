@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	po "github.com/minios-linux/lokit/pofile"
+	po "github.com/minios-linux/lokit/internal/format/po"
 )
 
 // ---------------------------------------------------------------------------

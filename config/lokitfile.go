@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -25,25 +26,53 @@ type LokitFile struct {
 	Languages []string `yaml:"languages,omitempty"`
 	// SourceLang is the source language code (default "en").
 	SourceLang string `yaml:"source_lang,omitempty"`
+	// Provider configures default AI provider/model for translate command.
+	Provider *ProviderConfig `yaml:"provider,omitempty"`
 	// Targets is the list of translation targets.
 	Targets []Target `yaml:"targets"`
+}
+
+// ProviderConfig defines default provider settings for translation.
+type ProviderConfig struct {
+	// ID is the provider identifier.
+	ID string `yaml:"id"`
+	// Model is the model name.
+	Model string `yaml:"model"`
+	// BaseURL is an optional custom endpoint URL.
+	BaseURL string `yaml:"base_url,omitempty"`
+	// Prompt is an optional global prompt override.
+	Prompt string `yaml:"prompt,omitempty"`
+	// Settings contains optional model-specific settings.
+	Settings ProviderSettings `yaml:"settings,omitempty"`
+}
+
+// ProviderSettings contains optional model-specific tuning values.
+type ProviderSettings struct {
+	// Temperature controls randomness (0..2).
+	Temperature *float64 `yaml:"temperature,omitempty"`
 }
 
 // Target describes a single translation unit (PO directory, po4a config, i18next dir, etc.).
 type Target struct {
 	// Name is a human-readable label shown in status/logs.
 	Name string `yaml:"name"`
-	// Type: "gettext", "po4a", "i18next", "json".
+	// Type: "gettext", "po4a", "i18next", "vue-i18n", "json".
 	Type string `yaml:"type"`
 	// Root is the working directory relative to lokit.yaml (default ".").
 	Root string `yaml:"root,omitempty"`
 	// Dir is the unified directory option for targets that need a base directory.
 	Dir string `yaml:"dir,omitempty"`
+	// Pattern is an optional file path template (relative to Dir) for
+	// file-per-language targets. It must include "{lang}", e.g.:
+	// - "{lang}.json"
+	// - "{lang}/common.json"
+	// - "locale_{lang}.properties"
+	Pattern string `yaml:"pattern,omitempty"`
 
 	// --- gettext options ---
 
-	// POTFile is the POT template file relative to Root.
-	POTFile string `yaml:"pot_file,omitempty"`
+	// POT is the POT template file name relative to Dir.
+	POT string `yaml:"pot,omitempty"`
 	// Sources are source files/globs to scan for translatable strings.
 	Sources []string `yaml:"sources,omitempty"`
 	// Keywords are xgettext keyword options (default "_,N_,gettext,eval_gettext").
@@ -53,15 +82,8 @@ type Target struct {
 
 	// --- po4a options ---
 
-	// Po4aConfig is the path to po4a.cfg relative to Root.
-	Po4aConfig string `yaml:"po4a_config,omitempty"`
-
-	// --- i18next / json options ---
-
-	// RecipesDir is the directory with per-recipe translation files (i18next).
-	RecipesDir string `yaml:"recipes_dir,omitempty"`
-	// BlogDir is the directory with blog posts + translations (i18next).
-	BlogDir string `yaml:"blog_dir,omitempty"`
+	// Config is the path to po4a.cfg relative to Root.
+	Config string `yaml:"config,omitempty"`
 
 	// --- overrides ---
 
@@ -91,6 +113,9 @@ const TargetTypePo4a = "po4a"
 
 // TargetTypeI18Next is used for i18next JSON translation projects.
 const TargetTypeI18Next = "i18next"
+
+// TargetTypeVueI18n is used for vue-i18n nested JSON translation projects.
+const TargetTypeVueI18n = "vue-i18n"
 
 // TargetTypeJSON is used for simple JSON translation projects { "translations": {...} }.
 const TargetTypeJSON = "json"
@@ -126,17 +151,109 @@ func validateNoDeprecatedTargetKeys(data []byte, path string) error {
 	}
 
 	for i, t := range raw.Targets {
-		for oldKey := range map[string]struct{}{
-			"po_dir":           {},
-			"translations_dir": {},
-			"res_dir":          {},
-		} {
-			if _, ok := t[oldKey]; ok {
-				return fmt.Errorf("%s: target #%d uses unsupported key %q; use \"dir\"", path, i+1, oldKey)
+		deprecated := map[string]string{
+			"po_dir":           "dir",
+			"translations_dir": "dir",
+			"res_dir":          "dir",
+			"path_pattern":     "pattern",
+			"pot_file":         "pot",
+			"po4a_config":      "config",
+			"recipes_dir":      "remove this field (no replacement)",
+			"blog_dir":         "remove this field (no replacement)",
+		}
+		for oldKey, replacement := range deprecated {
+			if _, ok := t[oldKey]; !ok {
+				continue
 			}
+			if replacement == "remove this field (no replacement)" {
+				return fmt.Errorf("%s: target #%d uses unsupported key %q; %s", path, i+1, oldKey, replacement)
+			}
+			return fmt.Errorf("%s: target #%d uses unsupported key %q; use %q", path, i+1, oldKey, replacement)
 		}
 	}
 
+	return nil
+}
+
+var localeCodeStrictRE = regexp.MustCompile(`^[a-z]{2,3}(?:-[A-Z][a-z]{3}|-[A-Z0-9]{2,8})*$`)
+
+func canonicalLocaleHint(locale string) string {
+	trimmed := strings.TrimSpace(locale)
+	if trimmed == "" {
+		return ""
+	}
+	trimmed = strings.ReplaceAll(trimmed, "_", "-")
+	parts := strings.Split(trimmed, "-")
+	if len(parts) == 0 {
+		return ""
+	}
+	parts[0] = strings.ToLower(parts[0])
+	for i := 1; i < len(parts); i++ {
+		p := parts[i]
+		if len(p) == 4 {
+			parts[i] = strings.ToUpper(p[:1]) + strings.ToLower(p[1:])
+			continue
+		}
+		parts[i] = strings.ToUpper(p)
+	}
+	return strings.Join(parts, "-")
+}
+
+func validateLocaleCode(path, field, locale string) error {
+	if localeCodeStrictRE.MatchString(locale) {
+		return nil
+	}
+	hint := canonicalLocaleHint(locale)
+	if hint != "" && hint != locale && localeCodeStrictRE.MatchString(hint) {
+		return fmt.Errorf("%s: invalid locale in %s: %q (try %q)", path, field, locale, hint)
+	}
+	return fmt.Errorf("%s: invalid locale in %s: %q", path, field, locale)
+}
+
+func validateLocaleList(path, field string, locales []string) error {
+	for i, locale := range locales {
+		if err := validateLocaleCode(path, fmt.Sprintf("%s[%d]", field, i), locale); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateProviderConfig(path string, provider *ProviderConfig) error {
+	if provider == nil {
+		return nil
+	}
+	if provider.ID == "" {
+		return fmt.Errorf("%s: provider.id is required", path)
+	}
+	if provider.Model == "" {
+		return fmt.Errorf("%s: provider.model is required", path)
+	}
+	supportedProviders := map[string]struct{}{
+		"google":        {},
+		"gemini":        {},
+		"groq":          {},
+		"opencode":      {},
+		"copilot":       {},
+		"ollama":        {},
+		"custom-openai": {},
+	}
+	if _, ok := supportedProviders[provider.ID]; !ok {
+		return fmt.Errorf("%s: provider.id %q is not supported", path, provider.ID)
+	}
+	if provider.BaseURL != "" {
+		switch provider.ID {
+		case "custom-openai", "ollama":
+		default:
+			return fmt.Errorf("%s: provider.base_url is only supported for provider.id custom-openai or ollama", path)
+		}
+	}
+	if provider.Settings.Temperature != nil {
+		t := *provider.Settings.Temperature
+		if t < 0 || t > 2 {
+			return fmt.Errorf("%s: provider.settings.temperature must be between 0 and 2", path)
+		}
+	}
 	return nil
 }
 
@@ -166,6 +283,18 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		lf.SourceLang = "en"
 	}
 
+	if err := validateLocaleCode(path, "source_lang", lf.SourceLang); err != nil {
+		return nil, err
+	}
+	if err := validateLocaleList(path, "languages", lf.Languages); err != nil {
+		return nil, err
+	}
+	if err := validateProviderConfig(path, lf.Provider); err != nil {
+		return nil, err
+	}
+
+	targetNames := make(map[string]struct{})
+
 	// Validate & resolve targets
 	for i := range lf.Targets {
 		t := &lf.Targets[i]
@@ -173,6 +302,10 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		if t.Name == "" {
 			return nil, fmt.Errorf("%s: target #%d has no name", path, i+1)
 		}
+		if _, exists := targetNames[t.Name]; exists {
+			return nil, fmt.Errorf("%s: duplicate target name %q", path, t.Name)
+		}
+		targetNames[t.Name] = struct{}{}
 		if t.Type == "" {
 			return nil, fmt.Errorf("%s: target %q has no type", path, t.Name)
 		}
@@ -191,22 +324,34 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		if t.SourceLang == "" {
 			t.SourceLang = lf.SourceLang
 		}
+		if err := validateLocaleCode(path, fmt.Sprintf("targets[%d].source_lang", i), t.SourceLang); err != nil {
+			return nil, err
+		}
+		if err := validateLocaleList(path, fmt.Sprintf("targets[%d].languages", i), t.Languages); err != nil {
+			return nil, err
+		}
 
 		switch t.Type {
 		case TargetTypeGettext:
 			if t.Dir == "" {
 				return nil, fmt.Errorf("%s: target %q (gettext) requires \"dir\" (e.g. dir: po)", path, t.Name)
 			}
-			if t.POTFile == "" {
-				t.POTFile = filepath.Join(t.Dir, "messages.pot")
+			if t.POT == "" {
+				return nil, fmt.Errorf("%s: target %q (gettext) requires \"pot\" (e.g. pot: messages.pot)", path, t.Name)
 			}
 		case TargetTypePo4a:
-			if t.Po4aConfig == "" {
-				t.Po4aConfig = "po4a.cfg"
+			if t.Config == "" {
+				return nil, fmt.Errorf("%s: target %q (po4a) requires \"config\" (e.g. config: po4a.cfg)", path, t.Name)
 			}
-		case TargetTypeI18Next, TargetTypeJSON:
+		case TargetTypeI18Next, TargetTypeVueI18n, TargetTypeJSON:
 			if t.Dir == "" {
 				return nil, fmt.Errorf("%s: target %q (%s) requires \"dir\" (e.g. dir: public/translations)", path, t.Name, t.Type)
+			}
+			if t.Pattern == "" {
+				return nil, fmt.Errorf("%s: target %q (%s) requires \"pattern\" (e.g. pattern: {lang}.json)", path, t.Name, t.Type)
+			}
+			if !strings.Contains(t.Pattern, "{lang}") {
+				return nil, fmt.Errorf("%s: target %q (%s) field \"pattern\" must contain \"{lang}\"", path, t.Name, t.Type)
 			}
 		case TargetTypeAndroid:
 			if t.Dir == "" {
@@ -216,6 +361,12 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			if t.Dir == "" {
 				return nil, fmt.Errorf("%s: target %q (yaml) requires \"dir\" (e.g. dir: translations)", path, t.Name)
 			}
+			if t.Pattern == "" {
+				return nil, fmt.Errorf("%s: target %q (yaml) requires \"pattern\" (e.g. pattern: {lang}.yaml)", path, t.Name)
+			}
+			if !strings.Contains(t.Pattern, "{lang}") {
+				return nil, fmt.Errorf("%s: target %q (yaml) field \"pattern\" must contain \"{lang}\"", path, t.Name)
+			}
 		case TargetTypeMarkdown:
 			if t.Dir == "" {
 				return nil, fmt.Errorf("%s: target %q (markdown) requires \"dir\" (e.g. dir: docs)", path, t.Name)
@@ -224,12 +375,24 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			if t.Dir == "" {
 				return nil, fmt.Errorf("%s: target %q (properties) requires \"dir\" (e.g. dir: translations)", path, t.Name)
 			}
+			if t.Pattern == "" {
+				return nil, fmt.Errorf("%s: target %q (properties) requires \"pattern\" (e.g. pattern: {lang}.properties)", path, t.Name)
+			}
+			if !strings.Contains(t.Pattern, "{lang}") {
+				return nil, fmt.Errorf("%s: target %q (properties) field \"pattern\" must contain \"{lang}\"", path, t.Name)
+			}
 		case TargetTypeFlutter:
 			if t.Dir == "" {
 				return nil, fmt.Errorf("%s: target %q (flutter) requires \"dir\" (e.g. dir: lib/l10n)", path, t.Name)
 			}
+			if t.Pattern == "" {
+				return nil, fmt.Errorf("%s: target %q (flutter) requires \"pattern\" (e.g. pattern: app_{lang}.arb)", path, t.Name)
+			}
+			if !strings.Contains(t.Pattern, "{lang}") {
+				return nil, fmt.Errorf("%s: target %q (flutter) field \"pattern\" must contain \"{lang}\"", path, t.Name)
+			}
 		default:
-			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, json, android, yaml, markdown, properties, flutter)", path, t.Name, t.Type)
+			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, vue-i18n, json, android, yaml, markdown, properties, flutter)", path, t.Name, t.Type)
 		}
 	}
 
@@ -283,7 +446,7 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 		return detectLanguagesFlat(poDir)
 
 	case TargetTypePo4a:
-		cfgPath := filepath.Join(absRoot, t.Po4aConfig)
+		cfgPath := filepath.Join(absRoot, t.Config)
 		if langs := parsePo4aLangs(cfgPath); len(langs) > 0 {
 			return langs
 		}
@@ -291,12 +454,18 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 		poDir := filepath.Join(filepath.Dir(cfgPath), "po")
 		return DetectLanguagesNested(poDir)
 
-	case TargetTypeI18Next:
+	case TargetTypeI18Next, TargetTypeVueI18n:
 		transDir := filepath.Join(absRoot, t.Dir)
+		if t.Pattern != "" {
+			return detectLanguagesByPattern(transDir, t.Pattern)
+		}
 		return detectLanguagesI18Next(transDir)
 
 	case TargetTypeJSON:
 		transDir := filepath.Join(absRoot, t.Dir)
+		if t.Pattern != "" {
+			return detectLanguagesByPattern(transDir, t.Pattern)
+		}
 		return detectLanguagesJSON(transDir)
 
 	case TargetTypeAndroid:
@@ -305,6 +474,9 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 
 	case TargetTypeYAML:
 		transDir := filepath.Join(absRoot, t.Dir)
+		if t.Pattern != "" {
+			return detectLanguagesByPattern(transDir, t.Pattern)
+		}
 		return detectLanguagesYAML(transDir)
 
 	case TargetTypeMarkdown:
@@ -313,13 +485,62 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 
 	case TargetTypeProperties:
 		transDir := filepath.Join(absRoot, t.Dir)
+		if t.Pattern != "" {
+			return detectLanguagesByPattern(transDir, t.Pattern)
+		}
 		return detectLanguagesProperties(transDir)
 
 	case TargetTypeFlutter:
 		transDir := filepath.Join(absRoot, t.Dir)
+		if t.Pattern != "" {
+			return detectLanguagesByPattern(transDir, t.Pattern)
+		}
 		return detectLanguagesFlutter(transDir)
 	}
 	return nil
+}
+
+func detectLanguagesByPattern(dir, pattern string) []string {
+	if !strings.Contains(pattern, "{lang}") {
+		return nil
+	}
+
+	globPattern := strings.ReplaceAll(pattern, "{lang}", "*")
+	absGlob := filepath.Join(dir, filepath.FromSlash(globPattern))
+	paths, err := filepath.Glob(absGlob)
+	if err != nil {
+		return nil
+	}
+
+	reStr := regexp.QuoteMeta(filepath.ToSlash(pattern))
+	reStr = strings.ReplaceAll(reStr, regexp.QuoteMeta("{lang}"), "([^/]+)")
+	re := regexp.MustCompile("^" + reStr + "$")
+
+	seen := make(map[string]struct{})
+	var langs []string
+	for _, p := range paths {
+		rel, err := filepath.Rel(dir, p)
+		if err != nil {
+			continue
+		}
+		rel = filepath.ToSlash(rel)
+		m := re.FindStringSubmatch(rel)
+		if len(m) < 2 {
+			continue
+		}
+		lang := m[1]
+		if !(isLangCode(lang) || isI18NextLangCode(lang)) {
+			continue
+		}
+		if _, ok := seen[lang]; ok {
+			continue
+		}
+		seen[lang] = struct{}{}
+		langs = append(langs, lang)
+	}
+
+	sort.Strings(langs)
+	return langs
 }
 
 // detectLanguagesJSON finds language codes from simple JSON files in a directory.
@@ -460,17 +681,82 @@ func (rt *ResolvedTarget) AbsPODir() string {
 
 // AbsPOTFile returns the absolute POT file path for a gettext target.
 func (rt *ResolvedTarget) AbsPOTFile() string {
-	return filepath.Join(rt.AbsRoot, rt.Target.POTFile)
+	return filepath.Join(rt.AbsPODir(), rt.Target.POT)
 }
 
 // AbsPo4aConfig returns the absolute po4a.cfg path for a po4a target.
 func (rt *ResolvedTarget) AbsPo4aConfig() string {
-	return filepath.Join(rt.AbsRoot, rt.Target.Po4aConfig)
+	return filepath.Join(rt.AbsRoot, rt.Target.Config)
 }
 
 // AbsTranslationsDir returns the absolute translations dir for i18next/json targets.
 func (rt *ResolvedTarget) AbsTranslationsDir() string {
 	return filepath.Join(rt.AbsRoot, rt.Target.Dir)
+}
+
+func (rt *ResolvedTarget) translationPathPatterns() []string {
+	if rt.Target.Pattern == "" {
+		return nil
+	}
+	return []string{rt.Target.Pattern}
+}
+
+func applyLangPattern(pattern, lang string) string {
+	return strings.ReplaceAll(pattern, "{lang}", lang)
+}
+
+// TranslationPathCandidates returns absolute path candidates for a language.
+func (rt *ResolvedTarget) TranslationPathCandidates(lang string) []string {
+	patterns := rt.translationPathPatterns()
+	if len(patterns) == 0 {
+		return nil
+	}
+
+	base := rt.AbsTranslationsDir()
+	paths := make([]string, 0, len(patterns))
+	for _, pattern := range patterns {
+		rel := applyLangPattern(pattern, lang)
+		paths = append(paths, filepath.Join(base, filepath.FromSlash(rel)))
+	}
+	return paths
+}
+
+// TranslationPath returns the primary absolute path for a language.
+func (rt *ResolvedTarget) TranslationPath(lang string) string {
+	paths := rt.TranslationPathCandidates(lang)
+	if len(paths) == 0 {
+		return ""
+	}
+	return paths[0]
+}
+
+// ExistingTranslationPath returns the first existing path for a language.
+func (rt *ResolvedTarget) ExistingTranslationPath(lang string) string {
+	for _, p := range rt.TranslationPathCandidates(lang) {
+		if _, err := os.Stat(p); err == nil {
+			return p
+		}
+	}
+	return ""
+}
+
+// SourcePathCandidates returns source-language path candidates.
+func (rt *ResolvedTarget) SourcePathCandidates() []string {
+	return rt.TranslationPathCandidates(rt.Target.SourceLang)
+}
+
+// SourcePath returns the preferred source-language path.
+func (rt *ResolvedTarget) SourcePath() string {
+	paths := rt.SourcePathCandidates()
+	if len(paths) == 0 {
+		return ""
+	}
+	return paths[0]
+}
+
+// ExistingSourcePath returns the first existing source-language path.
+func (rt *ResolvedTarget) ExistingSourcePath() string {
+	return rt.ExistingTranslationPath(rt.Target.SourceLang)
 }
 
 // AbsResDir returns the absolute Android res/ directory for android targets.

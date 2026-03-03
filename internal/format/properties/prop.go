@@ -12,7 +12,7 @@
 //
 // The File type maintains the original line order so that round-trip
 // serialization reproduces the source structure with translated values.
-package propfile
+package properties
 
 import (
 	"bytes"

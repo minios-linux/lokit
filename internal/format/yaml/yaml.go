@@ -17,7 +17,7 @@
 // Leaf values with empty strings are treated as untranslated.
 // Non-string leaves (numbers, booleans, arrays) are passed through unchanged.
 // The package preserves the source file structure and key order on round-trip.
-package yamlfile
+package yaml
 
 import (
 	"fmt"

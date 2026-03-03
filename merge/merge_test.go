@@ -3,7 +3,7 @@ package merge
 import (
 	"testing"
 
-	po "github.com/minios-linux/lokit/pofile"
+	po "github.com/minios-linux/lokit/internal/format/po"
 )
 
 func TestMergeKeepNewObsoleteAndHeaderUpdate(t *testing.T) {

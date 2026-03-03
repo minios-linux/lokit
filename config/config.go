@@ -69,15 +69,11 @@ type Project struct {
 	// I18NextDir is the directory containing i18next JSON translation files.
 	// Typically "public/translations" relative to project root.
 	I18NextDir string
-	// RecipeTransDir is the directory containing per-recipe translation files.
-	// Typically "public/data/recipe-translations" relative to project root.
-	RecipeTransDir string
-	// BlogPostsDir is the directory containing blog posts and translations.
-	// Typically "data/blog/posts" relative to project root.
-	// Translations live in BlogPostsDir/translations/{slug}.{lang}.md
-	BlogPostsDir string
 	// SourceLang is the source language code (default "en").
 	SourceLang string
+	// I18NextPathPattern optionally overrides the i18next/json language file
+	// layout relative to I18NextDir. It must contain "{lang}".
+	I18NextPathPattern string
 
 	// nestedPOFiles caches resolved paths for nested/po4a structures.
 	// key: language code, value: path to .po file
@@ -252,13 +248,9 @@ func isI18NextLangCode(s string) bool {
 
 // I18NextPath returns the path to the i18next JSON file for a given language.
 func (p *Project) I18NextPath(lang string) string {
-	return filepath.Join(p.I18NextDir, lang+".json")
-}
-
-// RecipeTransPath returns the directory containing recipe translations for a language.
-func (p *Project) RecipeTransPath(lang string) string {
-	if p.RecipeTransDir == "" {
-		return ""
+	if p.I18NextPathPattern != "" {
+		rel := strings.ReplaceAll(p.I18NextPathPattern, "{lang}", lang)
+		return filepath.Join(p.I18NextDir, filepath.FromSlash(rel))
 	}
-	return filepath.Join(p.RecipeTransDir, lang)
+	return filepath.Join(p.I18NextDir, lang+".json")
 }

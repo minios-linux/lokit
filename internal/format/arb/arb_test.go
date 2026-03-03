@@ -1,4 +1,4 @@
-package arbfile
+package arb
 
 import (
 	"strings"

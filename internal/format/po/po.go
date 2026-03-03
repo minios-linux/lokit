@@ -1,6 +1,6 @@
 // Package pofile implements reading and writing of PO/POT files
 // following the GNU gettext format specification.
-package pofile
+package po
 
 import (
 	"bufio"

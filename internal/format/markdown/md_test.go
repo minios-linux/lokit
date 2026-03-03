@@ -1,5 +1,5 @@
 // Package mdfile tests.
-package mdfile
+package markdown
 
 import (
 	"strings"

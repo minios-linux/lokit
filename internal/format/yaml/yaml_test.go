@@ -1,5 +1,5 @@
 // Package yamlfile tests.
-package yamlfile
+package yaml
 
 import (
 	"strings"

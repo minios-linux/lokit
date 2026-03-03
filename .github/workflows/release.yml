@@ -51,7 +51,7 @@ jobs:
             
             echo "Building for $GOOS/$GOARCH..."
             GOOS=$GOOS GOARCH=$GOARCH go build \
-              -ldflags "-X 'main.version=${{ steps.version.outputs.VERSION }}' -X 'main.commit=${{ github.sha }}' -X 'main.date=$(date -u +"%Y-%m-%d %H:%M:%S UTC")'" \
+              -ldflags "-X 'github.com/minios-linux/lokit/internal/cli.version=${{ steps.version.outputs.VERSION }}' -X 'github.com/minios-linux/lokit/internal/cli.commit=${{ github.sha }}' -X 'github.com/minios-linux/lokit/internal/cli.date=$(date -u +"%Y-%m-%d %H:%M:%S UTC")'" \
               -o "dist/${output_name}"
             
             tar -czf "dist/${output_name}.tar.gz" -C dist "${output_name}"

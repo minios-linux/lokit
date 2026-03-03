@@ -13,7 +13,7 @@
 //
 // Round-trip fidelity: key order from the source file is preserved, and
 // metadata keys immediately follow their corresponding translatable key.
-package arbfile
+package arb
 
 import (
 	"bytes"

@@ -1,9 +1,186 @@
 version: 1
 checksums:
     lokit/ar:
+        'AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)': 349ca778bb9be6ee08aace5bff3c4713
+        'Cannot read source vue-i18n file %s: %v': f45f26228638a0f27ed51935062622dd
         'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
         'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        ? |-
+            Extract translatable strings and create/update translation files.
+
+            Requires a lokit.yaml configuration file in the project root.
+
+            For gettext projects: runs xgettext to extract strings into a POT template,
+            then creates or updates PO files for each language.
+
+            For po4a projects: runs 'po4a --no-translations' to update templates.
+
+            For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language
+            files with empty translations.
+
+            For android/markdown projects: no init step needed — use 'lokit translate'
+            directly.
+
+            This command is idempotent — safe to run multiple times. Existing
+            translations are preserved when updating files.
+
+            CONFIG FORMAT (lokit.yaml)
+
+              source_lang: en                    # Source language (default: en)
+              languages: [ru, de, fr, es, ...]   # Target languages
+
+              targets:
+                - name: myproject                # Display name
+                  type: gettext                  # Target type (see below)
+                  root: .                        # Working directory (default: .)
+                  # ... type-specific options
+
+            TARGET TYPES
+
+              gettext — Source code string extraction (shell, python, C, Go, etc.)
+                dir: po                          # PO files directory (required)
+                pot: messages.pot                # POT template filename (inside dir)
+                sources: [src, scripts]          # Directories to scan (default: root)
+                keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)
+
+              po4a — Documentation translation (man pages, AsciiDoc, etc.)
+                config: po4a.cfg                 # Path to po4a.cfg (required)
+
+              i18next — i18next JSON translations
+                dir: public/translations         # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              vue-i18n — vue-i18n nested JSON translations
+                dir: frontend/src/i18n           # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              json — Simple JSON translations { "key": "value" }
+                dir: translations                # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              android — Android strings.xml
+                dir: app/src/main/res            # Android res/ directory (required)
+
+              yaml — YAML key/value translations
+                dir: translations                # YAML files directory (required)
+                pattern: "{lang}.yaml"           # Language file pattern (required)
+
+              markdown — Markdown document translation
+                dir: translations                # Root dir; files at translations/LANG/ (required)
+
+              properties — Java .properties translations
+                dir: translations                # .properties files directory (required)
+                pattern: "{lang}.properties"     # Language file pattern (required)
+
+              flutter — Flutter ARB (Application Resource Bundle)
+                dir: lib/l10n                    # ARB files directory (required)
+                pattern: "app_{lang}.arb"        # Language file pattern (required)
+
+            COMMON OPTIONS (all target types)
+
+              languages: [ru, de]               # Override global language list
+              prompt: "Custom translation..."   # Override AI translation prompt
+
+            EXAMPLES
+
+              # Shell scripts with gettext
+              source_lang: en
+              languages: [ru, de, fr]
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [scripts, lib]
+                  keywords: [gettext, eval_gettext]
+
+              # Go project with wrapper functions
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [.]
+                  keywords: [T, N]
+
+              # Documentation + code
+              targets:
+                - name: code
+                  type: gettext
+                  sources: [src]
+                - name: docs
+                  type: po4a
+                  config: docs/po4a.cfg
+
+              # i18next web application
+              targets:
+                - name: frontend
+                  type: i18next
+                  dir: public/translations
+
+              # Flutter application
+              targets:
+                - name: app
+                  type: flutter
+                  dir: lib/l10n
+
+              # Java application with .properties
+              targets:
+                - name: app
+                  type: properties
+                  dir: src/main/resources
+        : 1ab6f08b27288cafa20726508f349013
         Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        Model name (or use lokit.yaml provider.model): 80c82f8f378bf1ed28f423a517f3a2c8
+        No vue-i18n files to translate: ba0332a9dbb5f1071734dafdf01177a4
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files).
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Key filtering: configure per-target in lokit.yaml:
+              ignored_keys  — keys excluded from translation entirely (never sent to AI)
+              locked_keys   — keys whose translations are preserved (skipped even with
+                              --retranslate; only --force overrides)
+              locked_patterns — regex patterns matching keys treated as locked
+                              (e.g. "^brand_.*" locks all brand_ prefixed keys)
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 9a3ae54b69bd7836b663303c01c7550b
         ? |-
             Translate files using AI providers.
 
@@ -96,6 +273,36 @@ checksums:
               # Dry run (show what would be translated)
               lokit translate --provider copilot --model gpt-4o --dry-run
         : 59172b63fd08c23d1e78c1c65001cf33
+        'Vue i18n init: %d created, %d updated': 674c4eb5200e98469bd11c1b434f04a7
+        'cannot read source vue-i18n file %s: %w': 0ed4ff762ac1302d1159d1ab5f6debdb
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : d5c79137f4f994144afccd4d9a5010fa
         ? |-
             lokit — Localization Kit: AI-powered translation for multiple formats.
 
@@ -125,9 +332,186 @@ checksums:
               custom-openai  Custom OpenAI-compatible endpoint
         : 0a653588a5309ba5d21dbd23cee1201f
     lokit/de:
+        'AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)': 349ca778bb9be6ee08aace5bff3c4713
+        'Cannot read source vue-i18n file %s: %v': f45f26228638a0f27ed51935062622dd
         'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
         'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        ? |-
+            Extract translatable strings and create/update translation files.
+
+            Requires a lokit.yaml configuration file in the project root.
+
+            For gettext projects: runs xgettext to extract strings into a POT template,
+            then creates or updates PO files for each language.
+
+            For po4a projects: runs 'po4a --no-translations' to update templates.
+
+            For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language
+            files with empty translations.
+
+            For android/markdown projects: no init step needed — use 'lokit translate'
+            directly.
+
+            This command is idempotent — safe to run multiple times. Existing
+            translations are preserved when updating files.
+
+            CONFIG FORMAT (lokit.yaml)
+
+              source_lang: en                    # Source language (default: en)
+              languages: [ru, de, fr, es, ...]   # Target languages
+
+              targets:
+                - name: myproject                # Display name
+                  type: gettext                  # Target type (see below)
+                  root: .                        # Working directory (default: .)
+                  # ... type-specific options
+
+            TARGET TYPES
+
+              gettext — Source code string extraction (shell, python, C, Go, etc.)
+                dir: po                          # PO files directory (required)
+                pot: messages.pot                # POT template filename (inside dir)
+                sources: [src, scripts]          # Directories to scan (default: root)
+                keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)
+
+              po4a — Documentation translation (man pages, AsciiDoc, etc.)
+                config: po4a.cfg                 # Path to po4a.cfg (required)
+
+              i18next — i18next JSON translations
+                dir: public/translations         # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              vue-i18n — vue-i18n nested JSON translations
+                dir: frontend/src/i18n           # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              json — Simple JSON translations { "key": "value" }
+                dir: translations                # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              android — Android strings.xml
+                dir: app/src/main/res            # Android res/ directory (required)
+
+              yaml — YAML key/value translations
+                dir: translations                # YAML files directory (required)
+                pattern: "{lang}.yaml"           # Language file pattern (required)
+
+              markdown — Markdown document translation
+                dir: translations                # Root dir; files at translations/LANG/ (required)
+
+              properties — Java .properties translations
+                dir: translations                # .properties files directory (required)
+                pattern: "{lang}.properties"     # Language file pattern (required)
+
+              flutter — Flutter ARB (Application Resource Bundle)
+                dir: lib/l10n                    # ARB files directory (required)
+                pattern: "app_{lang}.arb"        # Language file pattern (required)
+
+            COMMON OPTIONS (all target types)
+
+              languages: [ru, de]               # Override global language list
+              prompt: "Custom translation..."   # Override AI translation prompt
+
+            EXAMPLES
+
+              # Shell scripts with gettext
+              source_lang: en
+              languages: [ru, de, fr]
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [scripts, lib]
+                  keywords: [gettext, eval_gettext]
+
+              # Go project with wrapper functions
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [.]
+                  keywords: [T, N]
+
+              # Documentation + code
+              targets:
+                - name: code
+                  type: gettext
+                  sources: [src]
+                - name: docs
+                  type: po4a
+                  config: docs/po4a.cfg
+
+              # i18next web application
+              targets:
+                - name: frontend
+                  type: i18next
+                  dir: public/translations
+
+              # Flutter application
+              targets:
+                - name: app
+                  type: flutter
+                  dir: lib/l10n
+
+              # Java application with .properties
+              targets:
+                - name: app
+                  type: properties
+                  dir: src/main/resources
+        : 1ab6f08b27288cafa20726508f349013
         Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        Model name (or use lokit.yaml provider.model): 80c82f8f378bf1ed28f423a517f3a2c8
+        No vue-i18n files to translate: ba0332a9dbb5f1071734dafdf01177a4
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files).
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Key filtering: configure per-target in lokit.yaml:
+              ignored_keys  — keys excluded from translation entirely (never sent to AI)
+              locked_keys   — keys whose translations are preserved (skipped even with
+                              --retranslate; only --force overrides)
+              locked_patterns — regex patterns matching keys treated as locked
+                              (e.g. "^brand_.*" locks all brand_ prefixed keys)
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 9a3ae54b69bd7836b663303c01c7550b
         ? |-
             Translate files using AI providers.
 
@@ -220,6 +604,36 @@ checksums:
               # Dry run (show what would be translated)
               lokit translate --provider copilot --model gpt-4o --dry-run
         : 59172b63fd08c23d1e78c1c65001cf33
+        'Vue i18n init: %d created, %d updated': 674c4eb5200e98469bd11c1b434f04a7
+        'cannot read source vue-i18n file %s: %w': 0ed4ff762ac1302d1159d1ab5f6debdb
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : d5c79137f4f994144afccd4d9a5010fa
         ? |-
             lokit — Localization Kit: AI-powered translation for multiple formats.
 
@@ -249,9 +663,186 @@ checksums:
               custom-openai  Custom OpenAI-compatible endpoint
         : 0a653588a5309ba5d21dbd23cee1201f
     lokit/es:
+        'AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)': 349ca778bb9be6ee08aace5bff3c4713
+        'Cannot read source vue-i18n file %s: %v': f45f26228638a0f27ed51935062622dd
         'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
         'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        ? |-
+            Extract translatable strings and create/update translation files.
+
+            Requires a lokit.yaml configuration file in the project root.
+
+            For gettext projects: runs xgettext to extract strings into a POT template,
+            then creates or updates PO files for each language.
+
+            For po4a projects: runs 'po4a --no-translations' to update templates.
+
+            For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language
+            files with empty translations.
+
+            For android/markdown projects: no init step needed — use 'lokit translate'
+            directly.
+
+            This command is idempotent — safe to run multiple times. Existing
+            translations are preserved when updating files.
+
+            CONFIG FORMAT (lokit.yaml)
+
+              source_lang: en                    # Source language (default: en)
+              languages: [ru, de, fr, es, ...]   # Target languages
+
+              targets:
+                - name: myproject                # Display name
+                  type: gettext                  # Target type (see below)
+                  root: .                        # Working directory (default: .)
+                  # ... type-specific options
+
+            TARGET TYPES
+
+              gettext — Source code string extraction (shell, python, C, Go, etc.)
+                dir: po                          # PO files directory (required)
+                pot: messages.pot                # POT template filename (inside dir)
+                sources: [src, scripts]          # Directories to scan (default: root)
+                keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)
+
+              po4a — Documentation translation (man pages, AsciiDoc, etc.)
+                config: po4a.cfg                 # Path to po4a.cfg (required)
+
+              i18next — i18next JSON translations
+                dir: public/translations         # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              vue-i18n — vue-i18n nested JSON translations
+                dir: frontend/src/i18n           # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              json — Simple JSON translations { "key": "value" }
+                dir: translations                # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              android — Android strings.xml
+                dir: app/src/main/res            # Android res/ directory (required)
+
+              yaml — YAML key/value translations
+                dir: translations                # YAML files directory (required)
+                pattern: "{lang}.yaml"           # Language file pattern (required)
+
+              markdown — Markdown document translation
+                dir: translations                # Root dir; files at translations/LANG/ (required)
+
+              properties — Java .properties translations
+                dir: translations                # .properties files directory (required)
+                pattern: "{lang}.properties"     # Language file pattern (required)
+
+              flutter — Flutter ARB (Application Resource Bundle)
+                dir: lib/l10n                    # ARB files directory (required)
+                pattern: "app_{lang}.arb"        # Language file pattern (required)
+
+            COMMON OPTIONS (all target types)
+
+              languages: [ru, de]               # Override global language list
+              prompt: "Custom translation..."   # Override AI translation prompt
+
+            EXAMPLES
+
+              # Shell scripts with gettext
+              source_lang: en
+              languages: [ru, de, fr]
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [scripts, lib]
+                  keywords: [gettext, eval_gettext]
+
+              # Go project with wrapper functions
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [.]
+                  keywords: [T, N]
+
+              # Documentation + code
+              targets:
+                - name: code
+                  type: gettext
+                  sources: [src]
+                - name: docs
+                  type: po4a
+                  config: docs/po4a.cfg
+
+              # i18next web application
+              targets:
+                - name: frontend
+                  type: i18next
+                  dir: public/translations
+
+              # Flutter application
+              targets:
+                - name: app
+                  type: flutter
+                  dir: lib/l10n
+
+              # Java application with .properties
+              targets:
+                - name: app
+                  type: properties
+                  dir: src/main/resources
+        : 1ab6f08b27288cafa20726508f349013
         Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        Model name (or use lokit.yaml provider.model): 80c82f8f378bf1ed28f423a517f3a2c8
+        No vue-i18n files to translate: ba0332a9dbb5f1071734dafdf01177a4
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files).
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Key filtering: configure per-target in lokit.yaml:
+              ignored_keys  — keys excluded from translation entirely (never sent to AI)
+              locked_keys   — keys whose translations are preserved (skipped even with
+                              --retranslate; only --force overrides)
+              locked_patterns — regex patterns matching keys treated as locked
+                              (e.g. "^brand_.*" locks all brand_ prefixed keys)
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 9a3ae54b69bd7836b663303c01c7550b
         ? |-
             Translate files using AI providers.
 
@@ -344,6 +935,36 @@ checksums:
               # Dry run (show what would be translated)
               lokit translate --provider copilot --model gpt-4o --dry-run
         : 59172b63fd08c23d1e78c1c65001cf33
+        'Vue i18n init: %d created, %d updated': 674c4eb5200e98469bd11c1b434f04a7
+        'cannot read source vue-i18n file %s: %w': 0ed4ff762ac1302d1159d1ab5f6debdb
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : d5c79137f4f994144afccd4d9a5010fa
         ? |-
             lokit — Localization Kit: AI-powered translation for multiple formats.
 
@@ -373,9 +994,186 @@ checksums:
               custom-openai  Custom OpenAI-compatible endpoint
         : 0a653588a5309ba5d21dbd23cee1201f
     lokit/fr:
+        'AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)': 349ca778bb9be6ee08aace5bff3c4713
+        'Cannot read source vue-i18n file %s: %v': f45f26228638a0f27ed51935062622dd
         'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
         'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        ? |-
+            Extract translatable strings and create/update translation files.
+
+            Requires a lokit.yaml configuration file in the project root.
+
+            For gettext projects: runs xgettext to extract strings into a POT template,
+            then creates or updates PO files for each language.
+
+            For po4a projects: runs 'po4a --no-translations' to update templates.
+
+            For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language
+            files with empty translations.
+
+            For android/markdown projects: no init step needed — use 'lokit translate'
+            directly.
+
+            This command is idempotent — safe to run multiple times. Existing
+            translations are preserved when updating files.
+
+            CONFIG FORMAT (lokit.yaml)
+
+              source_lang: en                    # Source language (default: en)
+              languages: [ru, de, fr, es, ...]   # Target languages
+
+              targets:
+                - name: myproject                # Display name
+                  type: gettext                  # Target type (see below)
+                  root: .                        # Working directory (default: .)
+                  # ... type-specific options
+
+            TARGET TYPES
+
+              gettext — Source code string extraction (shell, python, C, Go, etc.)
+                dir: po                          # PO files directory (required)
+                pot: messages.pot                # POT template filename (inside dir)
+                sources: [src, scripts]          # Directories to scan (default: root)
+                keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)
+
+              po4a — Documentation translation (man pages, AsciiDoc, etc.)
+                config: po4a.cfg                 # Path to po4a.cfg (required)
+
+              i18next — i18next JSON translations
+                dir: public/translations         # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              vue-i18n — vue-i18n nested JSON translations
+                dir: frontend/src/i18n           # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              json — Simple JSON translations { "key": "value" }
+                dir: translations                # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              android — Android strings.xml
+                dir: app/src/main/res            # Android res/ directory (required)
+
+              yaml — YAML key/value translations
+                dir: translations                # YAML files directory (required)
+                pattern: "{lang}.yaml"           # Language file pattern (required)
+
+              markdown — Markdown document translation
+                dir: translations                # Root dir; files at translations/LANG/ (required)
+
+              properties — Java .properties translations
+                dir: translations                # .properties files directory (required)
+                pattern: "{lang}.properties"     # Language file pattern (required)
+
+              flutter — Flutter ARB (Application Resource Bundle)
+                dir: lib/l10n                    # ARB files directory (required)
+                pattern: "app_{lang}.arb"        # Language file pattern (required)
+
+            COMMON OPTIONS (all target types)
+
+              languages: [ru, de]               # Override global language list
+              prompt: "Custom translation..."   # Override AI translation prompt
+
+            EXAMPLES
+
+              # Shell scripts with gettext
+              source_lang: en
+              languages: [ru, de, fr]
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [scripts, lib]
+                  keywords: [gettext, eval_gettext]
+
+              # Go project with wrapper functions
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [.]
+                  keywords: [T, N]
+
+              # Documentation + code
+              targets:
+                - name: code
+                  type: gettext
+                  sources: [src]
+                - name: docs
+                  type: po4a
+                  config: docs/po4a.cfg
+
+              # i18next web application
+              targets:
+                - name: frontend
+                  type: i18next
+                  dir: public/translations
+
+              # Flutter application
+              targets:
+                - name: app
+                  type: flutter
+                  dir: lib/l10n
+
+              # Java application with .properties
+              targets:
+                - name: app
+                  type: properties
+                  dir: src/main/resources
+        : 1ab6f08b27288cafa20726508f349013
         Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        Model name (or use lokit.yaml provider.model): 80c82f8f378bf1ed28f423a517f3a2c8
+        No vue-i18n files to translate: ba0332a9dbb5f1071734dafdf01177a4
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files).
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Key filtering: configure per-target in lokit.yaml:
+              ignored_keys  — keys excluded from translation entirely (never sent to AI)
+              locked_keys   — keys whose translations are preserved (skipped even with
+                              --retranslate; only --force overrides)
+              locked_patterns — regex patterns matching keys treated as locked
+                              (e.g. "^brand_.*" locks all brand_ prefixed keys)
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 9a3ae54b69bd7836b663303c01c7550b
         ? |-
             Translate files using AI providers.
 
@@ -468,6 +1266,36 @@ checksums:
               # Dry run (show what would be translated)
               lokit translate --provider copilot --model gpt-4o --dry-run
         : 59172b63fd08c23d1e78c1c65001cf33
+        'Vue i18n init: %d created, %d updated': 674c4eb5200e98469bd11c1b434f04a7
+        'cannot read source vue-i18n file %s: %w': 0ed4ff762ac1302d1159d1ab5f6debdb
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : d5c79137f4f994144afccd4d9a5010fa
         ? |-
             lokit — Localization Kit: AI-powered translation for multiple formats.
 
@@ -497,9 +1325,186 @@ checksums:
               custom-openai  Custom OpenAI-compatible endpoint
         : 0a653588a5309ba5d21dbd23cee1201f
     lokit/it:
+        'AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)': 349ca778bb9be6ee08aace5bff3c4713
+        'Cannot read source vue-i18n file %s: %v': f45f26228638a0f27ed51935062622dd
         'Could not load lock file: %v': f17178f8f7d5d7e04b30540d7aa7d70c
         'Could not save lock file: %v': 4401f7fe24dad20e51c1446cc9a1920d
+        ? |-
+            Extract translatable strings and create/update translation files.
+
+            Requires a lokit.yaml configuration file in the project root.
+
+            For gettext projects: runs xgettext to extract strings into a POT template,
+            then creates or updates PO files for each language.
+
+            For po4a projects: runs 'po4a --no-translations' to update templates.
+
+            For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language
+            files with empty translations.
+
+            For android/markdown projects: no init step needed — use 'lokit translate'
+            directly.
+
+            This command is idempotent — safe to run multiple times. Existing
+            translations are preserved when updating files.
+
+            CONFIG FORMAT (lokit.yaml)
+
+              source_lang: en                    # Source language (default: en)
+              languages: [ru, de, fr, es, ...]   # Target languages
+
+              targets:
+                - name: myproject                # Display name
+                  type: gettext                  # Target type (see below)
+                  root: .                        # Working directory (default: .)
+                  # ... type-specific options
+
+            TARGET TYPES
+
+              gettext — Source code string extraction (shell, python, C, Go, etc.)
+                dir: po                          # PO files directory (required)
+                pot: messages.pot                # POT template filename (inside dir)
+                sources: [src, scripts]          # Directories to scan (default: root)
+                keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)
+
+              po4a — Documentation translation (man pages, AsciiDoc, etc.)
+                config: po4a.cfg                 # Path to po4a.cfg (required)
+
+              i18next — i18next JSON translations
+                dir: public/translations         # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              vue-i18n — vue-i18n nested JSON translations
+                dir: frontend/src/i18n           # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              json — Simple JSON translations { "key": "value" }
+                dir: translations                # JSON files directory (required)
+                pattern: "{lang}.json"           # Language file pattern (required)
+
+              android — Android strings.xml
+                dir: app/src/main/res            # Android res/ directory (required)
+
+              yaml — YAML key/value translations
+                dir: translations                # YAML files directory (required)
+                pattern: "{lang}.yaml"           # Language file pattern (required)
+
+              markdown — Markdown document translation
+                dir: translations                # Root dir; files at translations/LANG/ (required)
+
+              properties — Java .properties translations
+                dir: translations                # .properties files directory (required)
+                pattern: "{lang}.properties"     # Language file pattern (required)
+
+              flutter — Flutter ARB (Application Resource Bundle)
+                dir: lib/l10n                    # ARB files directory (required)
+                pattern: "app_{lang}.arb"        # Language file pattern (required)
+
+            COMMON OPTIONS (all target types)
+
+              languages: [ru, de]               # Override global language list
+              prompt: "Custom translation..."   # Override AI translation prompt
+
+            EXAMPLES
+
+              # Shell scripts with gettext
+              source_lang: en
+              languages: [ru, de, fr]
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [scripts, lib]
+                  keywords: [gettext, eval_gettext]
+
+              # Go project with wrapper functions
+              targets:
+                - name: myapp
+                  type: gettext
+                  sources: [.]
+                  keywords: [T, N]
+
+              # Documentation + code
+              targets:
+                - name: code
+                  type: gettext
+                  sources: [src]
+                - name: docs
+                  type: po4a
+                  config: docs/po4a.cfg
+
+              # i18next web application
+              targets:
+                - name: frontend
+                  type: i18next
+                  dir: public/translations
+
+              # Flutter application
+              targets:
+                - name: app
+                  type: flutter
+                  dir: lib/l10n
+
+              # Java application with .properties
+              targets:
+                - name: app
+                  type: properties
+                  dir: src/main/resources
+        : 1ab6f08b27288cafa20726508f349013
         Ignore lock file and re-translate all changed entries: bfd00ae903992078f2c43ed5772f1099
+        Model name (or use lokit.yaml provider.model): 80c82f8f378bf1ed28f423a517f3a2c8
+        No vue-i18n files to translate: ba0332a9dbb5f1071734dafdf01177a4
+        ? |-
+            Translate files using AI providers.
+
+            Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
+            YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
+            auto-detected or configured via lokit.yaml.
+
+            For gettext/po4a projects, automatically initializes if needed (extracts
+            strings, creates PO files).
+
+            Incremental translation: lokit tracks source string checksums in lokit.lock.
+            Only new or changed strings are sent to the AI provider, saving tokens and
+            time. Use --force to ignore the lock file and re-translate everything.
+
+            Key filtering: configure per-target in lokit.yaml:
+              ignored_keys  — keys excluded from translation entirely (never sent to AI)
+              locked_keys   — keys whose translations are preserved (skipped even with
+                              --retranslate; only --force overrides)
+              locked_patterns — regex patterns matching keys treated as locked
+                              (e.g. "^brand_.*" locks all brand_ prefixed keys)
+
+            Each target type has a built-in system prompt optimized for its format.
+            Use the --prompt flag to override it for the current run, or set prompt:
+            in lokit.yaml target config for a permanent override.
+            Use {{targetLang}} as a placeholder for the target language name.
+
+            Examples:
+              # Translate a gettext project using GitHub Copilot (free)
+              lokit translate --provider copilot --model gpt-4o
+
+              # Translate an Android project using Gemini (free, OAuth)
+              lokit translate --provider gemini --model gemini-2.5-flash
+
+              # Translate an i18next project using Google AI (API key)
+              lokit translate --provider google --model gemini-2.5-flash
+
+              # Translate specific languages in parallel
+              lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+              # Force full re-translation (ignore lock file)
+              lokit translate --provider copilot --model gpt-4o --force
+
+              # Re-translate everything with a custom prompt
+              lokit translate --provider copilot --model gpt-4o --retranslate \
+                --prompt "Translate to {{targetLang}}. Use informal tone."
+
+              # Translate a Flutter project
+              lokit translate --provider copilot --model gpt-4o
+
+              # Dry run (show what would be translated)
+              lokit translate --provider copilot --model gpt-4o --dry-run
+        : 9a3ae54b69bd7836b663303c01c7550b
         ? |-
             Translate files using AI providers.
 
@@ -592,6 +1597,36 @@ checksums:
               # Dry run (show what would be translated)
               lokit translate --provider copilot --model gpt-4o --dry-run
         : 59172b63fd08c23d1e78c1c65001cf33
+        'Vue i18n init: %d created, %d updated': 674c4eb5200e98469bd11c1b434f04a7
+        'cannot read source vue-i18n file %s: %w': 0ed4ff762ac1302d1159d1ab5f6debdb
+        ? |-
+            lokit — Localization Kit: AI-powered translation for multiple formats.
+
+            Supported project types (auto-detected or configured via lokit.yaml):
+              gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
+              po4a        Documentation translation (man pages, groff/roff markup)
+              i18next     React/i18next JSON translation files
+              android     Android strings.xml resource files
+              json        Generic JSON translation files
+              yaml        YAML translation files
+              markdown    Markdown document translation
+              properties  Java .properties translation files
+              flutter     Flutter ARB (Application Resource Bundle) files
+
+            Configuration:
+              Project settings are defined in lokit.yaml at the project root.
+              Each project can have multiple translation targets with different types.
+              See project examples for lokit.yaml format.
+
+            AI Providers:
+              google         Google AI (Gemini) — API key
+              gemini         Gemini Code Assist — browser OAuth (free)
+              groq           Groq — API key required
+              opencode       OpenCode Zen API (free models available without key)
+              copilot        GitHub Copilot (native OAuth, free)
+              ollama         Ollama local server
+              custom-openai  Custom OpenAI-compatible endpoint
+        : d5c79137f4f994144afccd4d9a5010fa
         ? |-
             lokit — Localization Kit: AI-powered translation for multiple formats.
 

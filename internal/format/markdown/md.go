@@ -13,7 +13,7 @@
 //     included verbatim in the section that contains them.
 //
 // The round-trip serialization reconstructs the original file structure.
-package mdfile
+package markdown
 
 import (
 	"bytes"

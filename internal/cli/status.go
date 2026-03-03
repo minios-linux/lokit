@@ -1,0 +1,104 @@
+package cli
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/minios-linux/lokit/config"
+	. "github.com/minios-linux/lokit/i18n"
+	"github.com/spf13/cobra"
+)
+
+func newStatusCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "status",
+		Short: T("Show project info and translation statistics"),
+		Long: T(`Show auto-detected project structure and translation statistics.
+
+Displays target type, file structure, detected languages, and per-language
+translation progress for gettext, po4a, i18next, vue-i18n, android, json,
+yaml, markdown, properties, and flutter projects. For projects
+configured via lokit.yaml, shows each target separately.
+
+Does not modify any files.`),
+		Run: func(cmd *cobra.Command, args []string) {
+			runStatus()
+		},
+	}
+
+	return cmd
+}
+
+func runStatus() {
+	lf, err := config.LoadLokitFile(rootDir)
+	if err != nil {
+		logError(T("Config error: %v"), err)
+		os.Exit(1)
+	}
+	if lf != nil {
+		runStatusWithConfig(lf)
+		return
+	}
+
+	logError(T("No lokit.yaml found in %s"), rootDir)
+	logInfo(T("Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."))
+	os.Exit(1)
+}
+
+func runStatusWithConfig(lf *config.LokitFile) {
+	absRoot, _ := filepath.Abs(rootDir)
+
+	sectionHeader(T("Project"))
+	keyVal(T("Config"), "lokit.yaml")
+	keyVal(T("Root"), absRoot)
+	keyVal(T("Source lang"), lf.SourceLang)
+
+	if len(lf.Languages) > 0 {
+		keyVal(T("Languages"), strings.Join(lf.Languages, ", "))
+	}
+	keyVal(T("Targets"), fmt.Sprintf("%d", len(lf.Targets)))
+
+	resolved, err := lf.Resolve(rootDir)
+	if err != nil {
+		logError(T("Config resolve error: %v"), err)
+		os.Exit(1)
+	}
+
+	for _, rt := range resolved {
+		langs := filterOutLang(rt.Languages, rt.Target.SourceLang)
+
+		targetHeader(rt.Target.Name, rt.Target.Type)
+		keyVal(T("Root"), rt.Target.Root)
+
+		if len(langs) > 0 {
+			keyVal(T("Languages"), strings.Join(langs, ", "))
+		} else {
+			keyVal(T("Languages"), colorYellow+T("none detected")+colorReset)
+		}
+
+		switch rt.Target.Type {
+		case config.TargetTypeGettext:
+			showConfigGettextStats(rt, langs)
+		case config.TargetTypePo4a:
+			showConfigPo4aStats(rt, langs)
+		case config.TargetTypeI18Next, config.TargetTypeJSON:
+			showConfigI18NextStats(rt, langs)
+		case config.TargetTypeVueI18n:
+			showConfigVueI18nStats(rt, langs)
+		case config.TargetTypeAndroid:
+			showConfigAndroidStats(rt, langs)
+		case config.TargetTypeYAML:
+			showConfigYAMLStats(rt, langs)
+		case config.TargetTypeMarkdown:
+			showConfigMarkdownStats(rt, langs)
+		case config.TargetTypeProperties:
+			showConfigPropertiesStats(rt, langs)
+		case config.TargetTypeFlutter:
+			showConfigFlutterStats(rt, langs)
+		}
+
+		fmt.Fprintln(os.Stderr)
+	}
+}
