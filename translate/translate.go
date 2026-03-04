@@ -29,6 +29,7 @@ import (
 	mdfile "github.com/minios-linux/lokit/internal/format/markdown"
 	po "github.com/minios-linux/lokit/internal/format/po"
 	propfile "github.com/minios-linux/lokit/internal/format/properties"
+	"github.com/minios-linux/lokit/internal/format/vuei18n"
 	yamlfile "github.com/minios-linux/lokit/internal/format/yaml"
 	"github.com/minios-linux/lokit/lockfile"
 )
@@ -440,6 +441,7 @@ const (
 	formatGeminiNative                     // Google Gemini generateContent
 	formatAnthropic                        // Anthropic messages
 	formatOpenAIResponses                  // OpenAI responses API
+	formatOllamaNative                     // Ollama /api/chat
 )
 
 // ---------------------------------------------------------------------------
@@ -529,6 +531,30 @@ func buildOpenAIResponsesRequest(model, prompt string) ([]byte, error) {
 	return json.Marshal(req)
 }
 
+func buildOllamaChatRequest(model, systemPrompt, userPrompt string, temperature float64) ([]byte, error) {
+	type msg struct {
+		Role    string `json:"role"`
+		Content string `json:"content"`
+	}
+	req := struct {
+		Model    string `json:"model"`
+		Messages []msg  `json:"messages"`
+		Stream   bool   `json:"stream"`
+		Options  struct {
+			Temperature float64 `json:"temperature"`
+		} `json:"options"`
+	}{
+		Model: model,
+		Messages: []msg{
+			{Role: "system", Content: systemPrompt},
+			{Role: "user", Content: userPrompt},
+		},
+		Stream: false,
+	}
+	req.Options.Temperature = temperature
+	return json.Marshal(req)
+}
+
 // ---------------------------------------------------------------------------
 // Response parsers (multi-format)
 // ---------------------------------------------------------------------------
@@ -615,6 +641,13 @@ func extractResponseText(body []byte) (string, error) {
 		return resp, nil
 	}
 
+	// 6. Ollama /api/chat format: message.content
+	if message, ok := raw["message"].(map[string]any); ok {
+		if content, ok := message["content"].(string); ok {
+			return content, nil
+		}
+	}
+
 	return "", fmt.Errorf("could not extract text from response: %s", truncate(string(body), 500))
 }
 
@@ -680,7 +713,7 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 	case ProviderCustomOpenAI:
 		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
 	case ProviderOllama:
-		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
+		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOllamaNative, rl, maxRetries, verbose)
 	default:
 		// Fallback: treat as OpenAI-compatible
 		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
@@ -823,6 +856,10 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 		}
 		fullPrompt := systemPrompt + "\n\n" + userPrompt
 		body, err = buildOpenAIResponsesRequest(prov.Model, fullPrompt)
+
+	case formatOllamaNative:
+		endpoint = strings.TrimRight(prov.BaseURL, "/") + "/api/chat"
+		body, err = buildOllamaChatRequest(prov.Model, systemPrompt, userPrompt, providerTemperature(prov))
 
 	default: // formatOpenAIChat
 		baseURL := strings.TrimRight(prov.BaseURL, "/")
@@ -1938,6 +1975,7 @@ func translateSequential(ctx context.Context, tasks []translationTask, opts Opti
 				savePOFile(task.poFile, task.poPath, opts)
 				return ctx.Err()
 			}
+			savePOFile(task.poFile, task.poPath, opts)
 			opts.logError("Error translating %s: %v", task.lang, err)
 			failedLangs = append(failedLangs, task.lang)
 			continue
@@ -2166,256 +2204,7 @@ type JSONLangTask struct {
 
 // TranslateAllJSON translates multiple i18next JSON files according to opts.ParallelMode.
 func TranslateAllJSON(ctx context.Context, langTasks []JSONLangTask, opts Options) error {
-	if opts.ParallelMode == ParallelFullParallel {
-		return translateJSONFullParallel(ctx, langTasks, opts)
-	}
-	return translateJSONSequential(ctx, langTasks, opts)
-}
-
-// translateJSONSequential translates i18next JSON files one language at a time.
-func translateJSONSequential(ctx context.Context, langTasks []JSONLangTask, opts Options) error {
-	var failedLangs []string
-	for _, task := range langTasks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-
-		// Determine keys to translate
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply ignored/locked key filters
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-
-		// Apply lock file filter (i18next keys are natural English text)
-		keysToTranslate = filterChangedKeys(keysToTranslate, nil, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
-
-		if err := translateJSONFile(ctx, task.File, keysToTranslate, taskOpts); err != nil {
-			if ctx.Err() != nil {
-				saveJSONFile(task.File, task.FilePath, opts)
-				return ctx.Err()
-			}
-			opts.logError("Error translating %s: %v", task.Lang, err)
-			failedLangs = append(failedLangs, task.Lang)
-			continue
-		}
-
-		// Update lock file after successful translation
-		updateLockFileForKV(keysToTranslate, nil, taskOpts)
-
-		saveJSONFile(task.File, task.FilePath, opts)
-	}
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translateJSONFullParallel translates all i18next JSON files in parallel.
-func translateJSONFullParallel(ctx context.Context, langTasks []JSONLangTask, opts Options) error {
-	rl := &rateLimitState{}
-
-	type flatTask struct {
-		lang         string
-		langName     string
-		keys         []string
-		file         *i18next.File
-		filePath     string
-		systemPrompt string
-		total        *int64
-		done         *int64
-	}
-
-	var flatTasks []flatTask
-
-	for _, task := range langTasks {
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply lock file filter
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-		keysToTranslate = filterChangedKeys(keysToTranslate, nil, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		chunkSize := opts.effectiveChunkSize()
-		if chunkSize == 0 {
-			chunkSize = len(keysToTranslate)
-		}
-		chunks := splitStrings(keysToTranslate, chunkSize)
-
-		total := int64(len(keysToTranslate))
-		done := int64(0)
-
-		systemPrompt := taskOpts.resolvedPrompt()
-
-		for _, chunk := range chunks {
-			flatTasks = append(flatTasks, flatTask{
-				lang:         task.Lang,
-				langName:     task.LangName,
-				keys:         chunk,
-				file:         task.File,
-				filePath:     task.FilePath,
-				systemPrompt: systemPrompt,
-				total:        &total,
-				done:         &done,
-			})
-		}
-	}
-
-	if len(flatTasks) == 0 {
-		return nil
-	}
-
-	// Mutex per file to protect concurrent writes
-	fileMu := make(map[string]*sync.Mutex)
-	for _, ft := range flatTasks {
-		if _, ok := fileMu[ft.filePath]; !ok {
-			fileMu[ft.filePath] = &sync.Mutex{}
-		}
-	}
-
-	err := runParallelGeneric(ctx, flatTasks, opts.effectiveMaxConcurrent(), opts.RequestDelay, func(ctx context.Context, ft flatTask) error {
-		translations, err := translateJSONChunk(ctx, ft.keys, ft.systemPrompt, opts, rl)
-		if err != nil {
-			return err
-		}
-
-		mu := fileMu[ft.filePath]
-		mu.Lock()
-		applyJSONTranslations(ft.file, ft.keys, translations)
-		mu.Unlock()
-
-		// Update lock file (thread-safe via internal mutex)
-		taskOpts := opts
-		taskOpts.Language = ft.lang
-		updateLockFileForKV(ft.keys, nil, taskOpts)
-
-		newDone := atomic.AddInt64(ft.done, int64(len(ft.keys)))
-		if opts.OnProgress != nil {
-			opts.OnProgress(ft.lang, int(newDone), int(atomic.LoadInt64(ft.total)))
-		}
-		return nil
-	})
-
-	// Save all files
-	saved := make(map[string]bool)
-	for _, ft := range flatTasks {
-		if !saved[ft.filePath] {
-			saveJSONFile(ft.file, ft.filePath, opts)
-			saved[ft.filePath] = true
-		}
-	}
-
-	return err
-}
-
-// translateJSONFile translates specific keys in an i18next JSON file.
-func translateJSONFile(ctx context.Context, file *i18next.File, keys []string, opts Options) error {
-	chunkSize := opts.effectiveChunkSize()
-	if chunkSize == 0 {
-		chunkSize = len(keys)
-	}
-
-	rl := &rateLimitState{}
-	chunks := splitStrings(keys, chunkSize)
-	systemPrompt := opts.resolvedPrompt()
-	done := 0
-
-	for i, chunk := range chunks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
-		}
-
-		translations, err := translateJSONChunk(ctx, chunk, systemPrompt, opts, rl)
-		if err != nil {
-			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
-		}
-
-		applyJSONTranslations(file, chunk, translations)
-
-		done += len(chunk)
-		if opts.OnProgress != nil {
-			opts.OnProgress(opts.Language, done, len(keys))
-		}
-
-		if i < len(chunks)-1 && opts.RequestDelay > 0 {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(opts.RequestDelay):
-			}
-		}
-	}
-
-	return nil
-}
-
-// translateJSONChunk sends a batch of English keys to the AI and gets translations back.
-func translateJSONChunk(ctx context.Context, keys []string, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
-	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Translate these UI strings to %s:\n\n", opts.LanguageName))
-	for i, key := range keys {
-		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(key)))
-	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
-
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseTranslations(text, len(keys))
-}
-
-// applyJSONTranslations applies translated strings to the i18next file.
-func applyJSONTranslations(file *i18next.File, keys []string, translations []string) {
-	for i, key := range keys {
-		if i < len(translations) && translations[i] != "" {
-			file.Translations[key] = translations[i]
-		}
-	}
-}
-
-// saveJSONFile saves an i18next JSON file and logs the result.
-func saveJSONFile(file *i18next.File, path string, opts Options) {
-	if err := file.WriteFile(path); err != nil {
-		opts.logError("Error saving %s: %v", path, err)
-	} else {
-		total, translated, _ := file.Stats()
-		opts.log("Saved %s (%d/%d translated)", path, translated, total)
-	}
+	return TranslateAllKV(ctx, toJSONKVTasks(langTasks), opts, i18nextChunkTranslator{})
 }
 
 // splitStrings divides a string slice into chunks of the given size.
@@ -2587,6 +2376,7 @@ func translateAndroidSequential(ctx context.Context, langTasks []AndroidLangTask
 				saveAndroidFile(task.File, task.FilePath, opts)
 				return ctx.Err()
 			}
+			saveAndroidFile(task.File, task.FilePath, opts)
 			opts.logError("Error translating %s: %v", task.Lang, err)
 			failedLangs = append(failedLangs, task.Lang)
 			continue
@@ -2947,266 +2737,7 @@ type YAMLLangTask struct {
 
 // TranslateAllYAML translates YAML files for all language tasks.
 func TranslateAllYAML(ctx context.Context, langTasks []YAMLLangTask, opts Options) error {
-	if opts.ParallelMode == ParallelFullParallel {
-		return translateYAMLFullParallel(ctx, langTasks, opts)
-	}
-	return translateYAMLSequential(ctx, langTasks, opts)
-}
-
-// translateYAMLSequential translates YAML files one language at a time.
-func translateYAMLSequential(ctx context.Context, langTasks []YAMLLangTask, opts Options) error {
-	var failedLangs []string
-	for _, task := range langTasks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply ignored/locked key filters
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-
-		// Apply lock file filter using source file values
-		srcVals := task.SourceFile.SourceValues()
-		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
-
-		if err := translateYAMLFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
-			if ctx.Err() != nil {
-				saveYAMLFile(task.File, task.FilePath, opts)
-				return ctx.Err()
-			}
-			opts.logError("Error translating %s: %v", task.Lang, err)
-			failedLangs = append(failedLangs, task.Lang)
-			continue
-		}
-
-		// Update lock file after successful translation
-		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
-
-		saveYAMLFile(task.File, task.FilePath, opts)
-	}
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translateYAMLFullParallel translates all YAML files in parallel.
-func translateYAMLFullParallel(ctx context.Context, langTasks []YAMLLangTask, opts Options) error {
-	rl := &rateLimitState{}
-
-	type flatTask struct {
-		lang     string
-		langName string
-		key      string
-		filePath string
-		file     *yamlfile.File
-		srcFile  *yamlfile.File
-	}
-
-	// Build flat list of per-language tasks.
-	var tasks []flatTask
-	for _, lt := range langTasks {
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = lt.File.Keys()
-		} else {
-			keys = lt.File.UntranslatedKeys()
-		}
-
-		// Apply lock file filter
-		taskOpts := opts
-		taskOpts.Language = lt.Lang
-		keys = filterExcludedKeys(keys, taskOpts)
-		srcVals := lt.SourceFile.SourceValues()
-		keys = filterChangedKeys(keys, srcVals, taskOpts)
-
-		if len(keys) > 0 {
-			tasks = append(tasks, flatTask{
-				lang:     lt.Lang,
-				langName: lt.LangName,
-				filePath: lt.FilePath,
-				file:     lt.File,
-				srcFile:  lt.SourceFile,
-			})
-		}
-	}
-
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	maxConcurrent := opts.MaxConcurrent
-	if maxConcurrent <= 0 {
-		maxConcurrent = len(tasks)
-	}
-
-	sem := make(chan struct{}, maxConcurrent)
-	var wg sync.WaitGroup
-	var failedMu sync.Mutex
-	var failedLangs []string
-
-	for _, t := range tasks {
-		t := t
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = t.file.Keys()
-		} else {
-			keys = t.file.UntranslatedKeys()
-		}
-		// Lock file filter already applied during task building above
-		if len(keys) == 0 {
-			continue
-		}
-
-		wg.Add(1)
-		sem <- struct{}{}
-		go func() {
-			defer wg.Done()
-			defer func() { <-sem }()
-
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			taskOpts := opts
-			taskOpts.Language = t.lang
-			taskOpts.LanguageName = t.langName
-
-			opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(keys))
-			if err := translateYAMLFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
-				if ctx.Err() == nil {
-					opts.logError("Error translating %s: %v", t.lang, err)
-					failedMu.Lock()
-					failedLangs = append(failedLangs, t.lang)
-					failedMu.Unlock()
-				}
-			} else {
-				// Update lock file after successful translation
-				srcVals := t.srcFile.SourceValues()
-				updateLockFileForKV(keys, srcVals, taskOpts)
-				saveYAMLFile(t.file, t.filePath, opts)
-			}
-		}()
-	}
-	wg.Wait()
-
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translateYAMLFile translates a YAML file using a new rate-limit state.
-func translateYAMLFile(ctx context.Context, file *yamlfile.File, srcFile *yamlfile.File, keys []string, opts Options) error {
-	rl := &rateLimitState{}
-	return translateYAMLFileWithRL(ctx, file, srcFile, keys, opts, rl)
-}
-
-// translateYAMLFileWithRL translates a YAML file using a shared rate-limit state.
-func translateYAMLFileWithRL(ctx context.Context, file *yamlfile.File, srcFile *yamlfile.File, keys []string, opts Options, rl *rateLimitState) error {
-	chunkSize := opts.effectiveChunkSize()
-	if chunkSize <= 0 {
-		chunkSize = len(keys)
-	}
-
-	srcVals := srcFile.SourceValues()
-	systemPrompt := opts.resolvedPrompt()
-	chunks := splitStrings(keys, chunkSize)
-	done := 0
-
-	for i, chunk := range chunks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
-		}
-
-		translations, err := translateYAMLChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
-		if err != nil {
-			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
-		}
-
-		applyYAMLTranslations(file, chunk, translations)
-
-		done += len(chunk)
-		if opts.OnProgress != nil {
-			opts.OnProgress(opts.Language, done, len(keys))
-		}
-
-		if i < len(chunks)-1 && opts.RequestDelay > 0 {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(opts.RequestDelay):
-			}
-		}
-	}
-
-	return nil
-}
-
-// translateYAMLChunk sends a batch of YAML keys with source values to the AI.
-func translateYAMLChunk(ctx context.Context, keys []string, srcVals map[string]string, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
-	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Translate these strings to %s:\n\n", opts.LanguageName))
-	for i, key := range keys {
-		src := srcVals[key]
-		if src == "" {
-			src = key
-		}
-		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(src)))
-	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
-
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseTranslations(text, len(keys))
-}
-
-// applyYAMLTranslations writes translated values back to the YAML file.
-func applyYAMLTranslations(file *yamlfile.File, keys []string, translations []string) {
-	for i, key := range keys {
-		if i < len(translations) && translations[i] != "" {
-			file.Set(key, translations[i])
-		}
-	}
-}
-
-// saveYAMLFile saves a YAML file and logs the result.
-func saveYAMLFile(file *yamlfile.File, path string, opts Options) {
-	if err := file.WriteFile(path); err != nil {
-		opts.logError("Error saving %s: %v", path, err)
-	} else {
-		total, translated, _ := file.Stats()
-		opts.log("Saved %s (%d/%d translated)", path, translated, total)
-	}
+	return TranslateAllKV(ctx, toYAMLKVTasks(langTasks), opts, defaultKVChunkTranslator{})
 }
 
 // ---------------------------------------------------------------------------
@@ -3229,268 +2760,7 @@ type MarkdownLangTask struct {
 
 // TranslateAllMarkdown translates Markdown files for all language tasks.
 func TranslateAllMarkdown(ctx context.Context, langTasks []MarkdownLangTask, opts Options) error {
-	if opts.ParallelMode == ParallelFullParallel {
-		return translateMarkdownFullParallel(ctx, langTasks, opts)
-	}
-	return translateMarkdownSequential(ctx, langTasks, opts)
-}
-
-// translateMarkdownSequential translates Markdown files one language at a time.
-func translateMarkdownSequential(ctx context.Context, langTasks []MarkdownLangTask, opts Options) error {
-	var failedLangs []string
-	for _, task := range langTasks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply ignored/locked key filters
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-
-		// Apply lock file filter using source file values
-		srcVals := task.SourceFile.SourceValues()
-		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		opts.log("Translating %s (%s) — %d segments...", task.Lang, task.LangName, len(keysToTranslate))
-
-		if err := translateMarkdownFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
-			if ctx.Err() != nil {
-				saveMarkdownFile(task.File, task.FilePath, opts)
-				return ctx.Err()
-			}
-			opts.logError("Error translating %s: %v", task.Lang, err)
-			failedLangs = append(failedLangs, task.Lang)
-			continue
-		}
-
-		// Update lock file after successful translation
-		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
-
-		saveMarkdownFile(task.File, task.FilePath, opts)
-	}
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translateMarkdownFullParallel translates all Markdown files in parallel.
-func translateMarkdownFullParallel(ctx context.Context, langTasks []MarkdownLangTask, opts Options) error {
-	type flatTask struct {
-		lang     string
-		langName string
-		filePath string
-		file     *mdfile.File
-		srcFile  *mdfile.File
-	}
-
-	var tasks []flatTask
-	for _, lt := range langTasks {
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = lt.File.Keys()
-		} else {
-			keys = lt.File.UntranslatedKeys()
-		}
-
-		// Apply lock file filter
-		taskOpts := opts
-		taskOpts.Language = lt.Lang
-		keys = filterExcludedKeys(keys, taskOpts)
-		srcVals := lt.SourceFile.SourceValues()
-		keys = filterChangedKeys(keys, srcVals, taskOpts)
-
-		if len(keys) > 0 {
-			tasks = append(tasks, flatTask{
-				lang:     lt.Lang,
-				langName: lt.LangName,
-				filePath: lt.FilePath,
-				file:     lt.File,
-				srcFile:  lt.SourceFile,
-			})
-		}
-	}
-
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	maxConcurrent := opts.MaxConcurrent
-	if maxConcurrent <= 0 {
-		maxConcurrent = len(tasks)
-	}
-
-	sem := make(chan struct{}, maxConcurrent)
-	var wg sync.WaitGroup
-	var failedMu sync.Mutex
-	var failedLangs []string
-	rl := &rateLimitState{}
-
-	for _, t := range tasks {
-		t := t
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = t.file.Keys()
-		} else {
-			keys = t.file.UntranslatedKeys()
-		}
-		// Lock file filter already applied during task building above
-		if len(keys) == 0 {
-			continue
-		}
-
-		wg.Add(1)
-		sem <- struct{}{}
-		go func() {
-			defer wg.Done()
-			defer func() { <-sem }()
-
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			taskOpts := opts
-			taskOpts.Language = t.lang
-			taskOpts.LanguageName = t.langName
-
-			opts.log("Translating %s (%s) — %d segments...", t.lang, t.langName, len(keys))
-			if err := translateMarkdownFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
-				if ctx.Err() == nil {
-					opts.logError("Error translating %s: %v", t.lang, err)
-					failedMu.Lock()
-					failedLangs = append(failedLangs, t.lang)
-					failedMu.Unlock()
-				}
-			} else {
-				// Update lock file after successful translation
-				srcVals := t.srcFile.SourceValues()
-				updateLockFileForKV(keys, srcVals, taskOpts)
-				saveMarkdownFile(t.file, t.filePath, opts)
-			}
-		}()
-	}
-	wg.Wait()
-
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translateMarkdownFile translates a Markdown file.
-func translateMarkdownFile(ctx context.Context, file *mdfile.File, srcFile *mdfile.File, keys []string, opts Options) error {
-	rl := &rateLimitState{}
-	return translateMarkdownFileWithRL(ctx, file, srcFile, keys, opts, rl)
-}
-
-// translateMarkdownFileWithRL translates a Markdown file with a shared rate-limit state.
-func translateMarkdownFileWithRL(ctx context.Context, file *mdfile.File, srcFile *mdfile.File, keys []string, opts Options, rl *rateLimitState) error {
-	// Markdown segments can be large, so translate one at a time by default.
-	// Each segment is a complete heading+body block that should be translated atomically.
-	chunkSize := opts.effectiveChunkSize()
-	if chunkSize <= 0 {
-		chunkSize = 1
-	}
-
-	srcVals := srcFile.SourceValues()
-	systemPrompt := opts.resolvedPrompt()
-	chunks := splitStrings(keys, chunkSize)
-	done := 0
-
-	for i, chunk := range chunks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d segments)", i+1, len(chunks), len(chunk))
-		}
-
-		translations, err := translateMarkdownChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
-		if err != nil {
-			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
-		}
-
-		applyMarkdownTranslations(file, chunk, translations)
-
-		done += len(chunk)
-		if opts.OnProgress != nil {
-			opts.OnProgress(opts.Language, done, len(keys))
-		}
-
-		if i < len(chunks)-1 && opts.RequestDelay > 0 {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(opts.RequestDelay):
-			}
-		}
-	}
-
-	return nil
-}
-
-// translateMarkdownChunk sends Markdown segments to the AI for translation.
-// Each segment is a complete section (heading + body) or a frontmatter field.
-func translateMarkdownChunk(ctx context.Context, keys []string, srcVals map[string]string, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
-	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Translate these text segments to %s.\n", opts.LanguageName))
-	userMsg.WriteString("For Markdown segments, preserve all formatting, headings, code blocks, and inline markup.\n")
-	userMsg.WriteString("Return a JSON array with exactly the same number of translated strings.\n\n")
-	for i, key := range keys {
-		src := srcVals[key]
-		if src == "" {
-			src = key
-		}
-		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(src)))
-	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
-
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseTranslations(text, len(keys))
-}
-
-// applyMarkdownTranslations writes translated segments back to the Markdown file.
-func applyMarkdownTranslations(file *mdfile.File, keys []string, translations []string) {
-	for i, key := range keys {
-		if i < len(translations) && translations[i] != "" {
-			file.Set(key, translations[i])
-		}
-	}
-}
-
-// saveMarkdownFile saves a Markdown file and logs the result.
-func saveMarkdownFile(file *mdfile.File, path string, opts Options) {
-	if err := file.WriteFile(path); err != nil {
-		opts.logError("Error saving %s: %v", path, err)
-	} else {
-		total, translated, _ := file.Stats()
-		opts.log("Saved %s (%d/%d translated)", path, translated, total)
-	}
+	return TranslateAllKV(ctx, toMarkdownKVTasks(langTasks), opts, markdownChunkTranslator{})
 }
 
 // ---------------------------------------------------------------------------
@@ -3513,243 +2783,7 @@ type PropertiesLangTask struct {
 
 // TranslateAllProperties translates .properties files for all language tasks.
 func TranslateAllProperties(ctx context.Context, langTasks []PropertiesLangTask, opts Options) error {
-	if opts.ParallelMode == ParallelFullParallel {
-		return translatePropertiesFullParallel(ctx, langTasks, opts)
-	}
-	return translatePropertiesSequential(ctx, langTasks, opts)
-}
-
-// translatePropertiesSequential translates .properties files one language at a time.
-func translatePropertiesSequential(ctx context.Context, langTasks []PropertiesLangTask, opts Options) error {
-	var failedLangs []string
-	for _, task := range langTasks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply ignored/locked key filters
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-
-		// Apply lock file filter using source file values
-		srcVals := task.SourceFile.SourceValues()
-		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
-
-		if err := translatePropertiesFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
-			if ctx.Err() != nil {
-				savePropertiesFile(task.File, task.FilePath, opts)
-				return ctx.Err()
-			}
-			opts.logError("Error translating %s: %v", task.Lang, err)
-			failedLangs = append(failedLangs, task.Lang)
-			continue
-		}
-
-		// Update lock file after successful translation
-		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
-
-		savePropertiesFile(task.File, task.FilePath, opts)
-	}
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translatePropertiesFullParallel translates all .properties files in parallel.
-func translatePropertiesFullParallel(ctx context.Context, langTasks []PropertiesLangTask, opts Options) error {
-	rl := &rateLimitState{}
-
-	type flatTask struct {
-		lang     string
-		langName string
-		filePath string
-		file     *propfile.File
-		srcFile  *propfile.File
-	}
-
-	var tasks []flatTask
-	for _, lt := range langTasks {
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = lt.File.Keys()
-		} else {
-			keys = lt.File.UntranslatedKeys()
-		}
-
-		// Apply lock file filter
-		taskOpts := opts
-		taskOpts.Language = lt.Lang
-		keys = filterExcludedKeys(keys, taskOpts)
-		srcVals := lt.SourceFile.SourceValues()
-		keys = filterChangedKeys(keys, srcVals, taskOpts)
-
-		if len(keys) > 0 {
-			tasks = append(tasks, flatTask{
-				lang:     lt.Lang,
-				langName: lt.LangName,
-				filePath: lt.FilePath,
-				file:     lt.File,
-				srcFile:  lt.SourceFile,
-			})
-		}
-	}
-
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	maxConcurrent := opts.MaxConcurrent
-	if maxConcurrent <= 0 {
-		maxConcurrent = len(tasks)
-	}
-
-	sem := make(chan struct{}, maxConcurrent)
-	var wg sync.WaitGroup
-	var failedMu sync.Mutex
-	var failedLangs []string
-
-	for _, t := range tasks {
-		t := t
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = t.file.Keys()
-		} else {
-			keys = t.file.UntranslatedKeys()
-		}
-		// Lock file filter already applied during task building above
-		if len(keys) == 0 {
-			continue
-		}
-
-		wg.Add(1)
-		sem <- struct{}{}
-		go func() {
-			defer wg.Done()
-			defer func() { <-sem }()
-
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			taskOpts := opts
-			taskOpts.Language = t.lang
-			taskOpts.LanguageName = t.langName
-
-			opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(keys))
-			if err := translatePropertiesFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
-				if ctx.Err() == nil {
-					opts.logError("Error translating %s: %v", t.lang, err)
-					failedMu.Lock()
-					failedLangs = append(failedLangs, t.lang)
-					failedMu.Unlock()
-				}
-			} else {
-				// Update lock file after successful translation
-				srcVals := t.srcFile.SourceValues()
-				updateLockFileForKV(keys, srcVals, taskOpts)
-				savePropertiesFile(t.file, t.filePath, opts)
-			}
-		}()
-	}
-	wg.Wait()
-
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translatePropertiesFile translates a .properties file using a new rate-limit state.
-func translatePropertiesFile(ctx context.Context, file *propfile.File, srcFile *propfile.File, keys []string, opts Options) error {
-	rl := &rateLimitState{}
-	return translatePropertiesFileWithRL(ctx, file, srcFile, keys, opts, rl)
-}
-
-// translatePropertiesFileWithRL translates a .properties file using a shared rate-limit state.
-func translatePropertiesFileWithRL(ctx context.Context, file *propfile.File, srcFile *propfile.File, keys []string, opts Options, rl *rateLimitState) error {
-	chunkSize := opts.effectiveChunkSize()
-	if chunkSize <= 0 {
-		chunkSize = len(keys)
-	}
-
-	srcVals := srcFile.SourceValues()
-	systemPrompt := opts.resolvedPrompt()
-	chunks := splitStrings(keys, chunkSize)
-	done := 0
-
-	for i, chunk := range chunks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
-		}
-
-		translations, err := translateYAMLChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
-		if err != nil {
-			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
-		}
-
-		applyPropertiesTranslations(file, chunk, translations)
-
-		done += len(chunk)
-		if opts.OnProgress != nil {
-			opts.OnProgress(opts.Language, done, len(keys))
-		}
-
-		if i < len(chunks)-1 && opts.RequestDelay > 0 {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(opts.RequestDelay):
-			}
-		}
-	}
-
-	return nil
-}
-
-// applyPropertiesTranslations writes translated values back to the .properties file.
-func applyPropertiesTranslations(file *propfile.File, keys []string, translations []string) {
-	for i, key := range keys {
-		if i < len(translations) && translations[i] != "" {
-			file.Set(key, translations[i])
-		}
-	}
-}
-
-// savePropertiesFile saves a .properties file and logs the result.
-func savePropertiesFile(file *propfile.File, path string, opts Options) {
-	if err := file.WriteFile(path); err != nil {
-		opts.logError("Error saving %s: %v", path, err)
-	} else {
-		total, translated, _ := file.Stats()
-		opts.log("Saved %s (%d/%d translated)", path, translated, total)
-	}
+	return TranslateAllKV(ctx, toPropertiesKVTasks(langTasks), opts, defaultKVChunkTranslator{})
 }
 
 // ---------------------------------------------------------------------------
@@ -3772,241 +2806,23 @@ type ARBLangTask struct {
 
 // TranslateAllARB translates ARB files for all language tasks.
 func TranslateAllARB(ctx context.Context, langTasks []ARBLangTask, opts Options) error {
-	if opts.ParallelMode == ParallelFullParallel {
-		return translateARBFullParallel(ctx, langTasks, opts)
-	}
-	return translateARBSequential(ctx, langTasks, opts)
+	return TranslateAllKV(ctx, toARBKVTasks(langTasks), opts, defaultKVChunkTranslator{})
 }
 
-// translateARBSequential translates ARB files one language at a time.
-func translateARBSequential(ctx context.Context, langTasks []ARBLangTask, opts Options) error {
-	var failedLangs []string
-	for _, task := range langTasks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
+// ---------------------------------------------------------------------------
+// Vue i18n translation
+// ---------------------------------------------------------------------------
 
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply ignored/locked key filters
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-
-		// Apply lock file filter using source file values
-		srcVals := task.SourceFile.SourceValues()
-		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
-
-		if err := translateARBFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
-			if ctx.Err() != nil {
-				saveARBFile(task.File, task.FilePath, opts)
-				return ctx.Err()
-			}
-			opts.logError("Error translating %s: %v", task.Lang, err)
-			failedLangs = append(failedLangs, task.Lang)
-			continue
-		}
-
-		// Update lock file after successful translation
-		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
-
-		saveARBFile(task.File, task.FilePath, opts)
-	}
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
+// VueI18nLangTask holds a single vue-i18n JSON language file.
+type VueI18nLangTask struct {
+	Lang       string
+	LangName   string
+	FilePath   string
+	File       *vuei18n.File
+	SourceFile *vuei18n.File
 }
 
-// translateARBFullParallel translates all ARB files in parallel.
-func translateARBFullParallel(ctx context.Context, langTasks []ARBLangTask, opts Options) error {
-	rl := &rateLimitState{}
-
-	type flatTask struct {
-		lang     string
-		langName string
-		filePath string
-		file     *arbfile.File
-		srcFile  *arbfile.File
-	}
-
-	var tasks []flatTask
-	for _, lt := range langTasks {
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = lt.File.Keys()
-		} else {
-			keys = lt.File.UntranslatedKeys()
-		}
-
-		// Apply ignored/locked key filters and lock file filter
-		taskOpts := opts
-		taskOpts.Language = lt.Lang
-		keys = filterExcludedKeys(keys, taskOpts)
-		srcVals := lt.SourceFile.SourceValues()
-		keys = filterChangedKeys(keys, srcVals, taskOpts)
-
-		if len(keys) > 0 {
-			tasks = append(tasks, flatTask{
-				lang:     lt.Lang,
-				langName: lt.LangName,
-				filePath: lt.FilePath,
-				file:     lt.File,
-				srcFile:  lt.SourceFile,
-			})
-		}
-	}
-
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	maxConcurrent := opts.MaxConcurrent
-	if maxConcurrent <= 0 {
-		maxConcurrent = len(tasks)
-	}
-
-	sem := make(chan struct{}, maxConcurrent)
-	var wg sync.WaitGroup
-	var failedMu sync.Mutex
-	var failedLangs []string
-
-	for _, t := range tasks {
-		t := t
-		var keys []string
-		if opts.RetranslateExisting {
-			keys = t.file.Keys()
-		} else {
-			keys = t.file.UntranslatedKeys()
-		}
-		// Excluded/lock file filters already applied during task building above
-		if len(keys) == 0 {
-			continue
-		}
-
-		wg.Add(1)
-		sem <- struct{}{}
-		go func() {
-			defer wg.Done()
-			defer func() { <-sem }()
-
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
-
-			taskOpts := opts
-			taskOpts.Language = t.lang
-			taskOpts.LanguageName = t.langName
-
-			opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(keys))
-			if err := translateARBFileWithRL(ctx, t.file, t.srcFile, keys, taskOpts, rl); err != nil {
-				if ctx.Err() == nil {
-					opts.logError("Error translating %s: %v", t.lang, err)
-					failedMu.Lock()
-					failedLangs = append(failedLangs, t.lang)
-					failedMu.Unlock()
-				}
-			} else {
-				// Update lock file after successful translation
-				srcVals := t.srcFile.SourceValues()
-				updateLockFileForKV(keys, srcVals, taskOpts)
-				saveARBFile(t.file, t.filePath, opts)
-			}
-		}()
-	}
-	wg.Wait()
-
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translateARBFile translates an ARB file using a new rate-limit state.
-func translateARBFile(ctx context.Context, file *arbfile.File, srcFile *arbfile.File, keys []string, opts Options) error {
-	rl := &rateLimitState{}
-	return translateARBFileWithRL(ctx, file, srcFile, keys, opts, rl)
-}
-
-// translateARBFileWithRL translates an ARB file using a shared rate-limit state.
-func translateARBFileWithRL(ctx context.Context, file *arbfile.File, srcFile *arbfile.File, keys []string, opts Options, rl *rateLimitState) error {
-	chunkSize := opts.effectiveChunkSize()
-	if chunkSize <= 0 {
-		chunkSize = len(keys)
-	}
-
-	srcVals := srcFile.SourceValues()
-	systemPrompt := opts.resolvedPrompt()
-	chunks := splitStrings(keys, chunkSize)
-	done := 0
-
-	for i, chunk := range chunks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
-		}
-
-		translations, err := translateYAMLChunk(ctx, chunk, srcVals, systemPrompt, opts, rl)
-		if err != nil {
-			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
-		}
-
-		applyARBTranslations(file, chunk, translations)
-
-		done += len(chunk)
-		if opts.OnProgress != nil {
-			opts.OnProgress(opts.Language, done, len(keys))
-		}
-
-		if i < len(chunks)-1 && opts.RequestDelay > 0 {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(opts.RequestDelay):
-			}
-		}
-	}
-
-	return nil
-}
-
-// applyARBTranslations writes translated values back to the ARB file.
-func applyARBTranslations(file *arbfile.File, keys []string, translations []string) {
-	for i, key := range keys {
-		if i < len(translations) && translations[i] != "" {
-			file.Set(key, translations[i])
-		}
-	}
-}
-
-// saveARBFile saves an ARB file and logs the result.
-func saveARBFile(file *arbfile.File, path string, opts Options) {
-	if err := file.WriteFile(path); err != nil {
-		opts.logError("Error saving %s: %v", path, err)
-	} else {
-		total, translated, _ := file.Stats()
-		opts.log("Saved %s (%d/%d translated)", path, translated, total)
-	}
+// TranslateAllVueI18n translates vue-i18n JSON files for all language tasks.
+func TranslateAllVueI18n(ctx context.Context, langTasks []VueI18nLangTask, opts Options) error {
+	return TranslateAllKV(ctx, toVueI18nKVTasks(langTasks), opts, defaultKVChunkTranslator{})
 }

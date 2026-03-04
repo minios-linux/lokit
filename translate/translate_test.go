@@ -3,10 +3,85 @@ package translate
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"sync"
 	"testing"
 
+	"github.com/minios-linux/lokit/internal/format/i18next"
 	po "github.com/minios-linux/lokit/internal/format/po"
 )
+
+type testKVFile struct {
+	mu        sync.Mutex
+	keys      []string
+	values    map[string]string
+	writtenTo string
+}
+
+func newTestKVFile(keys []string, values map[string]string) *testKVFile {
+	copyVals := make(map[string]string, len(values))
+	for k, v := range values {
+		copyVals[k] = v
+	}
+	return &testKVFile{keys: append([]string(nil), keys...), values: copyVals}
+}
+
+func (f *testKVFile) Keys() []string {
+	return append([]string(nil), f.keys...)
+}
+
+func (f *testKVFile) UntranslatedKeys() []string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	var out []string
+	for _, k := range f.keys {
+		if f.values[k] == "" {
+			out = append(out, k)
+		}
+	}
+	return out
+}
+
+func (f *testKVFile) Set(key, value string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if _, ok := f.values[key]; ok {
+		f.values[key] = value
+	}
+}
+
+func (f *testKVFile) Stats() (int, int, float64) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	total := len(f.keys)
+	translated := 0
+	for _, k := range f.keys {
+		if f.values[k] != "" {
+			translated++
+		}
+	}
+	pct := 0.0
+	if total > 0 {
+		pct = float64(translated) / float64(total) * 100
+	}
+	return total, translated, pct
+}
+
+func (f *testKVFile) WriteFile(path string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.writtenTo = path
+	return nil
+}
+
+func (f *testKVFile) Value(key string) string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.values[key]
+}
 
 // ---------------------------------------------------------------------------
 // npluralsFromFile
@@ -268,6 +343,44 @@ func TestParsePluralTranslations_StripsMarkdownCodeBlock(t *testing.T) {
 	}
 }
 
+func TestExtractResponseText_OllamaChatFormat(t *testing.T) {
+	body := []byte(`{"message":{"role":"assistant","content":"Привет"},"done":true}`)
+	text, err := extractResponseText(body)
+	if err != nil {
+		t.Fatalf("extractResponseText error: %v", err)
+	}
+	if text != "Привет" {
+		t.Fatalf("text = %q, want %q", text, "Привет")
+	}
+}
+
+func TestBuildHTTPRequest_OllamaNativeEndpoint(t *testing.T) {
+	prov := Provider{
+		ID:      ProviderOllama,
+		Model:   "test-model",
+		BaseURL: "http://localhost:11434",
+	}
+
+	endpoint, headers, body, err := buildHTTPRequest(prov, "system", "user", formatOllamaNative)
+	if err != nil {
+		t.Fatalf("buildHTTPRequest error: %v", err)
+	}
+	if endpoint != "http://localhost:11434/api/chat" {
+		t.Fatalf("endpoint = %q", endpoint)
+	}
+	if headers["Content-Type"] != "application/json" {
+		t.Fatalf("content-type header = %q", headers["Content-Type"])
+	}
+
+	var payload map[string]any
+	if err := json.Unmarshal(body, &payload); err != nil {
+		t.Fatalf("unmarshal body: %v", err)
+	}
+	if payload["model"] != "test-model" {
+		t.Fatalf("model = %v", payload["model"])
+	}
+}
+
 // Ensure json.RawMessage can handle both strings and arrays (sanity check).
 func TestJSONRawMessage_Mixed(t *testing.T) {
 	raw := `["str", ["a", "b", "c"], "another"]`
@@ -285,5 +398,163 @@ func TestJSONRawMessage_Mixed(t *testing.T) {
 	var arr []string
 	if err := json.Unmarshal(items[1], &arr); err != nil || len(arr) != 3 {
 		t.Errorf("items[1]: %v err=%v", arr, err)
+	}
+}
+
+func TestBuildKVUserPrompt_UsesSourceValuesAndFallbackToKey(t *testing.T) {
+	keys := []string{"home.title", "menu.help"}
+	srcVals := map[string]string{"home.title": "Home"}
+	prompt := buildKVUserPrompt(keys, srcVals, "Russian")
+
+	if !strings.Contains(prompt, "Translate these strings to Russian") {
+		t.Fatalf("prompt missing language header: %q", prompt)
+	}
+	if !strings.Contains(prompt, `1. "Home"`) {
+		t.Fatalf("prompt missing source value: %q", prompt)
+	}
+	if !strings.Contains(prompt, `2. "menu.help"`) {
+		t.Fatalf("prompt missing fallback key: %q", prompt)
+	}
+}
+
+func TestBuildI18NextUserPrompt_UsesKeysAsSource(t *testing.T) {
+	keys := []string{"Save", "Cancel"}
+	prompt := buildI18NextUserPrompt(keys, "German")
+
+	if !strings.Contains(prompt, "Translate these UI strings to German") {
+		t.Fatalf("prompt missing language header: %q", prompt)
+	}
+	if !strings.Contains(prompt, `1. "Save"`) || !strings.Contains(prompt, `2. "Cancel"`) {
+		t.Fatalf("prompt missing key list: %q", prompt)
+	}
+}
+
+func TestBuildMarkdownUserPrompt_IncludesMarkdownRules(t *testing.T) {
+	keys := []string{"intro"}
+	srcVals := map[string]string{"intro": "# Welcome\nText"}
+	prompt := buildMarkdownUserPrompt(keys, srcVals, "French")
+
+	if !strings.Contains(prompt, "preserve all formatting") {
+		t.Fatalf("markdown rules missing from prompt: %q", prompt)
+	}
+	if !strings.Contains(prompt, `1. "# Welcome\nText"`) {
+		t.Fatalf("prompt missing escaped markdown source: %q", prompt)
+	}
+}
+
+func TestToJSONKVTasks_AdapterWritesThroughToTranslations(t *testing.T) {
+	f := &i18next.File{
+		Translations: map[string]string{
+			"Save":   "",
+			"Cancel": "",
+		},
+	}
+
+	tasks := toJSONKVTasks([]JSONLangTask{{
+		Lang:     "ru",
+		LangName: "Russian",
+		File:     f,
+		FilePath: "ru.json",
+	}})
+
+	if len(tasks) != 1 {
+		t.Fatalf("tasks len = %d, want 1", len(tasks))
+	}
+
+	tasks[0].File.Set("Save", "Сохранить")
+	if got := f.Translations["Save"]; got != "Сохранить" {
+		t.Fatalf("translation was not updated through adapter: got %q", got)
+	}
+
+	// Unknown keys must not be inserted for i18next.
+	tasks[0].File.Set("Unknown", "X")
+	if _, ok := f.Translations["Unknown"]; ok {
+		t.Fatal("adapter inserted unknown key")
+	}
+}
+
+func TestTranslateAllKVSequential_TranslatesAndSaves(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/chat/completions" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		_, _ = io.Copy(io.Discard, r.Body)
+		_ = r.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"Привет\",\"Пока\"]"}}]}`))
+	}))
+	defer ts.Close()
+
+	f := newTestKVFile([]string{"a", "b"}, map[string]string{"a": "", "b": ""})
+	tasks := []kvLangTask{{
+		Lang:         "ru",
+		LangName:     "Russian",
+		FilePath:     "ru.yaml",
+		File:         f,
+		SourceValues: map[string]string{"a": "Hello", "b": "Bye"},
+	}}
+
+	opts := Options{
+		Provider: Provider{
+			ID:      ProviderCustomOpenAI,
+			BaseURL: ts.URL,
+			Model:   "test-model",
+		},
+		ParallelMode: ParallelSequential,
+	}
+
+	if err := TranslateAllKV(t.Context(), tasks, opts, defaultKVChunkTranslator{}); err != nil {
+		t.Fatalf("TranslateAllKV error: %v", err)
+	}
+
+	if got := f.Value("a"); got != "Привет" {
+		t.Fatalf("value[a] = %q", got)
+	}
+	if got := f.Value("b"); got != "Пока" {
+		t.Fatalf("value[b] = %q", got)
+	}
+	if f.writtenTo != "ru.yaml" {
+		t.Fatalf("file not saved to expected path: %q", f.writtenTo)
+	}
+}
+
+func TestTranslateAllKVFullParallel_TranslatesAllTasks(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body)
+		_ = r.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"OK\"]"}}]}`))
+	}))
+	defer ts.Close()
+
+	f1 := newTestKVFile([]string{"k1"}, map[string]string{"k1": ""})
+	f2 := newTestKVFile([]string{"k2"}, map[string]string{"k2": ""})
+	tasks := []kvLangTask{
+		{Lang: "fr", LangName: "French", FilePath: "fr.yaml", File: f1, SourceValues: map[string]string{"k1": "One"}},
+		{Lang: "de", LangName: "German", FilePath: "de.yaml", File: f2, SourceValues: map[string]string{"k2": "Two"}},
+	}
+
+	opts := Options{
+		Provider: Provider{
+			ID:      ProviderCustomOpenAI,
+			BaseURL: ts.URL,
+			Model:   "test-model",
+		},
+		ParallelMode:  ParallelFullParallel,
+		MaxConcurrent: 2,
+	}
+
+	if err := TranslateAllKV(t.Context(), tasks, opts, defaultKVChunkTranslator{}); err != nil {
+		t.Fatalf("TranslateAllKV error: %v", err)
+	}
+
+	if got := f1.Value("k1"); got != "OK" {
+		t.Fatalf("f1 value = %q", got)
+	}
+	if got := f2.Value("k2"); got != "OK" {
+		t.Fatalf("f2 value = %q", got)
+	}
+	if f1.writtenTo != "fr.yaml" || f2.writtenTo != "de.yaml" {
+		t.Fatalf("files not saved: fr=%q de=%q", f1.writtenTo, f2.writtenTo)
 	}
 }
