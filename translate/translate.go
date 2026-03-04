@@ -1926,7 +1926,7 @@ func translateSequential(ctx context.Context, tasks []translationTask, opts Opti
 		taskOpts.Language = task.lang
 		taskOpts.LanguageName = po.LangNameNative(task.lang)
 
-		toTranslate := collectEntries(task.poFile, opts)
+		toTranslate := collectEntries(task.poFile, taskOpts)
 		if len(toTranslate) == 0 {
 			continue
 		}
@@ -1973,7 +1973,7 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		taskOpts.Language = task.lang
 		taskOpts.LanguageName = po.LangNameNative(task.lang)
 
-		toTranslate := collectEntries(task.poFile, opts)
+		toTranslate := collectEntries(task.poFile, taskOpts)
 		if len(toTranslate) == 0 {
 			continue
 		}
