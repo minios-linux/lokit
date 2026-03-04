@@ -81,7 +81,7 @@ func doExtract(proj *config.Project) error {
 		if len(proj.Keywords) > 0 {
 			logInfo(T("Extracting from %d Go files (AST, keywords: %s)..."),
 				len(goFiles), strings.Join(proj.Keywords, ", "))
-			return extract.RunGoExtract(goDirs, outPotFile, proj.Name, proj.Keywords)
+			return extract.RunGoExtract(goDirs, outPotFile, proj.Name, proj.Keywords, baseDir)
 		}
 		logInfo(T("Extracting from %d Go files with xgotext..."), len(goFiles))
 		return extract.RunXgotext(goDirs, outPotFile, proj.Name)

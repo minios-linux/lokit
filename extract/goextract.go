@@ -106,7 +106,7 @@ func (e *goExtractEntry) entryKey() string {
 //   - keywords: keyword specs (xgettext syntax, e.g. "T", "N:1,2")
 //
 // Returns an ExtractResult with the list of scanned files and output path.
-func RunGoExtract(dirs []string, potFile, domain string, keywords []string) (*ExtractResult, error) {
+func RunGoExtract(dirs []string, potFile, domain string, keywords []string, refBase string) (*ExtractResult, error) {
 	if len(keywords) == 0 {
 		return nil, fmt.Errorf("no keywords specified for Go extraction")
 	}
@@ -159,8 +159,15 @@ func RunGoExtract(dirs []string, potFile, domain string, keywords []string) (*Ex
 	entries := make(map[string]*goExtractEntry)
 	fset := token.NewFileSet()
 
+	if refBase == "" {
+		refBase = commonAncestor(dirs)
+	}
+	if absBase, err := filepath.Abs(refBase); err == nil {
+		refBase = absBase
+	}
+
 	for _, path := range goFiles {
-		if err := extractFromFile(fset, path, kwMap, entries); err != nil {
+		if err := extractFromFile(fset, path, refBase, kwMap, entries); err != nil {
 			// Log but continue — one bad file shouldn't stop extraction
 			fmt.Fprintf(os.Stderr, "warning: skipping %s: %v\n", path, err)
 		}
@@ -184,7 +191,7 @@ func RunGoExtract(dirs []string, potFile, domain string, keywords []string) (*Ex
 }
 
 // extractFromFile parses a single Go file and extracts matching calls.
-func extractFromFile(fset *token.FileSet, path string, kwMap map[string][]GoKeyword, entries map[string]*goExtractEntry) error {
+func extractFromFile(fset *token.FileSet, path, refBase string, kwMap map[string][]GoKeyword, entries map[string]*goExtractEntry) error {
 	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		return err
@@ -223,7 +230,13 @@ func extractFromFile(fset *token.FileSet, path string, kwMap map[string][]GoKeyw
 		}
 
 		pos := fset.Position(call.Lparen)
-		location := fmt.Sprintf("%s:%d", path, pos.Line)
+		filePath := path
+		if refBase != "" {
+			if rel, err := filepath.Rel(refBase, path); err == nil {
+				filePath = rel
+			}
+		}
+		location := fmt.Sprintf("%s:%d", filepath.ToSlash(filePath), pos.Line)
 
 		for _, kw := range kws {
 			extractCall(call, kw, location, entries)

@@ -2026,6 +2026,7 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		mu := fileMu[ft.poPath]
 		mu.Lock()
 		applyTranslations(ft.chunk, translations, opts.TranslateFuzzy)
+		updateLockFileForPO(ft.chunk, taskOpts)
 		mu.Unlock()
 
 		newDone := atomic.AddInt64(ft.done, int64(len(ft.chunk)))
