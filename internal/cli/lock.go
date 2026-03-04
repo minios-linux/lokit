@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -74,6 +75,8 @@ Examples:
 
 func newLockStatusCmd() *cobra.Command {
 	var target string
+	var verbose bool
+	var jsonOut bool
 
 	cmd := &cobra.Command{
 		Use:   "status",
@@ -82,13 +85,17 @@ func newLockStatusCmd() *cobra.Command {
 
 Examples:
   lokit lock status
-  lokit lock status --target ui`),
+  lokit lock status --target ui
+  lokit lock status --verbose
+  lokit lock status --json`),
 		Run: func(cmd *cobra.Command, args []string) {
-			runLockStatus(target)
+			runLockStatus(target, verbose, jsonOut)
 		},
 	}
 
 	cmd.Flags().StringVar(&target, "target", "", T("Target name from lokit.yaml (default: all targets)"))
+	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, T("Show per-language lock breakdown"))
+	cmd.Flags().BoolVar(&jsonOut, "json", false, T("Output lock status as JSON"))
 	return cmd
 }
 
@@ -203,7 +210,23 @@ func runLockInit(target string, force bool) {
 	}
 }
 
-func runLockStatus(target string) {
+type lockTargetStatus struct {
+	Target      string         `json:"target"`
+	Languages   int            `json:"languages"`
+	Keys        int            `json:"keys"`
+	PerLanguage map[string]int `json:"per_language,omitempty"`
+}
+
+type lockStatusOutput struct {
+	Path      string             `json:"path"`
+	Exists    bool               `json:"exists"`
+	Targets   int                `json:"targets"`
+	Languages int                `json:"languages"`
+	Keys      int                `json:"keys"`
+	ByTarget  []lockTargetStatus `json:"by_target"`
+}
+
+func runLockStatus(target string, verbose bool, jsonOut bool) {
 	resolved, err := loadResolvedTargets(target)
 	if err != nil {
 		logError(T("%v"), err)
@@ -216,11 +239,16 @@ func runLockStatus(target string) {
 		os.Exit(1)
 	}
 
-	sectionHeader(T("Lock File"))
-	keyVal(T("Path"), lf.Path())
-	targets, keys := lf.Stats()
-	keyVal(T("Targets"), fmt.Sprintf("%d", targets))
-	keyVal(T("Keys"), fmt.Sprintf("%d", keys))
+	exists := true
+	if _, err := os.Stat(lf.Path()); errors.Is(err, os.ErrNotExist) {
+		exists = false
+	}
+
+	output := lockStatusOutput{
+		Path:     lf.Path(),
+		Exists:   exists,
+		ByTarget: make([]lockTargetStatus, 0, len(resolved)),
+	}
 
 	for _, rt := range resolved {
 		langs := filterOutLang(rt.Languages, rt.Target.SourceLang)
@@ -228,12 +256,65 @@ func runLockStatus(target string) {
 			continue
 		}
 
-		total := 0
+		ts := lockTargetStatus{
+			Target:    rt.Target.Name,
+			Languages: len(langs),
+		}
+		if verbose || jsonOut {
+			ts.PerLanguage = make(map[string]int, len(langs))
+		}
+
 		for _, lang := range langs {
 			lockTarget := lockfile.LockTargetKey(rt.Target.Name, lang)
-			total += lf.TargetKeyCount(lockTarget)
+			count := lf.TargetKeyCount(lockTarget)
+			ts.Keys += count
+			if ts.PerLanguage != nil {
+				ts.PerLanguage[lang] = count
+			}
 		}
-		keyVal(rt.Target.Name, fmt.Sprintf(T("%d keys across %d languages"), total, len(langs)))
+
+		output.Targets++
+		output.Languages += ts.Languages
+		output.Keys += ts.Keys
+		output.ByTarget = append(output.ByTarget, ts)
+	}
+
+	if jsonOut {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		if err := enc.Encode(output); err != nil {
+			logError(T("JSON output error: %v"), err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	sectionHeader(T("Lock File"))
+	keyVal(T("Path"), lf.Path())
+	if !exists {
+		keyVal(T("Status"), T("not found"))
+		keyVal(T("Targets"), "0")
+		keyVal(T("Languages"), "0")
+		keyVal(T("Keys"), "0")
+		return
+	}
+
+	keyVal(T("Targets"), fmt.Sprintf("%d", output.Targets))
+	keyVal(T("Languages"), fmt.Sprintf("%d", output.Languages))
+	keyVal(T("Keys"), fmt.Sprintf("%d", output.Keys))
+
+	for _, ts := range output.ByTarget {
+		keyVal(ts.Target, fmt.Sprintf(T("%d keys across %d languages"), ts.Keys, ts.Languages))
+		if verbose {
+			langs := make([]string, 0, len(ts.PerLanguage))
+			for lang := range ts.PerLanguage {
+				langs = append(langs, lang)
+			}
+			sort.Strings(langs)
+			for _, lang := range langs {
+				keyVal("  "+lang, fmt.Sprintf(T("%d keys"), ts.PerLanguage[lang]))
+			}
+		}
 	}
 }
 

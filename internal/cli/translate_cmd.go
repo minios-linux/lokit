@@ -339,6 +339,8 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 
 		if err := a.lockFile.Save(); err != nil {
 			logWarning(T("Could not save lock file after target %s: %v"), rt.Target.Name, err)
+		} else if a.verbose {
+			logInfo(T("Lock file saved after target %s/%s"), rt.Target.Name, "*")
 		}
 	}
 

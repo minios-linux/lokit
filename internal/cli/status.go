@@ -62,9 +62,16 @@ func runStatusWithConfig(lf *config.LokitFile) {
 	keyVal(T("Targets"), fmt.Sprintf("%d", len(lf.Targets)))
 
 	lockF, err := lockfile.Load(rootDir)
+	lockPath := filepath.Join(rootDir, lockfile.LockFileName)
+	lockExists := true
+	if _, statErr := os.Stat(lockPath); os.IsNotExist(statErr) {
+		lockExists = false
+	}
 	if err != nil {
 		keyVal(T("Lock file"), colorYellow+fmt.Sprintf(T("error: %v"), err)+colorReset)
 		lockF = &lockfile.LockFile{Version: lockfile.Version, Checksums: make(map[string]map[string]string)}
+	} else if !lockExists {
+		keyVal(T("Lock file"), T("not found"))
 	} else {
 		targets, keys := lockF.Stats()
 		if targets == 0 {
@@ -90,7 +97,7 @@ func runStatusWithConfig(lf *config.LokitFile) {
 		for _, lang := range langs {
 			lockKeys += lockF.TargetKeyCount(lockfile.LockTargetKey(rt.Target.Name, lang))
 		}
-		keyVal(T("Locked"), fmt.Sprintf(T("%d keys"), lockKeys))
+		keyVal(T("Locked"), fmt.Sprintf(T("%d keys x %d languages"), lockKeys, len(langs)))
 
 		if len(langs) > 0 {
 			keyVal(T("Languages"), strings.Join(langs, ", "))

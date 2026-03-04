@@ -37,3 +37,14 @@ func TestCountStaleKeys(t *testing.T) {
 		t.Fatalf("countStaleKeys(nil) = %d, want 0", got)
 	}
 }
+
+func TestLockStatusFlags(t *testing.T) {
+	cmd := newLockStatusCmd()
+
+	if cmd.Flags().Lookup("verbose") == nil {
+		t.Fatal("missing --verbose flag")
+	}
+	if cmd.Flags().Lookup("json") == nil {
+		t.Fatal("missing --json flag")
+	}
+}
