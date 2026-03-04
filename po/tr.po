@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 09:50+0000\n"
-"PO-Revision-Date: 2026-03-03 08:11+0000\n"
+"POT-Creation-Date: 2026-03-04 10:10+0000\n"
+"PO-Revision-Date: 2026-03-04 10:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: tr\n"
@@ -15,97 +15,92 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:102
+#: internal/cli/auth.go:102
 msgid "OAuth"
 msgstr "OAuth"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:104
+#: internal/cli/auth.go:104
 msgid "API key"
 msgstr "API anahtarı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:110
+#: internal/cli/auth.go:110
 msgid "Enter choice (number or name):"
-msgstr "Seçiminizi girin (numara veya isim):"
+msgstr "Seçimi girin (sayı veya isim):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:114
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:315
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:353
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:374
+#: internal/cli/auth.go:114 internal/cli/auth.go:315 internal/cli/auth.go:353
+#: internal/cli/auth.go:374
 msgid "No input received"
 msgstr "Girdi alınamadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:133
+#: internal/cli/auth.go:133
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
-msgstr "Geçersiz seçim. Kullanım: lokit auth login --provider PROVIDER"
+msgstr "Geçersiz seçim. Kullanın: lokit auth login --provider PROVIDER"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:158
+#: internal/cli/auth.go:158
 msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
-msgstr "Bilinmeyen sağlayıcı '%s'. Seçenekler için 'lokit auth login' komutunu çalıştırın."
+msgstr "Bilinmeyen sağlayıcı '%s'. Seçenekler için 'lokit auth login' çalıştırın."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:164
+#: internal/cli/auth.go:164
 msgid "Provider to authenticate"
-msgstr "Kimlik doğrulaması yapılacak sağlayıcı"
+msgstr "Doğrulanacak sağlayıcı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:180
+#: internal/cli/auth.go:180
 msgid "GitHub Copilot Authentication"
-msgstr "GitHub Copilot Kimlik Doğrulama"
+msgstr "GitHub Copilot kimlik doğrulaması"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:183
+#: internal/cli/auth.go:183
 msgid "Open this URL in your browser:"
 msgstr "Bu URL'yi tarayıcınızda açın:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:185
+#: internal/cli/auth.go:185
 msgid "Enter this code:"
 msgstr "Bu kodu girin:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:187
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:211
+#: internal/cli/auth.go:187 internal/cli/auth.go:211
 msgid "Waiting for authorization..."
 msgstr "Yetkilendirme bekleniyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:191
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:215
+#: internal/cli/auth.go:191 internal/cli/auth.go:215
 msgid "Authentication cancelled"
 msgstr "Kimlik doğrulama iptal edildi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:194
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:218
+#: internal/cli/auth.go:194 internal/cli/auth.go:218
 msgid "Authentication failed: %v"
 msgstr "Kimlik doğrulama başarısız: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:198
+#: internal/cli/auth.go:198
 msgid "Copilot authentication successful!"
 msgstr "Copilot kimlik doğrulaması başarılı!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:199
+#: internal/cli/auth.go:199
 msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
 msgstr "Artık şunu kullanabilirsiniz: lokit translate --provider copilot --model gpt-4o"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:204
+#: internal/cli/auth.go:204
 msgid "Google Gemini Authentication"
-msgstr "Google Gemini Kimlik Doğrulama"
+msgstr "Google Gemini kimlik doğrulaması"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:207
+#: internal/cli/auth.go:207
 msgid "Opening browser for Google sign-in..."
-msgstr "Google hesabınızla giriş yapmak için tarayıcı açılıyor..."
+msgstr "Google ile giriş için tarayıcı açılıyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:209
+#: internal/cli/auth.go:209
 msgid "If the browser doesn't open, visit:"
-msgstr "Eğer tarayıcı açılmazsa şu adresi ziyaret edin:"
+msgstr "Tarayıcı açılmazsa, şu adresi ziyaret edin:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:22
+#: internal/cli/auth.go:22
 msgid "Manage provider authentication"
-msgstr "Sağlayıcı kimlik doğrulamasını yönet"
+msgstr "Sağlayıcı kimlik doğrulamalarını yönetin"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:223
+#: internal/cli/auth.go:223
 msgid "Gemini authentication successful!"
-msgstr "Gemini kimlik doğrulama başarılı!"
+msgstr "Gemini kimlik doğrulaması başarılı!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:228
+#: internal/cli/auth.go:228
 msgid "Token was saved but cannot be loaded"
 msgstr "Token kaydedildi ancak yüklenemiyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:23
+#: internal/cli/auth.go:23
 msgid ""
 "Manage authentication credentials for all AI providers.\n"
 "\n"
@@ -130,169 +125,166 @@ msgid ""
 "  lokit auth logout                        Remove all credentials\n"
 "  lokit auth list                          Show all stored credentials"
 msgstr ""
-"Tüm yapay zeka sağlayıcıları için kimlik doğrulama bilgilerini yönetin.\n"
+"Tüm AI sağlayıcıları için kimlik bilgilerini yönetin.\n"
 "\n"
 "OAuth sağlayıcıları (etkileşimli tarayıcı/cihaz akışı):\n"
-"  copilot       GitHub Copilot (cihaz kodu akışı, GitHub hesabı ile ücretsiz)\n"
-"  gemini        Google Gemini Code Assist (tarayıcı OAuth, ücretsiz katman: 60 istek/dk)\n"
+"  copilot       GitHub Copilot (cihaz kodu akışı, GitHub hesabıyla ücretsiz)\n"
+"  gemini        Google Gemini Code Assist (tarayıcı OAuth'u, ücretsiz kota: 60 istek/dk)\n"
 "\n"
 "API anahtarı sağlayıcıları (anahtarınızı yapıştırın):\n"
 "  google        Google AI Studio (Gemini API anahtarı)\n"
 "  groq          Groq Cloud (ücretsiz katman mevcut)\n"
-"  opencode      OpenCode Zen API (anahtarsız ücretsiz modeller mevcut)\n"
+"  opencode      OpenCode Zen API (anahtar olmadan kullanılabilen ücretsiz modeller)\n"
 "  custom-openai Özel OpenAI uyumlu uç nokta\n"
 "\n"
-"Kimlik doğrulama gerektirmez:\n"
+"Kimlik doğrulama gerekmez:\n"
 "  ollama        Yerel Ollama sunucusu\n"
 "\n"
 "Örnekler:\n"
-"  lokit auth login                         Etkileşimli sağlayıcı seçimi\n"
+"  lokit auth login                         Sağlayıcı seçimi (etkileşimli)\n"
 "  lokit auth login --provider copilot      GitHub Copilot ile OAuth\n"
 "  lokit auth login --provider google       Google AI API anahtarını kaydet\n"
 "  lokit auth logout --provider google      Google API anahtarını kaldır\n"
 "  lokit auth logout                        Tüm kimlik bilgilerini kaldır\n"
-"  lokit auth list                          Kayıtlı tüm kimlik bilgilerini göster"
+"  lokit auth list                          Tüm saklanan kimlik bilgilerini göster"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:233
+#: internal/cli/auth.go:233
 msgid "Gemini Code Assist requires a GCP project ID to work in your region."
-msgstr "Gemini Code Assist, bölgenizde çalışabilmesi için bir GCP proje kimliği gerektirir."
+msgstr "Gemini Code Assist'in bölgenizde çalışması için bir GCP proje kimliği gereklidir."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:234
+#: internal/cli/auth.go:234
 msgid "Find your project ID at: https://console.cloud.google.com"
-msgstr "Proje kimliğinizi buradan bulabilirsiniz: https://console.cloud.google.com"
+msgstr "Proje kimliğinizi şurada bulun: https://console.cloud.google.com"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:235
+#: internal/cli/auth.go:235
 msgid "(Create a project if you don't have one, then enable the Gemini API)"
-msgstr "(Bir projeniz yoksa oluşturun, ardından Gemini API'sini etkinleştirin)"
+msgstr "(Henüz bir projeniz yoksa bir proje oluşturun, ardından Gemini API'sini etkinleştirin)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:237
+#: internal/cli/auth.go:237
 msgid "GCP Project ID (or press Enter to skip):"
-msgstr "GCP Proje Kimliği (atlamak için Enter'a basın):"
+msgstr "GCP Proje ID'si (atlamak için Enter tuşuna basın):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:247
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:259
+#: internal/cli/auth.go:247 internal/cli/auth.go:259
 msgid "Code Assist setup failed: %v"
-msgstr "Code Assist kurulumu başarısız oldu: %v"
+msgstr "Code Assist kurulumu başarısız: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:248
+#: internal/cli/auth.go:248
 msgid "Project ID saved. You can try again later."
-msgstr "Proje kimliği kaydedildi. Daha sonra tekrar deneyebilirsiniz."
+msgstr "Proje ID'si kaydedildi. Daha sonra tekrar deneyebilirsiniz."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:250
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:263
+#: internal/cli/auth.go:250 internal/cli/auth.go:263
 msgid "Code Assist project configured!"
 msgstr "Code Assist projesi yapılandırıldı!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:253
+#: internal/cli/auth.go:253
 msgid "Skipped. You can set it later with:"
 msgstr "Atlandı. Daha sonra şu komutla ayarlayabilirsiniz:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:254
+#: internal/cli/auth.go:254
 msgid "  lokit auth login --provider gemini"
 msgstr "  lokit auth login --provider gemini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:260
+#: internal/cli/auth.go:260
 msgid "OAuth login succeeded but Code Assist onboarding failed."
-msgstr "OAuth ile giriş başarılı ancak Code Assist kurulumu başarısız oldu."
+msgstr "OAuth girişi başarılı ancak Code Assist başlangıcı başarısız oldu."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:261
+#: internal/cli/auth.go:261
 msgid "This will be retried automatically on first translate."
-msgstr "Bu işlem ilk çeviride otomatik olarak tekrar denenecek."
+msgstr "Bu, ilk çeviri sırasında otomatik olarak yeniden denenir."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:268
+#: internal/cli/auth.go:268
 msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
 msgstr "Artık şunu kullanabilirsiniz: lokit translate --provider gemini --model gemini-2.5-flash"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:269
+#: internal/cli/auth.go:269
 msgid "(no API key needed when authenticated via OAuth)"
-msgstr "(OAuth ile kimlik doğrulandıysa API anahtarı gerekmez)"
+msgstr "(OAuth ile kimlik doğrulandıysa API anahtarına gerek yoktur)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:298
+#: internal/cli/auth.go:298
 msgid "%s — API Key Setup"
 msgstr "%s — API Anahtarı Kurulumu"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:301
+#: internal/cli/auth.go:301
 msgid "Get your API key from: %s%s%s"
-msgstr "API anahtarınızı buradan alın: %s%s%s"
+msgstr "API anahtarınızı alın: %s%s%s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:307
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:367
+#: internal/cli/auth.go:307 internal/cli/auth.go:367
 msgid "Current key"
 msgstr "Mevcut anahtar"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:308
+#: internal/cli/auth.go:308
 msgid "Enter new key to replace, or press Enter to keep:"
-msgstr "Değiştirilecek yeni anahtarı girin veya mevcut kalması için Enter'a basın:"
+msgstr "Değiştirmek için yeni anahtarı girin ya da tutmak için Enter'a basın:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:310
+#: internal/cli/auth.go:310
 msgid "Enter API key:"
 msgstr "API anahtarını girin:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:322
+#: internal/cli/auth.go:322
 msgid "Keeping existing key"
 msgstr "Mevcut anahtar korunuyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:325
+#: internal/cli/auth.go:325
 msgid "No API key provided"
-msgstr "API anahtarı girilmedi"
+msgstr "API anahtarı sağlanmadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:330
+#: internal/cli/auth.go:330
 msgid "Failed to save API key: %v"
 msgstr "API anahtarı kaydedilemedi: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:334
+#: internal/cli/auth.go:334
 msgid "%s API key saved!"
 msgstr "%s API anahtarı kaydedildi!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:335
+#: internal/cli/auth.go:335
 msgid "You can now use: %s"
 msgstr "Artık şunu kullanabilirsiniz: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:340
+#: internal/cli/auth.go:340
 msgid "Custom OpenAI-Compatible Endpoint"
-msgstr "Özel OpenAI-Uyumlu Uç Nokta"
+msgstr "Özel OpenAI uyumlu uç nokta"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:346
+#: internal/cli/auth.go:346
 msgid "Current endpoint"
 msgstr "Mevcut uç nokta"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:347
+#: internal/cli/auth.go:347
 msgid "Enter new endpoint URL, or press Enter to keep:"
-msgstr "Yeni uç nokta URL'si girin veya mevcut kalması için Enter'a basın:"
+msgstr "Yeni uç nokta URL'sini girin ya da tutmak için Enter'a basın:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:349
+#: internal/cli/auth.go:349
 msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
-msgstr "Uç nokta URL'si girin (örn. https://api.example.com/v1):"
+msgstr "Uç nokta URL'sini girin (ör. https://api.example.com/v1):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:362
+#: internal/cli/auth.go:362
 msgid "Endpoint URL is required"
 msgstr "Uç nokta URL'si gerekli"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:368
+#: internal/cli/auth.go:368
 msgid "Enter new API key, or press Enter to keep (leave empty for none):"
-msgstr "Yeni API anahtarını girin veya mevcut kalması için Enter'a basın (hiçbiri için boş bırakın):"
+msgstr "Yeni API anahtarını girin veya mevcut olanı korumak için Enter'a basın (hiçbirini kullanmamak için boş bırakın):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:370
+#: internal/cli/auth.go:370
 msgid "Enter API key (or press Enter if not required):"
 msgstr "API anahtarını girin (gerekli değilse Enter'a basın):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:384
+#: internal/cli/auth.go:384
 msgid "Failed to save credentials: %v"
 msgstr "Kimlik bilgileri kaydedilemedi: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:388
+#: internal/cli/auth.go:388
 msgid "Custom OpenAI endpoint saved!"
 msgstr "Özel OpenAI uç noktası kaydedildi!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:389
+#: internal/cli/auth.go:389
 msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
-msgstr "Artık şunu kullanabilirsiniz: lokit translate --provider custom-openai --model MODEL_NAME"
+msgstr "Şimdi şu komutu kullanabilirsiniz: lokit translate --provider custom-openai --model MODEL_NAME"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:398
+#: internal/cli/auth.go:398
 msgid "Remove stored credentials"
-msgstr "Kayıtlı kimlik bilgilerini kaldır"
+msgstr "Saklanan kimlik bilgilerini kaldır"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:399
+#: internal/cli/auth.go:399
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -304,9 +296,9 @@ msgid ""
 "  lokit auth logout --provider google      Remove only Google API key\n"
 "  lokit auth logout --provider gemini      Remove only Gemini OAuth"
 msgstr ""
-"Bir veya tüm sağlayıcılar için kayıtlı kimlik bilgilerini kaldırın.\n"
+"Saklanan kimlik bilgilerini tek bir sağlayıcıdan veya tüm sağlayıcılardan kaldırın.\n"
 "\n"
-"--provider belirtilmezse, TÜM sağlayıcılar için kimlik bilgileri kaldırılır.\n"
+"--provider belirtilmezse, TÜM sağlayıcıların kimlik bilgileri kaldırılır.\n"
 "\n"
 "Örnekler:\n"
 "  lokit auth logout                        Tüm kimlik bilgilerini kaldır\n"
@@ -314,100 +306,95 @@ msgstr ""
 "  lokit auth logout --provider google      Sadece Google API anahtarını kaldır\n"
 "  lokit auth logout --provider gemini      Sadece Gemini OAuth'u kaldır"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:413
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:438
+#: internal/cli/auth.go:413 internal/cli/auth.go:438
 msgid "Failed to remove Copilot credentials: %v"
 msgstr "Copilot kimlik bilgileri kaldırılamadı: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:416
+#: internal/cli/auth.go:416
 msgid "Copilot credentials removed"
 msgstr "Copilot kimlik bilgileri kaldırıldı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:442
+#: internal/cli/auth.go:419 internal/cli/auth.go:442
 msgid "Failed to remove Gemini credentials: %v"
 msgstr "Gemini kimlik bilgileri kaldırılamadı: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:422
+#: internal/cli/auth.go:422
 msgid "Gemini credentials removed"
 msgstr "Gemini kimlik bilgileri kaldırıldı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:425
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:447
+#: internal/cli/auth.go:425 internal/cli/auth.go:447
 msgid "Failed to remove %s credentials: %v"
 msgstr "%s kimlik bilgileri kaldırılamadı: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:428
+#: internal/cli/auth.go:428
 msgid "%s credentials removed"
 msgstr "%s kimlik bilgileri kaldırıldı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:430
+#: internal/cli/auth.go:430
 msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
-msgstr "Bilinmeyen sağlayıcı '%s'. Sağlayıcıları görmek için 'lokit auth list' komutunu çalıştırın."
+msgstr "Bilinmeyen sağlayıcı '%s'. Sağlayıcıları görmek için 'lokit auth list' çalıştırın."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:452
+#: internal/cli/auth.go:452
 msgid "All stored credentials removed"
-msgstr "Tüm kayıtlı kimlik bilgileri kaldırıldı"
+msgstr "Tüm saklanan kimlik bilgileri kaldırıldı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:457
+#: internal/cli/auth.go:457
 msgid "Provider to logout (default: all)"
-msgstr "Çıkış yapılacak sağlayıcı (varsayılan: tümü)"
+msgstr "Oturumu kapatılacak sağlayıcı (varsayılan: tümü)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:476
+#: internal/cli/auth.go:476
 msgid "Show stored credentials and status"
-msgstr "Kayıtlı kimlik bilgilerini ve durumunu göster"
+msgstr "Saklanan kimlik bilgilerini ve durumunu göster"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:478
+#: internal/cli/auth.go:478
 msgid "Stored Credentials"
-msgstr "Kayıtlı Kimlik Bilgileri"
+msgstr "Saklanan kimlik bilgileri"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:480
+#: internal/cli/auth.go:480
 msgid "OAuth Providers"
 msgstr "OAuth Sağlayıcıları"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:481
+#: internal/cli/auth.go:481
 msgid "copilot"
 msgstr "copilot"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:482
+#: internal/cli/auth.go:482
 msgid "gemini"
 msgstr "gemini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:484
+#: internal/cli/auth.go:484
 msgid "API Key Providers"
 msgstr "API Anahtarı Sağlayıcıları"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:497
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:503
+#: internal/cli/auth.go:497 internal/cli/auth.go:503
 msgid "✓ configured"
 msgstr "✓ yapılandırıldı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:499
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:504
+#: internal/cli/auth.go:499 internal/cli/auth.go:504
 msgid "endpoint:"
 msgstr "uç nokta:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:503
+#: internal/cli/auth.go:503
 msgid "no key"
 msgstr "anahtar yok"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:507
+#: internal/cli/auth.go:507
 msgid "not configured"
 msgstr "yapılandırılmadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:511
+#: internal/cli/auth.go:511
 msgid "Environment Variables"
 msgstr "Ortam Değişkenleri"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:525
+#: internal/cli/auth.go:525
 msgid "not set"
-msgstr "atanmamış"
+msgstr "ayarlı değil"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:77
+#: internal/cli/auth.go:77
 msgid "Authenticate with an AI provider"
-msgstr "Bir AI sağlayıcısıyla kimlik doğrulaması yap"
+msgstr "Bir AI sağlayıcısıyla kimlik doğrulayın"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:78
+#: internal/cli/auth.go:78
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -423,105 +410,100 @@ msgid ""
 "  opencode      Paste your OpenCode API key\n"
 "  custom-openai Paste your API key + endpoint URL"
 msgstr ""
-"Bir yapay zeka sağlayıcısı ile OAuth veya API anahtarı kullanarak kimlik doğrulaması yapın.\n"
+"OAuth veya API anahtarı kullanarak bir AI sağlayıcısıyla kimlik doğrulayın.\n"
 "\n"
 "--provider belirtilmezse, seçim yapmanız istenir.\n"
 "\n"
 "OAuth sağlayıcıları:\n"
-"  copilot       Cihaz kodu akışı — kodu tarayıcıda girin\n"
+"  copilot       Cihaz kodu akışı — kodu tarayıcıya girin\n"
 "  gemini        Tarayıcı tabanlı OAuth — Google ile oturum açın\n"
 "\n"
 "API anahtarı sağlayıcıları:\n"
 "  google        Google AI Studio API anahtarınızı yapıştırın\n"
 "  groq          Groq API anahtarınızı yapıştırın\n"
 "  opencode      OpenCode API anahtarınızı yapıştırın\n"
-"  custom-openai API anahtarı + uç nokta URL'si girin"
+"  custom-openai API anahtarınızı ve uç nokta URL'sini yapıştırın"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:93
+#: internal/cli/auth.go:93
 msgid "Select provider to authenticate"
-msgstr "Kimlik doğrulaması yapılacak sağlayıcıyı seçin"
+msgstr "Kimlik doğrulaması için sağlayıcı seçin"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:105
+#: internal/cli/helpers.go:105
 msgid "Go extraction failed: %v"
-msgstr "Go çıkarımı başarısız: %v"
+msgstr "Go ayıklaması başarısız oldu: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:106
+#: internal/cli/helpers.go:106
 msgid "Continuing with xgettext results only"
 msgstr "Sadece xgettext sonuçlarıyla devam ediliyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:113
+#: internal/cli/helpers.go:113
 msgid "Merging POT files..."
 msgstr "POT dosyaları birleştiriliyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:115
+#: internal/cli/helpers.go:115
 msgid "merging POT files: %w"
-msgstr "POT dosyaları birleştiriliyor: %w"
+msgstr "POT dosyaları birleştirilirken: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:123
+#: internal/cli/helpers.go:123
 msgid "extraction failed: %w"
-msgstr "çıkarma başarısız: %w"
+msgstr "ayıklama başarısız oldu: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:131
+#: internal/cli/helpers.go:131
 msgid "Go extraction failed: %w"
-msgstr "Go çıkarımı başarısız: %w"
+msgstr "Go ayıklaması başarısız oldu: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:145
+#: internal/cli/helpers.go:145
 msgid "Extracted %d strings to %s"
-msgstr "%d metin %s dosyasına çıkarıldı"
+msgstr "%d dize %s dosyasına çıkarıldı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:147
+#: internal/cli/helpers.go:147
 msgid "Extracted strings to %s"
-msgstr "Metinler %s dosyasına çıkarıldı"
+msgstr "Dizeler %s dosyasına çıkarıldı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:165
+#: internal/cli/helpers.go:165
 msgid "No POT template found, running extraction..."
-msgstr "POT şablonu bulunamadı, çıkarım başlatılıyor..."
+msgstr "POT şablonu bulunamadı, ayıklama çalıştırılıyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:167
+#: internal/cli/helpers.go:167
 msgid "Auto-extraction failed: %v"
-msgstr "Otomatik çıkarım başarısız: %v"
+msgstr "Otomatik ayıklama başarısız oldu: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:174
+#: internal/cli/helpers.go:174
 msgid "Cannot auto-create %s: extraction produced no POT template"
-msgstr "%s otomatik oluşturulamıyor: çıkarım sonucu POT şablonu üretilmedi"
+msgstr "Otomatik olarak %s oluşturulamıyor: ayıklama POT şablonu üretmedi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:175
+#: internal/cli/helpers.go:175
 msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
-msgstr "Kaynak dosyaların çevrilebilir metinler içerdiğinden emin olun (_(), N_() vb.)"
+msgstr "Kaynak dosyaların çevrilebilir dizeler (_(), N_(), vb.) içerdiğini kontrol edin"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:182
+#: internal/cli/helpers.go:182
 msgid "Cannot read POT template %s: %v"
-msgstr "POT şablonu %s okunamıyor: %v"
+msgstr "POT şablonu %s okunamadı: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:206
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:508
+#: internal/cli/helpers.go:206 internal/cli/init.go:508
 msgid "Creating directory for %s: %v"
 msgstr "%s için dizin oluşturuluyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:211
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:292
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:532
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:108
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:352
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:608
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:828
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:98
+#: internal/cli/helpers.go:211 internal/cli/init.go:292
+#: internal/cli/init.go:532 internal/cli/target_content.go:108
+#: internal/cli/target_content.go:352 internal/cli/target_content.go:608
+#: internal/cli/target_content.go:828 internal/cli/target_vuei18n.go:98
 msgid "Creating %s: %v"
 msgstr "%s oluşturuluyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:215
+#: internal/cli/helpers.go:215
 msgid "Auto-created %s from %s (%d entries)"
-msgstr "%s, %s dosyasından otomatik oluşturuldu (%d kayıt)"
+msgstr "Otomatik olarak %s, %s'den oluşturuldu (%d öğe)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:287
+#: internal/cli/helpers.go:287
 msgid "check provider documentation"
-msgstr "sağlayıcı dokümantasyonuna bakın"
+msgstr "sağlayıcı belgelerini kontrol edin"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:29
+#: internal/cli/helpers.go:29
 msgid "Scanning for source files in: %s"
 msgstr "Kaynak dosyalar taranıyor: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:290
+#: internal/cli/helpers.go:290
 msgid ""
 "--model is required for provider '%s'\n"
 "\n"
@@ -535,9 +517,9 @@ msgstr ""
 "%s için örnek modeller:\n"
 "  %s\n"
 "\n"
-"Kullanım: --provider %s --model MODEL_ADI"
+"Kullanım: --provider %s --model MODEL_NAME"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:304
+#: internal/cli/helpers.go:304
 msgid ""
 "provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
@@ -552,20 +534,20 @@ msgid ""
 "\n"
 "Get an API key from: https://aistudio.google.com/apikey"
 msgstr ""
-"‘google’ sağlayıcısı için API anahtarı veya Gemini OAuth girişi gereklidir\n"
+"sağlayıcı 'google' bir API anahtarı veya Gemini OAuth ile giriş gerektirir\n"
 "\n"
-"Seçenek 1: API anahtarı kaydedin:\n"
+"Seçenek 1: API anahtarını kaydet:\n"
 "  lokit auth login --provider google\n"
 "\n"
-"Seçenek 2: Google OAuth ile giriş yapın (ücretsiz katman: 60 istek/dakika):\n"
+"Seçenek 2: Google OAuth ile giriş yap (ücretsiz katman: 60 istek/dk):\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"Seçenek 3: Anahtarı doğrudan iletin:\n"
+"Seçenek 3: Anahtarı doğrudan ilet:\n"
 "  --api-key YOUR_KEY veya export GOOGLE_API_KEY=YOUR_KEY\n"
 "\n"
-"API anahtarı almak için: https://aistudio.google.com/apikey"
+"API anahtarını alın: https://aistudio.google.com/apikey"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:316
+#: internal/cli/helpers.go:316
 msgid ""
 "provider 'gemini' requires Google OAuth login\n"
 "\n"
@@ -575,15 +557,15 @@ msgid ""
 "This uses Gemini Code Assist (free tier: 60 req/min).\n"
 "For API key access, use --provider google instead."
 msgstr ""
-"'gemini' sağlayıcısı için Google OAuth girişi gereklidir\n"
+"sağlayıcı 'gemini' Google OAuth ile giriş gerektirir\n"
 "\n"
 "Google hesabınızla giriş yapın:\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"Bu, Gemini Code Assist'i kullanır (ücretsiz katman: 60 istek/dak).\n"
-"API anahtarı erişimi için, bunun yerine --provider google kullanın."
+"Bu, Gemini Code Assist'i kullanır (ücretsiz katman: 60 istek/dk).\n"
+"API anahtarı ile erişim için, bunun yerine --provider google kullanın."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:325
+#: internal/cli/helpers.go:325
 msgid ""
 "provider 'groq' requires an API key\n"
 "\n"
@@ -595,7 +577,7 @@ msgid ""
 "\n"
 "Get a free API key from: https://console.groq.com/keys"
 msgstr ""
-"'groq' sağlayıcısı için API anahtarı gereklidir\n"
+"sağlayıcı 'groq' bir API anahtarı gerektirir\n"
 "\n"
 "Seçenek 1: API anahtarınızı kaydedin:\n"
 "  lokit auth login --provider groq\n"
@@ -603,13 +585,13 @@ msgstr ""
 "Seçenek 2: Anahtarı doğrudan iletin:\n"
 "  --api-key YOUR_KEY veya export GROQ_API_KEY=YOUR_KEY\n"
 "\n"
-"Ücretsiz API anahtarı almak için: https://console.groq.com/keys"
+"Ücretsiz API anahtarını edinin: https://console.groq.com/keys"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:33
+#: internal/cli/helpers.go:33
 msgid "scanning sources: %w"
-msgstr "Kaynaklar taranıyor: %w"
+msgstr "kaynaklar taranıyor: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:338
+#: internal/cli/helpers.go:338
 msgid ""
 "provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
@@ -618,14 +600,14 @@ msgid ""
 "\n"
 "This uses GitHub Copilot (requires active Copilot subscription)."
 msgstr ""
-"'copilot' sağlayıcısı için GitHub Copilot kimlik doğrulaması gereklidir\n"
+"sağlayıcı 'copilot' GitHub Copilot kimlik doğrulaması gerektirir\n"
 "\n"
 "GitHub hesabınızla giriş yapın:\n"
 "  lokit auth login --provider copilot\n"
 "\n"
 "Bu, GitHub Copilot'u kullanır (aktif Copilot aboneliği gerektirir)."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:346
+#: internal/cli/helpers.go:346
 msgid ""
 "provider 'custom-openai' requires an endpoint URL\n"
 "\n"
@@ -635,15 +617,15 @@ msgid ""
 "Option 2: Pass directly:\n"
 "  --base-url https://api.example.com/v1"
 msgstr ""
-"'custom-openai' sağlayıcısı için bir uç nokta URL'si gereklidir\n"
+"sağlayıcı 'custom-openai' bir uç nokta URL'si gerektirir\n"
 "\n"
-"Seçenek 1: Kimlik doğrulama ile yapılandırın:\n"
+"Seçenek 1: auth ile yapılandırın:\n"
 "  lokit auth login --provider custom-openai\n"
 "\n"
 "Seçenek 2: Doğrudan iletin:\n"
 "  --base-url https://api.example.com/v1"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:361
+#: internal/cli/helpers.go:361
 msgid ""
 "provider 'ollama' requires Ollama server to be running\n"
 "\n"
@@ -653,71 +635,67 @@ msgid ""
 "  --provider copilot         (GitHub Copilot, free)\n"
 "  --provider google          (requires API key)"
 msgstr ""
-"'ollama' sağlayıcısı için Ollama sunucusunun çalışıyor olması gerekir\n"
+"sağlayıcı 'ollama' için Ollama sunucusunun çalışıyor olması gerekir\n"
 "\n"
-"Ollama'yı başlatmak için: ollama serve\n"
-"Kurulum: https://ollama.com\n"
+"Ollama'yı başlatın: ollama serve\n"
+"Yüklemek için: https://ollama.com\n"
 "Alternatif sağlayıcılar:\n"
 "  --provider copilot         (GitHub Copilot, ücretsiz)\n"
 "  --provider google          (API anahtarı gerektirir)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:37
+#: internal/cli/helpers.go:37
 msgid "no source files found (supported: %s)"
-msgstr "Kaynak dosya bulunamadı (desteklenen: %s)"
+msgstr "Hiç kaynak dosyası bulunamadı (desteklenen: %s)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:50
+#: internal/cli/helpers.go:50
 msgid "Found %d source files (%s)"
-msgstr "%d kaynak dosyası bulundu (%s)"
+msgstr "%d kaynak dosya bulundu (%s)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:82
+#: internal/cli/helpers.go:82
 msgid "Extracting from %d Go files (AST, keywords: %s)..."
 msgstr "%d Go dosyasından çıkarılıyor (AST, anahtar kelimeler: %s)..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:86
+#: internal/cli/helpers.go:86
 msgid "Extracting from %d Go files with xgotext..."
 msgstr "%d Go dosyasından xgotext ile çıkarılıyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:93
+#: internal/cli/helpers.go:93
 msgid "Extracting from %d non-Go files with xgettext..."
-msgstr "%d Go olmayan dosyadan xgettext ile çıkarılıyor..."
+msgstr "xgettext ile %d Go dışı dosyadan çıkarılıyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:96
+#: internal/cli/helpers.go:96
 msgid "xgettext extraction failed: %w"
-msgstr "xgettext çıkarımı başarısız: %w"
+msgstr "xgettext çıkarımı başarısız oldu: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:147
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:36
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:182
+#: internal/cli/init.go:147 internal/cli/lock.go:445 internal/cli/status.go:38
+#: internal/cli/translate_cmd.go:181
 msgid "Config error: %v"
 msgstr "Yapılandırma hatası: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:151
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:44
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:190
+#: internal/cli/init.go:151 internal/cli/lock.go:448 internal/cli/status.go:46
+#: internal/cli/translate_cmd.go:189
 msgid "No lokit.yaml found in %s"
 msgstr "%s içinde lokit.yaml bulunamadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:152
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:45
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:191
+#: internal/cli/init.go:152 internal/cli/status.go:47
+#: internal/cli/translate_cmd.go:190
 msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr "Bir lokit.yaml yapılandırma dosyası oluşturun. Format referansı için 'lokit init --help' komutuna bakın."
+msgstr "Bir lokit.yaml yapılandırma dosyası oluşturun. Format için 'lokit init --help' komutuna bakın."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:160
+#: internal/cli/init.go:160
 msgid "Languages to init (comma-separated, default: all from config)"
-msgstr "Başlatılacak diller (virgülle ayrılmış, varsayılan: yapılandırmadan tümü)"
+msgstr "Başlatılacak diller (virgülle ayrılmış, varsayılan: yapılandırmadaki tüm diller)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:171
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:64
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:233
+#: internal/cli/init.go:171 internal/cli/lock.go:453 internal/cli/status.go:86
+#: internal/cli/translate_cmd.go:232
 msgid "Config resolve error: %v"
 msgstr "Yapılandırma çözümleme hatası: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:23
+#: internal/cli/init.go:23
 msgid "Prepare translation files (extract strings, create/update PO)"
-msgstr "Çeviri dosyalarını hazırla (dizeleri çıkar, PO dosyası oluştur/güncelle)"
+msgstr "Çeviri dosyalarını hazırla (dizeleri çıkar, PO oluştur/güncelle)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:24
+#: internal/cli/init.go:24
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"
@@ -839,84 +817,84 @@ msgid ""
 "      type: properties\n"
 "      dir: src/main/resources"
 msgstr ""
-"Çevrilebilir stringleri çıkarın ve çeviri dosyalarını oluşturun/güncelleyin.\n"
+"Çevirilebilir dizeleri çıkarır ve çeviri dosyalarını oluşturur/günceller.\n"
 "\n"
-"Proje kök dizininde bir lokit.yaml yapılandırma dosyası gereklidir.\n"
+"Proje kökünde bir lokit.yaml yapılandırma dosyası gereklidir.\n"
 "\n"
-"gettext projeleri için: xgettext çalıştırılarak stringler bir POT şablonuna çıkarılır,\n"
-"sonra her dil için PO dosyaları oluşturulur veya güncellenir.\n"
+"Gettext projeleri için: xgettext çalıştırılarak dizeler bir POT şablonuna çıkarılır,\n"
+"ardından her dil için PO dosyaları oluşturulur veya güncellenir.\n"
 "\n"
-"po4a projeleri için: 'po4a --no-translations' komutu ile şablonlar güncellenir.\n"
+"Po4a projeleri için: şablonları güncellemek üzere 'po4a --no-translations' çalıştırılır.\n"
 "\n"
 "i18next/vue-i18n/json/yaml/properties/flutter projeleri için: eksik dil dosyaları\n"
 "boş çevirilerle oluşturulur.\n"
 "\n"
-"android/markdown projeleri için: başlatma adımı gerekmez — doğrudan 'lokit translate'\n"
-"kullanabilirsiniz.\n"
+"Android/markdown projeleri için: init adımı gerekli değildir — doğrudan 'lokit translate'\n"
+"kullanılmalıdır.\n"
 "\n"
-"Bu komut idempotenttir — birden fazla kez güvenle çalıştırılabilir. Dosyalar güncellenirken mevcut\n"
-"çeviriler korunur.\n"
+"Bu komut idempotenttir — birden fazla çalıştırılması güvenlidir. Mevcut\n"
+"çeviriler dosyalar güncellenirken korunur.\n"
 "\n"
-"YAPILANDIRMA FORMAT (lokit.yaml)\n"
+"YAPILANDIRMA FORMATI (lokit.yaml)\n"
 "\n"
 "  source_lang: en                    # Kaynak dil (varsayılan: en)\n"
 "  languages: [ru, de, fr, es, ...]   # Hedef diller\n"
 "\n"
 "  targets:\n"
-"    - name: myproject                # Görünen adı\n"
-"      type: gettext                  # Hedef tipi (aşağıya bakın)\n"
+"    - name: myproject                # Görünür ad\n"
+"      type: gettext                  # Hedef türü (aşağıya bakın)\n"
 "      root: .                        # Çalışma dizini (varsayılan: .)\n"
-"      # ... tipe özel seçenekler\n"
+"      # ... türe özel seçenekler\n"
 "\n"
-"HEDEF TİPLERİ\n"
+"HEDEF TÜRLERİ\n"
 "\n"
-"  gettext — Kaynak koddan string çıkarımı (shell, python, C, Go, vb.)\n"
-"    dir: po                          # PO dosyaları dizini (zorunlu)\n"
-"    pot: messages.pot                # POT şablon dosya adı (dizin içinde)\n"
-"    sources: [src, scripts]          # Taranacak dizinler (varsayılan: root)\n"
-"    keywords: [_, N_, gettext]       # xgettext anahtar kelimeleri (varsayılan: standart set)\n"
+"  gettext — Kaynak kodu dize çıkarımı (shell, python, C, Go, vb.)\n"
+"    dir: po                          # PO dosyaları dizini (gerekli)\n"
+"    pot: messages.pot                # POT şablon dosyası adı (dir içinde)\n"
+"    sources: [src, scripts]          # Tarama yapılacak dizinler (varsayılan: root)\n"
+"    keywords: [_, N_, gettext]       # xgettext anahtar kelimeleri (varsayılan: standart küme)\n"
 "\n"
 "  po4a — Dokümantasyon çevirisi (man sayfaları, AsciiDoc, vb.)\n"
-"    config: po4a.cfg                 # po4a.cfg dosya yolu (zorunlu)\n"
+"    config: po4a.cfg                 # po4a.cfg yolunu belirtir (gerekli)\n"
 "\n"
 "  i18next — i18next JSON çevirileri\n"
-"    dir: public/translations         # JSON dosyaları dizini (zorunlu)\n"
-"    pattern: \"{lang}.json\"           # Dil dosya deseni (zorunlu)\n"
+"    dir: public/translations         # JSON dosyaları dizini (gerekli)\n"
+"    pattern: \"{lang}.json\"           # Dil dosyası deseni (gerekli)\n"
 "\n"
-"  vue-i18n — vue-i18n iç içe JSON çevirileri\n"
-"    dir: frontend/src/i18n           # JSON dosyaları dizini (zorunlu)\n"
-"    pattern: \"{lang}.json\"           # Dil dosya deseni (zorunlu)\n"
+"  vue-i18n — vue-i18n içiçe JSON çevirileri\n"
+"    dir: frontend/src/i18n           # JSON dosyaları dizini (gerekli)\n"
+"    pattern: \"{lang}.json\"           # Dil dosyası deseni (gerekli)\n"
 "\n"
 "  json — Basit JSON çevirileri { \"key\": \"value\" }\n"
-"    dir: translations                # JSON dosyaları dizini (zorunlu)\n"
-"    pattern: \"{lang}.json\"           # Dil dosya deseni (zorunlu)\n"
+"    dir: translations                # JSON dosyaları dizini (gerekli)\n"
+"    pattern: \"{lang}.json\"           # Dil dosyası deseni (gerekli)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    dir: app/src/main/res            # Android res/ dizini (zorunlu)\n"
+"    dir: app/src/main/res            # Android res/ dizini (gerekli)\n"
 "\n"
 "  yaml — YAML anahtar/değer çevirileri\n"
-"    dir: translations                # YAML dosyaları dizini (zorunlu)\n"
-"    pattern: \"{lang}.yaml\"           # Dil dosya deseni (zorunlu)\n"
+"    dir: translations                # YAML dosyaları dizini (gerekli)\n"
+"    pattern: \"{lang}.yaml\"           # Dil dosyası deseni (gerekli)\n"
 "\n"
 "  markdown — Markdown doküman çevirisi\n"
-"    dir: translations                # Kök dizin; dosyalar translations/LANG/ altında (zorunlu)\n"
+"    dir: translations                # Kök dizin; dosyalar translations/LANG/ altında (gerekli)\n"
 "\n"
 "  properties — Java .properties çevirileri\n"
-"    dir: translations                # .properties dosyaları dizini (zorunlu)\n"
-"    pattern: \"{lang}.properties\"     # Dil dosya deseni (zorunlu)\n"
+"    dir: translations                # .properties dosyaları dizini (gerekli)\n"
+"    pattern: \"{lang}.properties\"     # Dil dosyası deseni (gerekli)\n"
 "\n"
 "  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    dir: lib/l10n                    # ARB dosyaları dizini (zorunlu)\n"
-"    pattern: \"app_{lang}.arb\"        # Dil dosya deseni (zorunlu)\n"
+"    dir: lib/l10n                    # ARB dosyaları dizini (gerekli)\n"
+"    pattern: \"app_{lang}.arb\"        # Dil dosyası deseni (gerekli)\n"
 "\n"
-"ORTAK SEÇENEKLER (tüm hedef tipleri)\n"
+"ORTAK SEÇENEKLER (tüm hedef türleri)\n"
 "\n"
-"  languages: [ru, de]               # Global dil listesini geçersiz kılar\n"
-"  prompt: \"Özel çeviri...\"          # AI çeviri promptunu geçersiz kılar\n"
+"  languages: [ru, de]               # Küresel dil listesini geçersiz kılar\n"
+"  prompt: \"Custom translation...\"   # AI çeviri prompt'unu geçersiz kılar\n"
 "\n"
 "ÖRNEKLER\n"
 "\n"
-"  # gettext ile shell scriptleri\n"
+"  # Shell betikleri ile gettext\n"
 "  source_lang: en\n"
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
@@ -925,7 +903,7 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # Wrapper fonksiyonlu Go projesi\n"
+"  # Wrapper fonksiyonları olan Go projesi\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
@@ -959,157 +937,435 @@ msgstr ""
 "      type: properties\n"
 "      dir: src/main/resources"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:243
+#: internal/cli/init.go:243
 msgid "Android targets do not require init — use 'lokit translate' directly."
-msgstr "Android hedeflerinde başlatma gerekmez — doğrudan 'lokit translate' komutunu kullanın."
+msgstr "Android hedefleri için init gerekmez — doğrudan 'lokit translate' kullanın."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:264
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:526
+#: internal/cli/init.go:264 internal/cli/target_core.go:526
 msgid "Cannot read source language file %s: %v"
 msgstr "Kaynak dil dosyası %s okunamıyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:269
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:89
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:591
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:811
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:81
+#: internal/cli/init.go:269 internal/cli/target_content.go:89
+#: internal/cli/target_content.go:591 internal/cli/target_content.go:811
+#: internal/cli/target_vuei18n.go:81
 msgid "Source language (%s): %d keys"
 msgstr "Kaynak dil (%s): %d anahtar"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:295
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:111
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:611
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:831
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:101
+#: internal/cli/init.go:295 internal/cli/target_content.go:111
+#: internal/cli/target_content.go:611 internal/cli/target_content.go:831
+#: internal/cli/target_vuei18n.go:101
 msgid "Created: %s (%d keys)"
 msgstr "Oluşturuldu: %s (%d anahtar)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:311
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:70
+#: internal/cli/init.go:311 internal/cli/target_core.go:70
 msgid "Updating %s: %v"
 msgstr "%s güncelleniyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:314
+#: internal/cli/init.go:314
 msgid "Updated: %s (+%d new keys)"
 msgstr "Güncellendi: %s (+%d yeni anahtar)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:317
+#: internal/cli/init.go:317
 msgid "%s: up to date"
 msgstr "%s: güncel"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:321
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:554
+#: internal/cli/init.go:321 internal/cli/init.go:554
 msgid "Summary: %d created, %d updated"
 msgstr "Özet: %d oluşturuldu, %d güncellendi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:483
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:560
+#: internal/cli/init.go:324 internal/cli/init.go:483 internal/cli/init.go:560
 msgid "Init complete!"
 msgstr "Başlatma tamamlandı!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:337
+#: internal/cli/init.go:337
 msgid "pandoc not found, skipping manpage generation from markdown"
 msgstr "pandoc bulunamadı, markdown'dan man sayfası oluşturma atlanıyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:352
+#: internal/cli/init.go:352
 msgid "failed to list markdown files: %w"
-msgstr "Markdown dosyalarını listeleme başarısız: %w"
+msgstr "markdown dosyaları listelenemedi: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:385
+#: internal/cli/init.go:385
 msgid "Generating %s from %s"
-msgstr "%s, %s üzerinden oluşturuluyor"
+msgstr "%s, %s'den oluşturuluyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:390
+#: internal/cli/init.go:390
 msgid "pandoc failed for %s: %w"
 msgstr "pandoc %s için başarısız oldu: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:395
+#: internal/cli/init.go:395
 msgid "Failed to post-process %s: %v"
-msgstr "%s sonrası işlem başarısız: %v"
+msgstr "%s üzerinde son işlem başarısız oldu: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:402
+#: internal/cli/init.go:402
 msgid "Generated %d manpage(s) from markdown"
-msgstr "Markdown'dan %d man sayfası oluşturuldu"
+msgstr "%d man sayfası oluşturuldu (markdown'dan)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:437
+#: internal/cli/init.go:437
 msgid "po4a is not installed. Install with: sudo apt install po4a"
-msgstr "po4a yüklü değil. Kurmak için: sudo apt install po4a"
+msgstr "po4a yüklü değil. Yüklemek için: sudo apt install po4a"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:442
+#: internal/cli/init.go:442
 msgid "Failed to generate manpages from markdown: %v"
-msgstr "Markdown'dan man sayfası oluşturulamadı: %v"
+msgstr "Markdown'dan man sayfaları oluşturulamadı: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:443
+#: internal/cli/init.go:443
 msgid "Continuing anyway, po4a might fail if source files don't exist"
 msgstr "Yine de devam ediliyor, kaynak dosyalar yoksa po4a başarısız olabilir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:446
+#: internal/cli/init.go:446
 msgid "Running po4a --no-translations %s ..."
 msgstr "po4a --no-translations %s çalıştırılıyor ..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:452
+#: internal/cli/init.go:452
 msgid "po4a failed: %v"
 msgstr "po4a başarısız oldu: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:454
+#: internal/cli/init.go:454
 msgid "po4a updated POT and PO files"
 msgstr "po4a POT ve PO dosyalarını güncelledi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:471
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:489
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:322
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:227
+#: internal/cli/init.go:471 internal/cli/init.go:489 internal/cli/lock.go:154
+#: internal/cli/lock.go:232 internal/cli/lock.go:324 internal/cli/lock.go:400
+#: internal/cli/root.go:325 internal/cli/translate_cmd.go:226
 msgid "%v"
 msgstr "%v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:496
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:118
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:198
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:360
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:453
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:616
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:684
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:836
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:904
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:152
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:291
+#: internal/cli/init.go:496 internal/cli/init.go:540
+#: internal/cli/target_content.go:118 internal/cli/target_content.go:198
+#: internal/cli/target_content.go:360 internal/cli/target_content.go:453
+#: internal/cli/target_content.go:463 internal/cli/target_content.go:616
+#: internal/cli/target_content.go:684 internal/cli/target_content.go:836
+#: internal/cli/target_content.go:904 internal/cli/target_core.go:152
+#: internal/cli/target_core.go:291
 msgid "Reading %s: %v"
 msgstr "%s okunuyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:500
+#: internal/cli/init.go:500
 msgid "Updating PO files for: %s"
-msgstr "Şunun için PO dosyaları güncelleniyor: %s"
+msgstr "PO dosyaları güncelleniyor: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:535
+#: internal/cli/init.go:535
 msgid "Created: %s"
 msgstr "Oluşturuldu: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:546
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:124
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:365
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:621
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:841
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:108
+#: internal/cli/init.go:546 internal/cli/target_content.go:124
+#: internal/cli/target_content.go:365 internal/cli/target_content.go:621
+#: internal/cli/target_content.go:841 internal/cli/target_vuei18n.go:108
 msgid "Writing %s: %v"
 msgstr "%s yazılıyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:549
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:127
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:368
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:624
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:844
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:111
+#: internal/cli/init.go:549 internal/cli/target_content.go:127
+#: internal/cli/target_content.go:368 internal/cli/target_content.go:624
+#: internal/cli/target_content.go:844 internal/cli/target_vuei18n.go:111
 msgid "Updated: %s"
 msgstr "Güncellendi: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:182
-msgid "Localization Kit: AI-powered translation for multiple formats"
-msgstr "Localization Kit: Çoklu formatlar için yapay zekâ destekli çeviri"
+#: internal/cli/lock.go:108
+msgid "Remove stale lock entries"
+msgstr "Kullanılmayan kilit kayıtlarını kaldır"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:183
+#: internal/cli/lock.go:109
+msgid ""
+"Remove lock entries that no longer exist in source files.\n"
+"\n"
+"Examples:\n"
+"  lokit lock clean\n"
+"  lokit lock clean --target ui\n"
+"  lokit lock clean --dry-run"
+msgstr ""
+"Kaynak dosyalarda artık var olmayan kilit kayıtlarını kaldır.\n"
+"\n"
+"Örnekler:\n"
+"  lokit lock clean\n"
+"  lokit lock clean --target ui\n"
+"  lokit lock clean --dry-run"
+
+#: internal/cli/lock.go:121
+msgid "Show stale entries without modifying lokit.lock"
+msgstr "lokit.lock dosyasını değiştirmeden eski kayıtları göster"
+
+#: internal/cli/lock.go:132
+msgid "Reset lock entries"
+msgstr "Lock girdilerini sıfırla"
+
+#: internal/cli/lock.go:133
+msgid ""
+"Reset lock data at different scopes:\n"
+"\n"
+"  - whole file:          lokit lock reset\n"
+"  - all languages target: lokit lock reset --target ui\n"
+"  - single language:      lokit lock reset --target ui --lang ru\n"
+"\n"
+"Use --yes to skip confirmation."
+msgstr ""
+"Lock verilerini farklı kapsamlarda sıfırla:\n"
+"\n"
+"  - tüm dosya:          lokit lock reset\n"
+"  - hedefin tüm dilleri: lokit lock reset --target ui\n"
+"  - tek dil:             lokit lock reset --target ui --lang ru\n"
+"\n"
+"Use --yes to skip confirmation."
+
+#: internal/cli/lock.go:145
+msgid "Target name from lokit.yaml"
+msgstr "lokit.yaml'daki hedef adı"
+
+#: internal/cli/lock.go:146
+msgid "Language code (requires --target)"
+msgstr "Dil kodu (--target gerektirir)"
+
+#: internal/cli/lock.go:147
+msgid "Skip confirmation prompt"
+msgstr "Onay istemini atla"
+
+#: internal/cli/lock.go:160 internal/cli/lock.go:238 internal/cli/lock.go:330
+#: internal/cli/lock.go:389 internal/cli/translate_cmd.go:243
+msgid "Could not load lock file: %v"
+msgstr "Kilit dosyası yüklenemedi: %v"
+
+#: internal/cli/lock.go:172 internal/cli/lock.go:340
+#: internal/cli/translate_cmd.go:288 internal/cli/translate_cmd.go:293
+#: internal/cli/translate_cmd.go:298 internal/cli/translate_cmd.go:303
+#: internal/cli/translate_cmd.go:308 internal/cli/translate_cmd.go:313
+#: internal/cli/translate_cmd.go:318 internal/cli/translate_cmd.go:323
+#: internal/cli/translate_cmd.go:328 internal/cli/translate_cmd.go:333
+msgid "[%s] %v"
+msgstr "[%s] %v"
+
+#: internal/cli/lock.go:200 internal/cli/lock.go:376 internal/cli/lock.go:431
+#: internal/cli/translate_cmd.go:348
+msgid "Could not save lock file: %v"
+msgstr "Kilit dosyası kaydedilemedi: %v"
+
+#: internal/cli/lock.go:204
+msgid "Lock initialized: %d target-language entries updated"
+msgstr "Lock başlatıldı: %d hedef-dil girdisi güncellendi"
+
+#: internal/cli/lock.go:205
+msgid "Added: %d, skipped existing: %d"
+msgstr "Eklendi: %d, var olanlar atlandı: %d"
+
+#: internal/cli/lock.go:206
+msgid "Lock file: %s"
+msgstr "Lock dosyası: %s"
+
+#: internal/cli/lock.go:286
+msgid "JSON output error: %v"
+msgstr "JSON çıktı hatası: %v"
+
+#: internal/cli/lock.go:292
+msgid "Lock File"
+msgstr "Lock Dosyası"
+
+#: internal/cli/lock.go:293
+msgid "Path"
+msgstr "Yol"
+
+#: internal/cli/lock.go:295 internal/cli/root.go:368 internal/cli/root.go:441
+#: internal/cli/root.go:485 internal/cli/status.go:74
+#: internal/cli/target_content.go:27 internal/cli/target_content.go:263
+#: internal/cli/target_content.go:525 internal/cli/target_content.go:745
+#: internal/cli/target_vuei18n.go:28
+msgid "not found"
+msgstr "bulunamadı"
+
+#: internal/cli/lock.go:295
+msgid "Status"
+msgstr "Durum"
+
+#: internal/cli/lock.go:296 internal/cli/lock.go:302 internal/cli/status.go:62
+msgid "Targets"
+msgstr "Hedefler"
+
+#: internal/cli/lock.go:297 internal/cli/lock.go:303 internal/cli/status.go:60
+#: internal/cli/status.go:103 internal/cli/status.go:105
+msgid "Languages"
+msgstr "Diller"
+
+#: internal/cli/lock.go:298 internal/cli/lock.go:304
+msgid "Keys"
+msgstr "Anahtarlar"
+
+#: internal/cli/lock.go:30
+msgid "Manage lokit.lock file"
+msgstr "lokit.lock dosyasını yönet"
+
+#: internal/cli/lock.go:307
+msgid "%d keys across %d languages"
+msgstr "%d anahtar, %d dilde"
+
+#: internal/cli/lock.go:31
+msgid ""
+"Manage incremental translation lock data in lokit.lock.\n"
+"\n"
+"Subcommands:\n"
+"  init    Initialize lock entries from source strings without AI calls\n"
+"  status  Show lock statistics\n"
+"  clean   Remove stale lock entries not present in source\n"
+"  reset   Remove all or part of lock data"
+msgstr ""
+"lokit.lock içindeki artımlı çeviri lock verilerini yönet.\n"
+"\n"
+"Alt komutlar:\n"
+"  init    Kaynak dizelerden AI çağrısı olmadan lock girdilerini başlat\n"
+"  status  Lock istatistiklerini göster\n"
+"  clean   Kaynakta olmayan eski lock girdilerini kaldır\n"
+"  reset   Tüm veya kısmi lock verisini kaldır"
+
+#: internal/cli/lock.go:315
+msgid "%d keys"
+msgstr "%d anahtar"
+
+#: internal/cli/lock.go:353
+msgid "[%s/%s] stale entries: %d (tracked: %d)"
+msgstr "[%s/%s] eskimiş girdiler: %d (izlenen: %d)"
+
+#: internal/cli/lock.go:361
+msgid "[%s/%s] removed stale entries: %d"
+msgstr "[%s/%s] kaldırılan eskimiş girdiler: %d"
+
+#: internal/cli/lock.go:368
+msgid "Dry run: total stale entries: %d"
+msgstr "Kuru çalıştırma: toplam eskimiş girdiler: %d"
+
+#: internal/cli/lock.go:379
+msgid "Removed stale entries: %d"
+msgstr "Kaldırılan eskimiş girdiler: %d"
+
+#: internal/cli/lock.go:394
+msgid "--lang requires --target"
+msgstr "--lang kullanmak için --target gereklidir"
+
+#: internal/cli/lock.go:406
+msgid "Reset entire lock file?"
+msgstr "Tüm lock dosyası sıfırlansın mı?"
+
+#: internal/cli/lock.go:407
+msgid "Cancelled"
+msgstr "İptal edildi"
+
+#: internal/cli/lock.go:411
+msgid "Removing %s: %v"
+msgstr "Kaldırılıyor %s: %v"
+
+#: internal/cli/lock.go:414
+msgid "Reset complete: %s removed"
+msgstr "Sıfırlama tamamlandı: %s kaldırıldı"
+
+#: internal/cli/lock.go:436
+msgid "Reset complete: %s/%s"
+msgstr "Sıfırlama tamamlandı: %s/%s"
+
+#: internal/cli/lock.go:439
+msgid "Reset complete: target %s"
+msgstr "Sıfırlama tamamlandı: hedef %s"
+
+#: internal/cli/lock.go:466
+msgid "Target %q not found in lokit.yaml"
+msgstr "Hedef %q lokit.yaml'da bulunamadı"
+
+#: internal/cli/lock.go:490
+msgid "unsupported target type %q"
+msgstr "Desteklenmeyen hedef türü %q"
+
+#: internal/cli/lock.go:498
+msgid "cannot read POT %s: %v"
+msgstr "POT %s okunamıyor: %v"
+
+#: internal/cli/lock.go:532
+msgid "cannot read any po4a PO files for target %s"
+msgstr "Hedef %s için hiçbir po4a PO dosyası okunamadı"
+
+#: internal/cli/lock.go:544 internal/cli/lock.go:561 internal/cli/lock.go:611
+#: internal/cli/lock.go:651 internal/cli/lock.go:668
+msgid "cannot read source file %s: %v"
+msgstr "Kaynak dosya %s okunamadı: %v"
+
+#: internal/cli/lock.go:56
+msgid "Initialize lock from existing sources"
+msgstr "Lock'u mevcut kaynaklardan başlat"
+
+#: internal/cli/lock.go:57
+msgid ""
+"Initialize lokit.lock from current source files without calling AI.\n"
+"\n"
+"For each target/language pair, lokit stores source-content checksums used by\n"
+"incremental translation.\n"
+"\n"
+"Examples:\n"
+"  lokit lock init\n"
+"  lokit lock init --target ui\n"
+"  lokit lock init --target ui --force"
+msgstr ""
+"AI çağrısı yapmadan mevcut kaynak dosyalardan lokit.lock'u başlat.\n"
+"\n"
+"Her hedef/dil çiftinde lokit, artımlı çeviri için kullanılan kaynak içerik özetlerini (checksum) depolar.\n"
+"\n"
+"Örnekler:\n"
+"  lokit lock init\n"
+"  lokit lock init --target ui\n"
+"  lokit lock init --target ui --force"
+
+#: internal/cli/lock.go:575
+msgid "cannot read source strings.xml %s: %v"
+msgstr "Kaynak strings.xml %s okunamadı: %v"
+
+#: internal/cli/lock.go:625
+msgid "cannot read markdown files in %s: %v"
+msgstr "%s içindeki Markdown dosyaları okunamadı: %v"
+
+#: internal/cli/lock.go:628 internal/cli/target_content.go:394
+msgid "cannot find source Markdown files in %s"
+msgstr "%s içinde kaynak Markdown dosyası bulunamadı"
+
+#: internal/cli/lock.go:635
+msgid "cannot read source Markdown file %s: %v"
+msgstr "Kaynak Markdown dosyası %s okunamadı: %v"
+
+#: internal/cli/lock.go:71 internal/cli/lock.go:96 internal/cli/lock.go:120
+msgid "Target name from lokit.yaml (default: all targets)"
+msgstr "lokit.yaml'daki hedef adı (varsayılan: tüm hedefler)"
+
+#: internal/cli/lock.go:72
+msgid "Overwrite existing lock entries for selected targets"
+msgstr "Seçilen hedeflerdeki var olan lock girdilerinin üzerine yaz"
+
+#: internal/cli/lock.go:83
+msgid "Show lock file statistics"
+msgstr "Lock dosyası istatistiklerini göster"
+
+#: internal/cli/lock.go:84
+msgid ""
+"Show statistics for lokit.lock, including tracked targets and keys.\n"
+"\n"
+"Examples:\n"
+"  lokit lock status\n"
+"  lokit lock status --target ui\n"
+"  lokit lock status --verbose\n"
+"  lokit lock status --json"
+msgstr ""
+"İzlenen hedefler ve anahtarlar dahil olmak üzere lokit.lock için istatistikleri göster.\n"
+"\n"
+"Örnekler:\n"
+"  lokit lock status\n"
+"  lokit lock status --target ui\n"
+"  lokit lock status --verbose\n"
+"  lokit lock status --json"
+
+#: internal/cli/lock.go:97
+msgid "Show per-language lock breakdown"
+msgstr "Dil bazında lock dökümünü göster"
+
+#: internal/cli/lock.go:98
+msgid "Output lock status as JSON"
+msgstr "Lock durumunu JSON olarak çıktı ver"
+
+#: internal/cli/root.go:182
+msgid "Localization Kit: AI-powered translation for multiple formats"
+msgstr "Localization Kit: birden çok format için yapay zekâ destekli çeviri"
+
+#: internal/cli/root.go:183
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
@@ -1117,6 +1373,7 @@ msgid ""
 "  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
 "  po4a        Documentation translation (man pages, groff/roff markup)\n"
 "  i18next     React/i18next JSON translation files\n"
+"  vue-i18n    Vue i18n nested JSON translation files\n"
 "  android     Android strings.xml resource files\n"
 "  json        Generic JSON translation files\n"
 "  yaml        YAML translation files\n"
@@ -1138,12 +1395,13 @@ msgid ""
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
-"lokit — Localization Kit: Çoklu formatlar için yapay zeka destekli çeviri.\n"
+"lokit — Localization Kit: Çoklu formatlar için Yapay Zeka destekli çeviri.\n"
 "\n"
-"Desteklenen proje tipleri (otomatik algılanır veya lokit.yaml ile yapılandırılır):\n"
+"Desteklenen proje türleri (otomatik algılanır veya lokit.yaml ile yapılandırılır):\n"
 "  gettext     Düz (po/*.po) ve iç içe (po/lang/*.po) PO dosyaları\n"
-"  po4a        Dokümantasyon çevirisi (man sayfaları, groff/roff işaretleme)\n"
+"  po4a        Dokümantasyon çevirisi (man sayfaları, groff/roff işaretlemesi)\n"
 "  i18next     React/i18next JSON çeviri dosyaları\n"
+"  vue-i18n    Vue i18n iç içe JSON çeviri dosyaları\n"
 "  android     Android strings.xml kaynak dosyaları\n"
 "  json        Genel JSON çeviri dosyaları\n"
 "  yaml        YAML çeviri dosyaları\n"
@@ -1152,832 +1410,728 @@ msgstr ""
 "  flutter     Flutter ARB (Application Resource Bundle) dosyaları\n"
 "\n"
 "Yapılandırma:\n"
-"  Proje ayarları proje kök dizinindeki lokit.yaml dosyasında tanımlanır.\n"
-"  Her proje, farklı tiplerde birden fazla çeviri hedefi içerebilir.\n"
+"  Proje ayarları proje kökünde bulunan lokit.yaml içinde tanımlanır.\n"
+"  Her proje farklı türlerde birden fazla çeviri hedefi içerebilir.\n"
 "  lokit.yaml formatı için proje örneklerine bakın.\n"
 "\n"
-"AI Sağlayıcıları:\n"
+"AI sağlayıcıları:\n"
 "  google         Google AI (Gemini) — API anahtarı\n"
 "  gemini         Gemini Code Assist — tarayıcı OAuth (ücretsiz)\n"
-"  groq           Groq — API anahtarı gereklidir\n"
-"  opencode       OpenCode Zen API (anahtarsız ücretsiz modeller mevcut)\n"
+"  groq           Groq — API anahtarı gerekli\n"
+"  opencode       OpenCode Zen API (anahtarsız kullanılabilen ücretsiz modeller mevcut)\n"
 "  copilot        GitHub Copilot (yerel OAuth, ücretsiz)\n"
-"  ollama         Ollama yerel sunucu\n"
+"  ollama         Ollama yerel sunucusu\n"
 "  custom-openai  OpenAI uyumlu özel uç nokta"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:215
+#: internal/cli/root.go:216
 msgid "default"
 msgstr "varsayılan"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:218
+#: internal/cli/root.go:219
 msgid "Use \"%s [command] --help\" for more information about a command."
-msgstr "\"%s [komut] --help\" yazarak bir komut hakkında daha fazla bilgi alabilirsiniz."
+msgstr "Daha fazla bilgi için \"%s [command] --help\" kullanın."
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:224
+#: internal/cli/root.go:225
 msgid "Usage:"
 msgstr "Kullanım:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:228
+#: internal/cli/root.go:229
 msgid "Aliases:"
 msgstr "Takma adlar:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:231
+#: internal/cli/root.go:232
 msgid "Examples:"
 msgstr "Örnekler:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:234
+#: internal/cli/root.go:235
 msgid "Available Commands:"
 msgstr "Kullanılabilir Komutlar:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:240
+#: internal/cli/root.go:241
 msgid "Additional Commands:"
 msgstr "Ek Komutlar:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:243
+#: internal/cli/root.go:244
 msgid "Flags:"
-msgstr "Seçenekler:"
+msgstr "Bayraklar:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:246
+#: internal/cli/root.go:247
 msgid "Global Flags:"
-msgstr "Genel Seçenekler:"
+msgstr "Genel Bayraklar:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:249
+#: internal/cli/root.go:250
 msgid "Additional help topics:"
 msgstr "Ek yardım konuları:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:258
+#: internal/cli/root.go:259
 msgid "Help about any command"
 msgstr "Herhangi bir komut hakkında yardım"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:259
+#: internal/cli/root.go:260
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
 msgstr ""
-"Help, uygulamadaki herhangi bir komut için yardım sağlar.\n"
-"Tüm detaylar için sadece %s help [komut yolu] yazmanız yeterli."
+"Yardım, uygulamadaki herhangi bir komut için bilgi sağlar.\n"
+"Tam ayrıntılar için %s help [path to command] yazın."
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:281
+#: internal/cli/root.go:282
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "Bilinmeyen yardım konusu %q\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:291
+#: internal/cli/root.go:292
 msgid "Project root directory"
 msgstr "Proje kök dizini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:309
+#: internal/cli/root.go:311
 msgid "this command"
 msgstr "bu komut"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:311
+#: internal/cli/root.go:313
 msgid "help for %s"
 msgstr "%s için yardım"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
+#: internal/cli/root.go:368
 msgid "POT"
 msgstr "POT"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
+#: internal/cli/root.go:368
 msgid "run 'lokit init'"
-msgstr "'lokit init' komutunu çalıştırın"
+msgstr "'lokit init' çalıştırın"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:27
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:263
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:525
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:745
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:28
-msgid "not found"
-msgstr "bulunamadı"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:350
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:467
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:511
+#: internal/cli/root.go:372 internal/cli/root.go:489 internal/cli/root.go:533
 msgid "Source strings"
-msgstr "Kaynak metinler"
+msgstr "Kaynak dizeleri"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-msgid "Fuzzy"
-msgstr "Belirsiz"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Progress"
-msgstr "İlerleme"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Left"
-msgstr "Kalan"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
 msgid "Lang"
 msgstr "Dil"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
 msgid "Done"
 msgstr "Tamamlandı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:362
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:393
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:439
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:480
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:532
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:585
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:635
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:49
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:288
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:550
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:770
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:50
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:538
+#: internal/cli/root.go:599
+msgid "Fuzzy"
+msgstr "Fuzzy"
+
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
+msgid "Progress"
+msgstr "İlerleme"
+
+#: internal/cli/root.go:377 internal/cli/root.go:450 internal/cli/root.go:494
+#: internal/cli/root.go:538 internal/cli/root.go:645
+#: internal/cli/target_content.go:42 internal/cli/target_content.go:280
+#: internal/cli/target_content.go:540 internal/cli/target_content.go:760
+#: internal/cli/target_vuei18n.go:38
+msgid "Left"
+msgstr "Kalan"
+
+#: internal/cli/root.go:384 internal/cli/root.go:415 internal/cli/root.go:461
+#: internal/cli/root.go:502 internal/cli/root.go:554 internal/cli/root.go:607
+#: internal/cli/root.go:657 internal/cli/target_content.go:49
+#: internal/cli/target_content.go:288 internal/cli/target_content.go:550
+#: internal/cli/target_content.go:770 internal/cli/target_vuei18n.go:50
 msgid "missing"
 msgstr "eksik"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:380
+#: internal/cli/root.go:402
 msgid "po4a config"
 msgstr "po4a yapılandırması"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
+#: internal/cli/root.go:407 internal/cli/root.go:599
 msgid "Total"
 msgstr "Toplam"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:411
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:22
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:257
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:517
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:737
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:19
+#: internal/cli/root.go:433 internal/cli/target_content.go:22
+#: internal/cli/target_content.go:257 internal/cli/target_content.go:517
+#: internal/cli/target_content.go:737 internal/cli/target_vuei18n.go:19
 msgid "Translations"
 msgstr "Çeviriler"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:27
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:33
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:263
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:525
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:531
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:745
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:751
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:28
+#: internal/cli/root.go:441 internal/cli/root.go:485
+#: internal/cli/target_content.go:27 internal/cli/target_content.go:33
+#: internal/cli/target_content.go:263 internal/cli/target_content.go:525
+#: internal/cli/target_content.go:531 internal/cli/target_content.go:745
+#: internal/cli/target_content.go:751 internal/cli/target_vuei18n.go:28
 msgid "Source"
 msgstr "Kaynak"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:423
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:617
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:37
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:535
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:755
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:33
+#: internal/cli/root.go:445 internal/cli/root.go:639
+#: internal/cli/target_content.go:37 internal/cli/target_content.go:535
+#: internal/cli/target_content.go:755 internal/cli/target_vuei18n.go:33
 msgid "Source keys"
 msgstr "Kaynak anahtarları"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:459
+#: internal/cli/root.go:481
 msgid "Res dir"
-msgstr "Res dizini"
+msgstr "Kaynak dizini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:506
+#: internal/cli/root.go:528
 msgid "No translatable strings found in %s"
-msgstr "%s içinde çevrilebilecek dize bulunamadı"
+msgstr "%s içinde çevrilebilir dize bulunamadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:510
+#: internal/cli/root.go:532
 msgid "Translation Statistics"
 msgstr "Çeviri İstatistikleri"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:552
+#: internal/cli/root.go:574
 msgid "Translation gaps:"
-msgstr "Çeviri eksikleri:"
+msgstr "Çeviri boşlukları:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:556
+#: internal/cli/root.go:578
 msgid "%d untranslated"
 msgstr "%d çevrilmemiş"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:559
+#: internal/cli/root.go:581
 msgid "%d fuzzy"
 msgstr "%d fuzzy"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:573
+#: internal/cli/root.go:595
 msgid "Documentation Statistics"
 msgstr "Dokümantasyon İstatistikleri"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:604
+#: internal/cli/root.go:626
 msgid "No language files detected in %s"
 msgstr "%s içinde dil dosyası tespit edilmedi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:615
+#: internal/cli/root.go:637
 msgid "UI Translation Statistics"
-msgstr "Arayüz Çeviri İstatistikleri"
+msgstr "UI Çeviri İstatistikleri"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:65
+#: internal/cli/root.go:65
 msgid "Invalid locked_pattern %q: %v"
 msgstr "Geçersiz locked_pattern %q: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:17
-msgid "Show project info and translation statistics"
-msgstr "Proje bilgisini ve çeviri istatistiklerini göster"
+#: internal/cli/status.go:100
+msgid "%d keys x %d languages"
+msgstr "%d anahtar x %d dil"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:18
+#: internal/cli/status.go:100
+msgid "Locked"
+msgstr "Kilitli"
+
+#: internal/cli/status.go:105
+msgid "none detected"
+msgstr "hiçbiri tespit edilmedi"
+
+#: internal/cli/status.go:18
+msgid "Show project info and translation statistics"
+msgstr "Proje bilgilerini ve çeviri istatistiklerini göster"
+
+#: internal/cli/status.go:19
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
-"Displays project type (gettext, po4a, i18next, android), file structure,\n"
-"detected languages, and per-language translation progress. For projects\n"
+"Displays target type, file structure, detected languages, and per-language\n"
+"translation progress for gettext, po4a, i18next, vue-i18n, android, json,\n"
+"yaml, markdown, properties, and flutter projects. For projects\n"
 "configured via lokit.yaml, shows each target separately.\n"
 "\n"
 "Does not modify any files."
 msgstr ""
-"Otomatik algılanan proje yapısını ve çeviri istatistiklerini göster.\n"
+"Otomatik algılanan proje yapısını ve çeviri istatistiklerini gösterir.\n"
 "\n"
-"Proje tipini (gettext, po4a, i18next, android), dosya yapısını,\n"
-"tespit edilen dilleri ve dil başına çeviri ilerlemesini gösterir. lokit.yaml ile yapılandırılmış projelerde her hedef ayrı ayrı gösterilir.\n"
+"Hedef türünü, dosya yapısını, algılanan dilleri ve gettext, po4a, i18next, vue-i18n, android, json,\n"
+"yaml, markdown, properties ve flutter projeleri için dil başına çeviri ilerlemesini gösterir. lokit.yaml ile yapılandırılmış projeler için her hedef ayrı gösterilir.\n"
 "\n"
-"Hiçbir dosyada değişiklik yapmaz."
+"Herhangi bir dosyayı değiştirmez."
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:52
+#: internal/cli/status.go:54
 msgid "Project"
 msgstr "Proje"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:53
+#: internal/cli/status.go:55
 msgid "Config"
 msgstr "Yapılandırma"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:54
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:72
+#: internal/cli/status.go:56 internal/cli/status.go:94
 msgid "Root"
 msgstr "Kök"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:55
+#: internal/cli/status.go:57
 msgid "Source lang"
 msgstr "Kaynak dil"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:58
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:75
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:77
-msgid "Languages"
-msgstr "Diller"
+#: internal/cli/status.go:71
+msgid "error: %v"
+msgstr "hata: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:60
-msgid "Targets"
-msgstr "Hedefler"
+#: internal/cli/status.go:71 internal/cli/status.go:74
+#: internal/cli/status.go:78 internal/cli/status.go:80
+msgid "Lock file"
+msgstr "Kilit dosyası"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:77
-msgid "none detected"
-msgstr "hiçbiri algılanmadı"
+#: internal/cli/status.go:78
+msgid "empty"
+msgstr "boş"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:104
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:335
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:443
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:604
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:824
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:94
+#: internal/cli/status.go:80
+msgid "%d targets, %d keys"
+msgstr "%d hedef, %d anahtar"
+
+#: internal/cli/target_content.go:104 internal/cli/target_content.go:335
+#: internal/cli/target_content.go:443 internal/cli/target_content.go:604
+#: internal/cli/target_content.go:824 internal/cli/target_vuei18n.go:94
 msgid "Creating directory %s: %v"
-msgstr "Dizin oluşturuluyor %s: %v"
+msgstr "%s dizini oluşturuluyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:131
+#: internal/cli/target_content.go:131
 msgid "YAML init: %d created, %d updated"
 msgstr "YAML başlatma: %d oluşturuldu, %d güncellendi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:137
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:380
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:635
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:855
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:76
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:187
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:323
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:345
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:367
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:574
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:121
+#: internal/cli/target_content.go:137 internal/cli/target_content.go:380
+#: internal/cli/target_content.go:635 internal/cli/target_content.go:855
+#: internal/cli/target_core.go:76 internal/cli/target_core.go:187
+#: internal/cli/target_core.go:323 internal/cli/target_core.go:345
+#: internal/cli/target_core.go:367 internal/cli/target_core.go:574
+#: internal/cli/target_vuei18n.go:121
 msgid "Provider: %s (%s), Model: %s"
 msgstr "Sağlayıcı: %s (%s), Model: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:139
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:382
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:637
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:857
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:78
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:369
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:576
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:123
+#: internal/cli/target_content.go:139 internal/cli/target_content.go:382
+#: internal/cli/target_content.go:637 internal/cli/target_content.go:857
+#: internal/cli/target_core.go:78 internal/cli/target_core.go:369
+#: internal/cli/target_core.go:576 internal/cli/target_vuei18n.go:123
 msgid "Parallel: enabled, max concurrent: %d"
-msgstr "Paralel: etkin, maksimum eşzamanlı: %d"
+msgstr "Paralel: etkin, aynı anda en fazla: %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:142
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:640
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:860
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:81
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:372
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:126
+#: internal/cli/target_content.go:142 internal/cli/target_content.go:385
+#: internal/cli/target_content.go:640 internal/cli/target_content.go:860
+#: internal/cli/target_core.go:81 internal/cli/target_core.go:372
+#: internal/cli/target_vuei18n.go:126
 msgid "Chunk size: %d"
 msgstr "Parça boyutu: %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:144
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:387
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:642
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:862
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:346
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:128
+#: internal/cli/target_content.go:144 internal/cli/target_content.go:387
+#: internal/cli/target_content.go:642 internal/cli/target_content.go:862
+#: internal/cli/target_core.go:324 internal/cli/target_core.go:346
+#: internal/cli/target_vuei18n.go:128
 msgid "Translations dir: %s"
-msgstr "Çeviri dizini: %s"
+msgstr "Çeviriler dizini: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:145
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:388
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:643
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:863
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:84
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:190
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:325
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:347
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:375
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:129
+#: internal/cli/target_content.go:145 internal/cli/target_content.go:388
+#: internal/cli/target_content.go:643 internal/cli/target_content.go:863
+#: internal/cli/target_core.go:84 internal/cli/target_core.go:190
+#: internal/cli/target_core.go:325 internal/cli/target_core.go:347
+#: internal/cli/target_core.go:375 internal/cli/target_vuei18n.go:129
 msgid "Translating: %s"
-msgstr "Çevriliyor: %s"
+msgstr "Çeviriliyor: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:150
+#: internal/cli/target_content.go:150
 msgid "cannot find source YAML file for language %q in %s"
-msgstr "Dil %q için kaynak YAML dosyası %s içinde bulunamıyor"
+msgstr "%q diline ait kaynak YAML dosyası %s içinde bulunamadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:155
+#: internal/cli/target_content.go:155
 msgid "cannot read source YAML %s: %w"
-msgstr "Kaynak YAML %s okunamıyor: %w"
+msgstr "%s kaynak YAML dosyası okunamıyor: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:158
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:654
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:874
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:384
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:142
+#: internal/cli/target_content.go:158 internal/cli/target_content.go:654
+#: internal/cli/target_content.go:874 internal/cli/target_core.go:384
+#: internal/cli/target_vuei18n.go:142
 msgid "Source strings: %d"
-msgstr "Kaynak dizgiler: %d"
+msgstr "Kaynak dizeler: %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:166
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:392
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:593
+#: internal/cli/target_content.go:166 internal/cli/target_core.go:392
+#: internal/cli/target_core.go:593
 msgid "%s (%s): %d strings to translate (file will be auto-created)"
-msgstr "%s (%s): Çevrilecek %d dizgi (dosya otomatik oluşturulacak)"
+msgstr "%s (%s): %d çevrilecek dize (dosya otomatik oluşturulacak)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:172
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:180
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:668
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:888
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:92
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:198
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:402
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:602
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:154
+#: internal/cli/target_content.go:172 internal/cli/target_content.go:180
+#: internal/cli/target_content.go:668 internal/cli/target_content.go:888
+#: internal/cli/target_core.go:92 internal/cli/target_core.go:198
+#: internal/cli/target_core.go:402 internal/cli/target_core.go:602
+#: internal/cli/target_vuei18n.go:154
 msgid "%s (%s): %d strings to translate"
-msgstr "%s (%s): Çevrilecek %d ifade"
+msgstr "%s (%s): %d çevrilecek dize"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:214
+#: internal/cli/target_content.go:214
 msgid "No YAML files to translate"
 msgstr "Çevrilecek YAML dosyası yok"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:246
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:726
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:946
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:217
+#: internal/cli/target_content.go:246 internal/cli/target_content.go:726
+#: internal/cli/target_content.go:946 internal/cli/target_vuei18n.go:217
 msgid "  %s: %d/%d strings"
-msgstr "  %s: %d/%d string"
+msgstr "  %s: %d/%d dize"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:275
+#: internal/cli/target_content.go:275
 msgid "Source segments"
 msgstr "Kaynak segmentler"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:319
+#: internal/cli/target_content.go:319
 msgid "Cannot find source Markdown files in %s"
 msgstr "%s içinde kaynak Markdown dosyaları bulunamadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:320
+#: internal/cli/target_content.go:320
 msgid "Expected: %s/*.md"
 msgstr "Beklenen: %s/*.md"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:324
+#: internal/cli/target_content.go:324
 msgid "Source language (%s): %d files"
 msgstr "Kaynak dil (%s): %d dosya"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:33
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:531
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:751
+#: internal/cli/target_content.go:33 internal/cli/target_content.go:531
+#: internal/cli/target_content.go:751
 msgid "parse error: %v"
 msgstr "ayrıştırma hatası: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:345
+#: internal/cli/target_content.go:345
 msgid "Cannot read source Markdown file %s: %v"
 msgstr "Kaynak Markdown dosyası %s okunamıyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:355
+#: internal/cli/target_content.go:355
 msgid "Created: %s (%d segments)"
 msgstr "Oluşturuldu: %s (%d segment)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:374
+#: internal/cli/target_content.go:374
 msgid "Markdown init: %d created, %d updated"
 msgstr "Markdown başlatma: %d oluşturuldu, %d güncellendi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:394
-msgid "cannot find source Markdown files in %s"
-msgstr "%s içinde kaynak Markdown dosyası bulunamıyor"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:404
+#: internal/cli/target_content.go:404
 msgid "Source segments: %d (%d files)"
 msgstr "Kaynak segmentler: %d (%d dosya)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:433
+#: internal/cli/target_content.go:433
 msgid "%s (%s): %d segments to translate"
-msgstr "%s (%s): Çevrilecek %d segment"
+msgstr "%s (%s): %d çevrilecek segment"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:474
+#: internal/cli/target_content.go:474
 msgid "No Markdown files to translate"
 msgstr "Çevrilecek Markdown dosyası yok"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:506
+#: internal/cli/target_content.go:506
 msgid "  %s: %d/%d segments"
 msgstr "  %s: %d/%d segment"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:56
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:557
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:777
+#: internal/cli/target_content.go:56 internal/cli/target_content.go:557
+#: internal/cli/target_content.go:777
 msgid "parse error"
 msgstr "ayrıştırma hatası"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:581
+#: internal/cli/target_content.go:581
 msgid "Cannot find source .properties file: %s"
 msgstr "Kaynak .properties dosyası bulunamadı: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:587
+#: internal/cli/target_content.go:587
 msgid "Cannot read source .properties file %s: %v"
 msgstr "Kaynak .properties dosyası %s okunamıyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:629
+#: internal/cli/target_content.go:629
 msgid "Properties init: %d created, %d updated"
 msgstr "Properties başlatma: %d oluşturuldu, %d güncellendi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:651
+#: internal/cli/target_content.go:651
 msgid "cannot read source .properties file %s: %w"
 msgstr "Kaynak .properties dosyası %s okunamıyor: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:694
+#: internal/cli/target_content.go:694
 msgid "No .properties files to translate"
 msgstr "Çevrilecek .properties dosyası yok"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:78
+#: internal/cli/target_content.go:78
 msgid "Cannot find source YAML file for language %q in %s"
-msgstr "Dil %q için kaynak YAML dosyası %s içinde bulunamadı"
+msgstr "%q diline ait kaynak YAML dosyası %s içinde bulunamadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:79
+#: internal/cli/target_content.go:79
 msgid "Expected: %s"
 msgstr "Beklenen: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:801
+#: internal/cli/target_content.go:801
 msgid "Cannot find source ARB file: %s"
 msgstr "Kaynak ARB dosyası bulunamadı: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:807
+#: internal/cli/target_content.go:807
 msgid "Cannot read source ARB file %s: %v"
 msgstr "Kaynak ARB dosyası %s okunamıyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:849
+#: internal/cli/target_content.go:849
 msgid "Flutter ARB init: %d created, %d updated"
 msgstr "Flutter ARB başlatma: %d oluşturuldu, %d güncellendi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:85
+#: internal/cli/target_content.go:85
 msgid "Cannot read source YAML file %s: %v"
 msgstr "Kaynak YAML dosyası %s okunamıyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:871
+#: internal/cli/target_content.go:871
 msgid "cannot read source ARB file %s: %w"
 msgstr "Kaynak ARB dosyası %s okunamıyor: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:914
+#: internal/cli/target_content.go:914
 msgid "No ARB files to translate"
 msgstr "Çevrilecek ARB dosyası yok"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:123
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:228
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:435
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:636
+#: internal/cli/target_core.go:123 internal/cli/target_core.go:228
+#: internal/cli/target_core.go:435 internal/cli/target_core.go:636
 msgid "  %s: %d/%d"
 msgstr "  %s: %d/%d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:174
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:312
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:484
+#: internal/cli/target_core.go:174 internal/cli/target_core.go:312
+#: internal/cli/target_core.go:484
 msgid "[%s] All translations complete!"
 msgstr "[%s] Tüm çeviriler tamamlandı!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:188
+#: internal/cli/target_core.go:188
 msgid "po4a config: %s"
 msgstr "po4a yapılandırması: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:200
+#: internal/cli/target_core.go:200
 msgid "%s: PO file not found at %s"
 msgstr "%s: PO dosyası %s konumunda bulunamadı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:245
+#: internal/cli/target_core.go:245
 msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
-msgstr "Dokümantasyon için özel çeviri komut istemi kullanılıyor (groff/man biçimlendirmesi korunacak)"
+msgstr "Belgelere özel çeviri istemi kullanılıyor (groff/man işaretlemesi korunacak)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:257
+#: internal/cli/target_core.go:257
 msgid "PO files missing, running po4a initialization..."
 msgstr "PO dosyaları eksik, po4a başlatılıyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:277
+#: internal/cli/target_core.go:277
 msgid "auto-init failed: %v"
-msgstr "otomatik başlatma başarısız: %v"
+msgstr "otomatik başlatma başarısız oldu: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:288
+#: internal/cli/target_core.go:288
 msgid "[%s] No PO file for %s at %s, skipping"
 msgstr "[%s] %s için %s konumunda PO dosyası yok, atlanıyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:374
+#: internal/cli/target_core.go:374
 msgid "Res dir: %s"
 msgstr "Res dizini: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:381
+#: internal/cli/target_core.go:381
 msgid "cannot read source strings.xml %s: %w"
-msgstr "Kaynak strings.xml dosyası okunamıyor %s: %w"
+msgstr "kaynak strings.xml %s okunamıyor: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:455
+#: internal/cli/target_core.go:455
 msgid "Auto-creating %s with %d strings"
-msgstr "%s otomatik olarak %d dizgiyle oluşturuluyor"
+msgstr "%s otomatik oluşturuluyor: %d dize"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:460
+#: internal/cli/target_core.go:460
 msgid "Added %d new strings to %s"
-msgstr "%d yeni dizgi %s dosyasına eklendi"
+msgstr "%s'e %d yeni dize eklendi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:51
+#: internal/cli/target_core.go:51
 msgid "Extracting strings and updating PO files..."
 msgstr "Dizeler çıkarılıyor ve PO dosyaları güncelleniyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:53
+#: internal/cli/target_core.go:53
 msgid "Extraction failed: %v"
-msgstr "Çıkarma işlemi başarısız: %v"
+msgstr "Çıkarma başarısız oldu: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:54
+#: internal/cli/target_core.go:54
 msgid "Continuing with existing PO files"
 msgstr "Mevcut PO dosyalarıyla devam ediliyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:564
+#: internal/cli/target_core.go:564
 msgid "All UI translations are complete!"
-msgstr "Tüm arayüz çevirileri tamamlandı!"
+msgstr "Tüm kullanıcı arayüzü çevirileri tamamlandı!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:578
+#: internal/cli/target_core.go:578
 msgid "Parallel: disabled (sequential)"
-msgstr "Paralel: devre dışı (sıralı)"
+msgstr "Paralel: devre dışı (ardışık)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:580
+#: internal/cli/target_core.go:580
 msgid "Source keys (%s): %d"
 msgstr "Kaynak anahtarlar (%s): %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:583
+#: internal/cli/target_core.go:583
 msgid "Translating UI strings: %s"
-msgstr "Arayüz dizgileri çevriliyor: %s"
+msgstr "Kullanıcı arayüzü dizeleri çeviriliyor: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:615
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:256
+#: internal/cli/target_core.go:615 internal/cli/translate_cmd.go:255
 msgid "Interrupted, saving progress..."
-msgstr "İşlem kesildi, ilerleme kaydediliyor..."
+msgstr "Kesildi, ilerleme kaydediliyor..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:668
+#: internal/cli/target_core.go:668
 msgid "Auto-creating %s with %d keys"
-msgstr "%s otomatik olarak %d anahtarla oluşturuluyor"
+msgstr "%s otomatik oluşturuluyor: %d anahtar"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:685
+#: internal/cli/target_core.go:685
 msgid "Translation interrupted, partial progress saved"
-msgstr "Çeviri yarıda kesildi, kısmi ilerleme kaydedildi"
+msgstr "Çeviri kesintiye uğradı, kısmi ilerleme kaydedildi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:688
+#: internal/cli/target_core.go:688
 msgid "UI translation failed: %v"
-msgstr "Arayüz çevirisi başarısız: %v"
+msgstr "Kullanıcı arayüzü çevirisi başarısız oldu: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:695
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:347
+#: internal/cli/target_core.go:695 internal/cli/translate_cmd.go:352
 msgid "Translation completed with errors"
 msgstr "Çeviri hatalarla tamamlandı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:698
+#: internal/cli/target_core.go:698
 msgid "Translation complete!"
 msgstr "Çeviri tamamlandı!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:83
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:189
+#: internal/cli/target_core.go:83 internal/cli/target_core.go:189
 msgid "PO dir: %s"
 msgstr "PO dizini: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:94
+#: internal/cli/target_core.go:94
 msgid "%s: PO file not found, will be created"
 msgstr "%s: PO dosyası bulunamadı, oluşturulacak"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:115
+#: internal/cli/target_vuei18n.go:115
 msgid "Vue i18n init: %d created, %d updated"
 msgstr "Vue i18n başlatma: %d oluşturuldu, %d güncellendi"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:138
+#: internal/cli/target_vuei18n.go:138
 msgid "cannot read source vue-i18n file %s: %w"
-msgstr "Kaynak vue-i18n dosyası %s okunamıyor: %w"
+msgstr "kaynak vue-i18n dosyası %s okunamıyor: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:181
+#: internal/cli/target_vuei18n.go:181
 msgid "No vue-i18n files to translate"
 msgstr "Çevrilecek vue-i18n dosyası yok"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:77
+#: internal/cli/target_vuei18n.go:77
 msgid "Cannot read source vue-i18n file %s: %v"
 msgstr "Kaynak vue-i18n dosyası %s okunamıyor: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:109
+#: internal/cli/translate_cmd.go:109
 msgid "AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)"
-msgstr "AI sağlayıcıları: google, gemini, groq, opencode, copilot, ollama, custom-openai (veya lokit.yaml provider.id kullanılabilir)"
+msgstr "AI sağlayıcı: google, gemini, groq, opencode, copilot, ollama, custom-openai (veya lokit.yaml içindeki provider.id kullanın)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:110
+#: internal/cli/translate_cmd.go:110
 msgid "Model name (or use lokit.yaml provider.model)"
-msgstr "Model adı (veya lokit.yaml provider.model kullanılabilir)"
+msgstr "Model adı (veya lokit.yaml içindeki provider.model kullanın)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:111
+#: internal/cli/translate_cmd.go:111
 msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 msgstr "API anahtarı (veya sağlayıcı ortam değişkeni: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:112
+#: internal/cli/translate_cmd.go:112
 msgid "Custom API base URL"
-msgstr "Özel API taban URL'si"
+msgstr "Özel API temel URL'si"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:114
+#: internal/cli/translate_cmd.go:114
 msgid "Languages to translate (comma-separated, default: all with untranslated)"
-msgstr "Çevrilecek diller (virgülle ayrılmış, varsayılan: çevrilmemişlerin tümü)"
+msgstr "Çevrilecek diller (virgülle ayrılmış, varsayılan: çevrilmemişleri olan tüm diller)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:116
+#: internal/cli/translate_cmd.go:116
 msgid "Entries per API request (0 = all at once)"
-msgstr "API isteği başına giriş sayısı (0 = hepsi bir defada)"
+msgstr "API isteği başına giriş sayısı (0 = hepsi bir kerede)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:117
+#: internal/cli/translate_cmd.go:117
 msgid "Translate all entries, including already translated ones"
-msgstr ""
+msgstr "Zaten çevrilmiş olanlar da dahil olmak üzere tüm girişleri çevir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:118
+#: internal/cli/translate_cmd.go:118
 msgid "Translate fuzzy entries and clear fuzzy flag"
-msgstr "Fuzzy (belirsiz) girdileri çevir ve fuzzy bayrağını kaldır"
+msgstr "Fuzzy girişleri çevir ve fuzzy bayrağını temizle"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:119
+#: internal/cli/translate_cmd.go:119
 msgid "Custom system prompt (use {{targetLang}} placeholder)"
 msgstr "Özel sistem istemi ({{targetLang}} yer tutucusunu kullanın)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:120
+#: internal/cli/translate_cmd.go:120
 msgid "Enable detailed logging"
-msgstr "Ayrıntılı loglamayı etkinleştir"
+msgstr "Ayrıntılı günlüklemeyi etkinleştir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:121
+#: internal/cli/translate_cmd.go:121
 msgid "Show what would be translated without calling AI"
-msgstr "AI çağrısı yapmadan hangi metinlerin çevrileceğini göster"
+msgstr "AI çağırmadan nelerin çevrileceğini göster"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:122
+#: internal/cli/translate_cmd.go:122
 msgid "Ignore lock file and re-translate all changed entries"
 msgstr "Kilit dosyasını yok say ve tüm değişen girişleri yeniden çevir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:124
+#: internal/cli/translate_cmd.go:124
 msgid "Enable parallel translation with optional worker count (e.g. --parallel or --parallel=8)"
-msgstr ""
+msgstr "İsteğe bağlı işçi sayısıyla paralel çeviri etkinleştir (örn. --parallel veya --parallel=8)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:126
+#: internal/cli/translate_cmd.go:125
 msgid "Delay between translation requests"
-msgstr ""
+msgstr "Çeviri istekleri arasındaki gecikme"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:128
+#: internal/cli/translate_cmd.go:127
 msgid "Request timeout (0 = provider default)"
 msgstr "İstek zaman aşımı (0 = sağlayıcı varsayılanı)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:129
+#: internal/cli/translate_cmd.go:128
 msgid "HTTP/HTTPS proxy URL"
 msgstr "HTTP/HTTPS proxy URL'si"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:130
+#: internal/cli/translate_cmd.go:129
 msgid "Maximum retries on rate limit (429)"
-msgstr "Oran limiti (429) için maksimum tekrar deneme"
+msgstr "Rate limit (429) durumunda maksimum yeniden deneme sayısı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:134
+#: internal/cli/translate_cmd.go:133
 msgid "Google AI (Gemini) — API key required"
 msgstr "Google AI (Gemini) — API anahtarı gerekli"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:135
+#: internal/cli/translate_cmd.go:134
 msgid "Gemini Code Assist — browser OAuth (free)"
 msgstr "Gemini Code Assist — tarayıcı OAuth (ücretsiz)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:136
+#: internal/cli/translate_cmd.go:135
 msgid "Groq — API key required"
 msgstr "Groq — API anahtarı gerekli"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:137
+#: internal/cli/translate_cmd.go:136
 msgid "OpenCode — optional API key"
 msgstr "OpenCode — isteğe bağlı API anahtarı"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:138
+#: internal/cli/translate_cmd.go:137
 msgid "GitHub Copilot — native OAuth (free)"
 msgstr "GitHub Copilot — yerel OAuth (ücretsiz)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:139
+#: internal/cli/translate_cmd.go:138
 msgid "Ollama local server"
 msgstr "Ollama yerel sunucu"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:140
+#: internal/cli/translate_cmd.go:139
 msgid "Custom OpenAI-compatible endpoint"
 msgstr "OpenAI uyumlu özel uç nokta"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:217
+#: internal/cli/translate_cmd.go:216
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
-msgstr ""
-"Sağlayıcı belirtilmedi. Bir yapay zekâ çeviri servisi seçmek için --provider kullanın.\n"
-"\n"
+msgstr "Sağlayıcı belirtilmedi. Bir AI çeviri servisi seçmek için --provider kullanın.\\n\\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:238
+#: internal/cli/translate_cmd.go:237
 msgid "No targets defined in lokit.yaml"
-msgstr "lokit.yaml içinde hedef tanımlanmamış"
+msgstr "lokit.yaml dosyasında hedef tanımlı değil"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:244
-msgid "Could not load lock file: %v"
-msgstr "Kilit dosyası yüklenemedi: %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:280
+#: internal/cli/translate_cmd.go:279
 msgid "[%s] No languages to translate, skipping"
 msgstr "[%s] Çevrilecek dil yok, atlanıyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:289
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:294
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:299
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:304
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:309
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:314
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:319
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:329
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:334
-msgid "[%s] %v"
-msgstr "[%s] %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:338
+#: internal/cli/translate_cmd.go:337
 msgid "[%s] Unknown target type %q, skipping"
 msgstr "[%s] Bilinmeyen hedef türü %q, atlanıyor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:343
-msgid "Could not save lock file: %v"
-msgstr "Kilit dosyası kaydedilemedi: %v"
+#: internal/cli/translate_cmd.go:341
+msgid "Could not save lock file after target %s: %v"
+msgstr "Hedef %s sonrası kilit dosyası kaydedilemedi: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:350
+#: internal/cli/translate_cmd.go:343
+msgid "Lock file saved after target %s/%s"
+msgstr "Hedef %s/%s sonrası kilit dosyası kaydedildi"
+
+#: internal/cli/translate_cmd.go:355
 msgid "All targets translated!"
 msgstr "Tüm hedefler çevrildi!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:44
+#: internal/cli/translate_cmd.go:44
 msgid "Translate files using AI"
-msgstr "Dosyaları yapay zekâ ile çevir"
+msgstr "Dosyaları yapay zeka ile çevir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:45
+#: internal/cli/translate_cmd.go:45
 msgid ""
 "Translate files using AI providers.\n"
 "\n"
@@ -2030,125 +2184,71 @@ msgid ""
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 msgstr ""
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:13
-msgid "Show version information"
-msgstr "Sürüm bilgisini göster"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:14
-msgid "Display version, commit hash, and build date."
-msgstr "Sürüm, commit hash ve derleme tarihini görüntüle."
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:16
-msgid "lokit version %s"
-msgstr "lokit sürüm %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:17
-msgid "commit:"
-msgstr "commit:"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:18
-msgid "built:"
-msgstr "derlendi:"
-
-#~ msgid ""
-"Translate files using AI providers.\n"
+"Yapay zeka sağlayıcıları kullanarak dosyaları çevir.\n"
 "\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
-"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
-"auto-detected or configured via lokit.yaml.\n"
+"Desteklenen biçimler: gettext PO, po4a, i18next JSON, Android strings.xml, genel JSON,\n"
+"YAML, Markdown, Java .properties ve Flutter ARB formatları. Proje türü otomatik algılanır\n"
+"veya lokit.yaml ile yapılandırılabilir.\n"
 "\n"
-"For gettext/po4a projects, automatically initializes if needed (extracts\n"
-"strings, creates PO files).\n"
+"gettext/po4a projeleri için gerektiğinde otomatik başlatma yapılır (metinleri çıkarır,\n"
+"PO dosyaları oluşturur).\n"
 "\n"
-"Incremental translation: lokit tracks source string checksums in lokit.lock.\n"
-"Only new or changed strings are sent to the AI provider, saving tokens and\n"
-"time. Use --force to ignore the lock file and re-translate everything.\n"
+"Artımlı çeviri: lokit kaynak metinlerin checksum'larını lokit.lock içinde izler.\n"
+"Yalnızca yeni veya değişmiş metinler AI sağlayıcısına gönderilir; bu token ve\n"
+"zaman tasarrufu sağlar. Kilit dosyasını yok saymak ve her şeyi yeniden çevirmek için --force kullanın.\n"
 "\n"
-"Key filtering: configure per-target in lokit.yaml:\n"
-"  ignored_keys  — keys excluded from translation entirely (never sent to AI)\n"
-"  locked_keys   — keys whose translations are preserved (skipped even with\n"
-"                  --retranslate; only --force overrides)\n"
-"  locked_patterns — regex patterns matching keys treated as locked\n"
-"                  (e.g. \"^brand_.*\" locks all brand_ prefixed keys)\n"
+"Anahtar filtresi: hedef başına lokit.yaml içinde yapılandırın:\n"
+"  ignored_keys  — çeviriden tamamen hariç tutulan anahtarlar (AI'ya asla gönderilmez)\n"
+"  locked_keys   — çevirileri korunacak anahtarlar (--all ile bile atlanır; yalnızca --force ile geçersiz kılınır)\n"
+"  locked_patterns — kilitli sayılacak anahtarlarla eşleşen regex desenleri\n"
+"                  (ör. \"^brand_.*\" brand_ ile başlayan tüm anahtarları kilitler)\n"
 "\n"
-"Each target type has a built-in system prompt optimized for its format.\n"
-"Use the --prompt flag to override it for the current run, or set prompt:\n"
-"in lokit.yaml target config for a permanent override.\n"
-"Use {{targetLang}} as a placeholder for the target language name.\n"
-"\n"
-"Examples:\n"
-"  # Translate a gettext project using GitHub Copilot (free)\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Translate an Android project using Gemini (free, OAuth)\n"
-"  lokit translate --provider gemini --model gemini-2.5-flash\n"
-"\n"
-"  # Translate an i18next project using Google AI (API key)\n"
-"  lokit translate --provider google --model gemini-2.5-flash\n"
-"\n"
-"  # Translate specific languages in parallel\n"
-"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
-"\n"
-"  # Force full re-translation (ignore lock file)\n"
-"  lokit translate --provider copilot --model gpt-4o --force\n"
-"\n"
-"  # Re-translate everything with a custom prompt\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
-"    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
-"\n"
-"  # Translate a Flutter project\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Dry run (show what would be translated)\n"
-"  lokit translate --provider copilot --model gpt-4o --dry-run"
-#~ msgstr ""
-"Dosyaları yapay zeka sağlayıcılarıyla çevirin.\n"
-"\n"
-"gettext PO, po4a, i18next JSON, Android strings.xml, genel JSON,\n"
-"YAML, Markdown, Java .properties ve Flutter ARB formatlarını destekler. Proje tipi\n"
-"automatik olarak algılanır veya lokit.yaml üzerinden yapılandırılır.\n"
-"\n"
-"gettext/po4a projeleri için, gerekirse otomatik olarak başlatılır (stringleri\n"
-"çıkarır, PO dosyalarını oluşturur).\n"
-"\n"
-"Artımlı çeviri: lokit, kaynak stringlerin sağlama toplamlarını lokit.lock dosyasında takip eder.\n"
-"Sadece yeni veya değişen stringler yapay zeka sağlayıcısına gönderilir, böylece token ve\n"
-"time tasarrufu sağlanır. Tümünü yeniden çevirmek için --force parametresini kullanarak kilit dosyasını yok sayabilirsiniz.\n"
-"\n"
-"Anahtar filtreleme: lokit.yaml içinde hedef başına yapılandırılır:\n"
-"  ignored_keys  — tamamen çeviri dışında bırakılan anahtarlar (asla AI'ya gönderilmez)\n"
-"  locked_keys   — çevirileri korunan anahtarlar ( --retranslate ile bile atlanır;\n"
-"                  sadece --force ile geçersiz kılınır)\n"
-"  locked_patterns — kilitli olarak işlenecek anahtarları eşleyen regex desenleri\n"
-"                  (ör. \"^brand_.*\" ile tüm brand_ ile başlayan anahtarlar kilitlenir)\n"
-"\n"
-"Her hedef tipi, formatına optimize edilmiş yerleşik bir sistem istemine sahiptir.\n"
-"Geçerli çalıştırma için --prompt parametresiyle geçici olarak, ya da lokit.yaml hedef yapılandırmasında prompt:\n"
-"ile kalıcı olarak değiştirebilirsiniz.\n"
-"{{targetLang}} ifadesini hedef dil adı için yer tutucu olarak kullanabilirsiniz.\n"
+"Her hedef türünün formatına göre optimize edilmiş yerleşik bir sistem istemi vardır.\n"
+"Geçerli çalıştırma için bunu geçersiz kılmak amacıyla --prompt bayrağını kullanın veya\n"
+"kalıcı olarak değiştirmek için lokit.yaml hedef yapılandırmasına prompt: ekleyin.\n"
+"Hedef dil adı için {{targetLang}} yer tutucusunu kullanın.\n"
 "\n"
 "Örnekler:\n"
-"  # GitHub Copilot (ücretsiz) ile bir gettext projesini çevirin\n"
+"  # GitHub Copilot (ücretsiz) kullanarak bir gettext projesini çevirin\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
 "\n"
-"  # Gemini (ücretsiz, OAuth) ile bir Android projesini çevirin\n"
+"  # Gemini (ücretsiz, OAuth) kullanarak bir Android projesini çevirin\n"
 "  lokit translate --provider gemini --model gemini-2.5-flash\n"
 "\n"
-"  # Google AI (API anahtarı) ile bir i18next projesini çevirin\n"
+"  # Google AI (API anahtarı) kullanarak bir i18next projesini çevirin\n"
 "  lokit translate --provider google --model gemini-2.5-flash\n"
 "\n"
 "  # Belirli dilleri paralel olarak çevirin\n"
 "  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
 "\n"
-"  # Tümünü yeniden çevir (kilit dosyasını yok say)\n"
+"  # Kilit dosyasını yok sayıp tam yeniden çeviri yapın\n"
 "  lokit translate --provider copilot --model gpt-4o --force\n"
 "\n"
-"  # Özel bir prompt ile her şeyi yeniden çevir\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"{{targetLang}} diline çevir. Samimi bir ton kullan.\"\n"
+"  # Özel bir prompt ile tüm girdileri çevirin\n"
+"  lokit translate --provider copilot --model gpt-4o --all \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
 "\n"
 "  # Bir Flutter projesini çevirin\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
 "\n"
-"  # Deneme çalıştırması (nelerin çevrileceğini gösterir)\n"
+"  # Kuru çalışma (ne çevrileceğini göster)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
+
+#: internal/cli/version.go:13
+msgid "Show version information"
+msgstr "Sürüm bilgisini göster"
+
+#: internal/cli/version.go:14
+msgid "Display version, commit hash, and build date."
+msgstr "Sürüm, commit hash'ini ve derleme tarihini göster."
+
+#: internal/cli/version.go:16
+msgid "lokit version %s"
+msgstr "lokit sürüm %s"
+
+#: internal/cli/version.go:17
+msgid "commit:"
+msgstr "commit:"
+
+#: internal/cli/version.go:18
+msgid "built:"
+msgstr "derleme:"

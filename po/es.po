@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 09:50+0000\n"
-"PO-Revision-Date: 2026-03-03 08:11+0000\n"
+"POT-Creation-Date: 2026-03-04 10:10+0000\n"
+"PO-Revision-Date: 2026-03-04 10:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -15,97 +15,92 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:102
+#: internal/cli/auth.go:102
 msgid "OAuth"
 msgstr "OAuth"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:104
+#: internal/cli/auth.go:104
 msgid "API key"
-msgstr "API key"
+msgstr "Clave de API"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:110
+#: internal/cli/auth.go:110
 msgid "Enter choice (number or name):"
-msgstr "Ingresa tu elección (número o nombre):"
+msgstr "Elija una opción (número o nombre):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:114
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:315
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:353
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:374
+#: internal/cli/auth.go:114 internal/cli/auth.go:315 internal/cli/auth.go:353
+#: internal/cli/auth.go:374
 msgid "No input received"
 msgstr "No se recibió entrada"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:133
+#: internal/cli/auth.go:133
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
-msgstr "Elección inválida. Usa: lokit auth login --provider PROVIDER"
+msgstr "Opción inválida. Usa: lokit auth login --provider PROVIDER"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:158
+#: internal/cli/auth.go:158
 msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
 msgstr "Proveedor desconocido '%s'. Ejecuta 'lokit auth login' para ver opciones."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:164
+#: internal/cli/auth.go:164
 msgid "Provider to authenticate"
-msgstr "Proveedor para autenticar"
+msgstr "Proveedor a autenticar"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:180
+#: internal/cli/auth.go:180
 msgid "GitHub Copilot Authentication"
 msgstr "Autenticación de GitHub Copilot"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:183
+#: internal/cli/auth.go:183
 msgid "Open this URL in your browser:"
 msgstr "Abre esta URL en tu navegador:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:185
+#: internal/cli/auth.go:185
 msgid "Enter this code:"
-msgstr "Ingresa este código:"
+msgstr "Introduce este código:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:187
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:211
+#: internal/cli/auth.go:187 internal/cli/auth.go:211
 msgid "Waiting for authorization..."
 msgstr "Esperando autorización..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:191
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:215
+#: internal/cli/auth.go:191 internal/cli/auth.go:215
 msgid "Authentication cancelled"
 msgstr "Autenticación cancelada"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:194
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:218
+#: internal/cli/auth.go:194 internal/cli/auth.go:218
 msgid "Authentication failed: %v"
-msgstr "Error de autenticación: %v"
+msgstr "Autenticación fallida: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:198
+#: internal/cli/auth.go:198
 msgid "Copilot authentication successful!"
-msgstr "¡Autenticación de Copilot exitosa!"
+msgstr "¡Autenticación con Copilot exitosa!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:199
+#: internal/cli/auth.go:199
 msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
-msgstr "Ya puedes usar: lokit translate --provider copilot --model gpt-4o"
+msgstr "Ahora puedes usar: lokit translate --provider copilot --model gpt-4o"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:204
+#: internal/cli/auth.go:204
 msgid "Google Gemini Authentication"
 msgstr "Autenticación de Google Gemini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:207
+#: internal/cli/auth.go:207
 msgid "Opening browser for Google sign-in..."
-msgstr "Abriendo navegador para iniciar sesión en Google..."
+msgstr "Abriendo el navegador para iniciar sesión en Google..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:209
+#: internal/cli/auth.go:209
 msgid "If the browser doesn't open, visit:"
 msgstr "Si el navegador no se abre, visita:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:22
+#: internal/cli/auth.go:22
 msgid "Manage provider authentication"
 msgstr "Gestionar autenticación de proveedores"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:223
+#: internal/cli/auth.go:223
 msgid "Gemini authentication successful!"
 msgstr "¡Autenticación de Gemini exitosa!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:228
+#: internal/cli/auth.go:228
 msgid "Token was saved but cannot be loaded"
 msgstr "El token se guardó pero no se puede cargar"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:23
+#: internal/cli/auth.go:23
 msgid ""
 "Manage authentication credentials for all AI providers.\n"
 "\n"
@@ -132,178 +127,164 @@ msgid ""
 msgstr ""
 "Gestiona las credenciales de autenticación para todos los proveedores de IA.\n"
 "\n"
-"Proveedores OAuth (flujo interactivo en navegador/dispositivo):\n"
-"  copilot       GitHub Copilot (flujo de código de dispositivo, gratis con cuenta GitHub)\n"
-"  gemini        Google Gemini Code Assist (OAuth en navegador, gratis: 60 req/min)\n"
+"Proveedores OAuth (flujo interactivo por navegador/dispositivo):\n"
+"  copilot       GitHub Copilot (flujo de código de dispositivo, gratis con cuenta de GitHub)\n"
+"  gemini        Google Gemini Code Assist (OAuth por navegador, plan gratuito: 60 req/min)\n"
 "\n"
-"Proveedores con API key (pega tu clave):\n"
-"  google        Google AI Studio (API key Gemini)\n"
-"  groq          Groq Cloud (hay versión gratuita)\n"
-"  opencode      OpenCode Zen API (modelos gratis sin clave)\n"
-"  custom-openai Endpoint personalizado compatible con OpenAI\n"
+"Proveedores por clave API (pega tu clave):\n"
+"  google        Google AI Studio (clave de API de Gemini)\n"
+"  groq          Groq Cloud (plan gratuito disponible)\n"
+"  opencode      OpenCode Zen API (modelos gratuitos disponibles sin clave)\n"
+"  custom-openai Endpoint compatible con OpenAI personalizado\n"
 "\n"
 "No requiere autenticación:\n"
-"  ollama        Servidor local Ollama\n"
+"  ollama        Servidor local de Ollama\n"
 "\n"
 "Ejemplos:\n"
 "  lokit auth login                         Selección interactiva de proveedor\n"
 "  lokit auth login --provider copilot      OAuth con GitHub Copilot\n"
-"  lokit auth login --provider google       Guardar API key de Google AI\n"
-"  lokit auth logout --provider google      Eliminar API key de Google\n"
-"  lokit auth logout                        Eliminar todas las credenciales\n"
-"  lokit auth list                          Mostrar todas las credenciales guardadas"
+"  lokit auth login --provider google       Guarda la clave API de Google AI\n"
+"  lokit auth logout --provider google      Elimina la clave API de Google\n"
+"  lokit auth logout                        Elimina todas las credenciales\n"
+"  lokit auth list                          Muestra todas las credenciales almacenadas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:233
+#: internal/cli/auth.go:233
 msgid "Gemini Code Assist requires a GCP project ID to work in your region."
-msgstr "Gemini Code Assist requiere un ID de proyecto GCP para funcionar en tu región."
+msgstr "Gemini Code Assist requiere un ID de proyecto de GCP para funcionar en tu región."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:234
+#: internal/cli/auth.go:234
 msgid "Find your project ID at: https://console.cloud.google.com"
 msgstr "Encuentra tu ID de proyecto en: https://console.cloud.google.com"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:235
+#: internal/cli/auth.go:235
 msgid "(Create a project if you don't have one, then enable the Gemini API)"
-msgstr "(Crea un proyecto si no tienes uno y habilita la API de Gemini)"
+msgstr "(Crea un proyecto si no tienes uno, luego habilita la API de Gemini)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:237
+#: internal/cli/auth.go:237
 msgid "GCP Project ID (or press Enter to skip):"
-msgstr "ID de proyecto GCP (o presiona Enter para omitir):"
+msgstr "ID de proyecto de GCP (o presiona Enter para omitir):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:247
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:259
+#: internal/cli/auth.go:247 internal/cli/auth.go:259
 msgid "Code Assist setup failed: %v"
-msgstr "Error de configuración de Code Assist: %v"
+msgstr "La configuración de Code Assist falló: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:248
+#: internal/cli/auth.go:248
 msgid "Project ID saved. You can try again later."
 msgstr "ID de proyecto guardado. Puedes intentarlo de nuevo más tarde."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:250
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:263
+#: internal/cli/auth.go:250 internal/cli/auth.go:263
 msgid "Code Assist project configured!"
 msgstr "¡Proyecto de Code Assist configurado!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:253
+#: internal/cli/auth.go:253
 msgid "Skipped. You can set it later with:"
-msgstr "Omitido. Puedes configurarlo luego con:"
+msgstr "Omitido. Puedes configurarlo después con:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:254
+#: internal/cli/auth.go:254
 msgid "  lokit auth login --provider gemini"
 msgstr "  lokit auth login --provider gemini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:260
+#: internal/cli/auth.go:260
 msgid "OAuth login succeeded but Code Assist onboarding failed."
-msgstr "El login OAuth fue exitoso pero falló la configuración de Code Assist."
+msgstr "El inicio de sesión OAuth tuvo éxito pero la configuración de Code Assist falló."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:261
+#: internal/cli/auth.go:261
 msgid "This will be retried automatically on first translate."
-msgstr "Ya puedes usar: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr "Esto se reintentará automáticamente en la primera traducción."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:268
+#: internal/cli/auth.go:268
 msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
-msgstr "(no se necesita API key si se autentica vía OAuth)"
+msgstr "Ahora puedes usar: lokit translate --provider gemini --model gemini-2.5-flash"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:269
+#: internal/cli/auth.go:269
 msgid "(no API key needed when authenticated via OAuth)"
-msgstr ""
-"Help proporciona ayuda sobre cualquier comando de la aplicación.\n"
-"Simplemente escribe %s help [ruta al comando] para ver los detalles."
+msgstr "(no se necesita clave de API cuando se está autenticado vía OAuth)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:298
+#: internal/cli/auth.go:298
 msgid "%s — API Key Setup"
-msgstr "Obtén tu API key en: %s%s%s"
+msgstr "%s — Configuración de clave de API"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:301
+#: internal/cli/auth.go:301
 msgid "Get your API key from: %s%s%s"
+msgstr "Obtén tu clave de API en: %s%s%s"
+
+#: internal/cli/auth.go:307 internal/cli/auth.go:367
+msgid "Current key"
 msgstr "Clave actual"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:307
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:367
-msgid "Current key"
-msgstr "Ingresa una nueva clave para reemplazar, o presiona Enter para mantener la actual:"
-
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:308
+#: internal/cli/auth.go:308
 msgid "Enter new key to replace, or press Enter to keep:"
-msgstr "Ingresa la API key:"
+msgstr "Introduce nueva clave para reemplazarla, o presiona Enter para mantenerla:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:310
+#: internal/cli/auth.go:310
 msgid "Enter API key:"
-msgstr "Manteniendo la clave existente"
+msgstr "Introduce la clave de API:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:322
+#: internal/cli/auth.go:322
 msgid "Keeping existing key"
-msgstr "No se proporcionó API key"
+msgstr "Se mantiene la clave existente"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:325
+#: internal/cli/auth.go:325
 msgid "No API key provided"
-msgstr "No se pudo guardar la API key: %v"
+msgstr "No se proporcionó ninguna clave de API"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:330
+#: internal/cli/auth.go:330
 msgid "Failed to save API key: %v"
-msgstr "¡API key de %s guardada!"
+msgstr "Error al guardar la clave de API: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:334
+#: internal/cli/auth.go:334
 msgid "%s API key saved!"
-msgstr "Ya puedes usar: %s"
+msgstr "Clave de API de %s guardada!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:335
+#: internal/cli/auth.go:335
 msgid "You can now use: %s"
-msgstr "Endpoint personalizado compatible con OpenAI"
+msgstr "Ahora puedes usar: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:340
+#: internal/cli/auth.go:340
 msgid "Custom OpenAI-Compatible Endpoint"
+msgstr "Endpoint compatible con OpenAI personalizado"
+
+#: internal/cli/auth.go:346
+msgid "Current endpoint"
 msgstr "Endpoint actual"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:346
-msgid "Current endpoint"
-msgstr "Ingresa la nueva URL del endpoint, o presiona Enter para mantener la actual:"
-
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:347
+#: internal/cli/auth.go:347
 msgid "Enter new endpoint URL, or press Enter to keep:"
-msgstr "Ingresa la URL del endpoint (ej., https://api.example.com/v1):"
+msgstr "Introduce nueva URL del endpoint, o presiona Enter para mantenerla:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:349
+#: internal/cli/auth.go:349
 msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
+msgstr "Introduce la URL del endpoint (p. ej., https://api.example.com/v1):"
+
+#: internal/cli/auth.go:362
+msgid "Endpoint URL is required"
 msgstr "Se requiere la URL del endpoint"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:362
-msgid "Endpoint URL is required"
-msgstr "Ingresa una nueva API key, o presiona Enter para mantener (deja vacío para ninguna):"
-
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:368
+#: internal/cli/auth.go:368
 msgid "Enter new API key, or press Enter to keep (leave empty for none):"
-msgstr "Ingresa la API key (o presiona Enter si no es requerida):"
+msgstr "Introduce la nueva clave API, o pulsa Enter para mantenerla (dejar vacío para ninguna):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:370
+#: internal/cli/auth.go:370
 msgid "Enter API key (or press Enter if not required):"
-msgstr "Error al guardar las credenciales: %v"
+msgstr "Introduce la clave API (o pulsa Enter si no es necesaria):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:384
+#: internal/cli/auth.go:384
 msgid "Failed to save credentials: %v"
+msgstr "Error al guardar credenciales: %v"
+
+#: internal/cli/auth.go:388
+msgid "Custom OpenAI endpoint saved!"
 msgstr "¡Endpoint personalizado de OpenAI guardado!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:388
-msgid "Custom OpenAI endpoint saved!"
-msgstr "Ya puedes usar: lokit translate --provider custom-openai --model MODEL_NAME"
-
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:389
+#: internal/cli/auth.go:389
 msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
-msgstr "Eliminar credenciales guardadas"
+msgstr "Ahora puedes usar: lokit translate --provider custom-openai --model MODEL_NAME"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:398
+#: internal/cli/auth.go:398
 msgid "Remove stored credentials"
-msgstr ""
-"Elimina las credenciales guardadas para uno o todos los proveedores.\n"
-"\n"
-"Si no se especifica --provider, se eliminarán las credenciales de TODOS los proveedores.\n"
-"\n"
-"Ejemplos:\n"
-"  lokit auth logout                        Eliminar todas las credenciales\n"
-"  lokit auth logout --provider copilot     Eliminar solo OAuth de Copilot\n"
-"  lokit auth logout --provider google      Eliminar solo API key de Google\n"
-"  lokit auth logout --provider gemini      Eliminar solo OAuth de Gemini"
+msgstr "Eliminar credenciales almacenadas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:399
+#: internal/cli/auth.go:399
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -314,103 +295,106 @@ msgid ""
 "  lokit auth logout --provider copilot     Remove only Copilot OAuth\n"
 "  lokit auth logout --provider google      Remove only Google API key\n"
 "  lokit auth logout --provider gemini      Remove only Gemini OAuth"
+msgstr ""
+"Eliminar credenciales almacenadas para uno o todos los proveedores.\n"
+"\n"
+"Si no se especifica --provider, se eliminarán las credenciales de TODOS los proveedores.\n"
+"\n"
+"Ejemplos:\n"
+"  lokit auth logout                        Elimina todas las credenciales\n"
+"  lokit auth logout --provider copilot     Elimina solo OAuth de Copilot\n"
+"  lokit auth logout --provider google      Elimina solo la clave API de Google\n"
+"  lokit auth logout --provider gemini      Elimina solo OAuth de Gemini"
+
+#: internal/cli/auth.go:413 internal/cli/auth.go:438
+msgid "Failed to remove Copilot credentials: %v"
 msgstr "Error al eliminar credenciales de Copilot: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:413
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:438
-msgid "Failed to remove Copilot credentials: %v"
+#: internal/cli/auth.go:416
+msgid "Copilot credentials removed"
 msgstr "Credenciales de Copilot eliminadas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:416
-msgid "Copilot credentials removed"
+#: internal/cli/auth.go:419 internal/cli/auth.go:442
+msgid "Failed to remove Gemini credentials: %v"
 msgstr "Error al eliminar credenciales de Gemini: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:442
-msgid "Failed to remove Gemini credentials: %v"
+#: internal/cli/auth.go:422
+msgid "Gemini credentials removed"
 msgstr "Credenciales de Gemini eliminadas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:422
-msgid "Gemini credentials removed"
+#: internal/cli/auth.go:425 internal/cli/auth.go:447
+msgid "Failed to remove %s credentials: %v"
 msgstr "Error al eliminar credenciales de %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:425
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:447
-msgid "Failed to remove %s credentials: %v"
+#: internal/cli/auth.go:428
+msgid "%s credentials removed"
 msgstr "Credenciales de %s eliminadas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:428
-msgid "%s credentials removed"
+#: internal/cli/auth.go:430
+msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
 msgstr "Proveedor desconocido '%s'. Ejecuta 'lokit auth list' para ver los proveedores."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:430
-msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
-msgstr "Todas las credenciales guardadas eliminadas"
-
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:452
+#: internal/cli/auth.go:452
 msgid "All stored credentials removed"
-msgstr "Proveedor para cerrar sesión (por defecto: todos)"
+msgstr "Se han eliminado todas las credenciales almacenadas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:457
+#: internal/cli/auth.go:457
 msgid "Provider to logout (default: all)"
-msgstr "Mostrar credenciales guardadas y estado"
+msgstr "Proveedor para cerrar sesión (predeterminado: todos)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:476
+#: internal/cli/auth.go:476
 msgid "Show stored credentials and status"
-msgstr "Credenciales guardadas"
+msgstr "Mostrar credenciales almacenadas y estado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:478
+#: internal/cli/auth.go:478
 msgid "Stored Credentials"
+msgstr "Credenciales almacenadas"
+
+#: internal/cli/auth.go:480
+msgid "OAuth Providers"
 msgstr "Proveedores OAuth"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:480
-msgid "OAuth Providers"
+#: internal/cli/auth.go:481
+msgid "copilot"
 msgstr "copilot"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:481
-msgid "copilot"
+#: internal/cli/auth.go:482
+msgid "gemini"
 msgstr "gemini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:482
-msgid "gemini"
-msgstr ""
-"Tema de ayuda desconocido %q\n"
-
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:484
+#: internal/cli/auth.go:484
 msgid "API Key Providers"
+msgstr "Proveedores de claves API"
+
+#: internal/cli/auth.go:497 internal/cli/auth.go:503
+msgid "✓ configured"
 msgstr "✓ configurado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:497
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:503
-msgid "✓ configured"
+#: internal/cli/auth.go:499 internal/cli/auth.go:504
+msgid "endpoint:"
 msgstr "endpoint:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:499
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:504
-msgid "endpoint:"
+#: internal/cli/auth.go:503
+msgid "no key"
 msgstr "sin clave"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:503
-msgid "no key"
+#: internal/cli/auth.go:507
+msgid "not configured"
 msgstr "no configurado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:507
-msgid "not configured"
+#: internal/cli/auth.go:511
+msgid "Environment Variables"
 msgstr "Variables de entorno"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:511
-msgid "Environment Variables"
-msgstr "no establecida"
-
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:525
+#: internal/cli/auth.go:525
 msgid "not set"
-msgstr "Buscando archivos fuente en: %s"
+msgstr "no establecido"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:77
+#: internal/cli/auth.go:77
 msgid "Authenticate with an AI provider"
-msgstr "Autenticar con un proveedor de IA"
+msgstr "Autenticarse con un proveedor de IA"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:78
+#: internal/cli/auth.go:78
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -426,111 +410,100 @@ msgid ""
 "  opencode      Paste your OpenCode API key\n"
 "  custom-openai Paste your API key + endpoint URL"
 msgstr ""
-"Autentica con un proveedor de IA usando OAuth o API key.\n"
+"Autentícate con un proveedor de IA usando OAuth o clave API.\n"
 "\n"
-"Si no se especifica --provider, se te pedirá elegir uno.\n"
+"Si no se especifica --provider, se te pedirá que elijas.\n"
 "\n"
 "Proveedores OAuth:\n"
-"  copilot       Flujo de código de dispositivo — ingresa el código en el navegador\n"
+"  copilot       Flujo con código de dispositivo — introduce el código en el navegador\n"
 "  gemini        OAuth en navegador — inicia sesión con Google\n"
 "\n"
-"Proveedores con API key:\n"
-"  google        Pega tu API key de Google AI Studio\n"
-"  groq          Pega tu API key de Groq\n"
-"  opencode      Pega tu API key de OpenCode\n"
-"  custom-openai Pega tu API key + URL del endpoint"
+"Proveedores con clave API:\n"
+"  google        Pega tu clave API de Google AI Studio\n"
+"  groq          Pega tu clave API de Groq\n"
+"  opencode      Pega tu clave API de OpenCode\n"
+"  custom-openai Pega tu clave API + la URL del endpoint"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:93
+#: internal/cli/auth.go:93
 msgid "Select provider to authenticate"
-msgstr "Selecciona el proveedor para autenticar"
+msgstr "Selecciona el proveedor para autenticarte"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:105
+#: internal/cli/helpers.go:105
 msgid "Go extraction failed: %v"
-msgstr "Continuando solo con resultados de xgettext"
+msgstr "Falló la extracción de Go: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:106
+#: internal/cli/helpers.go:106
 msgid "Continuing with xgettext results only"
-msgstr "Combinando archivos POT..."
+msgstr "Continuando solo con los resultados de xgettext"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:113
+#: internal/cli/helpers.go:113
 msgid "Merging POT files..."
-msgstr "combinando archivos POT: %w"
+msgstr "Fusionando archivos POT..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:115
+#: internal/cli/helpers.go:115
 msgid "merging POT files: %w"
+msgstr "fusionando archivos POT: %w"
+
+#: internal/cli/helpers.go:123
+msgid "extraction failed: %w"
 msgstr "extracción fallida: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:123
-msgid "extraction failed: %w"
-msgstr "Error de extracción Go: %w"
-
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:131
+#: internal/cli/helpers.go:131
 msgid "Go extraction failed: %w"
-msgstr "Extraídas %d cadenas a %s"
+msgstr "extracción de Go fallida: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:145
+#: internal/cli/helpers.go:145
 msgid "Extracted %d strings to %s"
+msgstr "Se extrajeron %d cadenas a %s"
+
+#: internal/cli/helpers.go:147
+msgid "Extracted strings to %s"
 msgstr "Cadenas extraídas a %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:147
-msgid "Extracted strings to %s"
+#: internal/cli/helpers.go:165
+msgid "No POT template found, running extraction..."
 msgstr "No se encontró plantilla POT, ejecutando extracción..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:165
-msgid "No POT template found, running extraction..."
-msgstr "Error de extracción automática: %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:167
+#: internal/cli/helpers.go:167
 msgid "Auto-extraction failed: %v"
-msgstr "No se puede crear automáticamente %s: la extracción no produjo plantilla POT"
+msgstr "Autoextracción fallida: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:174
+#: internal/cli/helpers.go:174
 msgid "Cannot auto-create %s: extraction produced no POT template"
-msgstr "Verifica que los archivos fuente contengan cadenas traducibles (_(), N_(), etc.)"
+msgstr "No se puede crear automáticamente %s: la extracción no produjo una plantilla POT"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:175
+#: internal/cli/helpers.go:175
 msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
+msgstr "Comprueba que los archivos fuente contengan cadenas traducibles (_(), N_(), etc.)"
+
+#: internal/cli/helpers.go:182
+msgid "Cannot read POT template %s: %v"
 msgstr "No se puede leer la plantilla POT %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:182
-msgid "Cannot read POT template %s: %v"
-msgstr "Creado automáticamente %s desde %s (%d entradas)"
-
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:206
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:508
+#: internal/cli/helpers.go:206 internal/cli/init.go:508
 msgid "Creating directory for %s: %v"
 msgstr "Creando directorio para %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:211
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:292
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:532
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:108
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:352
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:608
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:828
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:98
+#: internal/cli/helpers.go:211 internal/cli/init.go:292
+#: internal/cli/init.go:532 internal/cli/target_content.go:108
+#: internal/cli/target_content.go:352 internal/cli/target_content.go:608
+#: internal/cli/target_content.go:828 internal/cli/target_vuei18n.go:98
 msgid "Creating %s: %v"
 msgstr "Creando %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:215
+#: internal/cli/helpers.go:215
 msgid "Auto-created %s from %s (%d entries)"
-msgstr "este comando"
+msgstr "Creado automáticamente %s a partir de %s (%d entradas)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:287
+#: internal/cli/helpers.go:287
 msgid "check provider documentation"
-msgstr ""
-"--model es obligatorio para el proveedor '%s'\n"
-"\n"
-"Modelos de ejemplo para %s:\n"
-"  %s\n"
-"\n"
-"Uso: --provider %s --model MODEL_NAME"
+msgstr "consultar la documentación del proveedor"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:29
+#: internal/cli/helpers.go:29
 msgid "Scanning for source files in: %s"
-msgstr "buscando fuentes: %w"
+msgstr "Buscando archivos fuente en: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:290
+#: internal/cli/helpers.go:290
 msgid ""
 "--model is required for provider '%s'\n"
 "\n"
@@ -539,20 +512,14 @@ msgid ""
 "\n"
 "Usage: --provider %s --model MODEL_NAME"
 msgstr ""
-"el proveedor 'google' requiere una API key o login OAuth Gemini\n"
+"--model es obligatorio para el proveedor '%s'\n"
 "\n"
-"Opción 1: Guarda una API key:\n"
-"  lokit auth login --provider google\n"
+"Modelos de ejemplo para %s:\n"
+"  %s\n"
 "\n"
-"Opción 2: Inicia sesión con OAuth de Google (gratis: 60 req/min):\n"
-"  lokit auth login --provider gemini\n"
-"\n"
-"Opción 3: Pasa la clave directamente:\n"
-"  --api-key TU_CLAVE o export GOOGLE_API_KEY=TU_CLAVE\n"
-"\n"
-"Obtén una API key en: https://aistudio.google.com/apikey"
+"Uso: --provider %s --model MODEL_NAME"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:304
+#: internal/cli/helpers.go:304
 msgid ""
 "provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
@@ -567,15 +534,20 @@ msgid ""
 "\n"
 "Get an API key from: https://aistudio.google.com/apikey"
 msgstr ""
-"el proveedor 'gemini' requiere login OAuth de Google\n"
+"El proveedor 'google' requiere una clave API o inicio de sesión OAuth de Gemini\n"
 "\n"
-"Inicia sesión con tu cuenta de Google:\n"
+"Opción 1: Almacenar una clave API:\n"
+"  lokit auth login --provider google\n"
+"\n"
+"Opción 2: Iniciar sesión con OAuth de Google (nivel gratuito: 60 req/min):\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"Esto usa Gemini Code Assist (gratis: 60 req/min).\n"
-"Para acceso por API key, usa --provider google."
+"Opción 3: Pasar la clave directamente:\n"
+"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n"
+"\n"
+"Obtén una clave API en: https://aistudio.google.com/apikey"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:316
+#: internal/cli/helpers.go:316
 msgid ""
 "provider 'gemini' requires Google OAuth login\n"
 "\n"
@@ -585,17 +557,15 @@ msgid ""
 "This uses Gemini Code Assist (free tier: 60 req/min).\n"
 "For API key access, use --provider google instead."
 msgstr ""
-"el proveedor 'groq' requiere una API key\n"
+"El proveedor 'gemini' requiere inicio de sesión OAuth de Google\n"
 "\n"
-"Opción 1: Guarda tu API key:\n"
-"  lokit auth login --provider groq\n"
+"Inicia sesión con tu cuenta de Google:\n"
+"  lokit auth login --provider gemini\n"
 "\n"
-"Opción 2: Pasa la clave directamente:\n"
-"  --api-key TU_CLAVE o export GROQ_API_KEY=TU_CLAVE\n"
-"\n"
-"Obtén una API key gratis en: https://console.groq.com/keys"
+"Esto usa Gemini Code Assist (nivel gratuito: 60 req/min).\n"
+"Para acceso por clave API, usa --provider google en su lugar."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:325
+#: internal/cli/helpers.go:325
 msgid ""
 "provider 'groq' requires an API key\n"
 "\n"
@@ -607,18 +577,21 @@ msgid ""
 "\n"
 "Get a free API key from: https://console.groq.com/keys"
 msgstr ""
-"el proveedor 'copilot' requiere autenticación de GitHub Copilot\n"
+"El proveedor 'groq' requiere una clave API\n"
 "\n"
-"Inicia sesión con tu cuenta de GitHub:\n"
-"  lokit auth login --provider copilot\n"
+"Opción 1: Almacena tu clave API:\n"
+"  lokit auth login --provider groq\n"
 "\n"
-"Esto usa GitHub Copilot (requiere suscripción activa a Copilot)."
+"Opción 2: Pasa la clave directamente:\n"
+"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n"
+"\n"
+"Obtén una clave API gratuita en: https://console.groq.com/keys"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:33
+#: internal/cli/helpers.go:33
 msgid "scanning sources: %w"
-msgstr "no se encontraron archivos fuente (soportados: %s)"
+msgstr "escaneando fuentes: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:338
+#: internal/cli/helpers.go:338
 msgid ""
 "provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
@@ -627,15 +600,14 @@ msgid ""
 "\n"
 "This uses GitHub Copilot (requires active Copilot subscription)."
 msgstr ""
-"el proveedor 'custom-openai' requiere una URL de endpoint\n"
+"El proveedor 'copilot' requiere autenticación de GitHub Copilot\n"
 "\n"
-"Opción 1: Configura vía auth:\n"
-"  lokit auth login --provider custom-openai\n"
+"Inicia sesión con tu cuenta de GitHub:\n"
+"  lokit auth login --provider copilot\n"
 "\n"
-"Opción 2: Pásala directamente:\n"
-"  --base-url https://api.example.com/v1"
+"Esto usa GitHub Copilot (requiere suscripción activa a Copilot)."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:346
+#: internal/cli/helpers.go:346
 msgid ""
 "provider 'custom-openai' requires an endpoint URL\n"
 "\n"
@@ -645,15 +617,15 @@ msgid ""
 "Option 2: Pass directly:\n"
 "  --base-url https://api.example.com/v1"
 msgstr ""
-"el proveedor 'ollama' requiere que el servidor Ollama esté en ejecución\n"
+"El proveedor 'custom-openai' requiere una URL de endpoint\n"
 "\n"
-"Inicia Ollama con: ollama serve\n"
-"Instala desde: https://ollama.com\n"
-"Proveedores alternativos:\n"
-"  --provider copilot         (GitHub Copilot, gratis)\n"
-"  --provider google          (requiere API key)"
+"Opción 1: Configurar vía auth:\n"
+"  lokit auth login --provider custom-openai\n"
+"\n"
+"Opción 2: Pasar directamente:\n"
+"  --base-url https://api.example.com/v1"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:361
+#: internal/cli/helpers.go:361
 msgid ""
 "provider 'ollama' requires Ollama server to be running\n"
 "\n"
@@ -662,184 +634,68 @@ msgid ""
 "Alternative providers:\n"
 "  --provider copilot         (GitHub Copilot, free)\n"
 "  --provider google          (requires API key)"
-msgstr "%v"
+msgstr ""
+"El proveedor 'ollama' requiere que el servidor Ollama esté en ejecución\n"
+"\n"
+"Inicia Ollama con: ollama serve\n"
+"Instalar desde: https://ollama.com\n"
+"Proveedores alternativos:\n"
+"  --provider copilot         (GitHub Copilot, gratis)\n"
+"  --provider google          (requiere clave API)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:37
+#: internal/cli/helpers.go:37
 msgid "no source files found (supported: %s)"
-msgstr "Encontrados %d archivos fuente (%s)"
+msgstr "no se encontraron archivos fuente (soportados: %s)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:50
+#: internal/cli/helpers.go:50
 msgid "Found %d source files (%s)"
-msgstr "Directorio raíz del proyecto"
+msgstr "Se encontraron %d archivos fuente (%s)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:82
+#: internal/cli/helpers.go:82
 msgid "Extracting from %d Go files (AST, keywords: %s)..."
+msgstr "Extrayendo de %d archivos Go (AST, palabras clave: %s)..."
+
+#: internal/cli/helpers.go:86
+msgid "Extracting from %d Go files with xgotext..."
 msgstr "Extrayendo de %d archivos Go con xgotext..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:86
-msgid "Extracting from %d Go files with xgotext..."
-msgstr "Extrayendo de %d archivos no-Go con xgettext..."
-
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:93
+#: internal/cli/helpers.go:93
 msgid "Extracting from %d non-Go files with xgettext..."
-msgstr "Error de extracción con xgettext: %w"
+msgstr "Extrayendo de %d archivos no Go con xgettext..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:96
+#: internal/cli/helpers.go:96
 msgid "xgettext extraction failed: %w"
-msgstr "Error de extracción Go: %v"
+msgstr "La extracción con xgettext falló: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:147
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:36
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:182
+#: internal/cli/init.go:147 internal/cli/lock.go:445 internal/cli/status.go:38
+#: internal/cli/translate_cmd.go:181
 msgid "Config error: %v"
-msgstr "Properties init: %d creados, %d actualizados"
+msgstr "Error de configuración: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:151
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:44
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:190
+#: internal/cli/init.go:151 internal/cli/lock.go:448 internal/cli/status.go:46
+#: internal/cli/translate_cmd.go:189
 msgid "No lokit.yaml found in %s"
-msgstr "No hay archivos .properties para traducir"
+msgstr "No se encontró lokit.yaml en %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:152
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:45
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:191
+#: internal/cli/init.go:152 internal/cli/status.go:47
+#: internal/cli/translate_cmd.go:190
 msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr "Proyecto"
+msgstr "Crea un archivo de configuración lokit.yaml. Consulta 'lokit init --help' para el formato."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:160
+#: internal/cli/init.go:160
 msgid "Languages to init (comma-separated, default: all from config)"
-msgstr "Vue i18n init: %d creados, %d actualizados"
+msgstr "Idiomas a inicializar (separados por comas; por defecto: todos los del archivo de configuración)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:171
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:64
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:233
+#: internal/cli/init.go:171 internal/cli/lock.go:453 internal/cli/status.go:86
+#: internal/cli/translate_cmd.go:232
 msgid "Config resolve error: %v"
-msgstr "No hay archivos ARB para traducir"
+msgstr "Error al resolver la configuración: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:23
+#: internal/cli/init.go:23
 msgid "Prepare translation files (extract strings, create/update PO)"
-msgstr ""
-"Extrae cadenas traducibles y crea/actualiza archivos de traducción.\n"
-"\n"
-"Requiere un archivo de configuración lokit.yaml en la raíz del proyecto.\n"
-"\n"
-"Para proyectos gettext: ejecuta xgettext para extraer cadenas a una plantilla POT,\n"
-"luego crea o actualiza archivos PO para cada idioma.\n"
-"\n"
-"Para proyectos po4a: ejecuta 'po4a --no-translations' para actualizar plantillas.\n"
-"\n"
-"Para i18next/vue-i18n/json/yaml/properties/flutter: crea archivos de idioma\n"
-"faltantes con traducciones vacías.\n"
-"\n"
-"Para android/markdown: no se necesita paso init — usa 'lokit translate'\n"
-"directamente.\n"
-"\n"
-"Este comando es idempotente — seguro de ejecutar múltiples veces. Las\n"
-"traducciones existentes se preservan al actualizar archivos.\n"
-"\n"
-"FORMATO DE CONFIGURACIÓN (lokit.yaml)\n"
-"\n"
-"  source_lang: en                    # Idioma fuente (por defecto: en)\n"
-"  languages: [ru, de, fr, es, ...]   # Idiomas destino\n"
-"\n"
-"  targets:\n"
-"    - name: myproject                # Nombre para mostrar\n"
-"      type: gettext                  # Tipo de target (ver abajo)\n"
-"      root: .                        # Directorio de trabajo (por defecto: .)\n"
-"      # ... opciones específicas por tipo\n"
-"\n"
-"TIPOS DE TARGET\n"
-"\n"
-"  gettext — Extracción de cadenas del código fuente (shell, python, C, Go, etc.)\n"
-"    dir: po                          # Directorio de archivos PO (obligatorio)\n"
-"    pot: messages.pot                # Nombre de plantilla POT (dentro de dir)\n"
-"    sources: [src, scripts]          # Directorios a escanear (por defecto: root)\n"
-"    keywords: [_, N_, gettext]       # Palabras clave xgettext (por defecto: estándar)\n"
-"\n"
-"  po4a — Traducción de documentación (man pages, AsciiDoc, etc.)\n"
-"    config: po4a.cfg                 # Ruta a po4a.cfg (obligatorio)\n"
-"\n"
-"  i18next — Traducciones JSON para i18next\n"
-"    dir: public/translations         # Directorio de archivos JSON (obligatorio)\n"
-"    pattern: \"{lang}.json\"           # Patrón de archivo de idioma (obligatorio)\n"
-"\n"
-"  vue-i18n — Traducciones JSON anidadas para vue-i18n\n"
-"    dir: frontend/src/i18n           # Directorio de archivos JSON (obligatorio)\n"
-"    pattern: \"{lang}.json\"           # Patrón de archivo de idioma (obligatorio)\n"
-"\n"
-"  json — Traducciones JSON simples { \"key\": \"value\" }\n"
-"    dir: translations                # Directorio de archivos JSON (obligatorio)\n"
-"    pattern: \"{lang}.json\"           # Patrón de archivo de idioma (obligatorio)\n"
-"\n"
-"  android — Android strings.xml\n"
-"    dir: app/src/main/res            # Directorio res/ de Android (obligatorio)\n"
-"\n"
-"  yaml — Traducciones YAML clave/valor\n"
-"    dir: translations                # Directorio de archivos YAML (obligatorio)\n"
-"    pattern: \"{lang}.yaml\"           # Patrón de archivo de idioma (obligatorio)\n"
-"\n"
-"  markdown — Traducción de documentos Markdown\n"
-"    dir: translations                # Directorio raíz; archivos en translations/LANG/ (obligatorio)\n"
-"\n"
-"  properties — Traducciones Java .properties\n"
-"    dir: translations                # Directorio de archivos .properties (obligatorio)\n"
-"    pattern: \"{lang}.properties\"     # Patrón de archivo de idioma (obligatorio)\n"
-"\n"
-"  flutter — Flutter ARB (Application Resource Bundle)\n"
-"    dir: lib/l10n                    # Directorio de archivos ARB (obligatorio)\n"
-"    pattern: \"app_{lang}.arb\"        # Patrón de archivo de idioma (obligatorio)\n"
-"\n"
-"OPCIONES COMUNES (todos los tipos de target)\n"
-"\n"
-"  languages: [ru, de]               # Sobrescribe la lista global de idiomas\n"
-"  prompt: \"Traducción personalizada...\"   # Sobrescribe el prompt de traducción IA\n"
-"\n"
-"EJEMPLOS\n"
-"\n"
-"  # Scripts de shell con gettext\n"
-"  source_lang: en\n"
-"  languages: [ru, de, fr]\n"
-"  targets:\n"
-"    - name: myapp\n"
-"      type: gettext\n"
-"      sources: [scripts, lib]\n"
-"      keywords: [gettext, eval_gettext]\n"
-"\n"
-"  # Proyecto Go con funciones wrapper\n"
-"  targets:\n"
-"    - name: myapp\n"
-"      type: gettext\n"
-"      sources: [.]\n"
-"      keywords: [T, N]\n"
-"\n"
-"  # Documentación + código\n"
-"  targets:\n"
-"    - name: code\n"
-"      type: gettext\n"
-"      sources: [src]\n"
-"    - name: docs\n"
-"      type: po4a\n"
-"      config: docs/po4a.cfg\n"
-"\n"
-"  # Aplicación web i18next\n"
-"  targets:\n"
-"    - name: frontend\n"
-"      type: i18next\n"
-"      dir: public/translations\n"
-"\n"
-"  # Aplicación Flutter\n"
-"  targets:\n"
-"    - name: app\n"
-"      type: flutter\n"
-"      dir: lib/l10n\n"
-"\n"
-"  # Aplicación Java con .properties\n"
-"  targets:\n"
-"    - name: app\n"
-"      type: properties\n"
-"      dir: src/main/resources"
+msgstr "Preparar archivos de traducción (extraer cadenas, crear/actualizar PO)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:24
+#: internal/cli/init.go:24
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"
@@ -962,157 +818,436 @@ msgid ""
 "      dir: src/main/resources"
 msgstr "Idiomas para inicializar (separados por coma, por defecto: todos los del config)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:243
+#: internal/cli/init.go:243
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Los targets de Android no requieren init — usa 'lokit translate' directamente."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:264
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:526
+#: internal/cli/init.go:264 internal/cli/target_core.go:526
 msgid "Cannot read source language file %s: %v"
 msgstr "No se puede leer el archivo de idioma fuente %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:269
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:89
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:591
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:811
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:81
+#: internal/cli/init.go:269 internal/cli/target_content.go:89
+#: internal/cli/target_content.go:591 internal/cli/target_content.go:811
+#: internal/cli/target_vuei18n.go:81
 msgid "Source language (%s): %d keys"
 msgstr "Idioma fuente (%s): %d claves"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:295
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:111
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:611
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:831
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:101
+#: internal/cli/init.go:295 internal/cli/target_content.go:111
+#: internal/cli/target_content.go:611 internal/cli/target_content.go:831
+#: internal/cli/target_vuei18n.go:101
 msgid "Created: %s (%d keys)"
 msgstr "Creado: %s (%d claves)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:311
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:70
+#: internal/cli/init.go:311 internal/cli/target_core.go:70
 msgid "Updating %s: %v"
 msgstr "Actualizando %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:314
+#: internal/cli/init.go:314
 msgid "Updated: %s (+%d new keys)"
 msgstr "Actualizado: %s (+%d claves nuevas)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:317
+#: internal/cli/init.go:317
 msgid "%s: up to date"
-msgstr "%s: actualizado"
+msgstr "%s: al día"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:321
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:554
+#: internal/cli/init.go:321 internal/cli/init.go:554
 msgid "Summary: %d created, %d updated"
 msgstr "Resumen: %d creados, %d actualizados"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:483
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:560
+#: internal/cli/init.go:324 internal/cli/init.go:483 internal/cli/init.go:560
 msgid "Init complete!"
-msgstr "¡Init completado!"
+msgstr "¡Inicialización completa!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:337
+#: internal/cli/init.go:337
 msgid "pandoc not found, skipping manpage generation from markdown"
-msgstr "pandoc no encontrado, omitiendo la generación de manpage desde markdown"
+msgstr "pandoc no encontrado, omitiendo generación de páginas de manual desde Markdown"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:352
+#: internal/cli/init.go:352
 msgid "failed to list markdown files: %w"
-msgstr "error al listar archivos markdown: %w"
+msgstr "Error al listar archivos Markdown: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:385
+#: internal/cli/init.go:385
 msgid "Generating %s from %s"
 msgstr "Generando %s desde %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:390
+#: internal/cli/init.go:390
 msgid "pandoc failed for %s: %w"
 msgstr "pandoc falló para %s: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:395
+#: internal/cli/init.go:395
 msgid "Failed to post-process %s: %v"
 msgstr "Error al postprocesar %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:402
+#: internal/cli/init.go:402
 msgid "Generated %d manpage(s) from markdown"
-msgstr "Generadas %d manpages desde markdown"
+msgstr "Generadas %d páginas de manual desde Markdown"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:437
+#: internal/cli/init.go:437
 msgid "po4a is not installed. Install with: sudo apt install po4a"
-msgstr "po4a no está instalado. Instala con: sudo apt install po4a"
+msgstr "po4a no está instalado. Instálalo con: sudo apt install po4a"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:442
+#: internal/cli/init.go:442
 msgid "Failed to generate manpages from markdown: %v"
-msgstr "Error al generar manpages desde markdown: %v"
+msgstr "Error al generar páginas de manual desde Markdown: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:443
+#: internal/cli/init.go:443
 msgid "Continuing anyway, po4a might fail if source files don't exist"
-msgstr "Continuando de todos modos, po4a puede fallar si no existen los archivos fuente"
+msgstr "Se continúa de todos modos; po4a podría fallar si los archivos fuente no existen"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:446
+#: internal/cli/init.go:446
 msgid "Running po4a --no-translations %s ..."
 msgstr "Ejecutando po4a --no-translations %s ..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:452
+#: internal/cli/init.go:452
 msgid "po4a failed: %v"
 msgstr "po4a falló: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:454
+#: internal/cli/init.go:454
 msgid "po4a updated POT and PO files"
 msgstr "po4a actualizó los archivos POT y PO"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:471
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:489
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:322
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:227
+#: internal/cli/init.go:471 internal/cli/init.go:489 internal/cli/lock.go:154
+#: internal/cli/lock.go:232 internal/cli/lock.go:324 internal/cli/lock.go:400
+#: internal/cli/root.go:325 internal/cli/translate_cmd.go:226
 msgid "%v"
-msgstr "no se encuentra el archivo YAML de origen para el idioma %q en %s"
+msgstr "%v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:496
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:118
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:198
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:360
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:453
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:616
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:684
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:836
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:904
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:152
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:291
+#: internal/cli/init.go:496 internal/cli/init.go:540
+#: internal/cli/target_content.go:118 internal/cli/target_content.go:198
+#: internal/cli/target_content.go:360 internal/cli/target_content.go:453
+#: internal/cli/target_content.go:463 internal/cli/target_content.go:616
+#: internal/cli/target_content.go:684 internal/cli/target_content.go:836
+#: internal/cli/target_content.go:904 internal/cli/target_core.go:152
+#: internal/cli/target_core.go:291
 msgid "Reading %s: %v"
 msgstr "Leyendo %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:500
+#: internal/cli/init.go:500
 msgid "Updating PO files for: %s"
 msgstr "Actualizando archivos PO para: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:535
+#: internal/cli/init.go:535
 msgid "Created: %s"
 msgstr "Creado: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:546
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:124
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:365
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:621
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:841
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:108
+#: internal/cli/init.go:546 internal/cli/target_content.go:124
+#: internal/cli/target_content.go:365 internal/cli/target_content.go:621
+#: internal/cli/target_content.go:841 internal/cli/target_vuei18n.go:108
 msgid "Writing %s: %v"
 msgstr "Escribiendo %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:549
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:127
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:368
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:624
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:844
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:111
+#: internal/cli/init.go:549 internal/cli/target_content.go:127
+#: internal/cli/target_content.go:368 internal/cli/target_content.go:624
+#: internal/cli/target_content.go:844 internal/cli/target_vuei18n.go:111
 msgid "Updated: %s"
 msgstr "Actualizado: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:182
-msgid "Localization Kit: AI-powered translation for multiple formats"
-msgstr "Localization Kit: traducción con IA para múltiples formatos"
+#: internal/cli/lock.go:108
+msgid "Remove stale lock entries"
+msgstr "Eliminar entradas de bloqueo obsoletas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:183
+#: internal/cli/lock.go:109
+msgid ""
+"Remove lock entries that no longer exist in source files.\n"
+"\n"
+"Examples:\n"
+"  lokit lock clean\n"
+"  lokit lock clean --target ui\n"
+"  lokit lock clean --dry-run"
+msgstr ""
+"Eliminar entradas de lock que ya no existen en los archivos fuente.\n"
+"\n"
+"Ejemplos:\n"
+"  lokit lock clean\n"
+"  lokit lock clean --target ui\n"
+"  lokit lock clean --dry-run"
+
+#: internal/cli/lock.go:121
+msgid "Show stale entries without modifying lokit.lock"
+msgstr "Mostrar entradas obsoletas sin modificar lokit.lock"
+
+#: internal/cli/lock.go:132
+msgid "Reset lock entries"
+msgstr "Restablecer entradas de lock"
+
+#: internal/cli/lock.go:133
+msgid ""
+"Reset lock data at different scopes:\n"
+"\n"
+"  - whole file:          lokit lock reset\n"
+"  - all languages target: lokit lock reset --target ui\n"
+"  - single language:      lokit lock reset --target ui --lang ru\n"
+"\n"
+"Use --yes to skip confirmation."
+msgstr ""
+"Restablecer datos de lock en distintos ámbitos:\n"
+"\n"
+"  - archivo completo:          lokit lock reset\n"
+"  - target de todos los idiomas: lokit lock reset --target ui\n"
+"  - un solo idioma:            lokit lock reset --target ui --lang ru\n"
+"\n"
+"Usa --yes para omitir la confirmación."
+
+#: internal/cli/lock.go:145
+msgid "Target name from lokit.yaml"
+msgstr "Nombre del target en lokit.yaml"
+
+#: internal/cli/lock.go:146
+msgid "Language code (requires --target)"
+msgstr "Código de idioma (requiere --target)"
+
+#: internal/cli/lock.go:147
+msgid "Skip confirmation prompt"
+msgstr "Omitir aviso de confirmación"
+
+#: internal/cli/lock.go:160 internal/cli/lock.go:238 internal/cli/lock.go:330
+#: internal/cli/lock.go:389 internal/cli/translate_cmd.go:243
+msgid "Could not load lock file: %v"
+msgstr "No se pudo cargar el archivo lock: %v"
+
+#: internal/cli/lock.go:172 internal/cli/lock.go:340
+#: internal/cli/translate_cmd.go:288 internal/cli/translate_cmd.go:293
+#: internal/cli/translate_cmd.go:298 internal/cli/translate_cmd.go:303
+#: internal/cli/translate_cmd.go:308 internal/cli/translate_cmd.go:313
+#: internal/cli/translate_cmd.go:318 internal/cli/translate_cmd.go:323
+#: internal/cli/translate_cmd.go:328 internal/cli/translate_cmd.go:333
+msgid "[%s] %v"
+msgstr "[%s] %v"
+
+#: internal/cli/lock.go:200 internal/cli/lock.go:376 internal/cli/lock.go:431
+#: internal/cli/translate_cmd.go:348
+msgid "Could not save lock file: %v"
+msgstr "No se pudo guardar el archivo lock: %v"
+
+#: internal/cli/lock.go:204
+msgid "Lock initialized: %d target-language entries updated"
+msgstr "Lock inicializado: %d entradas target-idioma actualizadas"
+
+#: internal/cli/lock.go:205
+msgid "Added: %d, skipped existing: %d"
+msgstr "Añadidos: %d, omitidos (existentes): %d"
+
+#: internal/cli/lock.go:206
+msgid "Lock file: %s"
+msgstr "Archivo de lock: %s"
+
+#: internal/cli/lock.go:286
+msgid "JSON output error: %v"
+msgstr "Error de salida JSON: %v"
+
+#: internal/cli/lock.go:292
+msgid "Lock File"
+msgstr "Archivo de lock"
+
+#: internal/cli/lock.go:293
+msgid "Path"
+msgstr "Ruta"
+
+#: internal/cli/lock.go:295 internal/cli/root.go:368 internal/cli/root.go:441
+#: internal/cli/root.go:485 internal/cli/status.go:74
+#: internal/cli/target_content.go:27 internal/cli/target_content.go:263
+#: internal/cli/target_content.go:525 internal/cli/target_content.go:745
+#: internal/cli/target_vuei18n.go:28
+msgid "not found"
+msgstr "no encontrado"
+
+#: internal/cli/lock.go:295
+msgid "Status"
+msgstr "Estado"
+
+#: internal/cli/lock.go:296 internal/cli/lock.go:302 internal/cli/status.go:62
+msgid "Targets"
+msgstr "Targets"
+
+#: internal/cli/lock.go:297 internal/cli/lock.go:303 internal/cli/status.go:60
+#: internal/cli/status.go:103 internal/cli/status.go:105
+msgid "Languages"
+msgstr "Idiomas"
+
+#: internal/cli/lock.go:298 internal/cli/lock.go:304
+msgid "Keys"
+msgstr "Claves"
+
+#: internal/cli/lock.go:30
+msgid "Manage lokit.lock file"
+msgstr "Gestionar archivo lokit.lock"
+
+#: internal/cli/lock.go:307
+msgid "%d keys across %d languages"
+msgstr "%d claves en %d idiomas"
+
+#: internal/cli/lock.go:31
+msgid ""
+"Manage incremental translation lock data in lokit.lock.\n"
+"\n"
+"Subcommands:\n"
+"  init    Initialize lock entries from source strings without AI calls\n"
+"  status  Show lock statistics\n"
+"  clean   Remove stale lock entries not present in source\n"
+"  reset   Remove all or part of lock data"
+msgstr ""
+"Gestiona datos de lock de traducción incremental en lokit.lock.\n"
+"\n"
+"Subcomandos:\n"
+"  init    Inicializa entradas del lock a partir de las cadenas fuente sin invocar IA\n"
+"  status  Muestra estadísticas del lock\n"
+"  clean   Elimina entradas obsoletas del lock que no están en la fuente\n"
+"  reset   Elimina todo o parte de los datos del lock"
+
+#: internal/cli/lock.go:315
+msgid "%d keys"
+msgstr "%d claves"
+
+#: internal/cli/lock.go:353
+msgid "[%s/%s] stale entries: %d (tracked: %d)"
+msgstr "[%s/%s] entradas obsoletas: %d (registradas: %d)"
+
+#: internal/cli/lock.go:361
+msgid "[%s/%s] removed stale entries: %d"
+msgstr "[%s/%s] entradas obsoletas eliminadas: %d"
+
+#: internal/cli/lock.go:368
+msgid "Dry run: total stale entries: %d"
+msgstr "Simulación: total de entradas obsoletas: %d"
+
+#: internal/cli/lock.go:379
+msgid "Removed stale entries: %d"
+msgstr "Entradas obsoletas eliminadas: %d"
+
+#: internal/cli/lock.go:394
+msgid "--lang requires --target"
+msgstr "--lang requiere --target"
+
+#: internal/cli/lock.go:406
+msgid "Reset entire lock file?"
+msgstr "¿Restablecer todo el archivo lock?"
+
+#: internal/cli/lock.go:407
+msgid "Cancelled"
+msgstr "Cancelado"
+
+#: internal/cli/lock.go:411
+msgid "Removing %s: %v"
+msgstr "Eliminando %s: %v"
+
+#: internal/cli/lock.go:414
+msgid "Reset complete: %s removed"
+msgstr "Restablecimiento completado: %s eliminado"
+
+#: internal/cli/lock.go:436
+msgid "Reset complete: %s/%s"
+msgstr "Restablecimiento completado: %s/%s"
+
+#: internal/cli/lock.go:439
+msgid "Reset complete: target %s"
+msgstr "Restablecimiento completado: target %s"
+
+#: internal/cli/lock.go:466
+msgid "Target %q not found in lokit.yaml"
+msgstr "Target %q no encontrado en lokit.yaml"
+
+#: internal/cli/lock.go:490
+msgid "unsupported target type %q"
+msgstr "tipo de target %q no soportado"
+
+#: internal/cli/lock.go:498
+msgid "cannot read POT %s: %v"
+msgstr "no se puede leer POT %s: %v"
+
+#: internal/cli/lock.go:532
+msgid "cannot read any po4a PO files for target %s"
+msgstr "no se pueden leer archivos PO de po4a para el target %s"
+
+#: internal/cli/lock.go:544 internal/cli/lock.go:561 internal/cli/lock.go:611
+#: internal/cli/lock.go:651 internal/cli/lock.go:668
+msgid "cannot read source file %s: %v"
+msgstr "no se puede leer el archivo fuente %s: %v"
+
+#: internal/cli/lock.go:56
+msgid "Initialize lock from existing sources"
+msgstr "Inicializar lock desde fuentes existentes"
+
+#: internal/cli/lock.go:57
+msgid ""
+"Initialize lokit.lock from current source files without calling AI.\n"
+"\n"
+"For each target/language pair, lokit stores source-content checksums used by\n"
+"incremental translation.\n"
+"\n"
+"Examples:\n"
+"  lokit lock init\n"
+"  lokit lock init --target ui\n"
+"  lokit lock init --target ui --force"
+msgstr ""
+"Inicializa lokit.lock a partir de los archivos fuente actuales sin llamar a la IA.\n"
+"\n"
+"Para cada par target/idioma, lokit almacena sumas de comprobación del contenido fuente usadas por\n"
+"la traducción incremental.\n"
+"\n"
+"Ejemplos:\n"
+"  lokit lock init\n"
+"  lokit lock init --target ui\n"
+"  lokit lock init --target ui --force"
+
+#: internal/cli/lock.go:575
+msgid "cannot read source strings.xml %s: %v"
+msgstr "no se puede leer el strings.xml fuente %s: %v"
+
+#: internal/cli/lock.go:625
+msgid "cannot read markdown files in %s: %v"
+msgstr "no se pueden leer archivos Markdown en %s: %v"
+
+#: internal/cli/lock.go:628 internal/cli/target_content.go:394
+msgid "cannot find source Markdown files in %s"
+msgstr "no se encontraron archivos Markdown fuente en %s"
+
+#: internal/cli/lock.go:635
+msgid "cannot read source Markdown file %s: %v"
+msgstr "no se puede leer el archivo Markdown fuente %s: %v"
+
+#: internal/cli/lock.go:71 internal/cli/lock.go:96 internal/cli/lock.go:120
+msgid "Target name from lokit.yaml (default: all targets)"
+msgstr "Nombre del target en lokit.yaml (por defecto: todos los targets)"
+
+#: internal/cli/lock.go:72
+msgid "Overwrite existing lock entries for selected targets"
+msgstr "Sobrescribir entradas existentes del lock para los targets seleccionados"
+
+#: internal/cli/lock.go:83
+msgid "Show lock file statistics"
+msgstr "Mostrar estadísticas del archivo lock"
+
+#: internal/cli/lock.go:84
+msgid ""
+"Show statistics for lokit.lock, including tracked targets and keys.\n"
+"\n"
+"Examples:\n"
+"  lokit lock status\n"
+"  lokit lock status --target ui\n"
+"  lokit lock status --verbose\n"
+"  lokit lock status --json"
+msgstr ""
+"Mostrar estadísticas de lokit.lock, incluidos los targets y claves rastreados.\n"
+"\n"
+"Ejemplos:\n"
+"  lokit lock status\n"
+"  lokit lock status --target ui\n"
+"  lokit lock status --verbose\n"
+"  lokit lock status --json"
+
+#: internal/cli/lock.go:97
+msgid "Show per-language lock breakdown"
+msgstr "Mostrar desglose del lock por idioma"
+
+#: internal/cli/lock.go:98
+msgid "Output lock status as JSON"
+msgstr "Mostrar el estado del lock en JSON"
+
+#: internal/cli/root.go:182
+msgid "Localization Kit: AI-powered translation for multiple formats"
+msgstr "Localization Kit: traducción potenciada por IA para múltiples formatos"
+
+#: internal/cli/root.go:183
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
@@ -1120,6 +1255,7 @@ msgid ""
 "  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
 "  po4a        Documentation translation (man pages, groff/roff markup)\n"
 "  i18next     React/i18next JSON translation files\n"
+"  vue-i18n    Vue i18n nested JSON translation files\n"
 "  android     Android strings.xml resource files\n"
 "  json        Generic JSON translation files\n"
 "  yaml        YAML translation files\n"
@@ -1141,844 +1277,747 @@ msgid ""
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
-"lokit — Localization Kit: traducción con IA para múltiples formatos.\n"
+"lokit — Localization Kit: traducción potenciada por IA para múltiples formatos.\n"
 "\n"
-"Tipos de proyecto soportados (autodetectados o configurados vía lokit.yaml):\n"
+"Tipos de proyecto compatibles (auto-detectados o configurados vía lokit.yaml):\n"
 "  gettext     Archivos PO planos (po/*.po) y anidados (po/lang/*.po)\n"
-"  po4a        Traducción de documentación (man pages, groff/roff markup)\n"
-"  i18next     Archivos de traducción JSON para React/i18next\n"
-"  android     Archivos de recursos Android strings.xml\n"
-"  json        Archivos de traducción JSON genéricos\n"
-"  yaml        Archivos de traducción YAML\n"
+"  po4a        Traducción de documentación (man pages, marcado groff/roff)\n"
+"  i18next     Archivos JSON de traducción para React/i18next\n"
+"  vue-i18n    Archivos JSON anidados para Vue i18n\n"
+"  android     Archivos de recursos strings.xml de Android\n"
+"  json        Archivos JSON genéricos de traducción\n"
+"  yaml        Archivos YAML de traducción\n"
 "  markdown    Traducción de documentos Markdown\n"
 "  properties  Archivos de traducción Java .properties\n"
-"  flutter     Archivos Flutter ARB (Application Resource Bundle)\n"
+"  flutter     Archivos ARB (Application Resource Bundle) de Flutter\n"
 "\n"
 "Configuración:\n"
-"  La configuración del proyecto se define en lokit.yaml en la raíz.\n"
-"  Cada proyecto puede tener varios targets de traducción de distintos tipos.\n"
-"  Consulta ejemplos de proyectos para el formato de lokit.yaml.\n"
+"  Las opciones del proyecto se definen en lokit.yaml en la raíz del proyecto.\n"
+"  Cada proyecto puede tener múltiples targets de traducción con distintos tipos.\n"
+"  Consulta los ejemplos de proyectos para el formato de lokit.yaml.\n"
 "\n"
-"Proveedores IA:\n"
-"  google         Google AI (Gemini) — API key\n"
+"Proveedores de IA:\n"
+"  google         Google AI (Gemini) — clave API\n"
 "  gemini         Gemini Code Assist — OAuth en navegador (gratis)\n"
-"  groq           Groq — requiere API key\n"
-"  opencode       OpenCode Zen API (modelos gratis sin clave)\n"
+"  groq           Groq — requiere clave API\n"
+"  opencode       OpenCode Zen API (modelos gratuitos disponibles sin clave)\n"
 "  copilot        GitHub Copilot (OAuth nativo, gratis)\n"
 "  ollama         Servidor local Ollama\n"
-"  custom-openai  Endpoint personalizado compatible con OpenAI"
+"  custom-openai  Endpoint compatible con OpenAI personalizado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:215
+#: internal/cli/root.go:216
 msgid "default"
 msgstr "predeterminado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:218
+#: internal/cli/root.go:219
 msgid "Use \"%s [command] --help\" for more information about a command."
-msgstr "Usa \"%s [comando] --help\" para más información sobre un comando."
+msgstr "Usa \"%s [command] --help\" para obtener más información sobre un comando."
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:224
+#: internal/cli/root.go:225
 msgid "Usage:"
 msgstr "Uso:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:228
+#: internal/cli/root.go:229
 msgid "Aliases:"
 msgstr "Alias:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:231
+#: internal/cli/root.go:232
 msgid "Examples:"
 msgstr "Ejemplos:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:234
+#: internal/cli/root.go:235
 msgid "Available Commands:"
 msgstr "Comandos disponibles:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:240
+#: internal/cli/root.go:241
 msgid "Additional Commands:"
 msgstr "Comandos adicionales:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:243
+#: internal/cli/root.go:244
 msgid "Flags:"
-msgstr "Flags:"
+msgstr "Opciones:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:246
+#: internal/cli/root.go:247
 msgid "Global Flags:"
-msgstr "Flags globales:"
+msgstr "Opciones globales:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:249
+#: internal/cli/root.go:250
 msgid "Additional help topics:"
 msgstr "Temas de ayuda adicionales:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:258
+#: internal/cli/root.go:259
 msgid "Help about any command"
-msgstr "La próxima vez se volverá a intentar automáticamente en la primera traducción."
+msgstr "Ayuda sobre cualquier comando"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:259
+#: internal/cli/root.go:260
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
-msgstr "%s — Configuración de API Key"
+msgstr ""
+"Help proporciona ayuda para cualquier comando de la aplicación.\n"
+"Simplemente escribe %s help [ruta del comando] para obtener detalles completos."
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:281
+#: internal/cli/root.go:282
 msgid ""
 "Unknown help topic %q\n"
-msgstr "Proveedores con API Key"
+msgstr ""
+"Tema de ayuda desconocido %q\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:291
+#: internal/cli/root.go:292
 msgid "Project root directory"
-msgstr "Extrayendo de %d archivos Go (AST, palabras clave: %s)..."
+msgstr "Directorio raíz del proyecto"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:309
+#: internal/cli/root.go:311
 msgid "this command"
+msgstr "este comando"
+
+#: internal/cli/root.go:313
+msgid "help for %s"
 msgstr "ayuda para %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:311
-msgid "help for %s"
-msgstr "consulta la documentación del proveedor"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
+#: internal/cli/root.go:368
 msgid "POT"
-msgstr "no encontrado"
+msgstr "POT"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
+#: internal/cli/root.go:368
 msgid "run 'lokit init'"
-msgstr "Cadenas fuente"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:27
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:263
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:525
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:745
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:28
-msgid "not found"
 msgstr "ejecuta 'lokit init'"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:350
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:467
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:511
+#: internal/cli/root.go:372 internal/cli/root.go:489 internal/cli/root.go:533
 msgid "Source strings"
-msgstr "Fuzzy"
+msgstr "Cadenas de origen"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-msgid "Fuzzy"
-msgstr "Izquierda"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Progress"
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
+msgid "Lang"
 msgstr "Idioma"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Left"
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
+msgid "Done"
+msgstr "Completado"
+
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:538
+#: internal/cli/root.go:599
+msgid "Fuzzy"
+msgstr "Fuzzy"
+
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
+msgid "Progress"
 msgstr "Progreso"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Lang"
-msgstr "Listo"
+#: internal/cli/root.go:377 internal/cli/root.go:450 internal/cli/root.go:494
+#: internal/cli/root.go:538 internal/cli/root.go:645
+#: internal/cli/target_content.go:42 internal/cli/target_content.go:280
+#: internal/cli/target_content.go:540 internal/cli/target_content.go:760
+#: internal/cli/target_vuei18n.go:38
+msgid "Left"
+msgstr "Restante"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Done"
+#: internal/cli/root.go:384 internal/cli/root.go:415 internal/cli/root.go:461
+#: internal/cli/root.go:502 internal/cli/root.go:554 internal/cli/root.go:607
+#: internal/cli/root.go:657 internal/cli/target_content.go:49
+#: internal/cli/target_content.go:288 internal/cli/target_content.go:550
+#: internal/cli/target_content.go:770 internal/cli/target_vuei18n.go:50
+msgid "missing"
 msgstr "faltante"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:362
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:393
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:439
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:480
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:532
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:585
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:635
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:49
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:288
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:550
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:770
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:50
-msgid "missing"
-msgstr "configuración po4a"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:380
+#: internal/cli/root.go:402
 msgid "po4a config"
+msgstr "configuración de po4a"
+
+#: internal/cli/root.go:407 internal/cli/root.go:599
+msgid "Total"
 msgstr "Total"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-msgid "Total"
+#: internal/cli/root.go:433 internal/cli/target_content.go:22
+#: internal/cli/target_content.go:257 internal/cli/target_content.go:517
+#: internal/cli/target_content.go:737 internal/cli/target_vuei18n.go:19
+msgid "Translations"
 msgstr "Traducciones"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:411
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:22
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:257
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:517
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:737
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:19
-msgid "Translations"
-msgstr "Fuente"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:27
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:33
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:263
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:525
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:531
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:745
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:751
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:28
+#: internal/cli/root.go:441 internal/cli/root.go:485
+#: internal/cli/target_content.go:27 internal/cli/target_content.go:33
+#: internal/cli/target_content.go:263 internal/cli/target_content.go:525
+#: internal/cli/target_content.go:531 internal/cli/target_content.go:745
+#: internal/cli/target_content.go:751 internal/cli/target_vuei18n.go:28
 msgid "Source"
-msgstr "Claves fuente"
+msgstr "Origen"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:423
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:617
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:37
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:535
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:755
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:33
+#: internal/cli/root.go:445 internal/cli/root.go:639
+#: internal/cli/target_content.go:37 internal/cli/target_content.go:535
+#: internal/cli/target_content.go:755 internal/cli/target_vuei18n.go:33
 msgid "Source keys"
-msgstr "Res dir"
+msgstr "Claves de origen"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:459
+#: internal/cli/root.go:481
 msgid "Res dir"
-msgstr "error de análisis: %v"
+msgstr "Dir recursos"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:506
+#: internal/cli/root.go:528
 msgid "No translatable strings found in %s"
+msgstr "No se encontraron cadenas traducibles en %s"
+
+#: internal/cli/root.go:532
+msgid "Translation Statistics"
 msgstr "Estadísticas de traducción"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:510
-msgid "Translation Statistics"
+#: internal/cli/root.go:574
+msgid "Translation gaps:"
 msgstr "Brechas de traducción:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:552
-msgid "Translation gaps:"
+#: internal/cli/root.go:578
+msgid "%d untranslated"
 msgstr "%d sin traducir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:556
-msgid "%d untranslated"
+#: internal/cli/root.go:581
+msgid "%d fuzzy"
 msgstr "%d fuzzy"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:559
-msgid "%d fuzzy"
+#: internal/cli/root.go:595
+msgid "Documentation Statistics"
 msgstr "Estadísticas de documentación"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:573
-msgid "Documentation Statistics"
+#: internal/cli/root.go:626
+msgid "No language files detected in %s"
 msgstr "No se detectaron archivos de idioma en %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:604
-msgid "No language files detected in %s"
-msgstr "Estadísticas de traducción de la interfaz"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:615
+#: internal/cli/root.go:637
 msgid "UI Translation Statistics"
-msgstr "Patrón locked_pattern inválido %q: %v"
+msgstr "Estadísticas de traducción de la IU"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:65
+#: internal/cli/root.go:65
 msgid "Invalid locked_pattern %q: %v"
-msgstr "Preparar archivos de traducción (extraer cadenas, crear/actualizar PO)"
+msgstr "locked_pattern inválido %q: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:17
+#: internal/cli/status.go:100
+msgid "%d keys x %d languages"
+msgstr "%d claves x %d idiomas"
+
+#: internal/cli/status.go:100
+msgid "Locked"
+msgstr "Bloqueado"
+
+#: internal/cli/status.go:105
+msgid "none detected"
+msgstr "ninguno detectado"
+
+#: internal/cli/status.go:18
 msgid "Show project info and translation statistics"
-msgstr "%s (%s): %d segmentos por traducir"
+msgstr "Mostrar información del proyecto y estadísticas de traducción"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:18
+#: internal/cli/status.go:19
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
-"Displays project type (gettext, po4a, i18next, android), file structure,\n"
-"detected languages, and per-language translation progress. For projects\n"
+"Displays target type, file structure, detected languages, and per-language\n"
+"translation progress for gettext, po4a, i18next, vue-i18n, android, json,\n"
+"yaml, markdown, properties, and flutter projects. For projects\n"
 "configured via lokit.yaml, shows each target separately.\n"
 "\n"
 "Does not modify any files."
-msgstr "No hay archivos Markdown para traducir"
-
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:52
-msgid "Project"
-msgstr "Config"
-
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:53
-msgid "Config"
-msgstr "Raíz"
-
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:54
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:72
-msgid "Root"
-msgstr "Idioma fuente"
-
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:55
-msgid "Source lang"
-msgstr "No se encuentra el archivo ARB de origen: %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:58
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:75
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:77
-msgid "Languages"
-msgstr "Targets"
-
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:60
-msgid "Targets"
-msgstr "Flutter ARB init: %d creados, %d actualizados"
-
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:77
-msgid "none detected"
-msgstr "POT"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:104
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:335
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:443
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:604
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:824
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:94
-msgid "Creating directory %s: %v"
-msgstr "Creando directorio %s: %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:131
-msgid "YAML init: %d created, %d updated"
-msgstr "YAML init: %d creados, %d actualizados"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:137
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:380
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:635
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:855
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:76
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:187
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:323
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:345
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:367
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:574
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:121
-msgid "Provider: %s (%s), Model: %s"
-msgstr "Proveedor: %s (%s), Modelo: %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:139
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:382
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:637
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:857
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:78
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:369
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:576
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:123
-msgid "Parallel: enabled, max concurrent: %d"
-msgstr "Paralelo: activado, máximo concurrentes: %d"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:142
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:640
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:860
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:81
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:372
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:126
-msgid "Chunk size: %d"
-msgstr "Tamaño de lote: %d"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:144
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:387
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:642
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:862
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:346
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:128
-msgid "Translations dir: %s"
-msgstr "Directorio de traducciones: %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:145
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:388
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:643
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:863
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:84
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:190
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:325
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:347
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:375
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:129
-msgid "Translating: %s"
-msgstr "Traduciendo: %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:150
-msgid "cannot find source YAML file for language %q in %s"
-msgstr "no se puede leer YAML de origen %s: %w"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:155
-msgid "cannot read source YAML %s: %w"
-msgstr "No hay archivos YAML para traducir"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:158
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:654
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:874
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:384
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:142
-msgid "Source strings: %d"
-msgstr "Cadenas fuente: %d"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:166
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:392
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:593
-msgid "%s (%s): %d strings to translate (file will be auto-created)"
-msgstr "%s (%s): %d cadenas por traducir (el archivo se creará automáticamente)"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:172
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:180
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:668
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:888
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:92
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:198
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:402
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:602
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:154
-msgid "%s (%s): %d strings to translate"
-msgstr "%s (%s): %d cadenas por traducir"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:214
-msgid "No YAML files to translate"
-msgstr "Mostrar información de versión"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:246
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:726
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:946
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:217
-msgid "  %s: %d/%d strings"
-msgstr "Mostrar versión, hash de commit y fecha de compilación."
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:275
-msgid "Source segments"
-msgstr "commit:"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:319
-msgid "Cannot find source Markdown files in %s"
-msgstr "Esperado: %s/*.md"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:320
-msgid "Expected: %s/*.md"
-msgstr "Idioma fuente (%s): %d archivos"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:324
-msgid "Source language (%s): %d files"
-msgstr "No se puede leer el archivo Markdown de origen %s: %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:33
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:531
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:751
-msgid "parse error: %v"
-msgstr "error de análisis"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:345
-msgid "Cannot read source Markdown file %s: %v"
-msgstr "Creado: %s (%d segmentos)"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:355
-msgid "Created: %s (%d segments)"
-msgstr "Markdown init: %d creados, %d actualizados"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:374
-msgid "Markdown init: %d created, %d updated"
-msgstr "no se encuentran archivos Markdown de origen en %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:394
-msgid "cannot find source Markdown files in %s"
-msgstr "Segmentos fuente: %d (%d archivos)"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:404
-msgid "Source segments: %d (%d files)"
-msgstr "Mostrar información del proyecto y estadísticas de traducción"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:433
-msgid "%s (%s): %d segments to translate"
 msgstr ""
-"Muestra la estructura autodetectada del proyecto y estadísticas de traducción.\n"
+"Muestra la estructura del proyecto detectada automáticamente y estadísticas de traducción.\n"
 "\n"
-"Muestra el tipo de proyecto (gettext, po4a, i18next, android), estructura de archivos,\n"
-"idiomas detectados y progreso de traducción por idioma. Para proyectos\n"
-"configurados vía lokit.yaml, muestra cada target por separado.\n"
+"Muestra el tipo de destino, la estructura de archivos, los idiomas detectados y el progreso de traducción por idioma\n"
+"para proyectos gettext, po4a, i18next, vue-i18n, android, json,\n"
+"yaml, markdown, properties y flutter. Para proyectos\n"
+"configurados mediante lokit.yaml, muestra cada destino por separado.\n"
 "\n"
 "No modifica ningún archivo."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:474
+#: internal/cli/status.go:54
+msgid "Project"
+msgstr "Proyecto"
+
+#: internal/cli/status.go:55
+msgid "Config"
+msgstr "Configuración"
+
+#: internal/cli/status.go:56 internal/cli/status.go:94
+msgid "Root"
+msgstr "Raíz"
+
+#: internal/cli/status.go:57
+msgid "Source lang"
+msgstr "Idioma de origen"
+
+#: internal/cli/status.go:71
+msgid "error: %v"
+msgstr "error: %v"
+
+#: internal/cli/status.go:71 internal/cli/status.go:74
+#: internal/cli/status.go:78 internal/cli/status.go:80
+msgid "Lock file"
+msgstr "Archivo de bloqueo"
+
+#: internal/cli/status.go:78
+msgid "empty"
+msgstr "vacío"
+
+#: internal/cli/status.go:80
+msgid "%d targets, %d keys"
+msgstr "%d destinos, %d claves"
+
+#: internal/cli/target_content.go:104 internal/cli/target_content.go:335
+#: internal/cli/target_content.go:443 internal/cli/target_content.go:604
+#: internal/cli/target_content.go:824 internal/cli/target_vuei18n.go:94
+msgid "Creating directory %s: %v"
+msgstr "Creando directorio %s: %v"
+
+#: internal/cli/target_content.go:131
+msgid "YAML init: %d created, %d updated"
+msgstr "Inicialización YAML: %d creados, %d actualizados"
+
+#: internal/cli/target_content.go:137 internal/cli/target_content.go:380
+#: internal/cli/target_content.go:635 internal/cli/target_content.go:855
+#: internal/cli/target_core.go:76 internal/cli/target_core.go:187
+#: internal/cli/target_core.go:323 internal/cli/target_core.go:345
+#: internal/cli/target_core.go:367 internal/cli/target_core.go:574
+#: internal/cli/target_vuei18n.go:121
+msgid "Provider: %s (%s), Model: %s"
+msgstr "Proveedor: %s (%s), Modelo: %s"
+
+#: internal/cli/target_content.go:139 internal/cli/target_content.go:382
+#: internal/cli/target_content.go:637 internal/cli/target_content.go:857
+#: internal/cli/target_core.go:78 internal/cli/target_core.go:369
+#: internal/cli/target_core.go:576 internal/cli/target_vuei18n.go:123
+msgid "Parallel: enabled, max concurrent: %d"
+msgstr "Paralelo: habilitado, concurrencia máxima: %d"
+
+#: internal/cli/target_content.go:142 internal/cli/target_content.go:385
+#: internal/cli/target_content.go:640 internal/cli/target_content.go:860
+#: internal/cli/target_core.go:81 internal/cli/target_core.go:372
+#: internal/cli/target_vuei18n.go:126
+msgid "Chunk size: %d"
+msgstr "Tamaño del chunk: %d"
+
+#: internal/cli/target_content.go:144 internal/cli/target_content.go:387
+#: internal/cli/target_content.go:642 internal/cli/target_content.go:862
+#: internal/cli/target_core.go:324 internal/cli/target_core.go:346
+#: internal/cli/target_vuei18n.go:128
+msgid "Translations dir: %s"
+msgstr "Directorio de traducciones: %s"
+
+#: internal/cli/target_content.go:145 internal/cli/target_content.go:388
+#: internal/cli/target_content.go:643 internal/cli/target_content.go:863
+#: internal/cli/target_core.go:84 internal/cli/target_core.go:190
+#: internal/cli/target_core.go:325 internal/cli/target_core.go:347
+#: internal/cli/target_core.go:375 internal/cli/target_vuei18n.go:129
+msgid "Translating: %s"
+msgstr "Traduciendo: %s"
+
+#: internal/cli/target_content.go:150
+msgid "cannot find source YAML file for language %q in %s"
+msgstr "no se encuentra el archivo YAML fuente para el idioma %q en %s"
+
+#: internal/cli/target_content.go:155
+msgid "cannot read source YAML %s: %w"
+msgstr "no se puede leer el archivo YAML fuente %s: %w"
+
+#: internal/cli/target_content.go:158 internal/cli/target_content.go:654
+#: internal/cli/target_content.go:874 internal/cli/target_core.go:384
+#: internal/cli/target_vuei18n.go:142
+msgid "Source strings: %d"
+msgstr "Cadenas fuente: %d"
+
+#: internal/cli/target_content.go:166 internal/cli/target_core.go:392
+#: internal/cli/target_core.go:593
+msgid "%s (%s): %d strings to translate (file will be auto-created)"
+msgstr "%s (%s): %d cadenas para traducir (el archivo se creará automáticamente)"
+
+#: internal/cli/target_content.go:172 internal/cli/target_content.go:180
+#: internal/cli/target_content.go:668 internal/cli/target_content.go:888
+#: internal/cli/target_core.go:92 internal/cli/target_core.go:198
+#: internal/cli/target_core.go:402 internal/cli/target_core.go:602
+#: internal/cli/target_vuei18n.go:154
+msgid "%s (%s): %d strings to translate"
+msgstr "%s (%s): %d cadenas para traducir"
+
+#: internal/cli/target_content.go:214
+msgid "No YAML files to translate"
+msgstr "No hay archivos YAML para traducir"
+
+#: internal/cli/target_content.go:246 internal/cli/target_content.go:726
+#: internal/cli/target_content.go:946 internal/cli/target_vuei18n.go:217
+msgid "  %s: %d/%d strings"
+msgstr "  %s: %d/%d cadenas"
+
+#: internal/cli/target_content.go:275
+msgid "Source segments"
+msgstr "Segmentos fuente"
+
+#: internal/cli/target_content.go:319
+msgid "Cannot find source Markdown files in %s"
+msgstr "No se encontraron archivos Markdown fuente en %s"
+
+#: internal/cli/target_content.go:320
+msgid "Expected: %s/*.md"
+msgstr "Se esperaba: %s/*.md"
+
+#: internal/cli/target_content.go:324
+msgid "Source language (%s): %d files"
+msgstr "Idioma fuente (%s): %d archivos"
+
+#: internal/cli/target_content.go:33 internal/cli/target_content.go:531
+#: internal/cli/target_content.go:751
+msgid "parse error: %v"
+msgstr "error de análisis: %v"
+
+#: internal/cli/target_content.go:345
+msgid "Cannot read source Markdown file %s: %v"
+msgstr "No se puede leer el archivo Markdown fuente %s: %v"
+
+#: internal/cli/target_content.go:355
+msgid "Created: %s (%d segments)"
+msgstr "Creado: %s (%d segmentos)"
+
+#: internal/cli/target_content.go:374
+msgid "Markdown init: %d created, %d updated"
+msgstr "Inicialización Markdown: %d creados, %d actualizados"
+
+#: internal/cli/target_content.go:404
+msgid "Source segments: %d (%d files)"
+msgstr "Segmentos fuente: %d (%d archivos)"
+
+#: internal/cli/target_content.go:433
+msgid "%s (%s): %d segments to translate"
+msgstr "%s (%s): %d segmentos para traducir"
+
+#: internal/cli/target_content.go:474
 msgid "No Markdown files to translate"
+msgstr "No hay archivos Markdown para traducir"
+
+#: internal/cli/target_content.go:506
+msgid "  %s: %d/%d segments"
 msgstr "  %s: %d/%d segmentos"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:506
-msgid "  %s: %d/%d segments"
-msgstr "No se encuentra el archivo .properties de origen: %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:56
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:557
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:777
+#: internal/cli/target_content.go:56 internal/cli/target_content.go:557
+#: internal/cli/target_content.go:777
 msgid "parse error"
-msgstr "No se encontraron cadenas traducibles en %s"
+msgstr "error de análisis"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:581
+#: internal/cli/target_content.go:581
 msgid "Cannot find source .properties file: %s"
-msgstr "No se puede leer el archivo .properties de origen %s: %v"
+msgstr "No se encontró el archivo .properties fuente: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:587
+#: internal/cli/target_content.go:587
 msgid "Cannot read source .properties file %s: %v"
-msgstr "Error de configuración: %v"
+msgstr "No se puede leer el archivo .properties fuente %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:629
+#: internal/cli/target_content.go:629
 msgid "Properties init: %d created, %d updated"
-msgstr "no se puede leer archivo .properties de origen %s: %w"
+msgstr "Inicialización .properties: %d creados, %d actualizados"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:651
+#: internal/cli/target_content.go:651
 msgid "cannot read source .properties file %s: %w"
-msgstr "No se encontró lokit.yaml en %s"
+msgstr "no se puede leer el archivo .properties fuente %s: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:694
+#: internal/cli/target_content.go:694
 msgid "No .properties files to translate"
-msgstr "Crea un archivo de configuración lokit.yaml. Consulta 'lokit init --help' para el formato de referencia."
+msgstr "No hay archivos .properties para traducir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:78
+#: internal/cli/target_content.go:78
 msgid "Cannot find source YAML file for language %q in %s"
-msgstr "No se encuentra el archivo YAML de origen para el idioma %q en %s"
+msgstr "No se encuentra el archivo YAML fuente para el idioma %q en %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:79
+#: internal/cli/target_content.go:79
 msgid "Expected: %s"
 msgstr "Esperado: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:801
+#: internal/cli/target_content.go:801
 msgid "Cannot find source ARB file: %s"
-msgstr "No se puede leer el archivo ARB de origen %s: %v"
+msgstr "No se encontró el archivo ARB fuente: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:807
+#: internal/cli/target_content.go:807
 msgid "Cannot read source ARB file %s: %v"
-msgstr "Idiomas"
+msgstr "No se puede leer el archivo ARB fuente %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:849
+#: internal/cli/target_content.go:849
 msgid "Flutter ARB init: %d created, %d updated"
-msgstr "no se puede leer archivo ARB de origen %s: %w"
+msgstr "Inicialización Flutter ARB: %d creados, %d actualizados"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:85
+#: internal/cli/target_content.go:85
 msgid "Cannot read source YAML file %s: %v"
-msgstr "No se puede leer el archivo YAML de origen %s: %v"
+msgstr "No se puede leer el archivo YAML fuente %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:871
+#: internal/cli/target_content.go:871
 msgid "cannot read source ARB file %s: %w"
-msgstr "Error al resolver configuración: %v"
+msgstr "no se puede leer el archivo ARB fuente %s: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:914
+#: internal/cli/target_content.go:914
 msgid "No ARB files to translate"
-msgstr "ninguno detectado"
+msgstr "No hay archivos ARB para traducir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:123
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:228
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:435
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:636
+#: internal/cli/target_core.go:123 internal/cli/target_core.go:228
+#: internal/cli/target_core.go:435 internal/cli/target_core.go:636
 msgid "  %s: %d/%d"
 msgstr "  %s: %d/%d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:174
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:312
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:484
+#: internal/cli/target_core.go:174 internal/cli/target_core.go:312
+#: internal/cli/target_core.go:484
 msgid "[%s] All translations complete!"
-msgstr "[%s] ¡Todas las traducciones completas!"
+msgstr "[%s] ¡Todas las traducciones completadas!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:188
+#: internal/cli/target_core.go:188
 msgid "po4a config: %s"
 msgstr "configuración po4a: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:200
+#: internal/cli/target_core.go:200
 msgid "%s: PO file not found at %s"
-msgstr "%s: archivo PO no encontrado en %s"
+msgstr "%s: Archivo PO no encontrado en %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:245
+#: internal/cli/target_core.go:245
 msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
-msgstr "Usando prompt de traducción específico para documentación (conservando groff/man markup)"
+msgstr "Usando prompt de traducción específico para documentación (preserva marcado groff/man)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:257
+#: internal/cli/target_core.go:257
 msgid "PO files missing, running po4a initialization..."
-msgstr "Faltan archivos PO, ejecutando inicialización po4a..."
+msgstr "Faltan archivos PO, ejecutando inicialización de po4a..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:277
+#: internal/cli/target_core.go:277
 msgid "auto-init failed: %v"
 msgstr "auto-init falló: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:288
+#: internal/cli/target_core.go:288
 msgid "[%s] No PO file for %s at %s, skipping"
-msgstr "[%s] No hay archivo PO para %s en %s, omitiendo"
+msgstr "[%s] No se encontró el archivo PO para %s en %s, omitiendo"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:374
+#: internal/cli/target_core.go:374
 msgid "Res dir: %s"
-msgstr "Directorio Res: %s"
+msgstr "Directorio de recursos: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:381
+#: internal/cli/target_core.go:381
 msgid "cannot read source strings.xml %s: %w"
-msgstr "no se puede leer strings.xml de origen %s: %w"
+msgstr "no se puede leer el strings.xml de origen %s: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:455
+#: internal/cli/target_core.go:455
 msgid "Auto-creating %s with %d strings"
 msgstr "Creando automáticamente %s con %d cadenas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:460
+#: internal/cli/target_core.go:460
 msgid "Added %d new strings to %s"
-msgstr "Agregadas %d cadenas nuevas a %s"
+msgstr "Se añadieron %d cadenas nuevas a %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:51
+#: internal/cli/target_core.go:51
 msgid "Extracting strings and updating PO files..."
 msgstr "Extrayendo cadenas y actualizando archivos PO..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:53
+#: internal/cli/target_core.go:53
 msgid "Extraction failed: %v"
 msgstr "Extracción fallida: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:54
+#: internal/cli/target_core.go:54
 msgid "Continuing with existing PO files"
 msgstr "Continuando con los archivos PO existentes"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:564
+#: internal/cli/target_core.go:564
 msgid "All UI translations are complete!"
 msgstr "¡Todas las traducciones de la interfaz están completas!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:578
+#: internal/cli/target_core.go:578
 msgid "Parallel: disabled (sequential)"
 msgstr "Paralelo: desactivado (secuencial)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:580
+#: internal/cli/target_core.go:580
 msgid "Source keys (%s): %d"
-msgstr "Claves fuente (%s): %d"
+msgstr "Claves de origen (%s): %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:583
+#: internal/cli/target_core.go:583
 msgid "Translating UI strings: %s"
 msgstr "Traduciendo cadenas de la interfaz: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:615
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:256
+#: internal/cli/target_core.go:615 internal/cli/translate_cmd.go:255
 msgid "Interrupted, saving progress..."
 msgstr "Interrumpido, guardando el progreso..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:668
+#: internal/cli/target_core.go:668
 msgid "Auto-creating %s with %d keys"
 msgstr "Creando automáticamente %s con %d claves"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:685
+#: internal/cli/target_core.go:685
 msgid "Translation interrupted, partial progress saved"
 msgstr "Traducción interrumpida, progreso parcial guardado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:688
+#: internal/cli/target_core.go:688
 msgid "UI translation failed: %v"
-msgstr "Error en la traducción de la interfaz: %v"
+msgstr "Fallo en la traducción de la interfaz: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:695
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:347
+#: internal/cli/target_core.go:695 internal/cli/translate_cmd.go:352
 msgid "Translation completed with errors"
 msgstr "Traducción completada con errores"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:698
+#: internal/cli/target_core.go:698
 msgid "Translation complete!"
 msgstr "¡Traducción completada!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:83
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:189
+#: internal/cli/target_core.go:83 internal/cli/target_core.go:189
 msgid "PO dir: %s"
 msgstr "Directorio PO: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:94
+#: internal/cli/target_core.go:94
 msgid "%s: PO file not found, will be created"
-msgstr "%s: archivo PO no encontrado, se creará"
+msgstr "%s: no se encontró el archivo PO, se creará"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:115
+#: internal/cli/target_vuei18n.go:115
 msgid "Vue i18n init: %d created, %d updated"
 msgstr "no se puede leer archivo vue-i18n de origen %s: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:138
+#: internal/cli/target_vuei18n.go:138
 msgid "cannot read source vue-i18n file %s: %w"
 msgstr "No hay archivos vue-i18n para traducir"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:181
+#: internal/cli/target_vuei18n.go:181
 msgid "No vue-i18n files to translate"
 msgstr "No se puede leer el archivo vue-i18n de origen %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:77
+#: internal/cli/target_vuei18n.go:77
 msgid "Cannot read source vue-i18n file %s: %v"
 msgstr "No se puede leer el archivo fuente vue-i18n %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:109
+#: internal/cli/translate_cmd.go:109
 msgid "AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)"
 msgstr "Proveedor IA: google, gemini, groq, opencode, copilot, ollama, custom-openai (o usa provider.id en lokit.yaml)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:110
+#: internal/cli/translate_cmd.go:110
 msgid "Model name (or use lokit.yaml provider.model)"
 msgstr "Nombre del modelo (o usa provider.model en lokit.yaml)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:111
+#: internal/cli/translate_cmd.go:111
 msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
-msgstr "API key (o variable de entorno del proveedor: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
+msgstr "Clave API (o variable de entorno del proveedor: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:112
+#: internal/cli/translate_cmd.go:112
 msgid "Custom API base URL"
-msgstr "URL base de API personalizada"
+msgstr "URL base de la API personalizada"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:114
+#: internal/cli/translate_cmd.go:114
 msgid "Languages to translate (comma-separated, default: all with untranslated)"
-msgstr "Idiomas a traducir (separados por coma, por defecto: todos los no traducidos)"
+msgstr "Idiomas a traducir (separados por comas, por defecto: todos los que tengan entradas sin traducir)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:116
+#: internal/cli/translate_cmd.go:116
 msgid "Entries per API request (0 = all at once)"
-msgstr "Entradas por solicitud a la API (0 = todas a la vez)"
+msgstr "Entradas por solicitud API (0 = todas a la vez)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:117
+#: internal/cli/translate_cmd.go:117
 msgid "Translate all entries, including already translated ones"
 msgstr "Traducir todas las entradas, incluidas las ya traducidas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:118
+#: internal/cli/translate_cmd.go:118
 msgid "Translate fuzzy entries and clear fuzzy flag"
-msgstr "Traducir entradas fuzzy y limpiar la marca fuzzy"
+msgstr "Traducir entradas fuzzy y eliminar la marca fuzzy"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:119
+#: internal/cli/translate_cmd.go:119
 msgid "Custom system prompt (use {{targetLang}} placeholder)"
-msgstr "Prompt de sistema personalizado (usa el marcador {{targetLang}})"
+msgstr "Prompt del sistema personalizado (use el marcador {{targetLang}})"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:120
+#: internal/cli/translate_cmd.go:120
 msgid "Enable detailed logging"
-msgstr "Activar registro detallado"
+msgstr "Habilitar registro detallado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:121
+#: internal/cli/translate_cmd.go:121
 msgid "Show what would be translated without calling AI"
 msgstr "Mostrar qué se traduciría sin llamar a la IA"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:122
+#: internal/cli/translate_cmd.go:122
 msgid "Ignore lock file and re-translate all changed entries"
 msgstr "Ignorar archivo lock y retraducir todas las entradas modificadas"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:124
+#: internal/cli/translate_cmd.go:124
 msgid "Enable parallel translation with optional worker count (e.g. --parallel or --parallel=8)"
-msgstr "Activar traducción en paralelo con cantidad de workers opcional (ej. --parallel o --parallel=8)"
+msgstr "Habilitar traducción en paralelo con recuento opcional de workers (p. ej. --parallel o --parallel=8)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:126
+#: internal/cli/translate_cmd.go:125
 msgid "Delay between translation requests"
-msgstr "Retardo entre solicitudes de traducción"
+msgstr "Retraso entre solicitudes de traducción"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:128
+#: internal/cli/translate_cmd.go:127
 msgid "Request timeout (0 = provider default)"
 msgstr "Tiempo de espera de la solicitud (0 = valor por defecto del proveedor)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:129
+#: internal/cli/translate_cmd.go:128
 msgid "HTTP/HTTPS proxy URL"
-msgstr "URL de proxy HTTP/HTTPS"
+msgstr "URL del proxy HTTP/HTTPS"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:130
+#: internal/cli/translate_cmd.go:129
 msgid "Maximum retries on rate limit (429)"
-msgstr "Máximo de reintentos por límite de tasa (429)"
+msgstr "Reintentos máximos por límite de tasa (429)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:134
+#: internal/cli/translate_cmd.go:133
 msgid "Google AI (Gemini) — API key required"
-msgstr "Google AI (Gemini) — requiere API key"
+msgstr "Google IA (Gemini) — requiere clave API"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:135
+#: internal/cli/translate_cmd.go:134
 msgid "Gemini Code Assist — browser OAuth (free)"
 msgstr "Gemini Code Assist — OAuth en navegador (gratis)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:136
+#: internal/cli/translate_cmd.go:135
 msgid "Groq — API key required"
-msgstr "Groq — requiere API key"
+msgstr "Groq — requiere clave API"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:137
+#: internal/cli/translate_cmd.go:136
 msgid "OpenCode — optional API key"
-msgstr "OpenCode — API key opcional"
+msgstr "OpenCode — clave API opcional"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:138
+#: internal/cli/translate_cmd.go:137
 msgid "GitHub Copilot — native OAuth (free)"
 msgstr "GitHub Copilot — OAuth nativo (gratis)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:139
+#: internal/cli/translate_cmd.go:138
 msgid "Ollama local server"
 msgstr "Servidor local Ollama"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:140
+#: internal/cli/translate_cmd.go:139
 msgid "Custom OpenAI-compatible endpoint"
-msgstr "Endpoint personalizado compatible con OpenAI"
+msgstr "Endpoint compatible con OpenAI personalizado"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:217
+#: internal/cli/translate_cmd.go:216
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
 msgstr ""
-"No se especificó proveedor. Usa --provider para elegir un servicio de traducción IA.\n"
+"No se especificó proveedor. Use --provider para elegir un servicio de traducción de IA.\n"
 "\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:238
+#: internal/cli/translate_cmd.go:237
 msgid "No targets defined in lokit.yaml"
-msgstr "No hay targets definidos en lokit.yaml"
+msgstr "No se definieron targets en lokit.yaml"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:244
-msgid "Could not load lock file: %v"
-msgstr "No se pudo cargar el archivo lock: %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:280
+#: internal/cli/translate_cmd.go:279
 msgid "[%s] No languages to translate, skipping"
 msgstr "[%s] No hay idiomas para traducir, omitiendo"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:289
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:294
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:299
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:304
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:309
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:314
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:319
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:329
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:334
-msgid "[%s] %v"
-msgstr "[%s] %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:338
+#: internal/cli/translate_cmd.go:337
 msgid "[%s] Unknown target type %q, skipping"
 msgstr "[%s] Tipo de target desconocido %q, omitiendo"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:343
-msgid "Could not save lock file: %v"
-msgstr "No se pudo guardar el archivo lock: %v"
+#: internal/cli/translate_cmd.go:341
+msgid "Could not save lock file after target %s: %v"
+msgstr "No se pudo guardar el archivo de bloqueo después del target %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:350
+#: internal/cli/translate_cmd.go:343
+msgid "Lock file saved after target %s/%s"
+msgstr "Archivo de bloqueo guardado tras el target %s/%s"
+
+#: internal/cli/translate_cmd.go:355
 msgid "All targets translated!"
 msgstr "¡Todos los targets traducidos!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:44
+#: internal/cli/translate_cmd.go:44
 msgid "Translate files using AI"
-msgstr "Traducir archivos usando IA"
+msgstr "Traducir archivos con IA"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:45
+#: internal/cli/translate_cmd.go:45
 msgid ""
 "Translate files using AI providers.\n"
 "\n"
@@ -2031,103 +2070,30 @@ msgid ""
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 msgstr ""
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:13
-msgid "Show version information"
-msgstr "  %s: %d/%d cadenas"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:14
-msgid "Display version, commit hash, and build date."
-msgstr "lokit versión %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:16
-msgid "lokit version %s"
-msgstr "Segmentos fuente"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:17
-msgid "commit:"
-msgstr "compilado:"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:18
-msgid "built:"
-msgstr "No se encuentran archivos Markdown de origen en %s"
-
-#~ msgid ""
-"Translate files using AI providers.\n"
+"Traducir archivos usando proveedores de IA.\n"
 "\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
-"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
-"auto-detected or configured via lokit.yaml.\n"
+"Admite gettext PO, po4a, i18next JSON, Android strings.xml, JSON genérico,\n"
+"YAML, Markdown, Java .properties y formatos Flutter ARB. El tipo de proyecto se\n"
+"autodetecta o se configura vía lokit.yaml.\n"
 "\n"
-"For gettext/po4a projects, automatically initializes if needed (extracts\n"
-"strings, creates PO files).\n"
-"\n"
-"Incremental translation: lokit tracks source string checksums in lokit.lock.\n"
-"Only new or changed strings are sent to the AI provider, saving tokens and\n"
-"time. Use --force to ignore the lock file and re-translate everything.\n"
-"\n"
-"Key filtering: configure per-target in lokit.yaml:\n"
-"  ignored_keys  — keys excluded from translation entirely (never sent to AI)\n"
-"  locked_keys   — keys whose translations are preserved (skipped even with\n"
-"                  --retranslate; only --force overrides)\n"
-"  locked_patterns — regex patterns matching keys treated as locked\n"
-"                  (e.g. \"^brand_.*\" locks all brand_ prefixed keys)\n"
-"\n"
-"Each target type has a built-in system prompt optimized for its format.\n"
-"Use the --prompt flag to override it for the current run, or set prompt:\n"
-"in lokit.yaml target config for a permanent override.\n"
-"Use {{targetLang}} as a placeholder for the target language name.\n"
-"\n"
-"Examples:\n"
-"  # Translate a gettext project using GitHub Copilot (free)\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Translate an Android project using Gemini (free, OAuth)\n"
-"  lokit translate --provider gemini --model gemini-2.5-flash\n"
-"\n"
-"  # Translate an i18next project using Google AI (API key)\n"
-"  lokit translate --provider google --model gemini-2.5-flash\n"
-"\n"
-"  # Translate specific languages in parallel\n"
-"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
-"\n"
-"  # Force full re-translation (ignore lock file)\n"
-"  lokit translate --provider copilot --model gpt-4o --force\n"
-"\n"
-"  # Re-translate everything with a custom prompt\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
-"    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
-"\n"
-"  # Translate a Flutter project\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Dry run (show what would be translated)\n"
-"  lokit translate --provider copilot --model gpt-4o --dry-run"
-#~ msgstr ""
-"Traduce archivos usando proveedores de IA.\n"
-"\n"
-"Soporta formatos gettext PO, po4a, i18next JSON, Android strings.xml, JSON genérico,\n"
-"YAML, Markdown, Java .properties y Flutter ARB. El tipo de proyecto se autodetecta\n"
-"o se configura vía lokit.yaml.\n"
-"\n"
-"Para proyectos gettext/po4a, se inicializa automáticamente si es necesario (extrae\n"
+"Para proyectos gettext/po4a, inicializa automáticamente si es necesario (extrae\n"
 "cadenas, crea archivos PO).\n"
 "\n"
-"Traducción incremental: lokit rastrea los checksums de las cadenas fuente en lokit.lock.\n"
-"Solo las nuevas o modificadas se envían al proveedor de IA, ahorrando tokens y tiempo.\n"
-"Usa --force para ignorar el archivo lock y retraducir todo.\n"
+"Traducción incremental: lokit registra checksums de las cadenas fuente en lokit.lock.\n"
+"Solo las cadenas nuevas o modificadas se envían al proveedor de IA, ahorrando tokens y\n"
+"tiempo. Use --force para ignorar el archivo lock y re-traducir todo.\n"
 "\n"
-"Filtrado de claves: configura por target en lokit.yaml:\n"
-"  ignored_keys  — claves excluidas completamente de la traducción (nunca se envían a IA)\n"
-"  locked_keys   — claves cuyas traducciones se preservan (omitidas incluso con\n"
-"                  --retranslate; solo --force las sobrescribe)\n"
-"  locked_patterns — patrones regex de claves tratadas como bloqueadas\n"
-"                  (ej. \"^brand_.*\" bloquea todas las claves que empiezan por brand_)\n"
+"Filtrado de claves: configúrelo por target en lokit.yaml:\n"
+"  ignored_keys  — claves excluidas completamente de la traducción (nunca enviadas a la IA)\n"
+"  locked_keys   — claves cuyas traducciones se preservan (se omiten incluso con\n"
+"                  --all; sólo --force las sobrescribe)\n"
+"  locked_patterns — patrones regex que coinciden con claves tratadas como bloqueadas\n"
+"                  (p. ej. \"^brand_.*\" bloquea todas las claves con prefijo brand_)\n"
 "\n"
-"Cada tipo de target tiene un prompt de sistema optimizado para su formato.\n"
-"Usa la opción --prompt para sobrescribirlo en la ejecución actual, o configura prompt:\n"
-"en el target de lokit.yaml para un cambio permanente.\n"
-"Usa {{targetLang}} como marcador para el nombre del idioma destino.\n"
+"Cada tipo de target tiene un prompt del sistema integrado optimizado para su formato.\n"
+"Use la opción --prompt para sobrescribirlo en esta ejecución, o establezca prompt:\n"
+"en la configuración del target en lokit.yaml para una anulación permanente.\n"
+"Use {{targetLang}} como marcador para el nombre del idioma destino.\n"
 "\n"
 "Ejemplos:\n"
 "  # Traducir un proyecto gettext usando GitHub Copilot (gratis)\n"
@@ -2136,20 +2102,40 @@ msgstr "No se encuentran archivos Markdown de origen en %s"
 "  # Traducir un proyecto Android usando Gemini (gratis, OAuth)\n"
 "  lokit translate --provider gemini --model gemini-2.5-flash\n"
 "\n"
-"  # Traducir un proyecto i18next usando Google AI (API key)\n"
+"  # Traducir un proyecto i18next usando Google IA (clave API)\n"
 "  lokit translate --provider google --model gemini-2.5-flash\n"
 "\n"
 "  # Traducir idiomas específicos en paralelo\n"
 "  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
 "\n"
-"  # Forzar retraducción completa (ignorar lock file)\n"
+"  # Forzar re-traducción completa (ignorar archivo lock)\n"
 "  lokit translate --provider copilot --model gpt-4o --force\n"
 "\n"
-"  # Retraducir todo con un prompt personalizado\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Traduce a {{targetLang}}. Usa tono informal.\"\n"
+"  # Traducir todas las entradas con un prompt personalizado\n"
+"  lokit translate --provider copilot --model gpt-4o --all \\n    --prompt \"Traducir a {{targetLang}}. Usar tono informal.\"\n"
 "\n"
 "  # Traducir un proyecto Flutter\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
 "\n"
-"  # Simulación (mostrar qué se traduciría)\n"
+"  # Ejecución de prueba (mostrar qué se traduciría)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
+
+#: internal/cli/version.go:13
+msgid "Show version information"
+msgstr "Mostrar información de la versión"
+
+#: internal/cli/version.go:14
+msgid "Display version, commit hash, and build date."
+msgstr "Mostrar la versión, el hash del commit y la fecha de compilación."
+
+#: internal/cli/version.go:16
+msgid "lokit version %s"
+msgstr "lokit versión %s"
+
+#: internal/cli/version.go:17
+msgid "commit:"
+msgstr "commit:"
+
+#: internal/cli/version.go:18
+msgid "built:"
+msgstr "compilado:"

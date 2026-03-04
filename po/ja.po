@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 09:50+0000\n"
-"PO-Revision-Date: 2026-03-03 08:11+0000\n"
+"POT-Creation-Date: 2026-03-04 10:10+0000\n"
+"PO-Revision-Date: 2026-03-04 10:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -15,97 +15,92 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:102
+#: internal/cli/auth.go:102
 msgid "OAuth"
 msgstr "OAuth"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:104
+#: internal/cli/auth.go:104
 msgid "API key"
 msgstr "APIキー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:110
+#: internal/cli/auth.go:110
 msgid "Enter choice (number or name):"
-msgstr "選択肢を入力してください（番号または名前）:"
+msgstr "選択を入力してください（番号または名前）:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:114
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:315
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:353
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:374
+#: internal/cli/auth.go:114 internal/cli/auth.go:315 internal/cli/auth.go:353
+#: internal/cli/auth.go:374
 msgid "No input received"
-msgstr "入力がありません"
+msgstr "入力がありませんでした"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:133
+#: internal/cli/auth.go:133
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
-msgstr "無効な選択です。使用方法: lokit auth login --provider PROVIDER"
+msgstr "無効な選択です。次を使用してください: lokit auth login --provider PROVIDER"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:158
+#: internal/cli/auth.go:158
 msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
-msgstr "不明なプロバイダー '%s' です。オプションは 'lokit auth login' を実行してください。"
+msgstr "不明なプロバイダー '%s' です。オプションを確認するには 'lokit auth login' を実行してください。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:164
+#: internal/cli/auth.go:164
 msgid "Provider to authenticate"
 msgstr "認証するプロバイダー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:180
+#: internal/cli/auth.go:180
 msgid "GitHub Copilot Authentication"
 msgstr "GitHub Copilot 認証"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:183
+#: internal/cli/auth.go:183
 msgid "Open this URL in your browser:"
-msgstr "このURLをブラウザーで開いてください:"
+msgstr "以下のURLをブラウザで開いてください:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:185
+#: internal/cli/auth.go:185
 msgid "Enter this code:"
 msgstr "このコードを入力してください:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:187
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:211
+#: internal/cli/auth.go:187 internal/cli/auth.go:211
 msgid "Waiting for authorization..."
-msgstr "認証を待機中..."
+msgstr "承認を待っています..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:191
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:215
+#: internal/cli/auth.go:191 internal/cli/auth.go:215
 msgid "Authentication cancelled"
 msgstr "認証がキャンセルされました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:194
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:218
+#: internal/cli/auth.go:194 internal/cli/auth.go:218
 msgid "Authentication failed: %v"
 msgstr "認証に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:198
+#: internal/cli/auth.go:198
 msgid "Copilot authentication successful!"
-msgstr "Copilot の認証に成功しました！"
+msgstr "Copilotの認証に成功しました!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:199
+#: internal/cli/auth.go:199
 msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
-msgstr "次のコマンドが利用可能になりました: lokit translate --provider copilot --model gpt-4o"
+msgstr "以下のコマンドが使用できます: lokit translate --provider copilot --model gpt-4o"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:204
+#: internal/cli/auth.go:204
 msgid "Google Gemini Authentication"
 msgstr "Google Gemini 認証"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:207
+#: internal/cli/auth.go:207
 msgid "Opening browser for Google sign-in..."
 msgstr "Google サインインのためにブラウザを開いています..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:209
+#: internal/cli/auth.go:209
 msgid "If the browser doesn't open, visit:"
-msgstr "ブラウザが自動で開かない場合は、こちらにアクセスしてください:"
+msgstr "ブラウザが開かない場合は、次のURLにアクセスしてください:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:22
+#: internal/cli/auth.go:22
 msgid "Manage provider authentication"
-msgstr "プロバイダー認証を管理"
+msgstr "プロバイダー認証の管理"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:223
+#: internal/cli/auth.go:223
 msgid "Gemini authentication successful!"
-msgstr "Gemini の認証に成功しました！"
+msgstr "Geminiの認証に成功しました!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:228
+#: internal/cli/auth.go:228
 msgid "Token was saved but cannot be loaded"
-msgstr "トークンは保存されましたが、読み込めません"
+msgstr "トークンは保存されましたが読み込めませんでした"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:23
+#: internal/cli/auth.go:23
 msgid ""
 "Manage authentication credentials for all AI providers.\n"
 "\n"
@@ -130,169 +125,166 @@ msgid ""
 "  lokit auth logout                        Remove all credentials\n"
 "  lokit auth list                          Show all stored credentials"
 msgstr ""
-"すべてのAIプロバイダーの認証情報を管理します。\n"
+"Manage authentication credentials for all AI providers.\n"
 "\n"
-"OAuthプロバイダー（ブラウザ/デバイスフローによる対話型認証）：\n"
-"  copilot       GitHub Copilot（デバイスコードフロー、GitHubアカウントで無料）\n"
-"  gemini        Google Gemini Code Assist（ブラウザOAuth、無料枠：60リクエスト/分）\n"
+"OAuth providers (interactive browser/device flow):\n"
+"  copilot       GitHub Copilot (デバイスコードフロー、GitHubアカウントで無料)\n"
+"  gemini        Google Gemini Code Assist (ブラウザOAuth、無料枠: 60 req/min)\n"
 "\n"
-"APIキー型プロバイダー（キーを貼り付けてください）：\n"
-"  google        Google AI Studio（Gemini APIキー）\n"
-"  groq          Groq Cloud（無料枠あり）\n"
-"  opencode      OpenCode Zen API（APIキー不要の無料モデルあり）\n"
-"  custom-openai OpenAI互換カスタムエンドポイント\n"
+"API key providers (paste your key):\n"
+"  google        Google AI Studio (Gemini API key)\n"
+"  groq          Groq Cloud (無料枠あり)\n"
+"  opencode      OpenCode Zen API (キー不要の無料モデルあり)\n"
+"  custom-openai Custom OpenAI 互換エンドポイント\n"
 "\n"
-"認証不要：\n"
-"  ollama        ローカルOllamaサーバー\n"
+"No auth required:\n"
+"  ollama        ローカル Ollama サーバー\n"
 "\n"
-"使用例：\n"
-"  lokit auth login                         対話的にプロバイダーを選択\n"
-"  lokit auth login --provider copilot      GitHub CopilotでOAuth認証\n"
-"  lokit auth login --provider google       Google AIのAPIキーを保存\n"
-"  lokit auth logout --provider google      GoogleのAPIキーを削除\n"
-"  lokit auth logout                        すべての認証情報を削除\n"
-"  lokit auth list                          保存済み認証情報を一覧表示"
+"Examples:\n"
+"  lokit auth login                         対話式のプロバイダー選択\n"
+"  lokit auth login --provider copilot      GitHub CopilotでのOAuth\n"
+"  lokit auth login --provider google       Google AI の APIキーを保存\n"
+"  lokit auth logout --provider google      Google APIキーを削除\n"
+"  lokit auth logout                        すべての資格情報を削除\n"
+"  lokit auth list                          保存されている資格情報を表示"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:233
+#: internal/cli/auth.go:233
 msgid "Gemini Code Assist requires a GCP project ID to work in your region."
-msgstr "Gemini Code Assist をご利用の地域で使うには GCP プロジェクト ID が必要です。"
+msgstr "Gemini Code Assist は、利用リージョンで動作させるために GCP のプロジェクトID が必要です。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:234
+#: internal/cli/auth.go:234
 msgid "Find your project ID at: https://console.cloud.google.com"
-msgstr "プロジェクト ID は以下で確認できます: https://console.cloud.google.com"
+msgstr "プロジェクトIDは次で確認できます: https://console.cloud.google.com"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:235
+#: internal/cli/auth.go:235
 msgid "(Create a project if you don't have one, then enable the Gemini API)"
-msgstr "（プロジェクトがない場合は作成し、Gemini API を有効化してください）"
+msgstr "(プロジェクトがない場合は作成し、Gemini API を有効にしてください)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:237
+#: internal/cli/auth.go:237
 msgid "GCP Project ID (or press Enter to skip):"
-msgstr "GCPプロジェクトID（スキップする場合はEnter）:"
+msgstr "GCP プロジェクトID (スキップする場合は Enter を押してください):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:247
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:259
+#: internal/cli/auth.go:247 internal/cli/auth.go:259
 msgid "Code Assist setup failed: %v"
 msgstr "Code Assist のセットアップに失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:248
+#: internal/cli/auth.go:248
 msgid "Project ID saved. You can try again later."
-msgstr "プロジェクト ID を保存しました。後でもう一度お試しください。"
+msgstr "プロジェクトIDを保存しました。後で再試行できます。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:250
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:263
+#: internal/cli/auth.go:250 internal/cli/auth.go:263
 msgid "Code Assist project configured!"
-msgstr "Code Assist プロジェクトが設定されました！"
+msgstr "Code Assist のプロジェクトが設定されました!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:253
+#: internal/cli/auth.go:253
 msgid "Skipped. You can set it later with:"
-msgstr "スキップしました。後から以下のコマンドで設定できます:"
+msgstr "スキップしました。後で次のコマンドで設定できます:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:254
+#: internal/cli/auth.go:254
 msgid "  lokit auth login --provider gemini"
 msgstr "  lokit auth login --provider gemini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:260
+#: internal/cli/auth.go:260
 msgid "OAuth login succeeded but Code Assist onboarding failed."
-msgstr "OAuth ログインには成功しましたが、Code Assist のオンボーディングに失敗しました。"
+msgstr "OAuth ログインは成功しましたが、Code Assist のオンボーディングに失敗しました。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:261
+#: internal/cli/auth.go:261
 msgid "This will be retried automatically on first translate."
-msgstr "最初の翻訳時に自動で再試行されます。"
+msgstr "この処理は、初回の翻訳時に自動で再試行されます。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:268
+#: internal/cli/auth.go:268
 msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
-msgstr "次のコマンドが利用可能になりました: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr "以下のコマンドが使用できます: lokit translate --provider gemini --model gemini-2.5-flash"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:269
+#: internal/cli/auth.go:269
 msgid "(no API key needed when authenticated via OAuth)"
-msgstr "（OAuth で認証済みの場合、API キーは不要です）"
+msgstr "(OAuthで認証済みの場合は API キーは不要です)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:298
+#: internal/cli/auth.go:298
 msgid "%s — API Key Setup"
-msgstr "%s — API キー設定"
+msgstr "%s — APIキーの設定"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:301
+#: internal/cli/auth.go:301
 msgid "Get your API key from: %s%s%s"
-msgstr "API キーは以下から取得してください: %s%s%s"
+msgstr "APIキーは次から取得してください: %s%s%s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:307
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:367
+#: internal/cli/auth.go:307 internal/cli/auth.go:367
 msgid "Current key"
 msgstr "現在のキー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:308
+#: internal/cli/auth.go:308
 msgid "Enter new key to replace, or press Enter to keep:"
-msgstr "新しいキーを入力（変更しない場合はEnter）:"
+msgstr "置き換える新しいキーを入力するか、そのままにするには Enter を押してください:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:310
+#: internal/cli/auth.go:310
 msgid "Enter API key:"
 msgstr "APIキーを入力してください:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:322
+#: internal/cli/auth.go:322
 msgid "Keeping existing key"
 msgstr "既存のキーを保持します"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:325
+#: internal/cli/auth.go:325
 msgid "No API key provided"
-msgstr "API キーが指定されていません"
+msgstr "APIキーが提供されていません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:330
+#: internal/cli/auth.go:330
 msgid "Failed to save API key: %v"
-msgstr "API キーの保存に失敗しました: %v"
+msgstr "APIキーの保存に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:334
+#: internal/cli/auth.go:334
 msgid "%s API key saved!"
-msgstr "%s の API キーを保存しました！"
+msgstr "%s のAPIキーを保存しました!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:335
+#: internal/cli/auth.go:335
 msgid "You can now use: %s"
-msgstr "次のコマンドが利用可能になりました: %s"
+msgstr "以下のコマンドが使用できます: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:340
+#: internal/cli/auth.go:340
 msgid "Custom OpenAI-Compatible Endpoint"
 msgstr "カスタム OpenAI 互換エンドポイント"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:346
+#: internal/cli/auth.go:346
 msgid "Current endpoint"
 msgstr "現在のエンドポイント"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:347
+#: internal/cli/auth.go:347
 msgid "Enter new endpoint URL, or press Enter to keep:"
-msgstr "新しいエンドポイントURLを入力（変更しない場合はEnter）:"
+msgstr "新しいエンドポイントのURLを入力するか、そのままにするには Enter を押してください:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:349
+#: internal/cli/auth.go:349
 msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
-msgstr "エンドポイントURLを入力（例: https://api.example.com/v1）:"
+msgstr "エンドポイントのURLを入力してください (例: https://api.example.com/v1):"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:362
+#: internal/cli/auth.go:362
 msgid "Endpoint URL is required"
-msgstr "エンドポイント URL は必須です"
+msgstr "エンドポイントのURLは必須です"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:368
+#: internal/cli/auth.go:368
 msgid "Enter new API key, or press Enter to keep (leave empty for none):"
-msgstr "新しいAPIキーを入力（未設定の場合は空欄のままEnter）:"
+msgstr "新しいAPIキーを入力してください。既存のままにするには Enter を押してください（キーがない場合は空にしてください）:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:370
+#: internal/cli/auth.go:370
 msgid "Enter API key (or press Enter if not required):"
-msgstr "APIキーを入力（不要な場合はEnter）:"
+msgstr "APIキーを入力してください（不要な場合は Enter を押してください）:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:384
+#: internal/cli/auth.go:384
 msgid "Failed to save credentials: %v"
 msgstr "認証情報の保存に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:388
+#: internal/cli/auth.go:388
 msgid "Custom OpenAI endpoint saved!"
 msgstr "カスタム OpenAI エンドポイントを保存しました！"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:389
+#: internal/cli/auth.go:389
 msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
-msgstr "次のコマンドが利用可能になりました: lokit translate --provider custom-openai --model MODEL_NAME"
+msgstr "次のコマンドが使用できます: lokit translate --provider custom-openai --model MODEL_NAME"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:398
+#: internal/cli/auth.go:398
 msgid "Remove stored credentials"
-msgstr "保存済み認証情報の削除"
+msgstr "保存済み認証情報を削除"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:399
+#: internal/cli/auth.go:399
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -304,110 +296,105 @@ msgid ""
 "  lokit auth logout --provider google      Remove only Google API key\n"
 "  lokit auth logout --provider gemini      Remove only Gemini OAuth"
 msgstr ""
-"1つまたは全プロバイダーの保存済み認証情報を削除します。\n"
+"1つまたはすべてのプロバイダーの保存済み認証情報を削除します。\n"
 "\n"
-"--providerを指定しない場合、すべてのプロバイダーの認証情報が削除されます。\n"
+"--provider が指定されていない場合、すべてのプロバイダーの認証情報が削除されます。\n"
 "\n"
-"使用例:\n"
+"例:\n"
 "  lokit auth logout                        すべての認証情報を削除\n"
-"  lokit auth logout --provider copilot     Copilot OAuthのみ削除\n"
-"  lokit auth logout --provider google      Google APIキーのみ削除\n"
-"  lokit auth logout --provider gemini      Gemini OAuthのみ削除"
+"  lokit auth logout --provider copilot     Copilot の OAuth のみ削除\n"
+"  lokit auth logout --provider google      Google の API キーのみ削除\n"
+"  lokit auth logout --provider gemini      Gemini の OAuth のみ削除"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:413
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:438
+#: internal/cli/auth.go:413 internal/cli/auth.go:438
 msgid "Failed to remove Copilot credentials: %v"
 msgstr "Copilot の認証情報の削除に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:416
+#: internal/cli/auth.go:416
 msgid "Copilot credentials removed"
 msgstr "Copilot の認証情報を削除しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:442
+#: internal/cli/auth.go:419 internal/cli/auth.go:442
 msgid "Failed to remove Gemini credentials: %v"
 msgstr "Gemini の認証情報の削除に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:422
+#: internal/cli/auth.go:422
 msgid "Gemini credentials removed"
 msgstr "Gemini の認証情報を削除しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:425
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:447
+#: internal/cli/auth.go:425 internal/cli/auth.go:447
 msgid "Failed to remove %s credentials: %v"
 msgstr "%s の認証情報の削除に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:428
+#: internal/cli/auth.go:428
 msgid "%s credentials removed"
 msgstr "%s の認証情報を削除しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:430
+#: internal/cli/auth.go:430
 msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
-msgstr "不明なプロバイダー '%s' です。'lokit auth list' で利用可能なプロバイダーを確認できます。"
+msgstr "不明なプロバイダー '%s' です。'lokit auth list' を実行してプロバイダー一覧を確認してください。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:452
+#: internal/cli/auth.go:452
 msgid "All stored credentials removed"
 msgstr "すべての保存済み認証情報を削除しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:457
+#: internal/cli/auth.go:457
 msgid "Provider to logout (default: all)"
-msgstr "ログアウトするプロバイダー（デフォルト: 全て）"
+msgstr "ログアウトするプロバイダー（デフォルト: all）"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:476
+#: internal/cli/auth.go:476
 msgid "Show stored credentials and status"
 msgstr "保存済み認証情報とステータスを表示"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:478
+#: internal/cli/auth.go:478
 msgid "Stored Credentials"
 msgstr "保存済み認証情報"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:480
+#: internal/cli/auth.go:480
 msgid "OAuth Providers"
-msgstr "OAuthプロバイダー"
+msgstr "OAuth プロバイダー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:481
+#: internal/cli/auth.go:481
 msgid "copilot"
 msgstr "copilot"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:482
+#: internal/cli/auth.go:482
 msgid "gemini"
 msgstr "gemini"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:484
+#: internal/cli/auth.go:484
 msgid "API Key Providers"
-msgstr "APIキー型プロバイダー"
+msgstr "API キー プロバイダー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:497
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:503
+#: internal/cli/auth.go:497 internal/cli/auth.go:503
 msgid "✓ configured"
 msgstr "✓ 設定済み"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:499
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:504
+#: internal/cli/auth.go:499 internal/cli/auth.go:504
 msgid "endpoint:"
 msgstr "エンドポイント:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:503
+#: internal/cli/auth.go:503
 msgid "no key"
 msgstr "キーなし"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:507
+#: internal/cli/auth.go:507
 msgid "not configured"
 msgstr "未設定"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:511
+#: internal/cli/auth.go:511
 msgid "Environment Variables"
 msgstr "環境変数"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:525
+#: internal/cli/auth.go:525
 msgid "not set"
 msgstr "未設定"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:77
+#: internal/cli/auth.go:77
 msgid "Authenticate with an AI provider"
-msgstr "AIプロバイダーで認証する"
+msgstr "AI プロバイダーで認証する"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:78
+#: internal/cli/auth.go:78
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -423,105 +410,100 @@ msgid ""
 "  opencode      Paste your OpenCode API key\n"
 "  custom-openai Paste your API key + endpoint URL"
 msgstr ""
-"OAuthまたはAPIキーを使ってAIプロバイダーに認証します。\n"
+"OAuth または API キーを使って AI プロバイダーで認証します。\n"
 "\n"
-"--providerを指定しない場合は選択を促されます。\n"
+"--provider が指定されていない場合は、選択するよう促されます。\n"
 "\n"
-"OAuthプロバイダー:\n"
-"  copilot       デバイスコードフロー — ブラウザでコード入力\n"
-"  gemini        ブラウザOAuth — Googleアカウントでサインイン\n"
+"OAuth プロバイダー:\n"
+"  copilot       デバイスコードフロー — ブラウザでコードを入力します\n"
+"  gemini        ブラウザベースの OAuth — Google でサインインします\n"
 "\n"
-"APIキー型プロバイダー:\n"
-"  google        Google AI StudioのAPIキーを貼り付け\n"
-"  groq          GroqのAPIキーを貼り付け\n"
-"  opencode      OpenCodeのAPIキーを貼り付け\n"
-"  custom-openai APIキー＋エンドポイントURLを貼り付け"
+"API キー プロバイダー:\n"
+"  google        Google AI Studio の API キーを貼り付けます\n"
+"  groq          Groq の API キーを貼り付けます\n"
+"  opencode      opencode の API キーを貼り付けます\n"
+"  custom-openai API キーとエンドポイント URL を貼り付けます"
 
-#: /home/live/opencode/fb/lokit/internal/cli/auth.go:93
+#: internal/cli/auth.go:93
 msgid "Select provider to authenticate"
-msgstr "認証するプロバイダーを選択"
+msgstr "認証するプロバイダーを選択してください"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:105
+#: internal/cli/helpers.go:105
 msgid "Go extraction failed: %v"
-msgstr "Goファイルの抽出に失敗しました: %v"
+msgstr "Go の抽出に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:106
+#: internal/cli/helpers.go:106
 msgid "Continuing with xgettext results only"
-msgstr "xgettextの結果のみで続行します"
+msgstr "xgettext の結果のみで続行します"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:113
+#: internal/cli/helpers.go:113
 msgid "Merging POT files..."
-msgstr "POTファイルをマージ中..."
+msgstr "POT ファイルをマージしています..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:115
+#: internal/cli/helpers.go:115
 msgid "merging POT files: %w"
-msgstr "POTファイルのマージ中: %w"
+msgstr "POT ファイルのマージ中にエラー: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:123
+#: internal/cli/helpers.go:123
 msgid "extraction failed: %w"
 msgstr "抽出に失敗しました: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:131
+#: internal/cli/helpers.go:131
 msgid "Go extraction failed: %w"
-msgstr "Go抽出に失敗しました: %w"
+msgstr "Go の抽出に失敗しました: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:145
+#: internal/cli/helpers.go:145
 msgid "Extracted %d strings to %s"
-msgstr "%d 件の文字列を %s に抽出しました"
+msgstr "%d 個の文字列を %s に抽出しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:147
+#: internal/cli/helpers.go:147
 msgid "Extracted strings to %s"
 msgstr "文字列を %s に抽出しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:165
+#: internal/cli/helpers.go:165
 msgid "No POT template found, running extraction..."
-msgstr "POTテンプレートが見つかりません。抽出を実行します..."
+msgstr "POT テンプレートが見つかりません。抽出を実行します..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:167
+#: internal/cli/helpers.go:167
 msgid "Auto-extraction failed: %v"
 msgstr "自動抽出に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:174
+#: internal/cli/helpers.go:174
 msgid "Cannot auto-create %s: extraction produced no POT template"
-msgstr "%s を自動作成できません: 抽出結果にPOTテンプレートがありません"
+msgstr "%s を自動作成できません: 抽出で POT テンプレートが生成されませんでした"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:175
+#: internal/cli/helpers.go:175
 msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
-msgstr "ソースファイルに翻訳対象の文字列（_(), N_() など）が含まれているかご確認ください"
+msgstr "ソースファイルに翻訳可能な文字列（_()、N_() など）が含まれているか確認してください"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:182
+#: internal/cli/helpers.go:182
 msgid "Cannot read POT template %s: %v"
-msgstr "POTテンプレート %s を読み込めません: %v"
+msgstr "POT テンプレート %s を読み取れません: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:206
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:508
+#: internal/cli/helpers.go:206 internal/cli/init.go:508
 msgid "Creating directory for %s: %v"
-msgstr "%s 用のディレクトリを作成中: %v"
+msgstr "%s のディレクトリを作成しています: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:211
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:292
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:532
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:108
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:352
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:608
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:828
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:98
+#: internal/cli/helpers.go:211 internal/cli/init.go:292
+#: internal/cli/init.go:532 internal/cli/target_content.go:108
+#: internal/cli/target_content.go:352 internal/cli/target_content.go:608
+#: internal/cli/target_content.go:828 internal/cli/target_vuei18n.go:98
 msgid "Creating %s: %v"
-msgstr "%s を作成中: %v"
+msgstr "%s を作成しています: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:215
+#: internal/cli/helpers.go:215
 msgid "Auto-created %s from %s (%d entries)"
 msgstr "%s を %s から自動作成しました（%d 件）"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:287
+#: internal/cli/helpers.go:287
 msgid "check provider documentation"
 msgstr "プロバイダーのドキュメントを確認してください"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:29
+#: internal/cli/helpers.go:29
 msgid "Scanning for source files in: %s"
-msgstr "ソースファイルをスキャン中: %s"
+msgstr "ソースファイルをスキャンしています: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:290
+#: internal/cli/helpers.go:290
 msgid ""
 "--model is required for provider '%s'\n"
 "\n"
@@ -530,14 +512,14 @@ msgid ""
 "\n"
 "Usage: --provider %s --model MODEL_NAME"
 msgstr ""
-"--modelはプロバイダー「%s」で必須です\n"
+"--model はプロバイダー '%s' に必須です\n"
 "\n"
-"%sの例:\n"
+"%s の例となるモデル:\n"
 "  %s\n"
 "\n"
 "使用方法: --provider %s --model MODEL_NAME"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:304
+#: internal/cli/helpers.go:304
 msgid ""
 "provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
@@ -552,20 +534,20 @@ msgid ""
 "\n"
 "Get an API key from: https://aistudio.google.com/apikey"
 msgstr ""
-"provider 'google' にはAPIキーまたはGemini OAuthログインが必要です\n"
+"provider 'google' requires an API key or Gemini OAuth login\n"
 "\n"
-"方法1: APIキーを保存:\n"
+"Option 1: Store an API key:\n"
 "  lokit auth login --provider google\n"
 "\n"
-"方法2: Google OAuthでログイン（無料枠: 60回/分）:\n"
+"Option 2: Login with Google OAuth (free tier: 60 req/min):\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"方法3: キーを直接渡す:\n"
-"  --api-key YOUR_KEY または export GOOGLE_API_KEY=YOUR_KEY\n"
+"Option 3: Pass key directly:\n"
+"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n"
 "\n"
-"APIキー取得先: https://aistudio.google.com/apikey"
+"Get an API key from: https://aistudio.google.com/apikey"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:316
+#: internal/cli/helpers.go:316
 msgid ""
 "provider 'gemini' requires Google OAuth login\n"
 "\n"
@@ -575,15 +557,15 @@ msgid ""
 "This uses Gemini Code Assist (free tier: 60 req/min).\n"
 "For API key access, use --provider google instead."
 msgstr ""
-"プロバイダー「gemini」にはGoogle OAuthログインが必要です\n"
+"provider 'gemini' requires Google OAuth login\n"
 "\n"
-"Googleアカウントでログイン:\n"
+"Login with your Google account:\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"Gemini Code Assist（無料枠: 60リクエスト/分）を利用します。\n"
-"APIキー利用は--provider googleを指定してください。"
+"This uses Gemini Code Assist (free tier: 60 req/min).\n"
+"For API key access, use --provider google instead."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:325
+#: internal/cli/helpers.go:325
 msgid ""
 "provider 'groq' requires an API key\n"
 "\n"
@@ -595,21 +577,21 @@ msgid ""
 "\n"
 "Get a free API key from: https://console.groq.com/keys"
 msgstr ""
-"provider 'groq' にはAPIキーが必要です\n"
+"provider 'groq' requires an API key\n"
 "\n"
-"方法1: APIキーを保存:\n"
+"Option 1: Store your API key:\n"
 "  lokit auth login --provider groq\n"
 "\n"
-"方法2: キーを直接渡す:\n"
-"  --api-key YOUR_KEY または export GROQ_API_KEY=YOUR_KEY\n"
+"Option 2: Pass key directly:\n"
+"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n"
 "\n"
-"無料APIキー取得先: https://console.groq.com/keys"
+"Get a free API key from: https://console.groq.com/keys"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:33
+#: internal/cli/helpers.go:33
 msgid "scanning sources: %w"
-msgstr "ソースのスキャン中: %w"
+msgstr "scanning sources: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:338
+#: internal/cli/helpers.go:338
 msgid ""
 "provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
@@ -618,14 +600,14 @@ msgid ""
 "\n"
 "This uses GitHub Copilot (requires active Copilot subscription)."
 msgstr ""
-"プロバイダー「copilot」にはGitHub Copilot認証が必要です\n"
+"provider 'copilot' requires GitHub Copilot authentication\n"
 "\n"
-"GitHubアカウントでログイン:\n"
+"Login with your GitHub account:\n"
 "  lokit auth login --provider copilot\n"
 "\n"
-"GitHub Copilot（有効なサブスクリプションが必要）を利用します。"
+"This uses GitHub Copilot (requires active Copilot subscription)."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:346
+#: internal/cli/helpers.go:346
 msgid ""
 "provider 'custom-openai' requires an endpoint URL\n"
 "\n"
@@ -635,15 +617,15 @@ msgid ""
 "Option 2: Pass directly:\n"
 "  --base-url https://api.example.com/v1"
 msgstr ""
-"プロバイダー「custom-openai」にはエンドポイントURLが必要です\n"
+"provider 'custom-openai' requires an endpoint URL\n"
 "\n"
-"方法1: 認証で設定:\n"
+"Option 1: Configure via auth:\n"
 "  lokit auth login --provider custom-openai\n"
 "\n"
-"方法2: 直接指定:\n"
+"Option 2: Pass directly:\n"
 "  --base-url https://api.example.com/v1"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:361
+#: internal/cli/helpers.go:361
 msgid ""
 "provider 'ollama' requires Ollama server to be running\n"
 "\n"
@@ -653,71 +635,67 @@ msgid ""
 "  --provider copilot         (GitHub Copilot, free)\n"
 "  --provider google          (requires API key)"
 msgstr ""
-"プロバイダー「ollama」はOllamaサーバーの起動が必要です\n"
+"provider 'ollama' requires Ollama server to be running\n"
 "\n"
-"Ollamaの起動: ollama serve\n"
-"インストール: https://ollama.com\n"
-"他のプロバイダー例:\n"
-"  --provider copilot         （GitHub Copilot、無料）\n"
-"  --provider google          （APIキーが必要）"
+"Start Ollama with: ollama serve\n"
+"Install from: https://ollama.com\n"
+"Alternative providers:\n"
+"  --provider copilot         (GitHub Copilot, free)\n"
+"  --provider google          (requires API key)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:37
+#: internal/cli/helpers.go:37
 msgid "no source files found (supported: %s)"
-msgstr "ソースファイルが見つかりません（対応: %s）"
+msgstr "no source files found (supported: %s)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:50
+#: internal/cli/helpers.go:50
 msgid "Found %d source files (%s)"
-msgstr "%d 件のソースファイルを検出しました（%s）"
+msgstr "Found %d source files (%s)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:82
+#: internal/cli/helpers.go:82
 msgid "Extracting from %d Go files (AST, keywords: %s)..."
-msgstr "%d 件のGoファイルから抽出中（AST、キーワード: %s）..."
+msgstr "Extracting from %d Go files (AST, keywords: %s)..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:86
+#: internal/cli/helpers.go:86
 msgid "Extracting from %d Go files with xgotext..."
-msgstr "%d 件のGoファイルからxgotextで抽出中..."
+msgstr "Extracting from %d Go files with xgotext..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:93
+#: internal/cli/helpers.go:93
 msgid "Extracting from %d non-Go files with xgettext..."
-msgstr "%d 件の非Goファイルからxgettextで抽出中..."
+msgstr "Extracting from %d non-Go files with xgettext..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/helpers.go:96
+#: internal/cli/helpers.go:96
 msgid "xgettext extraction failed: %w"
-msgstr "xgettextによる抽出に失敗しました: %w"
+msgstr "xgettext extraction failed: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:147
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:36
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:182
+#: internal/cli/init.go:147 internal/cli/lock.go:445 internal/cli/status.go:38
+#: internal/cli/translate_cmd.go:181
 msgid "Config error: %v"
-msgstr "設定エラー: %v"
+msgstr "Config error: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:151
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:44
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:190
+#: internal/cli/init.go:151 internal/cli/lock.go:448 internal/cli/status.go:46
+#: internal/cli/translate_cmd.go:189
 msgid "No lokit.yaml found in %s"
-msgstr "%s にlokit.yamlが見つかりません"
+msgstr "No lokit.yaml found in %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:152
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:45
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:191
+#: internal/cli/init.go:152 internal/cli/status.go:47
+#: internal/cli/translate_cmd.go:190
 msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr "lokit.yaml設定ファイルを作成します。書式の参考は'lokit init --help'をご覧ください。"
+msgstr "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:160
+#: internal/cli/init.go:160
 msgid "Languages to init (comma-separated, default: all from config)"
-msgstr "初期化対象言語（カンマ区切り、デフォルト: 設定ファイルの全言語）"
+msgstr "Languages to init (comma-separated, default: all from config)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:171
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:64
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:233
+#: internal/cli/init.go:171 internal/cli/lock.go:453 internal/cli/status.go:86
+#: internal/cli/translate_cmd.go:232
 msgid "Config resolve error: %v"
-msgstr "設定の解決エラー: %v"
+msgstr "Config resolve error: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:23
+#: internal/cli/init.go:23
 msgid "Prepare translation files (extract strings, create/update PO)"
-msgstr "翻訳ファイルの準備（文字列抽出、POファイルの作成・更新）"
+msgstr "Prepare translation files (extract strings, create/update PO)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:24
+#: internal/cli/init.go:24
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"
@@ -839,83 +817,84 @@ msgid ""
 "      type: properties\n"
 "      dir: src/main/resources"
 msgstr ""
-"翻訳対象文字列の抽出と翻訳ファイルの作成／更新を行います。\n"
+"Extract translatable strings and create/update translation files.\n"
 "\n"
-"プロジェクトルートにlokit.yaml設定ファイルが必要です。\n"
+"Requires a lokit.yaml configuration file in the project root.\n"
 "\n"
-"gettextプロジェクト：xgettextで文字列を抽出し、POTテンプレートを作成。\n"
-"各言語のPOファイルを新規作成または更新します。\n"
+"For gettext projects: runs xgettext to extract strings into a POT template,\n"
+"then creates or updates PO files for each language.\n"
 "\n"
-"po4aプロジェクト：'po4a --no-translations'でテンプレートを更新します。\n"
+"For po4a projects: runs 'po4a --no-translations' to update templates.\n"
 "\n"
-"i18next/vue-i18n/json/yaml/properties/flutterプロジェクト：\n"
-"未作成の言語ファイルを空の翻訳で生成します。\n"
+"For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language\n"
+"files with empty translations.\n"
 "\n"
-"android/markdownプロジェクト：初期化は不要です。'lokit translate'を直接実行してください。\n"
+"For android/markdown projects: no init step needed — use 'lokit translate'\n"
+"directly.\n"
 "\n"
-"このコマンドは冪等性があり、複数回実行しても安全です。\n"
-"既存の翻訳はファイル更新時に保持されます。\n"
+"This command is idempotent — safe to run multiple times. Existing\n"
+"translations are preserved when updating files.\n"
 "\n"
-"設定フォーマット（lokit.yaml）\n"
+"CONFIG FORMAT (lokit.yaml)\n"
 "\n"
-"  source_lang: en                    # ソース言語（デフォルト: en）\n"
-"  languages: [ru, de, fr, es, ...]   # 翻訳対象言語\n"
+"  source_lang: en                    # Source language (default: en)\n"
+"  languages: [ru, de, fr, es, ...]   # Target languages\n"
 "\n"
 "  targets:\n"
-"    - name: myproject                # 表示名\n"
-"      type: gettext                  # ターゲットタイプ（下記参照）\n"
-"      root: .                        # 作業ディレクトリ（デフォルト: .）\n"
-"      # ... タイプ固有オプション\n"
+"    - name: myproject                # Display name\n"
+"      type: gettext                  # Target type (see below)\n"
+"      root: .                        # Working directory (default: .)\n"
+"      # ... type-specific options\n"
 "\n"
-"ターゲットタイプ\n"
+"TARGET TYPES\n"
 "\n"
-"  gettext — ソースコード文字列抽出（shell, python, C, Go等）\n"
-"    dir: po                          # POファイルディレクトリ（必須）\n"
-"    pot: messages.pot                # POTテンプレートファイル名（dir内）\n"
-"    sources: [src, scripts]          # スキャン対象ディレクトリ（デフォルト: root）\n"
-"    keywords: [_, N_, gettext]       # xgettextキーワード（デフォルト: 標準セット）\n"
+"  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
+"    dir: po                          # PO files directory (required)\n"
+"    pot: messages.pot                # POT template filename (inside dir)\n"
+"    sources: [src, scripts]          # Directories to scan (default: root)\n"
+"    keywords: [_, N_, gettext]       # xgettext keywords (default: standard set)\n"
 "\n"
-"  po4a — ドキュメント翻訳（manページ、AsciiDoc等）\n"
-"    config: po4a.cfg                 # po4a.cfgのパス（必須）\n"
+"  po4a — Documentation translation (man pages, AsciiDoc, etc.)\n"
+"    config: po4a.cfg                 # Path to po4a.cfg (required)\n"
 "\n"
-"  i18next — i18next JSON翻訳\n"
-"    dir: public/translations         # JSONファイルディレクトリ（必須）\n"
-"    pattern: \"{lang}.json\"           # 言語ファイルパターン（必須）\n"
+"  i18next — i18next JSON translations\n"
+"    dir: public/translations         # JSON files directory (required)\n"
+"    pattern: \"{lang}.json\"           # Language file pattern (required)\n"
 "\n"
-"  vue-i18n — vue-i18nネストJSON翻訳\n"
-"    dir: frontend/src/i18n           # JSONファイルディレクトリ（必須）\n"
-"    pattern: \"{lang}.json\"           # 言語ファイルパターン（必須）\n"
+"  vue-i18n — vue-i18n nested JSON translations\n"
+"    dir: frontend/src/i18n           # JSON files directory (required)\n"
+"    pattern: \"{lang}.json\"           # Language file pattern (required)\n"
 "\n"
-"  json — シンプルなJSON翻訳 { \"key\": \"value\" }\n"
-"    dir: translations                # JSONファイルディレクトリ（必須）\n"
-"    pattern: \"{lang}.json\"           # 言語ファイルパターン（必須）\n"
+"  json — Simple JSON translations { \"key\": \"value\" }\n"
+"    dir: translations                # JSON files directory (required)\n"
+"    pattern: \"{lang}.json\"           # Language file pattern (required)\n"
 "\n"
 "  android — Android strings.xml\n"
-"    dir: app/src/main/res            # Android res/ディレクトリ（必須）\n"
+"    dir: app/src/main/res            # Android res/ directory (required)\n"
 "\n"
-"  yaml — YAMLキー/値翻訳\n"
-"    dir: translations                # YAMLファイルディレクトリ（必須）\n"
-"    pattern: \"{lang}.yaml\"           # 言語ファイルパターン（必須）\n"
+"  yaml — YAML key/value translations\n"
+"    dir: translations                # YAML files directory (required)\n"
+"    pattern: \"{lang}.yaml\"           # Language file pattern (required)\n"
 "\n"
-"  markdown — Markdownドキュメント翻訳\n"
-"    dir: translations                # ルートディレクトリ。translations/LANG/にファイル配置（必須）\n"
+"  markdown — Markdown document translation\n"
+"    dir: translations                # Root dir; files at translations/LANG/ (required)\n"
 "\n"
-"  properties — Java .properties翻訳\n"
-"    dir: translations                # .propertiesファイルディレクトリ（必須）\n"
-"    pattern: \"{lang}.properties\"     # 言語ファイルパターン（必須）\n"
+"  properties — Java .properties translations\n"
+"    dir: translations                # .properties files directory (required)\n"
+"    pattern: \"{lang}.properties\"     # Language file pattern (required)\n"
 "\n"
-"  flutter — Flutter ARB（Application Resource Bundle）\n"
-"    dir: lib/l10n                    # ARBファイルディレクトリ（必須）\n"
-"    pattern: \"app_{lang}.arb\"        # 言語ファイルパターン（必須）\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    dir: lib/l10n                    # ARB files directory (required)\n"
+"    pattern: \"app_{lang}.arb\"        # Language file pattern (required)\n"
 "\n"
-"共通オプション（全ターゲットタイプ）\n"
+"COMMON OPTIONS (all target types)\n"
 "\n"
-"  languages: [ru, de]               # グローバル言語リストの上書き\n"
-"  prompt: \"カスタム翻訳...\"         # AI翻訳プロンプトの上書き\n"
+"  languages: [ru, de]               # Override global language list\n"
+"  prompt: \"Custom translation...\"   # Override AI translation prompt\n"
 "\n"
-"使用例\n"
+"EXAMPLES\n"
 "\n"
-"  # gettextによるシェルスクリプト\n"
+"  # Shell scripts with gettext\n"
 "  source_lang: en\n"
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
@@ -924,14 +903,14 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # ラッパー関数を使ったGoプロジェクト\n"
+"  # Go project with wrapper functions\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      type: gettext\n"
 "      sources: [.]\n"
 "      keywords: [T, N]\n"
 "\n"
-"  # ドキュメント＋コード\n"
+"  # Documentation + code\n"
 "  targets:\n"
 "    - name: code\n"
 "      type: gettext\n"
@@ -940,175 +919,424 @@ msgstr ""
 "      type: po4a\n"
 "      config: docs/po4a.cfg\n"
 "\n"
-"  # i18nextウェブアプリケーション\n"
+"  # i18next web application\n"
 "  targets:\n"
 "    - name: frontend\n"
 "      type: i18next\n"
 "      dir: public/translations\n"
 "\n"
-"  # Flutterアプリケーション\n"
+"  # Flutter application\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: flutter\n"
 "      dir: lib/l10n\n"
 "\n"
-"  # .propertiesを使うJavaアプリケーション\n"
+"  # Java application with .properties\n"
 "  targets:\n"
 "    - name: app\n"
 "      type: properties\n"
 "      dir: src/main/resources"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:243
+#: internal/cli/init.go:243
 msgid "Android targets do not require init — use 'lokit translate' directly."
-msgstr "Androidターゲットは初期化不要です — 直接 'lokit translate' をご利用ください。"
+msgstr "Android targets do not require init — use 'lokit translate' directly."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:264
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:526
+#: internal/cli/init.go:264 internal/cli/target_core.go:526
 msgid "Cannot read source language file %s: %v"
-msgstr "ソース言語ファイル %s を読み込めません: %v"
+msgstr "Cannot read source language file %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:269
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:89
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:591
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:811
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:81
+#: internal/cli/init.go:269 internal/cli/target_content.go:89
+#: internal/cli/target_content.go:591 internal/cli/target_content.go:811
+#: internal/cli/target_vuei18n.go:81
 msgid "Source language (%s): %d keys"
-msgstr "ソース言語（%s）：%dキー"
+msgstr "Source language (%s): %d keys"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:295
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:111
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:611
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:831
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:101
+#: internal/cli/init.go:295 internal/cli/target_content.go:111
+#: internal/cli/target_content.go:611 internal/cli/target_content.go:831
+#: internal/cli/target_vuei18n.go:101
 msgid "Created: %s (%d keys)"
-msgstr "作成済み: %s（%d キー）"
+msgstr "Created: %s (%d keys)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:311
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:70
+#: internal/cli/init.go:311 internal/cli/target_core.go:70
 msgid "Updating %s: %v"
-msgstr "%s を更新中: %v"
+msgstr "Updating %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:314
+#: internal/cli/init.go:314
 msgid "Updated: %s (+%d new keys)"
-msgstr "更新済み: %s（新規 %d キー追加）"
+msgstr "Updated: %s (+%d new keys)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:317
+#: internal/cli/init.go:317
 msgid "%s: up to date"
-msgstr "%s: 最新です"
+msgstr "%s: up to date"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:321
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:554
+#: internal/cli/init.go:321 internal/cli/init.go:554
 msgid "Summary: %d created, %d updated"
-msgstr "概要: %d 件作成、%d 件更新"
+msgstr "Summary: %d created, %d updated"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:483
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:560
+#: internal/cli/init.go:324 internal/cli/init.go:483 internal/cli/init.go:560
 msgid "Init complete!"
-msgstr "初期化が完了しました！"
+msgstr "Init complete!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:337
+#: internal/cli/init.go:337
 msgid "pandoc not found, skipping manpage generation from markdown"
-msgstr "pandoc が見つかりません。Markdown からの man ページ生成をスキップします"
+msgstr "pandoc not found, skipping manpage generation from markdown"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:352
+#: internal/cli/init.go:352
 msgid "failed to list markdown files: %w"
-msgstr "Markdownファイルの一覧取得に失敗しました: %w"
+msgstr "failed to list markdown files: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:385
+#: internal/cli/init.go:385
 msgid "Generating %s from %s"
-msgstr "%s を %s から生成中"
+msgstr "Generating %s from %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:390
+#: internal/cli/init.go:390
 msgid "pandoc failed for %s: %w"
-msgstr "pandocの実行に失敗しました（%s）: %w"
+msgstr "pandoc failed for %s: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:395
+#: internal/cli/init.go:395
 msgid "Failed to post-process %s: %v"
-msgstr "%s の後処理に失敗しました: %v"
+msgstr "Failed to post-process %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:402
+#: internal/cli/init.go:402
 msgid "Generated %d manpage(s) from markdown"
-msgstr "Markdown から %d 件の man ページを生成しました"
+msgstr "Generated %d manpage(s) from markdown"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:437
+#: internal/cli/init.go:437
 msgid "po4a is not installed. Install with: sudo apt install po4a"
-msgstr "po4a がインストールされていません。インストールするには: sudo apt install po4a"
+msgstr "po4a is not installed. Install with: sudo apt install po4a"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:442
+#: internal/cli/init.go:442
 msgid "Failed to generate manpages from markdown: %v"
-msgstr "Markdown から man ページの生成に失敗しました: %v"
+msgstr "Failed to generate manpages from markdown: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:443
+#: internal/cli/init.go:443
 msgid "Continuing anyway, po4a might fail if source files don't exist"
-msgstr "このまま続行しますが、ソースファイルが存在しない場合は po4a が失敗する可能性があります"
+msgstr "Continuing anyway, po4a might fail if source files don't exist"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:446
+#: internal/cli/init.go:446
 msgid "Running po4a --no-translations %s ..."
-msgstr "po4a --no-translations %s を実行中..."
+msgstr "Running po4a --no-translations %s ..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:452
+#: internal/cli/init.go:452
 msgid "po4a failed: %v"
-msgstr "po4a の実行に失敗しました: %v"
+msgstr "po4a failed: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:454
+#: internal/cli/init.go:454
 msgid "po4a updated POT and PO files"
-msgstr "po4a が POT および PO ファイルを更新しました"
+msgstr "po4a updated POT and PO files"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:471
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:489
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:322
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:227
+#: internal/cli/init.go:471 internal/cli/init.go:489 internal/cli/lock.go:154
+#: internal/cli/lock.go:232 internal/cli/lock.go:324 internal/cli/lock.go:400
+#: internal/cli/root.go:325 internal/cli/translate_cmd.go:226
 msgid "%v"
 msgstr "%v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:496
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:118
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:198
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:360
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:453
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:616
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:684
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:836
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:904
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:152
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:291
+#: internal/cli/init.go:496 internal/cli/init.go:540
+#: internal/cli/target_content.go:118 internal/cli/target_content.go:198
+#: internal/cli/target_content.go:360 internal/cli/target_content.go:453
+#: internal/cli/target_content.go:463 internal/cli/target_content.go:616
+#: internal/cli/target_content.go:684 internal/cli/target_content.go:836
+#: internal/cli/target_content.go:904 internal/cli/target_core.go:152
+#: internal/cli/target_core.go:291
 msgid "Reading %s: %v"
-msgstr "%s を読み込み中: %v"
+msgstr "Reading %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:500
+#: internal/cli/init.go:500
 msgid "Updating PO files for: %s"
-msgstr "%s の PO ファイルを更新中"
+msgstr "Updating PO files for: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:535
+#: internal/cli/init.go:535
 msgid "Created: %s"
-msgstr "作成済み: %s"
+msgstr "Created: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:546
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:124
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:365
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:621
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:841
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:108
+#: internal/cli/init.go:546 internal/cli/target_content.go:124
+#: internal/cli/target_content.go:365 internal/cli/target_content.go:621
+#: internal/cli/target_content.go:841 internal/cli/target_vuei18n.go:108
 msgid "Writing %s: %v"
-msgstr "%s を書き込み中: %v"
+msgstr "Writing %s: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/init.go:549
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:127
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:368
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:624
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:844
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:111
+#: internal/cli/init.go:549 internal/cli/target_content.go:127
+#: internal/cli/target_content.go:368 internal/cli/target_content.go:624
+#: internal/cli/target_content.go:844 internal/cli/target_vuei18n.go:111
 msgid "Updated: %s"
-msgstr "更新済み: %s"
+msgstr "Updated: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:182
+#: internal/cli/lock.go:108
+msgid "Remove stale lock entries"
+msgstr "Remove stale lock entries"
+
+#: internal/cli/lock.go:109
+msgid ""
+"Remove lock entries that no longer exist in source files.\n"
+"\n"
+"Examples:\n"
+"  lokit lock clean\n"
+"  lokit lock clean --target ui\n"
+"  lokit lock clean --dry-run"
+msgstr ""
+"Remove lock entries that no longer exist in source files.\n"
+"\n"
+"Examples:\n"
+"  lokit lock clean\n"
+"  lokit lock clean --target ui\n"
+"  lokit lock clean --dry-run"
+
+#: internal/cli/lock.go:121
+msgid "Show stale entries without modifying lokit.lock"
+msgstr "Show stale entries without modifying lokit.lock"
+
+#: internal/cli/lock.go:132
+msgid "Reset lock entries"
+msgstr "ロックエントリをリセット"
+
+#: internal/cli/lock.go:133
+msgid ""
+"Reset lock data at different scopes:\n"
+"\n"
+"  - whole file:          lokit lock reset\n"
+"  - all languages target: lokit lock reset --target ui\n"
+"  - single language:      lokit lock reset --target ui --lang ru\n"
+"\n"
+"Use --yes to skip confirmation."
+msgstr "ロックデータを異なるスコープでリセットします:\\n\\n  - ファイル全体:          lokit lock reset\\n  - すべての言語ターゲット: lokit lock reset --target ui\\n  - 単一言語:              lokit lock reset --target ui --lang ru\\n\\n--yes を指定すると確認をスキップします。"
+
+#: internal/cli/lock.go:145
+msgid "Target name from lokit.yaml"
+msgstr "lokit.yaml のターゲット名"
+
+#: internal/cli/lock.go:146
+msgid "Language code (requires --target)"
+msgstr "言語コード (--target が必要)"
+
+#: internal/cli/lock.go:147
+msgid "Skip confirmation prompt"
+msgstr "確認をスキップ"
+
+#: internal/cli/lock.go:160 internal/cli/lock.go:238 internal/cli/lock.go:330
+#: internal/cli/lock.go:389 internal/cli/translate_cmd.go:243
+msgid "Could not load lock file: %v"
+msgstr "ロックファイルを読み込めませんでした: %v"
+
+#: internal/cli/lock.go:172 internal/cli/lock.go:340
+#: internal/cli/translate_cmd.go:288 internal/cli/translate_cmd.go:293
+#: internal/cli/translate_cmd.go:298 internal/cli/translate_cmd.go:303
+#: internal/cli/translate_cmd.go:308 internal/cli/translate_cmd.go:313
+#: internal/cli/translate_cmd.go:318 internal/cli/translate_cmd.go:323
+#: internal/cli/translate_cmd.go:328 internal/cli/translate_cmd.go:333
+msgid "[%s] %v"
+msgstr "[%s] %v"
+
+#: internal/cli/lock.go:200 internal/cli/lock.go:376 internal/cli/lock.go:431
+#: internal/cli/translate_cmd.go:348
+msgid "Could not save lock file: %v"
+msgstr "ロックファイルを保存できませんでした: %v"
+
+#: internal/cli/lock.go:204
+msgid "Lock initialized: %d target-language entries updated"
+msgstr "ロックを初期化しました: ターゲット言語のエントリ %d 件を更新"
+
+#: internal/cli/lock.go:205
+msgid "Added: %d, skipped existing: %d"
+msgstr "追加: %d、既存はスキップ: %d"
+
+#: internal/cli/lock.go:206
+msgid "Lock file: %s"
+msgstr "ロックファイル: %s"
+
+#: internal/cli/lock.go:286
+msgid "JSON output error: %v"
+msgstr "JSON 出力エラー: %v"
+
+#: internal/cli/lock.go:292
+msgid "Lock File"
+msgstr "ロックファイル"
+
+#: internal/cli/lock.go:293
+msgid "Path"
+msgstr "パス"
+
+#: internal/cli/lock.go:295 internal/cli/root.go:368 internal/cli/root.go:441
+#: internal/cli/root.go:485 internal/cli/status.go:74
+#: internal/cli/target_content.go:27 internal/cli/target_content.go:263
+#: internal/cli/target_content.go:525 internal/cli/target_content.go:745
+#: internal/cli/target_vuei18n.go:28
+msgid "not found"
+msgstr "見つかりません"
+
+#: internal/cli/lock.go:295
+msgid "Status"
+msgstr "ステータス"
+
+#: internal/cli/lock.go:296 internal/cli/lock.go:302 internal/cli/status.go:62
+msgid "Targets"
+msgstr "ターゲット"
+
+#: internal/cli/lock.go:297 internal/cli/lock.go:303 internal/cli/status.go:60
+#: internal/cli/status.go:103 internal/cli/status.go:105
+msgid "Languages"
+msgstr "言語"
+
+#: internal/cli/lock.go:298 internal/cli/lock.go:304
+msgid "Keys"
+msgstr "キー"
+
+#: internal/cli/lock.go:30
+msgid "Manage lokit.lock file"
+msgstr "lokit.lock ファイルを管理"
+
+#: internal/cli/lock.go:307
+msgid "%d keys across %d languages"
+msgstr "%d 個のキー（%d 言語）"
+
+#: internal/cli/lock.go:31
+msgid ""
+"Manage incremental translation lock data in lokit.lock.\n"
+"\n"
+"Subcommands:\n"
+"  init    Initialize lock entries from source strings without AI calls\n"
+"  status  Show lock statistics\n"
+"  clean   Remove stale lock entries not present in source\n"
+"  reset   Remove all or part of lock data"
+msgstr "lokit.lock のインクリメンタルトランスレーション用ロックデータを管理します。\\n\\nサブコマンド:\\n  init    ソース文字列からロックエントリを初期化（AI 呼び出しなし）\\n  status  ロックの統計を表示\\n  clean   ソースに存在しない古いロックエントリを削除\\n  reset   ロックデータの全件または一部を削除"
+
+#: internal/cli/lock.go:315
+msgid "%d keys"
+msgstr "%d 件のキー"
+
+#: internal/cli/lock.go:353
+msgid "[%s/%s] stale entries: %d (tracked: %d)"
+msgstr "[%s/%s] 古いエントリ: %d (追跡済み: %d)"
+
+#: internal/cli/lock.go:361
+msgid "[%s/%s] removed stale entries: %d"
+msgstr "[%s/%s] 削除した古いエントリ: %d"
+
+#: internal/cli/lock.go:368
+msgid "Dry run: total stale entries: %d"
+msgstr "ドライラン: 古いエントリ合計: %d"
+
+#: internal/cli/lock.go:379
+msgid "Removed stale entries: %d"
+msgstr "削除した古いエントリ: %d"
+
+#: internal/cli/lock.go:394
+msgid "--lang requires --target"
+msgstr "--lang は --target が必要です"
+
+#: internal/cli/lock.go:406
+msgid "Reset entire lock file?"
+msgstr "ロックファイル全体をリセットしますか？"
+
+#: internal/cli/lock.go:407
+msgid "Cancelled"
+msgstr "キャンセルしました"
+
+#: internal/cli/lock.go:411
+msgid "Removing %s: %v"
+msgstr "%s を削除しています: %v"
+
+#: internal/cli/lock.go:414
+msgid "Reset complete: %s removed"
+msgstr "リセット完了: %s を削除しました"
+
+#: internal/cli/lock.go:436
+msgid "Reset complete: %s/%s"
+msgstr "リセット完了: %s/%s"
+
+#: internal/cli/lock.go:439
+msgid "Reset complete: target %s"
+msgstr "リセット完了: ターゲット %s"
+
+#: internal/cli/lock.go:466
+msgid "Target %q not found in lokit.yaml"
+msgstr "lokit.yaml にターゲット %q が見つかりません"
+
+#: internal/cli/lock.go:490
+msgid "unsupported target type %q"
+msgstr "サポートされていないターゲットタイプ %q"
+
+#: internal/cli/lock.go:498
+msgid "cannot read POT %s: %v"
+msgstr "POT %s を読み取れません: %v"
+
+#: internal/cli/lock.go:532
+msgid "cannot read any po4a PO files for target %s"
+msgstr "ターゲット %s の po4a PO ファイルをいずれも読み取れません"
+
+#: internal/cli/lock.go:544 internal/cli/lock.go:561 internal/cli/lock.go:611
+#: internal/cli/lock.go:651 internal/cli/lock.go:668
+msgid "cannot read source file %s: %v"
+msgstr "ソースファイル %s を読み取れません: %v"
+
+#: internal/cli/lock.go:56
+msgid "Initialize lock from existing sources"
+msgstr "既存ソースからロックを初期化"
+
+#: internal/cli/lock.go:57
+msgid ""
+"Initialize lokit.lock from current source files without calling AI.\n"
+"\n"
+"For each target/language pair, lokit stores source-content checksums used by\n"
+"incremental translation.\n"
+"\n"
+"Examples:\n"
+"  lokit lock init\n"
+"  lokit lock init --target ui\n"
+"  lokit lock init --target ui --force"
+msgstr "AI を呼び出さず、現在のソースファイルから lokit.lock を初期化します。\\n\\nlokit は各ターゲット/言語ペアごとに、インクリメンタルトランスレーションで使用するソース内容のチェックサムを保存します。\\n\\n例:\\n  lokit lock init\\n  lokit lock init --target ui\\n  lokit lock init --target ui --force"
+
+#: internal/cli/lock.go:575
+msgid "cannot read source strings.xml %s: %v"
+msgstr "ソースの strings.xml %s を読み取れません: %v"
+
+#: internal/cli/lock.go:625
+msgid "cannot read markdown files in %s: %v"
+msgstr "%s 内の Markdown ファイルを読み取れません: %v"
+
+#: internal/cli/lock.go:628 internal/cli/target_content.go:394
+msgid "cannot find source Markdown files in %s"
+msgstr "%s にソースの Markdown ファイルが見つかりません"
+
+#: internal/cli/lock.go:635
+msgid "cannot read source Markdown file %s: %v"
+msgstr "ソースの Markdown ファイル %s を読み取れません: %v"
+
+#: internal/cli/lock.go:71 internal/cli/lock.go:96 internal/cli/lock.go:120
+msgid "Target name from lokit.yaml (default: all targets)"
+msgstr "lokit.yaml のターゲット名 (default: all targets)"
+
+#: internal/cli/lock.go:72
+msgid "Overwrite existing lock entries for selected targets"
+msgstr "選択したターゲットの既存ロックエントリを上書きする"
+
+#: internal/cli/lock.go:83
+msgid "Show lock file statistics"
+msgstr "ロックファイルの統計を表示"
+
+#: internal/cli/lock.go:84
+msgid ""
+"Show statistics for lokit.lock, including tracked targets and keys.\n"
+"\n"
+"Examples:\n"
+"  lokit lock status\n"
+"  lokit lock status --target ui\n"
+"  lokit lock status --verbose\n"
+"  lokit lock status --json"
+msgstr "トラックされているターゲットやキーを含む lokit.lock の統計を表示します。\\n\\n例:\\n  lokit lock status\\n  lokit lock status --target ui\\n  lokit lock status --verbose\\n  lokit lock status --json"
+
+#: internal/cli/lock.go:97
+msgid "Show per-language lock breakdown"
+msgstr "言語別のロック内訳を表示"
+
+#: internal/cli/lock.go:98
+msgid "Output lock status as JSON"
+msgstr "ロックステータスを JSON で出力"
+
+#: internal/cli/root.go:182
 msgid "Localization Kit: AI-powered translation for multiple formats"
-msgstr "Localization Kit: 複数フォーマット対応のAI翻訳"
+msgstr "Localization Kit: 複数フォーマット向けの AI 翻訳"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:183
+#: internal/cli/root.go:183
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
@@ -1116,6 +1344,7 @@ msgid ""
 "  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
 "  po4a        Documentation translation (man pages, groff/roff markup)\n"
 "  i18next     React/i18next JSON translation files\n"
+"  vue-i18n    Vue i18n nested JSON translation files\n"
 "  android     Android strings.xml resource files\n"
 "  json        Generic JSON translation files\n"
 "  yaml        YAML translation files\n"
@@ -1137,799 +1366,709 @@ msgid ""
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
-"lokit — Localization Kit: 複数形式対応のAI翻訳ツール。\n"
+"lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
-"対応プロジェクトタイプ（自動検出またはlokit.yamlで設定）：\n"
-"  gettext     フラット（po/*.po）およびネスト（po/lang/*.po）POファイル\n"
-"  po4a        ドキュメント翻訳（manページ、groff/roffマークアップ）\n"
-"  i18next     React/i18next JSON翻訳ファイル\n"
-"  android     Android strings.xmlリソースファイル\n"
-"  json        汎用JSON翻訳ファイル\n"
-"  yaml        YAML翻訳ファイル\n"
-"  markdown    Markdownドキュメント翻訳\n"
-"  properties  Java .properties翻訳ファイル\n"
-"  flutter     Flutter ARB（Application Resource Bundle）ファイル\n"
+"サポートされているプロジェクトタイプ（自動検出または lokit.yaml で設定）:\n"
+"  gettext     平坦（po/*.po）およびネスト（po/lang/*.po）形式の PO ファイル\n"
+"  po4a        ドキュメント翻訳（man ページ、groff/roff マークアップ）\n"
+"  i18next     React/i18next の JSON 翻訳ファイル\n"
+"  vue-i18n    Vue i18n のネストされた JSON 翻訳ファイル\n"
+"  android     Android の strings.xml リソースファイル\n"
+"  json        一般的な JSON 翻訳ファイル\n"
+"  yaml        YAML 翻訳ファイル\n"
+"  markdown    Markdown ドキュメントの翻訳\n"
+"  properties  Java の .properties 翻訳ファイル\n"
+"  flutter     Flutter の ARB (Application Resource Bundle) ファイル\n"
 "\n"
-"設定方法：\n"
-"  プロジェクト設定はプロジェクトルートのlokit.yamlで定義します。\n"
-"  各プロジェクトは複数の翻訳ターゲットを持ち、異なるタイプを設定可能です。\n"
-"  lokit.yamlの書式についてはプロジェクト例をご参照ください。\n"
+"設定:\n"
+"  プロジェクト設定はプロジェクトルートの lokit.yaml に定義します。\n"
+"  各プロジェクトは異なるタイプの複数の翻訳ターゲットを持てます。\n"
+"  lokit.yaml のフォーマットはプロジェクト例を参照してください。\n"
 "\n"
-"AIプロバイダー：\n"
-"  google         Google AI（Gemini）— APIキー\n"
-"  gemini         Gemini Code Assist — ブラウザOAuth（無料）\n"
-"  groq           Groq — APIキー必須\n"
-"  opencode       OpenCode Zen API（無料モデルはキー不要）\n"
-"  copilot        GitHub Copilot（ネイティブOAuth、無料）\n"
-"  ollama         Ollamaローカルサーバー\n"
-"  custom-openai  OpenAI互換カスタムエンドポイント"
+"AI Providers:\n"
+"  google         Google AI (Gemini) — API key\n"
+"  gemini         Gemini Code Assist — browser OAuth (free)\n"
+"  groq           Groq — API key required\n"
+"  opencode       OpenCode Zen API (free models available without key)\n"
+"  copilot        GitHub Copilot (native OAuth, free)\n"
+"  ollama         Ollama local server\n"
+"  custom-openai  Custom OpenAI-compatible endpoint"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:215
+#: internal/cli/root.go:216
 msgid "default"
 msgstr "デフォルト"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:218
+#: internal/cli/root.go:219
 msgid "Use \"%s [command] --help\" for more information about a command."
-msgstr "コマンドの詳細については「%s [command] --help」をご利用ください。"
+msgstr "コマンドの詳細については \"%s [command] --help\" をご利用ください。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:224
+#: internal/cli/root.go:225
 msgid "Usage:"
 msgstr "使用法:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:228
+#: internal/cli/root.go:229
 msgid "Aliases:"
 msgstr "エイリアス:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:231
+#: internal/cli/root.go:232
 msgid "Examples:"
 msgstr "例:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:234
+#: internal/cli/root.go:235
 msgid "Available Commands:"
 msgstr "利用可能なコマンド:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:240
+#: internal/cli/root.go:241
 msgid "Additional Commands:"
-msgstr "追加コマンド:"
+msgstr "その他のコマンド:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:243
+#: internal/cli/root.go:244
 msgid "Flags:"
 msgstr "フラグ:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:246
+#: internal/cli/root.go:247
 msgid "Global Flags:"
 msgstr "グローバルフラグ:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:249
+#: internal/cli/root.go:250
 msgid "Additional help topics:"
 msgstr "追加のヘルプトピック:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:258
+#: internal/cli/root.go:259
 msgid "Help about any command"
-msgstr "任意のコマンドに関するヘルプ"
+msgstr "任意のコマンドのヘルプ"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:259
+#: internal/cli/root.go:260
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
 msgstr ""
-"Helpはアプリケーション内の任意のコマンドに関するヘルプを提供します。\n"
-"詳細は %s help [コマンドへのパス] と入力してください。"
+"ヘルプはアプリケーション内の任意のコマンドのヘルプを表示します。\n"
+"詳細を確認するには、%s help [path to command] と入力してください。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:281
+#: internal/cli/root.go:282
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "不明なヘルプトピック %q\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:291
+#: internal/cli/root.go:292
 msgid "Project root directory"
-msgstr "プロジェクトルートディレクトリ"
+msgstr "プロジェクトのルートディレクトリ"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:309
+#: internal/cli/root.go:311
 msgid "this command"
 msgstr "このコマンド"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:311
+#: internal/cli/root.go:313
 msgid "help for %s"
 msgstr "%s のヘルプ"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
+#: internal/cli/root.go:368
 msgid "POT"
 msgstr "POT"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
+#: internal/cli/root.go:368
 msgid "run 'lokit init'"
 msgstr "'lokit init' を実行してください"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:346
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:27
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:263
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:525
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:745
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:28
-msgid "not found"
-msgstr "見つかりません"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:350
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:467
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:511
+#: internal/cli/root.go:372 internal/cli/root.go:489 internal/cli/root.go:533
 msgid "Source strings"
 msgstr "ソース文字列"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-msgid "Fuzzy"
-msgstr "ファジー"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Progress"
-msgstr "進捗"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
-msgid "Left"
-msgstr "残り"
-
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
 msgid "Lang"
 msgstr "言語"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:355
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:428
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:472
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:516
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:623
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:42
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:280
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:540
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:760
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:38
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
 msgid "Done"
 msgstr "完了"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:362
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:393
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:439
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:480
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:532
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:585
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:635
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:49
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:288
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:550
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:770
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:50
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:538
+#: internal/cli/root.go:599
+msgid "Fuzzy"
+msgstr "ファジー"
+
+#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
+#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
+#: internal/cli/root.go:645 internal/cli/target_content.go:42
+#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
+#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
+msgid "Progress"
+msgstr "進捗"
+
+#: internal/cli/root.go:377 internal/cli/root.go:450 internal/cli/root.go:494
+#: internal/cli/root.go:538 internal/cli/root.go:645
+#: internal/cli/target_content.go:42 internal/cli/target_content.go:280
+#: internal/cli/target_content.go:540 internal/cli/target_content.go:760
+#: internal/cli/target_vuei18n.go:38
+msgid "Left"
+msgstr "残り"
+
+#: internal/cli/root.go:384 internal/cli/root.go:415 internal/cli/root.go:461
+#: internal/cli/root.go:502 internal/cli/root.go:554 internal/cli/root.go:607
+#: internal/cli/root.go:657 internal/cli/target_content.go:49
+#: internal/cli/target_content.go:288 internal/cli/target_content.go:550
+#: internal/cli/target_content.go:770 internal/cli/target_vuei18n.go:50
 msgid "missing"
-msgstr "不足"
+msgstr "未翻訳"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:380
+#: internal/cli/root.go:402
 msgid "po4a config"
-msgstr "po4a設定"
+msgstr "po4a 設定"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:577
+#: internal/cli/root.go:407 internal/cli/root.go:599
 msgid "Total"
 msgstr "合計"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:411
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:22
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:257
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:517
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:737
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:19
+#: internal/cli/root.go:433 internal/cli/target_content.go:22
+#: internal/cli/target_content.go:257 internal/cli/target_content.go:517
+#: internal/cli/target_content.go:737 internal/cli/target_vuei18n.go:19
 msgid "Translations"
 msgstr "翻訳"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:419
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:463
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:27
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:33
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:263
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:525
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:531
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:745
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:751
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:28
+#: internal/cli/root.go:441 internal/cli/root.go:485
+#: internal/cli/target_content.go:27 internal/cli/target_content.go:33
+#: internal/cli/target_content.go:263 internal/cli/target_content.go:525
+#: internal/cli/target_content.go:531 internal/cli/target_content.go:745
+#: internal/cli/target_content.go:751 internal/cli/target_vuei18n.go:28
 msgid "Source"
-msgstr "ソース"
+msgstr "原文"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:423
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:617
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:37
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:535
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:755
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:33
+#: internal/cli/root.go:445 internal/cli/root.go:639
+#: internal/cli/target_content.go:37 internal/cli/target_content.go:535
+#: internal/cli/target_content.go:755 internal/cli/target_vuei18n.go:33
 msgid "Source keys"
 msgstr "ソースキー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:459
+#: internal/cli/root.go:481
 msgid "Res dir"
-msgstr "Resディレクトリ"
+msgstr "リソースディレクトリ"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:506
+#: internal/cli/root.go:528
 msgid "No translatable strings found in %s"
-msgstr "%s に翻訳可能な文字列が見つかりません"
+msgstr "翻訳可能な文字列が %s に見つかりませんでした"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:510
+#: internal/cli/root.go:532
 msgid "Translation Statistics"
 msgstr "翻訳統計"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:552
+#: internal/cli/root.go:574
 msgid "Translation gaps:"
-msgstr "未翻訳箇所："
+msgstr "翻訳ギャップ:"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:556
+#: internal/cli/root.go:578
 msgid "%d untranslated"
-msgstr "%d件 未翻訳"
+msgstr "%d 件未翻訳"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:559
+#: internal/cli/root.go:581
 msgid "%d fuzzy"
-msgstr "%d件 fuzzy"
+msgstr "%d 件ファジー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:573
+#: internal/cli/root.go:595
 msgid "Documentation Statistics"
 msgstr "ドキュメント統計"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:604
+#: internal/cli/root.go:626
 msgid "No language files detected in %s"
 msgstr "%s に言語ファイルが検出されませんでした"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:615
+#: internal/cli/root.go:637
 msgid "UI Translation Statistics"
 msgstr "UI翻訳統計"
 
-#: /home/live/opencode/fb/lokit/internal/cli/root.go:65
+#: internal/cli/root.go:65
 msgid "Invalid locked_pattern %q: %v"
-msgstr "無効なlocked_pattern %q: %v"
+msgstr "無効な locked_pattern %q: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:17
+#: internal/cli/status.go:100
+msgid "%d keys x %d languages"
+msgstr "%d キー x %d 言語"
+
+#: internal/cli/status.go:100
+msgid "Locked"
+msgstr "ロック済み"
+
+#: internal/cli/status.go:105
+msgid "none detected"
+msgstr "検出されませんでした"
+
+#: internal/cli/status.go:18
 msgid "Show project info and translation statistics"
 msgstr "プロジェクト情報と翻訳統計を表示"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:18
+#: internal/cli/status.go:19
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
-"Displays project type (gettext, po4a, i18next, android), file structure,\n"
-"detected languages, and per-language translation progress. For projects\n"
+"Displays target type, file structure, detected languages, and per-language\n"
+"translation progress for gettext, po4a, i18next, vue-i18n, android, json,\n"
+"yaml, markdown, properties, and flutter projects. For projects\n"
 "configured via lokit.yaml, shows each target separately.\n"
 "\n"
 "Does not modify any files."
 msgstr ""
 "自動検出されたプロジェクト構成と翻訳統計を表示します。\n"
 "\n"
-"プロジェクトタイプ（gettext、po4a、i18next、android）、ファイル構成、\n"
-"検出された言語、言語ごとの翻訳進捗を表示します。\n"
+"ターゲットタイプ、ファイル構成、検出された言語、および各言語ごとの翻訳進捗を、gettext、po4a、i18next、vue-i18n、android、json,\n"
+"yaml、markdown、properties、flutter プロジェクトについて表示します。lokit.yaml で設定されたプロジェクトの場合は、各ターゲットを個別に表示します。\n"
 "\n"
-"lokit.yamlで設定されたプロジェクトの場合、各ターゲットごとに表示します。\n"
-"\n"
-"ファイルの変更は行いません。"
+"いかなるファイルも変更しません。"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:52
+#: internal/cli/status.go:54
 msgid "Project"
 msgstr "プロジェクト"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:53
+#: internal/cli/status.go:55
 msgid "Config"
 msgstr "設定"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:54
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:72
+#: internal/cli/status.go:56 internal/cli/status.go:94
 msgid "Root"
 msgstr "ルート"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:55
+#: internal/cli/status.go:57
 msgid "Source lang"
 msgstr "ソース言語"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:58
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:75
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:77
-msgid "Languages"
-msgstr "言語"
+#: internal/cli/status.go:71
+msgid "error: %v"
+msgstr "エラー: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:60
-msgid "Targets"
-msgstr "ターゲット"
+#: internal/cli/status.go:71 internal/cli/status.go:74
+#: internal/cli/status.go:78 internal/cli/status.go:80
+msgid "Lock file"
+msgstr "ロックファイル"
 
-#: /home/live/opencode/fb/lokit/internal/cli/status.go:77
-msgid "none detected"
-msgstr "検出されませんでした"
+#: internal/cli/status.go:78
+msgid "empty"
+msgstr "空"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:104
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:335
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:443
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:604
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:824
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:94
+#: internal/cli/status.go:80
+msgid "%d targets, %d keys"
+msgstr "%d 件のターゲット、%d 件のキー"
+
+#: internal/cli/target_content.go:104 internal/cli/target_content.go:335
+#: internal/cli/target_content.go:443 internal/cli/target_content.go:604
+#: internal/cli/target_content.go:824 internal/cli/target_vuei18n.go:94
 msgid "Creating directory %s: %v"
 msgstr "ディレクトリ %s を作成中: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:131
+#: internal/cli/target_content.go:131
 msgid "YAML init: %d created, %d updated"
-msgstr "YAML初期化: %d件作成、%d件更新"
+msgstr "YAML 初期化: %d 件作成、%d 件更新"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:137
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:380
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:635
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:855
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:76
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:187
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:323
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:345
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:367
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:574
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:121
+#: internal/cli/target_content.go:137 internal/cli/target_content.go:380
+#: internal/cli/target_content.go:635 internal/cli/target_content.go:855
+#: internal/cli/target_core.go:76 internal/cli/target_core.go:187
+#: internal/cli/target_core.go:323 internal/cli/target_core.go:345
+#: internal/cli/target_core.go:367 internal/cli/target_core.go:574
+#: internal/cli/target_vuei18n.go:121
 msgid "Provider: %s (%s), Model: %s"
-msgstr "プロバイダー: %s（%s）、モデル: %s"
+msgstr "プロバイダー: %s (%s)、モデル: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:139
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:382
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:637
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:857
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:78
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:369
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:576
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:123
+#: internal/cli/target_content.go:139 internal/cli/target_content.go:382
+#: internal/cli/target_content.go:637 internal/cli/target_content.go:857
+#: internal/cli/target_core.go:78 internal/cli/target_core.go:369
+#: internal/cli/target_core.go:576 internal/cli/target_vuei18n.go:123
 msgid "Parallel: enabled, max concurrent: %d"
-msgstr "並列処理: 有効、最大同時実行数: %d"
+msgstr "並列処理: 有効、最大同時実行: %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:142
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:385
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:640
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:860
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:81
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:372
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:126
+#: internal/cli/target_content.go:142 internal/cli/target_content.go:385
+#: internal/cli/target_content.go:640 internal/cli/target_content.go:860
+#: internal/cli/target_core.go:81 internal/cli/target_core.go:372
+#: internal/cli/target_vuei18n.go:126
 msgid "Chunk size: %d"
 msgstr "チャンクサイズ: %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:144
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:387
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:642
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:862
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:346
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:128
+#: internal/cli/target_content.go:144 internal/cli/target_content.go:387
+#: internal/cli/target_content.go:642 internal/cli/target_content.go:862
+#: internal/cli/target_core.go:324 internal/cli/target_core.go:346
+#: internal/cli/target_vuei18n.go:128
 msgid "Translations dir: %s"
 msgstr "翻訳ディレクトリ: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:145
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:388
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:643
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:863
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:84
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:190
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:325
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:347
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:375
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:129
+#: internal/cli/target_content.go:145 internal/cli/target_content.go:388
+#: internal/cli/target_content.go:643 internal/cli/target_content.go:863
+#: internal/cli/target_core.go:84 internal/cli/target_core.go:190
+#: internal/cli/target_core.go:325 internal/cli/target_core.go:347
+#: internal/cli/target_core.go:375 internal/cli/target_vuei18n.go:129
 msgid "Translating: %s"
 msgstr "翻訳中: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:150
+#: internal/cli/target_content.go:150
 msgid "cannot find source YAML file for language %q in %s"
-msgstr "言語 %q 用のソースYAMLファイルが %s に見つかりません"
+msgstr "言語 %q のソース YAML ファイルが %s に見つかりません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:155
+#: internal/cli/target_content.go:155
 msgid "cannot read source YAML %s: %w"
-msgstr "ソースYAML %s を読み込めません: %w"
+msgstr "ソース YAML %s を読み取れません: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:158
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:654
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:874
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:384
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:142
+#: internal/cli/target_content.go:158 internal/cli/target_content.go:654
+#: internal/cli/target_content.go:874 internal/cli/target_core.go:384
+#: internal/cli/target_vuei18n.go:142
 msgid "Source strings: %d"
 msgstr "ソース文字列: %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:166
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:392
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:593
+#: internal/cli/target_content.go:166 internal/cli/target_core.go:392
+#: internal/cli/target_core.go:593
 msgid "%s (%s): %d strings to translate (file will be auto-created)"
-msgstr "%s (%s): 翻訳対象の文字列が %d 件あります（ファイルは自動作成されます）"
+msgstr "%s (%s): 翻訳する文字列 %d 件（ファイルは自動作成されます）"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:172
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:180
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:668
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:888
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:92
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:198
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:402
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:602
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:154
+#: internal/cli/target_content.go:172 internal/cli/target_content.go:180
+#: internal/cli/target_content.go:668 internal/cli/target_content.go:888
+#: internal/cli/target_core.go:92 internal/cli/target_core.go:198
+#: internal/cli/target_core.go:402 internal/cli/target_core.go:602
+#: internal/cli/target_vuei18n.go:154
 msgid "%s (%s): %d strings to translate"
-msgstr "%s（%s）: 翻訳対象 %d 件"
+msgstr "%s (%s): 翻訳する文字列 %d 件"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:214
+#: internal/cli/target_content.go:214
 msgid "No YAML files to translate"
-msgstr "翻訳対象のYAMLファイルがありません"
+msgstr "翻訳対象の YAML ファイルがありません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:246
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:726
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:946
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:217
+#: internal/cli/target_content.go:246 internal/cli/target_content.go:726
+#: internal/cli/target_content.go:946 internal/cli/target_vuei18n.go:217
 msgid "  %s: %d/%d strings"
-msgstr "  %s: %d/%d 件の文字列"
+msgstr "  %s: %d/%d 文字列"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:275
+#: internal/cli/target_content.go:275
 msgid "Source segments"
 msgstr "ソースセグメント"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:319
+#: internal/cli/target_content.go:319
 msgid "Cannot find source Markdown files in %s"
-msgstr "%s 内にソースMarkdownファイルが見つかりません"
+msgstr "%s にソースの Markdown ファイルが見つかりません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:320
+#: internal/cli/target_content.go:320
 msgid "Expected: %s/*.md"
-msgstr "期待値: %s/*.md"
+msgstr "想定: %s/*.md"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:324
+#: internal/cli/target_content.go:324
 msgid "Source language (%s): %d files"
-msgstr "ソース言語（%s）: %d ファイル"
+msgstr "ソース言語 (%s): %d ファイル"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:33
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:531
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:751
+#: internal/cli/target_content.go:33 internal/cli/target_content.go:531
+#: internal/cli/target_content.go:751
 msgid "parse error: %v"
-msgstr "パースエラー: %v"
+msgstr "解析エラー: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:345
+#: internal/cli/target_content.go:345
 msgid "Cannot read source Markdown file %s: %v"
-msgstr "ソースMarkdownファイル %s を読み込めません: %v"
+msgstr "ソース Markdown ファイル %s を読み取れません: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:355
+#: internal/cli/target_content.go:355
 msgid "Created: %s (%d segments)"
-msgstr "作成済み: %s（%d セグメント）"
+msgstr "作成: %s (%d セグメント)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:374
+#: internal/cli/target_content.go:374
 msgid "Markdown init: %d created, %d updated"
-msgstr "Markdown初期化: %d件作成、%d件更新"
+msgstr "Markdown 初期化: %d 件作成、%d 件更新"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:394
-msgid "cannot find source Markdown files in %s"
-msgstr "%s 内にソースMarkdownファイルが見つかりません"
-
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:404
+#: internal/cli/target_content.go:404
 msgid "Source segments: %d (%d files)"
-msgstr "ソースセグメント: %d（%d ファイル）"
+msgstr "ソースセグメント: %d (%d ファイル)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:433
+#: internal/cli/target_content.go:433
 msgid "%s (%s): %d segments to translate"
-msgstr "%s（%s）: 翻訳対象セグメント %d件"
+msgstr "%s (%s): 翻訳するセグメント %d 件"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:474
+#: internal/cli/target_content.go:474
 msgid "No Markdown files to translate"
-msgstr "翻訳対象のMarkdownファイルがありません"
+msgstr "翻訳対象の Markdown ファイルがありません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:506
+#: internal/cli/target_content.go:506
 msgid "  %s: %d/%d segments"
 msgstr "  %s: %d/%d セグメント"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:56
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:557
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:777
+#: internal/cli/target_content.go:56 internal/cli/target_content.go:557
+#: internal/cli/target_content.go:777
 msgid "parse error"
-msgstr "パースエラー"
+msgstr "解析エラー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:581
+#: internal/cli/target_content.go:581
 msgid "Cannot find source .properties file: %s"
-msgstr "ソース.propertiesファイルが見つかりません: %s"
+msgstr ".properties のソースファイルが見つかりません: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:587
+#: internal/cli/target_content.go:587
 msgid "Cannot read source .properties file %s: %v"
-msgstr "ソース.propertiesファイル %s を読み込めません: %v"
+msgstr ".properties のソースファイル %s を読み取れません: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:629
+#: internal/cli/target_content.go:629
 msgid "Properties init: %d created, %d updated"
-msgstr "Properties初期化: %d件作成、%d件更新"
+msgstr "Properties 初期化: %d 件作成、%d 件更新"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:651
+#: internal/cli/target_content.go:651
 msgid "cannot read source .properties file %s: %w"
-msgstr "ソース.propertiesファイル %s を読み込めません: %w"
+msgstr ".properties のソースファイル %s を読み取れません: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:694
+#: internal/cli/target_content.go:694
 msgid "No .properties files to translate"
-msgstr "翻訳対象の.propertiesファイルがありません"
+msgstr "翻訳対象の .properties ファイルがありません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:78
+#: internal/cli/target_content.go:78
 msgid "Cannot find source YAML file for language %q in %s"
-msgstr "言語 %q 用のソースYAMLファイルが %s に見つかりません"
+msgstr "言語 %q のソース YAML ファイルが %s に見つかりません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:79
+#: internal/cli/target_content.go:79
 msgid "Expected: %s"
-msgstr "期待値: %s"
+msgstr "想定: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:801
+#: internal/cli/target_content.go:801
 msgid "Cannot find source ARB file: %s"
-msgstr "ソースARBファイルが見つかりません: %s"
+msgstr "ソース ARB ファイルが見つかりません: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:807
+#: internal/cli/target_content.go:807
 msgid "Cannot read source ARB file %s: %v"
-msgstr "ソースARBファイル %s を読み込めません: %v"
+msgstr "ソース ARB ファイル %s を読み取れません: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:849
+#: internal/cli/target_content.go:849
 msgid "Flutter ARB init: %d created, %d updated"
-msgstr "Flutter ARB初期化: %d件作成、%d件更新"
+msgstr "Flutter ARB 初期化: %d 件作成、%d 件更新"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:85
+#: internal/cli/target_content.go:85
 msgid "Cannot read source YAML file %s: %v"
-msgstr "ソースYAMLファイル %s を読み込めません: %v"
+msgstr "ソース YAML ファイル %s を読み取れません: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:871
+#: internal/cli/target_content.go:871
 msgid "cannot read source ARB file %s: %w"
-msgstr "ソースARBファイル %s を読み込めません: %w"
+msgstr "ソース ARB ファイル %s を読み取れません: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_content.go:914
+#: internal/cli/target_content.go:914
 msgid "No ARB files to translate"
-msgstr "翻訳対象のARBファイルがありません"
+msgstr "翻訳対象の ARB ファイルがありません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:123
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:228
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:435
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:636
+#: internal/cli/target_core.go:123 internal/cli/target_core.go:228
+#: internal/cli/target_core.go:435 internal/cli/target_core.go:636
 msgid "  %s: %d/%d"
 msgstr "  %s: %d/%d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:174
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:312
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:484
+#: internal/cli/target_core.go:174 internal/cli/target_core.go:312
+#: internal/cli/target_core.go:484
 msgid "[%s] All translations complete!"
 msgstr "[%s] すべての翻訳が完了しました！"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:188
+#: internal/cli/target_core.go:188
 msgid "po4a config: %s"
 msgstr "po4a 設定: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:200
+#: internal/cli/target_core.go:200
 msgid "%s: PO file not found at %s"
 msgstr "%s: PO ファイルが %s に見つかりません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:245
+#: internal/cli/target_core.go:245
 msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
-msgstr "ドキュメント専用の翻訳プロンプトを使用中（groff/man マークアップ保持）"
+msgstr "ドキュメント用の翻訳プロンプトを使用 (groff/man マークアップを保持)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:257
+#: internal/cli/target_core.go:257
 msgid "PO files missing, running po4a initialization..."
-msgstr "POファイルがありません。po4aの初期化を実行します..."
+msgstr "PO ファイルが見つかりません、po4a の初期化を実行します..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:277
+#: internal/cli/target_core.go:277
 msgid "auto-init failed: %v"
 msgstr "自動初期化に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:288
+#: internal/cli/target_core.go:288
 msgid "[%s] No PO file for %s at %s, skipping"
-msgstr "[%s] %s のPOファイルが %s にありません、スキップします"
+msgstr "[%s] %s の %s に PO ファイルがありません、スキップします"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:374
+#: internal/cli/target_core.go:374
 msgid "Res dir: %s"
 msgstr "Res ディレクトリ: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:381
+#: internal/cli/target_core.go:381
 msgid "cannot read source strings.xml %s: %w"
-msgstr "ソースstrings.xmlの読み込みに失敗しました %s: %w"
+msgstr "ソース strings.xml %s を読み取れません: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:455
+#: internal/cli/target_core.go:455
 msgid "Auto-creating %s with %d strings"
-msgstr "%s を %d 件の文字列で自動作成中"
+msgstr "%s を %d 個の文字列で自動作成します"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:460
+#: internal/cli/target_core.go:460
 msgid "Added %d new strings to %s"
 msgstr "%d 件の新しい文字列を %s に追加しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:51
+#: internal/cli/target_core.go:51
 msgid "Extracting strings and updating PO files..."
-msgstr "文字列を抽出し、POファイルを更新しています..."
+msgstr "文字列を抽出して PO ファイルを更新しています..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:53
+#: internal/cli/target_core.go:53
 msgid "Extraction failed: %v"
 msgstr "抽出に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:54
+#: internal/cli/target_core.go:54
 msgid "Continuing with existing PO files"
-msgstr "既存のPOファイルで続行します"
+msgstr "既存の PO ファイルで続行します"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:564
+#: internal/cli/target_core.go:564
 msgid "All UI translations are complete!"
-msgstr "すべてのUI翻訳が完了しました！"
+msgstr "UI の翻訳がすべて完了しました!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:578
+#: internal/cli/target_core.go:578
 msgid "Parallel: disabled (sequential)"
-msgstr "並列処理: 無効（順次実行）"
+msgstr "並列: 無効（逐次処理）"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:580
+#: internal/cli/target_core.go:580
 msgid "Source keys (%s): %d"
-msgstr "ソースキー（%s）: %d"
+msgstr "ソースキー (%s): %d"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:583
+#: internal/cli/target_core.go:583
 msgid "Translating UI strings: %s"
-msgstr "UI文字列を翻訳中: %s"
+msgstr "UI 文字列を翻訳中: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:615
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:256
+#: internal/cli/target_core.go:615 internal/cli/translate_cmd.go:255
 msgid "Interrupted, saving progress..."
-msgstr "中断されました。進捗を保存しています..."
+msgstr "中断、進捗を保存しています..."
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:668
+#: internal/cli/target_core.go:668
 msgid "Auto-creating %s with %d keys"
-msgstr "%s を %d 件のキーで自動作成中"
+msgstr "%s を %d 個のキーで自動作成します"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:685
+#: internal/cli/target_core.go:685
 msgid "Translation interrupted, partial progress saved"
-msgstr "翻訳が中断されました。進捗は一部保存されています"
+msgstr "翻訳が中断されました。部分的な進捗を保存しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:688
+#: internal/cli/target_core.go:688
 msgid "UI translation failed: %v"
-msgstr "UI翻訳に失敗しました: %v"
+msgstr "UI の翻訳に失敗しました: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:695
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:347
+#: internal/cli/target_core.go:695 internal/cli/translate_cmd.go:352
 msgid "Translation completed with errors"
-msgstr "エラー付きで翻訳が完了しました"
+msgstr "翻訳はエラーを伴って完了しました"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:698
+#: internal/cli/target_core.go:698
 msgid "Translation complete!"
-msgstr "翻訳が完了しました！"
+msgstr "翻訳が完了しました!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:83
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:189
+#: internal/cli/target_core.go:83 internal/cli/target_core.go:189
 msgid "PO dir: %s"
 msgstr "PO ディレクトリ: %s"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_core.go:94
+#: internal/cli/target_core.go:94
 msgid "%s: PO file not found, will be created"
-msgstr "%s: PO ファイルが見つかりません。新規作成します"
+msgstr "%s: PO ファイルが見つかりません。作成されます"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:115
+#: internal/cli/target_vuei18n.go:115
 msgid "Vue i18n init: %d created, %d updated"
-msgstr "Vue i18n初期化: %d件作成、%d件更新"
+msgstr "Vue i18n 初期化: %d 件作成、%d 件更新"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:138
+#: internal/cli/target_vuei18n.go:138
 msgid "cannot read source vue-i18n file %s: %w"
-msgstr "ソースvue-i18nファイル%sの読み込みに失敗しました: %w"
+msgstr "ソース vue-i18n ファイル %s を読み取れません: %w"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:181
+#: internal/cli/target_vuei18n.go:181
 msgid "No vue-i18n files to translate"
-msgstr "翻訳対象のvue-i18nファイルがありません"
+msgstr "翻訳する vue-i18n ファイルがありません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/target_vuei18n.go:77
+#: internal/cli/target_vuei18n.go:77
 msgid "Cannot read source vue-i18n file %s: %v"
-msgstr "ソースvue-i18nファイル%sを読み込めません: %v"
+msgstr "ソース vue-i18n ファイル %s を読み取れません: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:109
+#: internal/cli/translate_cmd.go:109
 msgid "AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)"
-msgstr "AIプロバイダー: google, gemini, groq, opencode, copilot, ollama, custom-openai（またはlokit.yamlのprovider.idを利用）"
+msgstr "AI プロバイダー: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:110
+#: internal/cli/translate_cmd.go:110
 msgid "Model name (or use lokit.yaml provider.model)"
-msgstr "モデル名（またはlokit.yamlのprovider.modelを利用）"
+msgstr "モデル名 (または lokit.yaml の provider.model を使用)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:111
+#: internal/cli/translate_cmd.go:111
 msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
-msgstr "APIキー（またはプロバイダー環境変数: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY）"
+msgstr "API キー (またはプロバイダー環境変数: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:112
+#: internal/cli/translate_cmd.go:112
 msgid "Custom API base URL"
-msgstr "カスタムAPIベースURL"
+msgstr "カスタム API ベース URL"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:114
+#: internal/cli/translate_cmd.go:114
 msgid "Languages to translate (comma-separated, default: all with untranslated)"
-msgstr "翻訳対象言語（カンマ区切り、デフォルト: 未翻訳を含む全言語）"
+msgstr "翻訳する言語 (カンマ区切り、デフォルト: 未翻訳を含むすべて)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:116
+#: internal/cli/translate_cmd.go:116
 msgid "Entries per API request (0 = all at once)"
-msgstr "1リクエストあたりのエントリー数（0=一括）"
+msgstr "API リクエストごとのエントリ数 (0 = 一度に全件)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:117
+#: internal/cli/translate_cmd.go:117
 msgid "Translate all entries, including already translated ones"
-msgstr ""
+msgstr "すでに翻訳済みのものを含め、すべてのエントリを翻訳する"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:118
+#: internal/cli/translate_cmd.go:118
 msgid "Translate fuzzy entries and clear fuzzy flag"
-msgstr "fuzzyエントリーも翻訳し、fuzzyフラグをクリア"
+msgstr "ファジー（fuzzy）エントリを翻訳し、ファジーフラグをクリアする"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:119
+#: internal/cli/translate_cmd.go:119
 msgid "Custom system prompt (use {{targetLang}} placeholder)"
-msgstr "カスタムシステムプロンプト（{{targetLang}}プレースホルダー使用可）"
+msgstr "カスタムのシステムプロンプト ({{targetLang}} プレースホルダーを使用)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:120
+#: internal/cli/translate_cmd.go:120
 msgid "Enable detailed logging"
-msgstr "詳細ログを有効化"
+msgstr "詳細ログを有効にする"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:121
+#: internal/cli/translate_cmd.go:121
 msgid "Show what would be translated without calling AI"
-msgstr "AIを呼び出さずに翻訳予定内容を表示"
+msgstr "AI を呼び出さずに、翻訳対象になるものを表示する"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:122
+#: internal/cli/translate_cmd.go:122
 msgid "Ignore lock file and re-translate all changed entries"
 msgstr "ロックファイルを無視して、変更されたすべてのエントリを再翻訳"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:124
+#: internal/cli/translate_cmd.go:124
 msgid "Enable parallel translation with optional worker count (e.g. --parallel or --parallel=8)"
-msgstr ""
+msgstr "オプションでワーカー数を指定して並列翻訳を有効にする (例: --parallel または --parallel=8)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:126
+#: internal/cli/translate_cmd.go:125
 msgid "Delay between translation requests"
-msgstr ""
+msgstr "翻訳リクエスト間の遅延"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:128
+#: internal/cli/translate_cmd.go:127
 msgid "Request timeout (0 = provider default)"
-msgstr "リクエストタイムアウト（0=プロバイダーのデフォルト）"
+msgstr "リクエストタイムアウト (0 = プロバイダーのデフォルト)"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:129
+#: internal/cli/translate_cmd.go:128
 msgid "HTTP/HTTPS proxy URL"
-msgstr "HTTP/HTTPSプロキシURL"
+msgstr "HTTP/HTTPS プロキシ URL"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:130
+#: internal/cli/translate_cmd.go:129
 msgid "Maximum retries on rate limit (429)"
-msgstr "レート制限（429）時の最大リトライ回数"
+msgstr "レートリミット (429) 時の最大リトライ回数"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:134
+#: internal/cli/translate_cmd.go:133
 msgid "Google AI (Gemini) — API key required"
-msgstr "Google AI（Gemini） — APIキー必須"
+msgstr "Google AI (Gemini) — API キーが必要"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:135
+#: internal/cli/translate_cmd.go:134
 msgid "Gemini Code Assist — browser OAuth (free)"
-msgstr "Gemini Code Assist — ブラウザOAuth（無料）"
+msgstr "Gemini Code Assist — ブラウザー OAuth（無料）"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:136
+#: internal/cli/translate_cmd.go:135
 msgid "Groq — API key required"
-msgstr "Groq — APIキー必須"
+msgstr "Groq — API キーが必要"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:137
+#: internal/cli/translate_cmd.go:136
 msgid "OpenCode — optional API key"
-msgstr "OpenCode — APIキーは任意"
+msgstr "OpenCode — API キーは任意"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:138
+#: internal/cli/translate_cmd.go:137
 msgid "GitHub Copilot — native OAuth (free)"
-msgstr "GitHub Copilot — ネイティブOAuth（無料）"
+msgstr "GitHub Copilot — ネイティブ OAuth（無料）"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:139
+#: internal/cli/translate_cmd.go:138
 msgid "Ollama local server"
-msgstr "Ollamaローカルサーバー"
+msgstr "Ollama ローカルサーバー"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:140
+#: internal/cli/translate_cmd.go:139
 msgid "Custom OpenAI-compatible endpoint"
-msgstr "OpenAI互換カスタムエンドポイント"
+msgstr "OpenAI 互換のカスタムエンドポイント"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:217
+#: internal/cli/translate_cmd.go:216
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
@@ -1937,48 +2076,35 @@ msgstr ""
 "プロバイダーが指定されていません。--provider で AI 翻訳サービスを選択してください。\n"
 "\n"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:238
+#: internal/cli/translate_cmd.go:237
 msgid "No targets defined in lokit.yaml"
-msgstr "lokit.yamlにターゲットが定義されていません"
+msgstr "lokit.yaml にターゲットが定義されていません"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:244
-msgid "Could not load lock file: %v"
-msgstr "ロックファイルを読み込めませんでした: %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:280
+#: internal/cli/translate_cmd.go:279
 msgid "[%s] No languages to translate, skipping"
-msgstr "[%s] 翻訳対象の言語がありません。スキップします"
+msgstr "[%s] 翻訳する言語がありません, スキップします"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:289
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:294
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:299
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:304
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:309
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:314
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:319
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:324
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:329
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:334
-msgid "[%s] %v"
-msgstr "[%s] %v"
-
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:338
+#: internal/cli/translate_cmd.go:337
 msgid "[%s] Unknown target type %q, skipping"
-msgstr "[%s] 不明なターゲットタイプ %q のためスキップします"
+msgstr "[%s] 不明なターゲットタイプ %q, スキップします"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:343
-msgid "Could not save lock file: %v"
-msgstr "ロックファイルを保存できませんでした: %v"
+#: internal/cli/translate_cmd.go:341
+msgid "Could not save lock file after target %s: %v"
+msgstr "ターゲット %s の後にロックファイルを保存できませんでした: %v"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:350
+#: internal/cli/translate_cmd.go:343
+msgid "Lock file saved after target %s/%s"
+msgstr "ターゲット %s/%s の後にロックファイルを保存しました"
+
+#: internal/cli/translate_cmd.go:355
 msgid "All targets translated!"
-msgstr "すべてのターゲットが翻訳されました！"
+msgstr "すべてのターゲットを翻訳しました!"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:44
+#: internal/cli/translate_cmd.go:44
 msgid "Translate files using AI"
-msgstr "AI を使ってファイルを翻訳"
+msgstr "AI を使ってファイルを翻訳する"
 
-#: /home/live/opencode/fb/lokit/internal/cli/translate_cmd.go:45
+#: internal/cli/translate_cmd.go:45
 msgid ""
 "Translate files using AI providers.\n"
 "\n"
@@ -2031,54 +2157,31 @@ msgid ""
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 msgstr ""
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:13
-msgid "Show version information"
-msgstr "バージョン情報を表示"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:14
-msgid "Display version, commit hash, and build date."
-msgstr "バージョン、コミットハッシュ、ビルド日を表示します。"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:16
-msgid "lokit version %s"
-msgstr "lokit バージョン %s"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:17
-msgid "commit:"
-msgstr "コミット:"
-
-#: /home/live/opencode/fb/lokit/internal/cli/version.go:18
-msgid "built:"
-msgstr "ビルド日時:"
-
-#~ msgid ""
-"Translate files using AI providers.\n"
+"AI を使ってファイルを翻訳します。\n"
 "\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
-"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
-"auto-detected or configured via lokit.yaml.\n"
+"gettext PO、po4a、i18next JSON、Android strings.xml、汎用 JSON、\n"
+"YAML、Markdown、Java .properties、Flutter ARB 形式に対応。プロジェクトの種類は\n"
+"自動検出されるか、lokit.yaml で設定します。\n"
 "\n"
-"For gettext/po4a projects, automatically initializes if needed (extracts\n"
-"strings, creates PO files).\n"
+"gettext/po4a プロジェクトでは、必要に応じて自動で初期化します（文字列を抽出し、PO ファイルを作成）。\n"
 "\n"
-"Incremental translation: lokit tracks source string checksums in lokit.lock.\n"
-"Only new or changed strings are sent to the AI provider, saving tokens and\n"
-"time. Use --force to ignore the lock file and re-translate everything.\n"
+"増分翻訳: lokit は lokit.lock にソース文字列のチェックサムを記録します。\n"
+"新規または変更された文字列のみが AI プロバイダに送信されるため、トークンと\n"
+"時間を節約できます。ロックファイルを無視して全て再翻訳するには --force を使用してください。\n"
 "\n"
-"Key filtering: configure per-target in lokit.yaml:\n"
-"  ignored_keys  — keys excluded from translation entirely (never sent to AI)\n"
-"  locked_keys   — keys whose translations are preserved (skipped even with\n"
-"                  --retranslate; only --force overrides)\n"
-"  locked_patterns — regex patterns matching keys treated as locked\n"
-"                  (e.g. \"^brand_.*\" locks all brand_ prefixed keys)\n"
+"キーのフィルタリング: lokit.yaml のターゲットごとに設定します:\n"
+"  ignored_keys  — 翻訳対象から完全に除外されるキー（AI に送信されません）\n"
+"  locked_keys   — 翻訳が保護されるキー（--all でもスキップされます;\n"
+"                  --force のみで上書きされます）\n"
+"  locked_patterns — 鍵をロック扱いにする正規表現パターン\n"
+"                  （例: \"^brand_.*\" は brand_ で始まる全てのキーをロックします）\n"
 "\n"
-"Each target type has a built-in system prompt optimized for its format.\n"
-"Use the --prompt flag to override it for the current run, or set prompt:\n"
-"in lokit.yaml target config for a permanent override.\n"
-"Use {{targetLang}} as a placeholder for the target language name.\n"
+"各ターゲットタイプには、その形式に最適化された組み込みのシステムプロンプトがあります。\n"
+"現在の実行で上書きするには --prompt フラグを、恒久的に上書きするには lokit.yaml の\n"
+"target 設定に prompt: を設定してください。\n"
+"実行中に対象言語名のプレースホルダとして {{targetLang}} を使用できます。\n"
 "\n"
-"Examples:\n"
+"例:\n"
 "  # Translate a gettext project using GitHub Copilot (free)\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
 "\n"
@@ -2094,59 +2197,31 @@ msgstr "ビルド日時:"
 "  # Force full re-translation (ignore lock file)\n"
 "  lokit translate --provider copilot --model gpt-4o --force\n"
 "\n"
-"  # Re-translate everything with a custom prompt\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\\n"
-"    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
+"  # Translate all entries with a custom prompt\n"
+"  lokit translate --provider copilot --model gpt-4o --all \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
 "\n"
 "  # Translate a Flutter project\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
 "\n"
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
-#~ msgstr ""
-"AIプロバイダーを利用してファイルを翻訳します。\n"
-"\n"
-"gettext PO、po4a、i18next JSON、Android strings.xml、汎用JSON、\n"
-"YAML、Markdown、Java .properties、Flutter ARB形式に対応。\n"
-"プロジェクトタイプは自動検出またはlokit.yamlで設定可能です。\n"
-"\n"
-"gettext/po4aプロジェクトの場合、必要に応じて自動初期化（文字列抽出・POファイル作成）を行います。\n"
-"\n"
-"インクリメンタル翻訳：lokitはソース文字列のチェックサムをlokit.lockで管理。\n"
-"新規または変更された文字列のみAIプロバイダーに送信し、トークンと時間を節約します。\n"
-"すべて再翻訳したい場合は--forceオプションでロックファイルを無視できます。\n"
-"\n"
-"キーのフィルタリング：lokit.yamlでターゲットごとに設定可能：\n"
-"  ignored_keys  — 完全に翻訳対象外となるキー（AIに送信されません）\n"
-"  locked_keys   — 翻訳を保持するキー（--retranslateでもスキップ、--forceのみ上書き）\n"
-"  locked_patterns — lockedとして扱うキーの正規表現パターン\n"
-"                  （例: \"^brand_.*\" でbrand_プレフィックスのキーをすべてロック）\n"
-"\n"
-"各ターゲットタイプには、その形式に最適化されたシステムプロンプトが組み込まれています。\n"
-"--promptフラグで一時的に上書き、またはlokit.yamlのターゲット設定で恒久的に上書きできます。\n"
-"{{targetLang}}をターゲット言語名のプレースホルダーとして使用可能です。\n"
-"\n"
-"使用例：\n"
-"  # GitHub Copilot（無料）でgettextプロジェクトを翻訳\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Gemini（無料・OAuth）でAndroidプロジェクトを翻訳\n"
-"  lokit translate --provider gemini --model gemini-2.5-flash\n"
-"\n"
-"  # Google AI（APIキー）でi18nextプロジェクトを翻訳\n"
-"  lokit translate --provider google --model gemini-2.5-flash\n"
-"\n"
-"  # 複数言語を並列で翻訳\n"
-"  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
-"\n"
-"  # ロックファイルを無視して全件再翻訳\n"
-"  lokit translate --provider copilot --model gpt-4o --force\n"
-"\n"
-"  # カスタムプロンプトで全件再翻訳\n"
-"  lokit translate --provider copilot --model gpt-4o --retranslate \\n    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
-"\n"
-"  # Flutterプロジェクトを翻訳\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # ドライラン（翻訳予定内容を表示）\n"
-"  lokit translate --provider copilot --model gpt-4o --dry-run"
+
+#: internal/cli/version.go:13
+msgid "Show version information"
+msgstr "バージョン情報を表示"
+
+#: internal/cli/version.go:14
+msgid "Display version, commit hash, and build date."
+msgstr "バージョン、コミットハッシュ、ビルド日時を表示します."
+
+#: internal/cli/version.go:16
+msgid "lokit version %s"
+msgstr "lokit バージョン %s"
+
+#: internal/cli/version.go:17
+msgid "commit:"
+msgstr "コミット:"
+
+#: internal/cli/version.go:18
+msgid "built:"
+msgstr "ビルド:"
