@@ -442,6 +442,13 @@ The `--prompt` flag takes priority over the `lokit.yaml` target prompt, which ta
 lokit tracks MD5 checksums of source strings in a `lokit.lock` file (stored next to `lokit.yaml`). On subsequent runs, only new or changed strings are sent to the AI provider, saving tokens and time.
 
 - **Automatic** — no configuration needed. The lock file is created on the first `lokit translate` run and updated after each translation.
+- **Lock commands** — manage lock data explicitly when needed:
+  ```bash
+  lokit lock status
+  lokit lock init
+  lokit lock clean --dry-run
+  lokit lock reset --target ui --lang ru
+  ```
 - **Per-target tracking** — checksums are stored per target and language, so changes in one target don't trigger re-translation of others.
 - **Force re-translation** — use `--force` to ignore the lock file and re-translate all entries:
   ```bash

@@ -8,6 +8,7 @@ import (
 
 	"github.com/minios-linux/lokit/config"
 	. "github.com/minios-linux/lokit/i18n"
+	"github.com/minios-linux/lokit/lockfile"
 	"github.com/spf13/cobra"
 )
 
@@ -60,6 +61,19 @@ func runStatusWithConfig(lf *config.LokitFile) {
 	}
 	keyVal(T("Targets"), fmt.Sprintf("%d", len(lf.Targets)))
 
+	lockF, err := lockfile.Load(rootDir)
+	if err != nil {
+		keyVal(T("Lock file"), colorYellow+fmt.Sprintf(T("error: %v"), err)+colorReset)
+		lockF = &lockfile.LockFile{Version: lockfile.Version, Checksums: make(map[string]map[string]string)}
+	} else {
+		targets, keys := lockF.Stats()
+		if targets == 0 {
+			keyVal(T("Lock file"), T("empty"))
+		} else {
+			keyVal(T("Lock file"), fmt.Sprintf(T("%d targets, %d keys"), targets, keys))
+		}
+	}
+
 	resolved, err := lf.Resolve(rootDir)
 	if err != nil {
 		logError(T("Config resolve error: %v"), err)
@@ -71,6 +85,12 @@ func runStatusWithConfig(lf *config.LokitFile) {
 
 		targetHeader(rt.Target.Name, rt.Target.Type)
 		keyVal(T("Root"), rt.Target.Root)
+
+		lockKeys := 0
+		for _, lang := range langs {
+			lockKeys += lockF.TargetKeyCount(lockfile.LockTargetKey(rt.Target.Name, lang))
+		}
+		keyVal(T("Locked"), fmt.Sprintf(T("%d keys"), lockKeys))
 
 		if len(langs) > 0 {
 			keyVal(T("Languages"), strings.Join(langs, ", "))

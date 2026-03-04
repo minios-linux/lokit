@@ -295,6 +295,7 @@ AI Providers:
 		newStatusCmd(),
 		newInitCmd(),
 		newTranslateCmd(),
+		newLockCmd(),
 		newAuthCmd(),
 		newVersionCmd(),
 	)
@@ -319,10 +320,30 @@ func Execute() {
 	Init("")
 	root := newRootCmd()
 	translateHelpFlags(root)
+	root.SetArgs(normalizeCLIArgs(os.Args[1:]))
 	if err := root.Execute(); err != nil {
 		logError(T("%v"), err)
 		os.Exit(1)
 	}
+}
+
+// normalizeCLIArgs applies small compatibility rewrites before Cobra parsing.
+// It allows both `--parallel` (defaults to 3) and `--parallel 10` forms.
+func normalizeCLIArgs(args []string) []string {
+	out := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if arg == "--parallel" {
+			if i+1 < len(args) && args[i+1] != "--" && !strings.HasPrefix(args[i+1], "-") {
+				out = append(out, arg)
+				continue
+			}
+			out = append(out, "--parallel=3")
+			continue
+		}
+		out = append(out, arg)
+	}
+	return out
 }
 
 // ---------------------------------------------------------------------------

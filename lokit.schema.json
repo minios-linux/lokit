@@ -163,20 +163,23 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Keys whose existing translations are preserved (skipped unless --force)."
         },
         "ignored_keys": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Keys excluded from translation entirely."
         },
         "locked_patterns": {
           "type": "array",
           "items": {
             "type": "string",
             "format": "regex"
-          }
+          },
+          "description": "Regex patterns for keys treated as locked (skipped unless --force)."
         }
       },
       "allOf": [

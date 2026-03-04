@@ -1682,7 +1682,7 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 		for _, e := range toTranslate {
 			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
 			content := lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
-			lockTarget := opts.LockTarget + "/" + opts.Language
+			lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 			if opts.LockFile.IsChanged(lockTarget, key, content) {
 				changed = append(changed, e)
 			}
@@ -1707,7 +1707,7 @@ func filterChangedKeys(keys []string, sourceValues map[string]string, opts Optio
 		return keys
 	}
 
-	lockTarget := opts.LockTarget + "/" + opts.Language
+	lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 	var changed []string
 	for _, key := range keys {
 		content := key
@@ -1792,7 +1792,7 @@ func updateLockFileForPO(entries []*po.Entry, opts Options) {
 	if opts.LockFile == nil {
 		return
 	}
-	lockTarget := opts.LockTarget + "/" + opts.Language
+	lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 	for _, e := range entries {
 		key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
 		content := lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
@@ -1806,7 +1806,7 @@ func updateLockFileForKV(keys []string, sourceValues map[string]string, opts Opt
 	if opts.LockFile == nil {
 		return
 	}
-	lockTarget := opts.LockTarget + "/" + opts.Language
+	lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 	for _, key := range keys {
 		content := key
 		if sourceValues != nil {

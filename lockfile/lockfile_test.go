@@ -96,57 +96,6 @@ func TestIsChanged(t *testing.T) {
 	}
 }
 
-func TestFilterChanged(t *testing.T) {
-	lf := &LockFile{
-		Version:   Version,
-		Checksums: make(map[string]map[string]string),
-	}
-
-	lf.Update("po/ru.po", "Hello", "Hello")
-	lf.Update("po/ru.po", "World", "World")
-
-	entries := map[string]string{
-		"Hello": "Hello",      // unchanged
-		"World": "World!",     // changed
-		"New":   "New string", // new
-	}
-
-	changed := lf.FilterChanged("po/ru.po", entries)
-
-	if len(changed) != 2 {
-		t.Errorf("changed count = %d, want 2", len(changed))
-	}
-	if _, ok := changed["Hello"]; ok {
-		t.Error("Hello should not be in changed set")
-	}
-	if _, ok := changed["World"]; !ok {
-		t.Error("World should be in changed set")
-	}
-	if _, ok := changed["New"]; !ok {
-		t.Error("New should be in changed set")
-	}
-}
-
-func TestUpdateBatch(t *testing.T) {
-	lf := &LockFile{
-		Version:   Version,
-		Checksums: make(map[string]map[string]string),
-	}
-
-	entries := map[string]string{
-		"Hello": "Hello",
-		"World": "World",
-	}
-	lf.UpdateBatch("po/ru.po", entries)
-
-	if lf.IsChanged("po/ru.po", "Hello", "Hello") {
-		t.Error("Hello should not be changed after batch update")
-	}
-	if lf.IsChanged("po/ru.po", "World", "World") {
-		t.Error("World should not be changed after batch update")
-	}
-}
-
 func TestClean(t *testing.T) {
 	lf := &LockFile{
 		Version:   Version,
@@ -158,7 +107,7 @@ func TestClean(t *testing.T) {
 	lf.Update("po/ru.po", "Deleted", "Deleted")
 
 	// Only Hello and World remain in current set
-	lf.Clean("po/ru.po", []string{"Hello", "World"})
+	_ = lf.Clean("po/ru.po", []string{"Hello", "World"})
 
 	if lf.IsChanged("po/ru.po", "Hello", "Hello") {
 		t.Error("Hello should still be tracked")
@@ -244,11 +193,36 @@ func TestKVEntryContent(t *testing.T) {
 	}
 }
 
-func TestMarkdownEntryKey(t *testing.T) {
-	got := MarkdownEntryKey("docs/intro.md", 3)
-	want := "docs/intro.md#3"
+func TestHasAndTargetKeys(t *testing.T) {
+	lf := &LockFile{
+		Version:   Version,
+		Checksums: make(map[string]map[string]string),
+	}
+
+	lf.Update("app/ru", "hello", "hello")
+	lf.Update("app/ru", "bye", "bye")
+
+	if !lf.Has("app/ru", "hello") {
+		t.Fatal("expected key to exist")
+	}
+	if lf.Has("app/ru", "missing") {
+		t.Fatal("unexpected key found")
+	}
+
+	keys := lf.TargetKeys("app/ru")
+	if len(keys) != 2 {
+		t.Fatalf("TargetKeys len = %d, want 2", len(keys))
+	}
+	if lf.TargetKeyCount("app/ru") != 2 {
+		t.Fatalf("TargetKeyCount = %d, want 2", lf.TargetKeyCount("app/ru"))
+	}
+}
+
+func TestLockTargetKey(t *testing.T) {
+	got := LockTargetKey("app", "ru")
+	want := "app/ru"
 	if got != want {
-		t.Errorf("MarkdownEntryKey = %q, want %q", got, want)
+		t.Errorf("LockTargetKey = %q, want %q", got, want)
 	}
 }
 

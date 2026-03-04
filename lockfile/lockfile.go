@@ -106,12 +106,10 @@ func Hash(s string) string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(s)))
 }
 
-// targetKey builds a unique key for a target entry.
-// For PO files: "po/ru.po"
-// For i18next: "locales/ru/translation.json"
-// For android: "app/src/main/res/values-ru/strings.xml"
-func TargetKey(filePath string) string {
-	return filepath.ToSlash(filePath)
+// LockTargetKey builds the namespaced lock target key.
+// Format: "target/language" (for example "web/ru").
+func LockTargetKey(target, language string) string {
+	return target + "/" + language
 }
 
 // IsChanged checks if a source string has changed since last translation.
@@ -142,48 +140,28 @@ func (lf *LockFile) Update(target, key, sourceContent string) {
 	lf.Checksums[target][key] = Hash(sourceContent)
 }
 
-// UpdateBatch records checksums for multiple keys at once.
-func (lf *LockFile) UpdateBatch(target string, entries map[string]string) {
+// Has reports whether an exact target/key entry exists in the lock file.
+func (lf *LockFile) Has(target, key string) bool {
 	lf.mu.Lock()
 	defer lf.mu.Unlock()
 
-	if lf.Checksums[target] == nil {
-		lf.Checksums[target] = make(map[string]string)
+	keys, ok := lf.Checksums[target]
+	if !ok {
+		return false
 	}
-	for key, sourceContent := range entries {
-		lf.Checksums[target][key] = Hash(sourceContent)
-	}
-}
-
-// FilterChanged returns only the keys whose source content has changed
-// since the last translation. The input is a map of key -> sourceContent.
-// Returns a map of key -> sourceContent for changed entries only.
-func (lf *LockFile) FilterChanged(target string, entries map[string]string) map[string]string {
-	lf.mu.Lock()
-	defer lf.mu.Unlock()
-
-	existing := lf.Checksums[target]
-	changed := make(map[string]string)
-
-	for key, content := range entries {
-		hash := Hash(content)
-		if existing == nil || existing[key] != hash {
-			changed[key] = content
-		}
-	}
-
-	return changed
+	_, ok = keys[key]
+	return ok
 }
 
 // Clean removes entries from the lock file that are no longer present in
 // the current set of keys. This prevents stale entries from accumulating.
-func (lf *LockFile) Clean(target string, currentKeys []string) {
+func (lf *LockFile) Clean(target string, currentKeys []string) int {
 	lf.mu.Lock()
 	defer lf.mu.Unlock()
 
 	existing := lf.Checksums[target]
 	if existing == nil {
-		return
+		return 0
 	}
 
 	valid := make(map[string]bool, len(currentKeys))
@@ -191,11 +169,15 @@ func (lf *LockFile) Clean(target string, currentKeys []string) {
 		valid[k] = true
 	}
 
+	removed := 0
 	for k := range existing {
 		if !valid[k] {
 			delete(existing, k)
+			removed++
 		}
 	}
+
+	return removed
 }
 
 // RemoveTarget removes all checksums for a target.
@@ -234,6 +216,32 @@ func (lf *LockFile) Targets() []string {
 	return targets
 }
 
+// TargetKeys returns sorted key names tracked for one lock target.
+func (lf *LockFile) TargetKeys(target string) []string {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	entries := lf.Checksums[target]
+	if entries == nil {
+		return nil
+	}
+
+	keys := make([]string, 0, len(entries))
+	for k := range entries {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+// TargetKeyCount returns number of keys tracked for one lock target.
+func (lf *LockFile) TargetKeyCount(target string) int {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	return len(lf.Checksums[target])
+}
+
 // ---------------------------------------------------------------------------
 // PO-specific helpers
 // ---------------------------------------------------------------------------
@@ -267,37 +275,32 @@ func KVEntryContent(key, value string) string {
 }
 
 // ---------------------------------------------------------------------------
-// Markdown helpers
-// ---------------------------------------------------------------------------
-
-// MarkdownEntryKey builds a lock file key for a markdown segment.
-// Uses the file path relative to the source dir and a segment index.
-func MarkdownEntryKey(relPath string, segmentIndex int) string {
-	return fmt.Sprintf("%s#%d", filepath.ToSlash(relPath), segmentIndex)
-}
-
-// ---------------------------------------------------------------------------
-// Android helpers
-// ---------------------------------------------------------------------------
-
-// AndroidEntryKey builds a lock file key from an Android string resource.
-func AndroidEntryKey(name string) string {
-	return name
-}
-
-// ---------------------------------------------------------------------------
 // Human-readable summary
 // ---------------------------------------------------------------------------
 
 // Summary returns a human-readable summary string.
 func (lf *LockFile) Summary() string {
-	targets, keys := lf.Stats()
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	targets := len(lf.Checksums)
+	keys := 0
+	for _, m := range lf.Checksums {
+		keys += len(m)
+	}
+
 	if targets == 0 {
 		return "empty"
 	}
 
+	targetList := make([]string, 0, len(lf.Checksums))
+	for t := range lf.Checksums {
+		targetList = append(targetList, t)
+	}
+	sort.Strings(targetList)
+
 	var parts []string
-	for _, t := range lf.Targets() {
+	for _, t := range targetList {
 		n := len(lf.Checksums[t])
 		parts = append(parts, fmt.Sprintf("%s: %d keys", t, n))
 	}

@@ -122,7 +122,6 @@ Examples:
 	cmd.Flags().BoolVarP(&force, "force", "f", false, T("Ignore lock file and re-translate all changed entries"))
 
 	cmd.Flags().IntVar(&parallel, "parallel", 0, T("Enable parallel translation with optional worker count (e.g. --parallel or --parallel=8)"))
-	cmd.Flags().Lookup("parallel").NoOptDefVal = "3"
 	cmd.Flags().DurationVar(&requestDelay, "delay", 0, T("Delay between translation requests"))
 
 	cmd.Flags().DurationVar(&timeout, "timeout", 0, T("Request timeout (0 = provider default)"))
@@ -336,6 +335,10 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 			}
 		default:
 			logWarning(T("[%s] Unknown target type %q, skipping"), rt.Target.Name, rt.Target.Type)
+		}
+
+		if err := a.lockFile.Save(); err != nil {
+			logWarning(T("Could not save lock file after target %s: %v"), rt.Target.Name, err)
 		}
 	}
 
