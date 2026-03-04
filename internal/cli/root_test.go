@@ -109,3 +109,34 @@ func TestFileExists(t *testing.T) {
 		t.Fatalf("fileExists(missing) = true, want false")
 	}
 }
+
+func TestNormalizeCLIArgsParallel(t *testing.T) {
+	tests := []struct {
+		name string
+		in   []string
+		want []string
+	}{
+		{
+			name: "bare parallel uses default",
+			in:   []string{"translate", "--parallel"},
+			want: []string{"translate", "--parallel=3"},
+		},
+		{
+			name: "space value is preserved",
+			in:   []string{"translate", "--parallel", "10", "--dry-run"},
+			want: []string{"translate", "--parallel", "10", "--dry-run"},
+		},
+		{
+			name: "equals value is preserved",
+			in:   []string{"translate", "--parallel=8"},
+			want: []string{"translate", "--parallel=8"},
+		},
+	}
+
+	for _, tc := range tests {
+		got := normalizeCLIArgs(tc.in)
+		if !reflect.DeepEqual(got, tc.want) {
+			t.Fatalf("%s: normalizeCLIArgs() = %#v, want %#v", tc.name, got, tc.want)
+		}
+	}
+}
