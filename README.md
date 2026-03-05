@@ -1,11 +1,11 @@
 # lokit — Localization Kit
 
-**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, vue-i18n JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop entries, and polkit policy files — either auto-detected or configured via `lokit.yaml`.
+**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, vue-i18n JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop entries, and polkit policy files configured via `lokit.yaml`.
 
 ## Features
 
-- **Multi-target config** — `lokit.yaml` for complex projects with multiple translation types
-- **Auto-detection** — works without config for simple projects (flat PO, nested PO, po4a, i18next)
+- **Config-first workflow** — `lokit.yaml` is required and acts as the single source of truth
+- **Multi-target support** — one config can define many translation targets across different formats
 - **AI translation** — 7 providers including free GitHub Copilot and Gemini
 - **Translation statistics** — per-target progress tracking
 - **Smart PO management** — extract, merge, update with `xgettext` and `msgmerge`
@@ -49,22 +49,6 @@
 curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash
 ```
 
-Install specific version:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.9.2
-```
-
-Install options:
-
-```bash
-# Custom install directory
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --install-dir "$HOME/bin"
-
-# Do not modify shell rc files
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --no-modify-path
-```
-
 ### From source
 
 ```bash
@@ -87,7 +71,20 @@ lokit version
 
 ## Quick Start
 
-### Simple project (auto-detection)
+### Minimal project (`lokit.yaml` required)
+
+Create `lokit.yaml`:
+
+```yaml
+source_lang: en
+languages: [ru, de]
+
+targets:
+  - name: app
+    format: i18next
+    dir: public/translations
+    pattern: "{lang}.json"
+```
 
 ```bash
 # Check project structure
@@ -103,7 +100,7 @@ lokit auth login --provider copilot
 lokit translate --provider copilot --model gpt-4.1
 ```
 
-### Complex project (`lokit.yaml`)
+### Multi-target project (`lokit.yaml`)
 
 Create a `lokit.yaml` in the project root:
 
@@ -141,7 +138,7 @@ lokit translate --provider copilot --model gpt-4o  # Translates everything
 
 ## Configuration File (`lokit.yaml`)
 
-When `lokit.yaml` exists, lokit uses it as the sole source of truth — no auto-detection.
+`lokit.yaml` is required. lokit uses it as the sole source of truth.
 
 ### Schema
 
@@ -193,9 +190,12 @@ targets:
     # --- android options ---
     dir: app/src/main/res      # Android res/ directory
 
-    # --- yaml / properties / flutter / markdown options ---
+    # --- yaml / properties / flutter / js-kv options ---
     dir: translations              # Files directory
-    pattern: "locale_{lang}.yaml" # Required for yaml/properties/flutter
+    pattern: "locale_{lang}.yaml" # Required for yaml/properties/flutter/js-kv
+
+    # --- markdown options ---
+    dir: docs/translations         # Files stored under dir/LANG/
 
     # --- overrides ---
     languages: [de, es, fr]    # Override global language list
@@ -203,13 +203,13 @@ targets:
     prompt: "Custom prompt"    # Override system prompt for AI
 ```
 
-### Target types
+### Target formats
 
 **gettext** — For code translation (shell, Python, C, Go). Reads `.pot` templates, translates to `.po` files.
 
 **po4a** — For documentation (manpages, AsciiDoc). Works with `po4a.cfg` and its PO directory.
 
-**i18next** — For web applications using i18next. JSON files with `_meta` block.
+**i18next** — Flat JSON key/value translations with optional `_meta` and `translations` sections.
 
 **vue-i18n** — For Vue applications with nested JSON locale files (for example `buttons.save: "Save"` in JSON object form).
 
@@ -222,6 +222,12 @@ targets:
 **properties** — For Java `.properties` files. Define `pattern` (example: `messages_{lang}.properties`).
 
 **flutter** — For Flutter ARB files. Define `pattern` (example: `app_{lang}.arb`).
+
+**js-kv** — JavaScript key/value files (for example `window.i18n = { ... }`). Define `pattern` (example: `{lang}.js`).
+
+**desktop** — freedesktop `.desktop` files with per-language fields in one file.
+
+**polkit** — PolicyKit `.policy` XML files with per-language localized tags in one file.
 
 ### Custom file layouts with `pattern`
 
@@ -249,7 +255,7 @@ targets:
 
 ### `lokit status`
 
-Shows project info and translation statistics. With `lokit.yaml`, displays per-target stats.
+Shows project info and translation statistics for targets defined in `lokit.yaml`.
 
 ```bash
 lokit status                    # Current directory
@@ -497,18 +503,6 @@ targets:
 - `ignored_keys` are always skipped, even with `--force`.
 - `locked_keys` and `locked_patterns` are skipped during normal and `--all` runs. Only `--force` overrides them.
 - These settings work with all formats: gettext PO, po4a, i18next, vue-i18n, Android, YAML, Markdown, .properties, Flutter ARB, js-kv, desktop, and polkit.
-
-## Project Structure Support
-
-Without `lokit.yaml`, lokit auto-detects:
-
-**Flat PO** — `po/*.po` (shell/Python gettext)
-
-**Nested PO** — `po/<lang>/*.po` (C/large projects)
-
-**po4a** — `po4a.cfg` + `po/<lang>/*.po` (documentation)
-
-**i18next** — `translations/<lang>.json` or `public/translations/<lang>.json`
 
 ## Development
 
