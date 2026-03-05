@@ -2,6 +2,7 @@
 package translate
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -513,7 +514,7 @@ func TestTranslateAllKVSequential_TranslatesAndSaves(t *testing.T) {
 		ParallelMode: ParallelSequential,
 	}
 
-	if err := TranslateAllKV(t.Context(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
+	if err := TranslateAllKV(context.Background(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
 		t.Fatalf("TranslateAllKV error: %v", err)
 	}
 
@@ -554,7 +555,7 @@ func TestTranslateAllKVFullParallel_TranslatesAllTasks(t *testing.T) {
 		MaxConcurrent: 2,
 	}
 
-	if err := TranslateAllKV(t.Context(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
+	if err := TranslateAllKV(context.Background(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
 		t.Fatalf("TranslateAllKV error: %v", err)
 	}
 
