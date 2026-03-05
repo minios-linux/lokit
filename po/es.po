@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-04 10:10+0000\n"
-"PO-Revision-Date: 2026-03-04 10:10+0000\n"
+"POT-Creation-Date: 2026-03-05 15:54+0000\n"
+"PO-Revision-Date: 2026-03-05 15:54+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -21,28 +21,28 @@ msgstr "OAuth"
 
 #: internal/cli/auth.go:104
 msgid "API key"
-msgstr "Clave de API"
+msgstr "Clave API"
 
 #: internal/cli/auth.go:110
 msgid "Enter choice (number or name):"
-msgstr "Elija una opción (número o nombre):"
+msgstr "Ingrese una opción (número o nombre):"
 
 #: internal/cli/auth.go:114 internal/cli/auth.go:315 internal/cli/auth.go:353
 #: internal/cli/auth.go:374
 msgid "No input received"
-msgstr "No se recibió entrada"
+msgstr "No se recibió ninguna entrada"
 
 #: internal/cli/auth.go:133
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
-msgstr "Opción inválida. Usa: lokit auth login --provider PROVIDER"
+msgstr "Opción no válida. Use: lokit auth login --provider PROVIDER"
 
 #: internal/cli/auth.go:158
 msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
-msgstr "Proveedor desconocido '%s'. Ejecuta 'lokit auth login' para ver opciones."
+msgstr "Proveedor desconocido '%s'. Ejecute 'lokit auth login' para ver las opciones."
 
 #: internal/cli/auth.go:164
 msgid "Provider to authenticate"
-msgstr "Proveedor a autenticar"
+msgstr "Proveedor para autenticar"
 
 #: internal/cli/auth.go:180
 msgid "GitHub Copilot Authentication"
@@ -50,11 +50,11 @@ msgstr "Autenticación de GitHub Copilot"
 
 #: internal/cli/auth.go:183
 msgid "Open this URL in your browser:"
-msgstr "Abre esta URL en tu navegador:"
+msgstr "Abra esta URL en su navegador:"
 
 #: internal/cli/auth.go:185
 msgid "Enter this code:"
-msgstr "Introduce este código:"
+msgstr "Ingrese este código:"
 
 #: internal/cli/auth.go:187 internal/cli/auth.go:211
 msgid "Waiting for authorization..."
@@ -66,15 +66,15 @@ msgstr "Autenticación cancelada"
 
 #: internal/cli/auth.go:194 internal/cli/auth.go:218
 msgid "Authentication failed: %v"
-msgstr "Autenticación fallida: %v"
+msgstr "Error de autenticación: %v"
 
 #: internal/cli/auth.go:198
 msgid "Copilot authentication successful!"
-msgstr "¡Autenticación con Copilot exitosa!"
+msgstr "¡Autenticación de Copilot exitosa!"
 
 #: internal/cli/auth.go:199
 msgid "You can now use: lokit translate --provider copilot --model gpt-4o"
-msgstr "Ahora puedes usar: lokit translate --provider copilot --model gpt-4o"
+msgstr "Ahora puede usar: lokit translate --provider copilot --model gpt-4o"
 
 #: internal/cli/auth.go:204
 msgid "Google Gemini Authentication"
@@ -86,11 +86,11 @@ msgstr "Abriendo el navegador para iniciar sesión en Google..."
 
 #: internal/cli/auth.go:209
 msgid "If the browser doesn't open, visit:"
-msgstr "Si el navegador no se abre, visita:"
+msgstr "Si el navegador no se abre, visite:"
 
 #: internal/cli/auth.go:22
 msgid "Manage provider authentication"
-msgstr "Gestionar autenticación de proveedores"
+msgstr "Administrar autenticación de proveedores"
 
 #: internal/cli/auth.go:223
 msgid "Gemini authentication successful!"
@@ -125,52 +125,52 @@ msgid ""
 "  lokit auth logout                        Remove all credentials\n"
 "  lokit auth list                          Show all stored credentials"
 msgstr ""
-"Gestiona las credenciales de autenticación para todos los proveedores de IA.\n"
+"Administre las credenciales de autenticación para todos los proveedores de IA.\n"
 "\n"
 "Proveedores OAuth (flujo interactivo por navegador/dispositivo):\n"
 "  copilot       GitHub Copilot (flujo de código de dispositivo, gratis con cuenta de GitHub)\n"
-"  gemini        Google Gemini Code Assist (OAuth por navegador, plan gratuito: 60 req/min)\n"
+"  gemini        Google Gemini Code Assist (OAuth por navegador, nivel gratuito: 60 req/min)\n"
 "\n"
-"Proveedores por clave API (pega tu clave):\n"
-"  google        Google AI Studio (clave de API de Gemini)\n"
-"  groq          Groq Cloud (plan gratuito disponible)\n"
+"Proveedores con clave API (pegue su clave):\n"
+"  google        Google AI Studio (clave API de Gemini)\n"
+"  groq          Groq Cloud (nivel gratuito disponible)\n"
 "  opencode      OpenCode Zen API (modelos gratuitos disponibles sin clave)\n"
-"  custom-openai Endpoint compatible con OpenAI personalizado\n"
+"  custom-openai Endpoint personalizado compatible con OpenAI\n"
 "\n"
 "No requiere autenticación:\n"
-"  ollama        Servidor local de Ollama\n"
+"  ollama        Servidor Ollama local\n"
 "\n"
 "Ejemplos:\n"
 "  lokit auth login                         Selección interactiva de proveedor\n"
 "  lokit auth login --provider copilot      OAuth con GitHub Copilot\n"
-"  lokit auth login --provider google       Guarda la clave API de Google AI\n"
-"  lokit auth logout --provider google      Elimina la clave API de Google\n"
-"  lokit auth logout                        Elimina todas las credenciales\n"
-"  lokit auth list                          Muestra todas las credenciales almacenadas"
+"  lokit auth login --provider google       Guardar clave API de Google AI\n"
+"  lokit auth logout --provider google      Eliminar clave API de Google\n"
+"  lokit auth logout                        Eliminar todas las credenciales\n"
+"  lokit auth list                          Mostrar todas las credenciales guardadas"
 
 #: internal/cli/auth.go:233
 msgid "Gemini Code Assist requires a GCP project ID to work in your region."
-msgstr "Gemini Code Assist requiere un ID de proyecto de GCP para funcionar en tu región."
+msgstr "Gemini Code Assist requiere un ID de proyecto de GCP para funcionar en su región."
 
 #: internal/cli/auth.go:234
 msgid "Find your project ID at: https://console.cloud.google.com"
-msgstr "Encuentra tu ID de proyecto en: https://console.cloud.google.com"
+msgstr "Encuentre su ID de proyecto en: https://console.cloud.google.com"
 
 #: internal/cli/auth.go:235
 msgid "(Create a project if you don't have one, then enable the Gemini API)"
-msgstr "(Crea un proyecto si no tienes uno, luego habilita la API de Gemini)"
+msgstr "(Cree un proyecto si no tiene uno, luego habilite la API de Gemini)"
 
 #: internal/cli/auth.go:237
 msgid "GCP Project ID (or press Enter to skip):"
-msgstr "ID de proyecto de GCP (o presiona Enter para omitir):"
+msgstr "ID de proyecto de GCP (o presione Enter para omitir):"
 
 #: internal/cli/auth.go:247 internal/cli/auth.go:259
 msgid "Code Assist setup failed: %v"
-msgstr "La configuración de Code Assist falló: %v"
+msgstr "Error en la configuración de Code Assist: %v"
 
 #: internal/cli/auth.go:248
 msgid "Project ID saved. You can try again later."
-msgstr "ID de proyecto guardado. Puedes intentarlo de nuevo más tarde."
+msgstr "ID de proyecto guardado. Puede intentarlo de nuevo más tarde."
 
 #: internal/cli/auth.go:250 internal/cli/auth.go:263
 msgid "Code Assist project configured!"
@@ -178,7 +178,7 @@ msgstr "¡Proyecto de Code Assist configurado!"
 
 #: internal/cli/auth.go:253
 msgid "Skipped. You can set it later with:"
-msgstr "Omitido. Puedes configurarlo después con:"
+msgstr "Omitido. Puede configurarlo más tarde con:"
 
 #: internal/cli/auth.go:254
 msgid "  lokit auth login --provider gemini"
@@ -186,27 +186,27 @@ msgstr "  lokit auth login --provider gemini"
 
 #: internal/cli/auth.go:260
 msgid "OAuth login succeeded but Code Assist onboarding failed."
-msgstr "El inicio de sesión OAuth tuvo éxito pero la configuración de Code Assist falló."
+msgstr "El inicio de sesión OAuth fue exitoso pero la incorporación de Code Assist falló."
 
 #: internal/cli/auth.go:261
 msgid "This will be retried automatically on first translate."
-msgstr "Esto se reintentará automáticamente en la primera traducción."
+msgstr "Esto se volverá a intentar automáticamente en la primera traducción."
 
 #: internal/cli/auth.go:268
 msgid "You can now use: lokit translate --provider gemini --model gemini-2.5-flash"
-msgstr "Ahora puedes usar: lokit translate --provider gemini --model gemini-2.5-flash"
+msgstr "Ahora puede usar: lokit translate --provider gemini --model gemini-2.5-flash"
 
 #: internal/cli/auth.go:269
 msgid "(no API key needed when authenticated via OAuth)"
-msgstr "(no se necesita clave de API cuando se está autenticado vía OAuth)"
+msgstr "(no se necesita clave API si se autentica vía OAuth)"
 
 #: internal/cli/auth.go:298
 msgid "%s — API Key Setup"
-msgstr "%s — Configuración de clave de API"
+msgstr "%s — Configuración de clave API"
 
 #: internal/cli/auth.go:301
 msgid "Get your API key from: %s%s%s"
-msgstr "Obtén tu clave de API en: %s%s%s"
+msgstr "Obtenga su clave API en: %s%s%s"
 
 #: internal/cli/auth.go:307 internal/cli/auth.go:367
 msgid "Current key"
@@ -214,35 +214,35 @@ msgstr "Clave actual"
 
 #: internal/cli/auth.go:308
 msgid "Enter new key to replace, or press Enter to keep:"
-msgstr "Introduce nueva clave para reemplazarla, o presiona Enter para mantenerla:"
+msgstr "Ingrese una nueva clave para reemplazar, o presione Enter para mantener:"
 
 #: internal/cli/auth.go:310
 msgid "Enter API key:"
-msgstr "Introduce la clave de API:"
+msgstr "Ingrese la clave API:"
 
 #: internal/cli/auth.go:322
 msgid "Keeping existing key"
-msgstr "Se mantiene la clave existente"
+msgstr "Manteniendo la clave existente"
 
 #: internal/cli/auth.go:325
 msgid "No API key provided"
-msgstr "No se proporcionó ninguna clave de API"
+msgstr "No se proporcionó clave API"
 
 #: internal/cli/auth.go:330
 msgid "Failed to save API key: %v"
-msgstr "Error al guardar la clave de API: %v"
+msgstr "No se pudo guardar la clave API: %v"
 
 #: internal/cli/auth.go:334
 msgid "%s API key saved!"
-msgstr "Clave de API de %s guardada!"
+msgstr "¡Clave API de %s guardada!"
 
 #: internal/cli/auth.go:335
 msgid "You can now use: %s"
-msgstr "Ahora puedes usar: %s"
+msgstr "Ahora puede usar: %s"
 
 #: internal/cli/auth.go:340
 msgid "Custom OpenAI-Compatible Endpoint"
-msgstr "Endpoint compatible con OpenAI personalizado"
+msgstr "Endpoint personalizado compatible con OpenAI"
 
 #: internal/cli/auth.go:346
 msgid "Current endpoint"
@@ -250,19 +250,19 @@ msgstr "Endpoint actual"
 
 #: internal/cli/auth.go:347
 msgid "Enter new endpoint URL, or press Enter to keep:"
-msgstr "Introduce nueva URL del endpoint, o presiona Enter para mantenerla:"
+msgstr "Ingrese la nueva URL del endpoint, o presione Enter para mantener:"
 
 #: internal/cli/auth.go:349
 msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
-msgstr "Introduce la URL del endpoint (p. ej., https://api.example.com/v1):"
+msgstr "Ingrese la URL del endpoint (ej., https://api.example.com/v1):"
 
 #: internal/cli/auth.go:362
 msgid "Endpoint URL is required"
-msgstr "Se requiere la URL del endpoint"
+msgstr "La URL del endpoint es obligatoria"
 
 #: internal/cli/auth.go:368
 msgid "Enter new API key, or press Enter to keep (leave empty for none):"
-msgstr "Introduce la nueva clave API, o pulsa Enter para mantenerla (dejar vacío para ninguna):"
+msgstr "Introduce una nueva clave API o pulsa Enter para mantener la actual (deja vacío para ninguna):"
 
 #: internal/cli/auth.go:370
 msgid "Enter API key (or press Enter if not required):"
@@ -270,7 +270,7 @@ msgstr "Introduce la clave API (o pulsa Enter si no es necesaria):"
 
 #: internal/cli/auth.go:384
 msgid "Failed to save credentials: %v"
-msgstr "Error al guardar credenciales: %v"
+msgstr "No se pudieron guardar las credenciales: %v"
 
 #: internal/cli/auth.go:388
 msgid "Custom OpenAI endpoint saved!"
@@ -296,19 +296,19 @@ msgid ""
 "  lokit auth logout --provider google      Remove only Google API key\n"
 "  lokit auth logout --provider gemini      Remove only Gemini OAuth"
 msgstr ""
-"Eliminar credenciales almacenadas para uno o todos los proveedores.\n"
+"Elimina las credenciales almacenadas de uno o todos los proveedores.\n"
 "\n"
-"Si no se especifica --provider, se eliminarán las credenciales de TODOS los proveedores.\n"
+"Si no se especifica --provider, se eliminan las credenciales de TODOS los proveedores.\n"
 "\n"
 "Ejemplos:\n"
 "  lokit auth logout                        Elimina todas las credenciales\n"
-"  lokit auth logout --provider copilot     Elimina solo OAuth de Copilot\n"
+"  lokit auth logout --provider copilot     Elimina solo Copilot OAuth\n"
 "  lokit auth logout --provider google      Elimina solo la clave API de Google\n"
-"  lokit auth logout --provider gemini      Elimina solo OAuth de Gemini"
+"  lokit auth logout --provider gemini      Elimina solo Gemini OAuth"
 
 #: internal/cli/auth.go:413 internal/cli/auth.go:438
 msgid "Failed to remove Copilot credentials: %v"
-msgstr "Error al eliminar credenciales de Copilot: %v"
+msgstr "No se pudieron eliminar las credenciales de Copilot: %v"
 
 #: internal/cli/auth.go:416
 msgid "Copilot credentials removed"
@@ -316,7 +316,7 @@ msgstr "Credenciales de Copilot eliminadas"
 
 #: internal/cli/auth.go:419 internal/cli/auth.go:442
 msgid "Failed to remove Gemini credentials: %v"
-msgstr "Error al eliminar credenciales de Gemini: %v"
+msgstr "No se pudieron eliminar las credenciales de Gemini: %v"
 
 #: internal/cli/auth.go:422
 msgid "Gemini credentials removed"
@@ -324,7 +324,7 @@ msgstr "Credenciales de Gemini eliminadas"
 
 #: internal/cli/auth.go:425 internal/cli/auth.go:447
 msgid "Failed to remove %s credentials: %v"
-msgstr "Error al eliminar credenciales de %s: %v"
+msgstr "No se pudieron eliminar las credenciales de %s: %v"
 
 #: internal/cli/auth.go:428
 msgid "%s credentials removed"
@@ -336,11 +336,11 @@ msgstr "Proveedor desconocido '%s'. Ejecuta 'lokit auth list' para ver los prove
 
 #: internal/cli/auth.go:452
 msgid "All stored credentials removed"
-msgstr "Se han eliminado todas las credenciales almacenadas"
+msgstr "Todas las credenciales almacenadas han sido eliminadas"
 
 #: internal/cli/auth.go:457
 msgid "Provider to logout (default: all)"
-msgstr "Proveedor para cerrar sesión (predeterminado: todos)"
+msgstr "Proveedor para cerrar sesión (por defecto: todos)"
 
 #: internal/cli/auth.go:476
 msgid "Show stored credentials and status"
@@ -364,7 +364,7 @@ msgstr "gemini"
 
 #: internal/cli/auth.go:484
 msgid "API Key Providers"
-msgstr "Proveedores de claves API"
+msgstr "Proveedores de clave API"
 
 #: internal/cli/auth.go:497 internal/cli/auth.go:503
 msgid "✓ configured"
@@ -388,11 +388,11 @@ msgstr "Variables de entorno"
 
 #: internal/cli/auth.go:525
 msgid "not set"
-msgstr "no establecido"
+msgstr "no establecida"
 
 #: internal/cli/auth.go:77
 msgid "Authenticate with an AI provider"
-msgstr "Autenticarse con un proveedor de IA"
+msgstr "Autenticar con un proveedor de IA"
 
 #: internal/cli/auth.go:78
 msgid ""
@@ -410,27 +410,27 @@ msgid ""
 "  opencode      Paste your OpenCode API key\n"
 "  custom-openai Paste your API key + endpoint URL"
 msgstr ""
-"Autentícate con un proveedor de IA usando OAuth o clave API.\n"
+"Autentica con un proveedor de IA usando OAuth o clave API.\n"
 "\n"
 "Si no se especifica --provider, se te pedirá que elijas.\n"
 "\n"
 "Proveedores OAuth:\n"
-"  copilot       Flujo con código de dispositivo — introduce el código en el navegador\n"
-"  gemini        OAuth en navegador — inicia sesión con Google\n"
+"  copilot       Device code flow — ingresa el código en el navegador\n"
+"  gemini        OAuth basado en navegador — inicia sesión con Google\n"
 "\n"
-"Proveedores con clave API:\n"
+"Proveedores de clave API:\n"
 "  google        Pega tu clave API de Google AI Studio\n"
 "  groq          Pega tu clave API de Groq\n"
 "  opencode      Pega tu clave API de OpenCode\n"
-"  custom-openai Pega tu clave API + la URL del endpoint"
+"  custom-openai Pega tu clave API + URL del endpoint"
 
 #: internal/cli/auth.go:93
 msgid "Select provider to authenticate"
-msgstr "Selecciona el proveedor para autenticarte"
+msgstr "Selecciona el proveedor para autenticar"
 
 #: internal/cli/helpers.go:105
 msgid "Go extraction failed: %v"
-msgstr "Falló la extracción de Go: %v"
+msgstr "Extracción de Go fallida: %v"
 
 #: internal/cli/helpers.go:106
 msgid "Continuing with xgettext results only"
@@ -438,19 +438,19 @@ msgstr "Continuando solo con los resultados de xgettext"
 
 #: internal/cli/helpers.go:113
 msgid "Merging POT files..."
-msgstr "Fusionando archivos POT..."
+msgstr "Combinando archivos POT..."
 
 #: internal/cli/helpers.go:115
 msgid "merging POT files: %w"
-msgstr "fusionando archivos POT: %w"
+msgstr "combinando archivos POT: %w"
 
 #: internal/cli/helpers.go:123
 msgid "extraction failed: %w"
-msgstr "extracción fallida: %w"
+msgstr "falló la extracción: %w"
 
 #: internal/cli/helpers.go:131
 msgid "Go extraction failed: %w"
-msgstr "extracción de Go fallida: %w"
+msgstr "Extracción de Go fallida: %w"
 
 #: internal/cli/helpers.go:145
 msgid "Extracted %d strings to %s"
@@ -466,38 +466,39 @@ msgstr "No se encontró plantilla POT, ejecutando extracción..."
 
 #: internal/cli/helpers.go:167
 msgid "Auto-extraction failed: %v"
-msgstr "Autoextracción fallida: %v"
+msgstr "La extracción automática falló: %v"
 
 #: internal/cli/helpers.go:174
 msgid "Cannot auto-create %s: extraction produced no POT template"
-msgstr "No se puede crear automáticamente %s: la extracción no produjo una plantilla POT"
+msgstr "No se puede crear %s automáticamente: la extracción no generó plantilla POT"
 
 #: internal/cli/helpers.go:175
 msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
-msgstr "Comprueba que los archivos fuente contengan cadenas traducibles (_(), N_(), etc.)"
+msgstr "Verifica que los archivos fuente contengan cadenas traducibles (_(), N_(), etc.)"
 
 #: internal/cli/helpers.go:182
 msgid "Cannot read POT template %s: %v"
 msgstr "No se puede leer la plantilla POT %s: %v"
 
-#: internal/cli/helpers.go:206 internal/cli/init.go:508
+#: internal/cli/helpers.go:206 internal/cli/init.go:527
 msgid "Creating directory for %s: %v"
 msgstr "Creando directorio para %s: %v"
 
-#: internal/cli/helpers.go:211 internal/cli/init.go:292
-#: internal/cli/init.go:532 internal/cli/target_content.go:108
-#: internal/cli/target_content.go:352 internal/cli/target_content.go:608
-#: internal/cli/target_content.go:828 internal/cli/target_vuei18n.go:98
+#: internal/cli/helpers.go:211 internal/cli/init.go:311
+#: internal/cli/init.go:551 internal/cli/target_content.go:112
+#: internal/cli/target_content.go:356 internal/cli/target_content.go:612
+#: internal/cli/target_content.go:832 internal/cli/target_content.go:1041
+#: internal/cli/target_content.go:1196
 msgid "Creating %s: %v"
 msgstr "Creando %s: %v"
 
 #: internal/cli/helpers.go:215
 msgid "Auto-created %s from %s (%d entries)"
-msgstr "Creado automáticamente %s a partir de %s (%d entradas)"
+msgstr "%s creado automáticamente desde %s (%d entradas)"
 
 #: internal/cli/helpers.go:287
 msgid "check provider documentation"
-msgstr "consultar la documentación del proveedor"
+msgstr "consulta la documentación del proveedor"
 
 #: internal/cli/helpers.go:29
 msgid "Scanning for source files in: %s"
@@ -534,16 +535,16 @@ msgid ""
 "\n"
 "Get an API key from: https://aistudio.google.com/apikey"
 msgstr ""
-"El proveedor 'google' requiere una clave API o inicio de sesión OAuth de Gemini\n"
+"El proveedor 'google' requiere una clave API o inicio de sesión con Gemini OAuth\n"
 "\n"
-"Opción 1: Almacenar una clave API:\n"
+"Opción 1: Guarda una clave API:\n"
 "  lokit auth login --provider google\n"
 "\n"
-"Opción 2: Iniciar sesión con OAuth de Google (nivel gratuito: 60 req/min):\n"
+"Opción 2: Inicia sesión con Google OAuth (nivel gratuito: 60 req/min):\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"Opción 3: Pasar la clave directamente:\n"
-"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n"
+"Opción 3: Pasa la clave directamente:\n"
+"  --api-key TU_CLAVE o export GOOGLE_API_KEY=TU_CLAVE\n"
 "\n"
 "Obtén una clave API en: https://aistudio.google.com/apikey"
 
@@ -557,13 +558,13 @@ msgid ""
 "This uses Gemini Code Assist (free tier: 60 req/min).\n"
 "For API key access, use --provider google instead."
 msgstr ""
-"El proveedor 'gemini' requiere inicio de sesión OAuth de Google\n"
+"El proveedor 'gemini' requiere inicio de sesión con Google OAuth\n"
 "\n"
 "Inicia sesión con tu cuenta de Google:\n"
 "  lokit auth login --provider gemini\n"
 "\n"
-"Esto usa Gemini Code Assist (nivel gratuito: 60 req/min).\n"
-"Para acceso por clave API, usa --provider google en su lugar."
+"Esto utiliza Gemini Code Assist (nivel gratuito: 60 req/min).\n"
+"Para acceso con clave API, usa --provider google en su lugar."
 
 #: internal/cli/helpers.go:325
 msgid ""
@@ -579,11 +580,11 @@ msgid ""
 msgstr ""
 "El proveedor 'groq' requiere una clave API\n"
 "\n"
-"Opción 1: Almacena tu clave API:\n"
+"Opción 1: Guarda tu clave API:\n"
 "  lokit auth login --provider groq\n"
 "\n"
 "Opción 2: Pasa la clave directamente:\n"
-"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n"
+"  --api-key TU_CLAVE o export GROQ_API_KEY=TU_CLAVE\n"
 "\n"
 "Obtén una clave API gratuita en: https://console.groq.com/keys"
 
@@ -605,7 +606,7 @@ msgstr ""
 "Inicia sesión con tu cuenta de GitHub:\n"
 "  lokit auth login --provider copilot\n"
 "\n"
-"Esto usa GitHub Copilot (requiere suscripción activa a Copilot)."
+"Esto utiliza GitHub Copilot (requiere suscripción activa a Copilot)."
 
 #: internal/cli/helpers.go:346
 msgid ""
@@ -619,10 +620,10 @@ msgid ""
 msgstr ""
 "El proveedor 'custom-openai' requiere una URL de endpoint\n"
 "\n"
-"Opción 1: Configurar vía auth:\n"
+"Opción 1: Configura vía auth:\n"
 "  lokit auth login --provider custom-openai\n"
 "\n"
-"Opción 2: Pasar directamente:\n"
+"Opción 2: Pásala directamente:\n"
 "  --base-url https://api.example.com/v1"
 
 #: internal/cli/helpers.go:361
@@ -638,9 +639,9 @@ msgstr ""
 "El proveedor 'ollama' requiere que el servidor Ollama esté en ejecución\n"
 "\n"
 "Inicia Ollama con: ollama serve\n"
-"Instalar desde: https://ollama.com\n"
+"Instala desde: https://ollama.com\n"
 "Proveedores alternativos:\n"
-"  --provider copilot         (GitHub Copilot, gratis)\n"
+"  --provider copilot         (GitHub Copilot, gratuito)\n"
 "  --provider google          (requiere clave API)"
 
 #: internal/cli/helpers.go:37
@@ -661,35 +662,35 @@ msgstr "Extrayendo de %d archivos Go con xgotext..."
 
 #: internal/cli/helpers.go:93
 msgid "Extracting from %d non-Go files with xgettext..."
-msgstr "Extrayendo de %d archivos no Go con xgettext..."
+msgstr "Extrayendo de %d archivos no-Go con xgettext..."
 
 #: internal/cli/helpers.go:96
 msgid "xgettext extraction failed: %w"
-msgstr "La extracción con xgettext falló: %w"
+msgstr "falló la extracción con xgettext: %w"
 
-#: internal/cli/init.go:147 internal/cli/lock.go:445 internal/cli/status.go:38
-#: internal/cli/translate_cmd.go:181
+#: internal/cli/init.go:155 internal/cli/lock.go:448 internal/cli/status.go:38
+#: internal/cli/translate_cmd.go:176
 msgid "Config error: %v"
 msgstr "Error de configuración: %v"
 
-#: internal/cli/init.go:151 internal/cli/lock.go:448 internal/cli/status.go:46
-#: internal/cli/translate_cmd.go:189
+#: internal/cli/init.go:159 internal/cli/lock.go:451 internal/cli/status.go:46
+#: internal/cli/translate_cmd.go:184
 msgid "No lokit.yaml found in %s"
 msgstr "No se encontró lokit.yaml en %s"
 
-#: internal/cli/init.go:152 internal/cli/status.go:47
-#: internal/cli/translate_cmd.go:190
+#: internal/cli/init.go:160 internal/cli/status.go:47
+#: internal/cli/translate_cmd.go:185
 msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
-msgstr "Crea un archivo de configuración lokit.yaml. Consulta 'lokit init --help' para el formato."
+msgstr "Crea un archivo de configuración lokit.yaml. Consulta 'lokit init --help' para ver el formato de referencia."
 
-#: internal/cli/init.go:160
+#: internal/cli/init.go:168
 msgid "Languages to init (comma-separated, default: all from config)"
-msgstr "Idiomas a inicializar (separados por comas; por defecto: todos los del archivo de configuración)"
+msgstr "Idiomas a inicializar (separados por coma, por defecto: todos los del config)"
 
-#: internal/cli/init.go:171 internal/cli/lock.go:453 internal/cli/status.go:86
-#: internal/cli/translate_cmd.go:232
+#: internal/cli/init.go:179 internal/cli/lock.go:456 internal/cli/status.go:86
+#: internal/cli/translate_cmd.go:227
 msgid "Config resolve error: %v"
-msgstr "Error al resolver la configuración: %v"
+msgstr "Error al resolver configuración: %v"
 
 #: internal/cli/init.go:23
 msgid "Prepare translation files (extract strings, create/update PO)"
@@ -706,10 +707,10 @@ msgid ""
 "\n"
 "For po4a projects: runs 'po4a --no-translations' to update templates.\n"
 "\n"
-"For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language\n"
+"For i18next/vue-i18n/yaml/properties/flutter/js-kv projects: creates missing language\n"
 "files with empty translations.\n"
 "\n"
-"For android/markdown projects: no init step needed — use 'lokit translate'\n"
+"For android/markdown/desktop/polkit projects: no init step needed — use 'lokit translate'\n"
 "directly.\n"
 "\n"
 "This command is idempotent — safe to run multiple times. Existing\n"
@@ -722,11 +723,11 @@ msgid ""
 "\n"
 "  targets:\n"
 "    - name: myproject                # Display name\n"
-"      type: gettext                  # Target type (see below)\n"
+"      format: gettext                # Target format (see below)\n"
 "      root: .                        # Working directory (default: .)\n"
-"      # ... type-specific options\n"
+"      # ... format-specific options\n"
 "\n"
-"TARGET TYPES\n"
+"TARGET FORMATS\n"
 "\n"
 "  gettext — Source code string extraction (shell, python, C, Go, etc.)\n"
 "    dir: po                          # PO files directory (required)\n"
@@ -737,16 +738,12 @@ msgid ""
 "  po4a — Documentation translation (man pages, AsciiDoc, etc.)\n"
 "    config: po4a.cfg                 # Path to po4a.cfg (required)\n"
 "\n"
-"  i18next — i18next JSON translations\n"
+"  i18next — flat JSON translations\n"
 "    dir: public/translations         # JSON files directory (required)\n"
 "    pattern: \"{lang}.json\"           # Language file pattern (required)\n"
 "\n"
-"  vue-i18n — vue-i18n nested JSON translations\n"
+"  vue-i18n — nested JSON translations\n"
 "    dir: frontend/src/i18n           # JSON files directory (required)\n"
-"    pattern: \"{lang}.json\"           # Language file pattern (required)\n"
-"\n"
-"  json — Simple JSON translations { \"key\": \"value\" }\n"
-"    dir: translations                # JSON files directory (required)\n"
 "    pattern: \"{lang}.json\"           # Language file pattern (required)\n"
 "\n"
 "  android — Android strings.xml\n"
@@ -767,7 +764,19 @@ msgid ""
 "    dir: lib/l10n                    # ARB files directory (required)\n"
 "    pattern: \"app_{lang}.arb\"        # Language file pattern (required)\n"
 "\n"
-"COMMON OPTIONS (all target types)\n"
+"  js-kv — JavaScript assignment key/value translations\n"
+"    dir: translations                # JS files directory (required)\n"
+"    pattern: \"{lang}.js\"             # Language file pattern (required)\n"
+"\n"
+"  desktop — freedesktop desktop entries (single file)\n"
+"    dir: .                           # Directory with desktop file\n"
+"    pattern: \"myapp.desktop\"         # Desktop file name\n"
+"\n"
+"  polkit — PolicyKit XML policy (single file)\n"
+"    dir: .                           # Directory with policy file\n"
+"    pattern: \"org.example.policy\"    # Policy file name\n"
+"\n"
+"COMMON OPTIONS (all target formats)\n"
 "\n"
 "  languages: [ru, de]               # Override global language list\n"
 "  prompt: \"Custom translation...\"   # Override AI translation prompt\n"
@@ -779,174 +788,322 @@ msgid ""
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
 "    - name: myapp\n"
-"      type: gettext\n"
+"      format: gettext\n"
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
 "  # Go project with wrapper functions\n"
 "  targets:\n"
 "    - name: myapp\n"
-"      type: gettext\n"
+"      format: gettext\n"
 "      sources: [.]\n"
 "      keywords: [T, N]\n"
 "\n"
 "  # Documentation + code\n"
 "  targets:\n"
 "    - name: code\n"
-"      type: gettext\n"
+"      format: gettext\n"
 "      sources: [src]\n"
 "    - name: docs\n"
-"      type: po4a\n"
+"      format: po4a\n"
 "      config: docs/po4a.cfg\n"
 "\n"
-"  # i18next web application\n"
+"  # JSON web application\n"
 "  targets:\n"
 "    - name: frontend\n"
-"      type: i18next\n"
+"      format: i18next\n"
 "      dir: public/translations\n"
 "\n"
 "  # Flutter application\n"
 "  targets:\n"
 "    - name: app\n"
-"      type: flutter\n"
+"      format: flutter\n"
 "      dir: lib/l10n\n"
 "\n"
 "  # Java application with .properties\n"
 "  targets:\n"
 "    - name: app\n"
-"      type: properties\n"
+"      format: properties\n"
 "      dir: src/main/resources"
-msgstr "Idiomas para inicializar (separados por coma, por defecto: todos los del config)"
+msgstr ""
+"Extrae cadenas traducibles y crea/actualiza archivos de traducción.\n"
+"\n"
+"Requiere un archivo de configuración lokit.yaml en la raíz del proyecto.\n"
+"\n"
+"Para proyectos gettext: ejecuta xgettext para extraer cadenas a una plantilla POT,\n"
+"luego crea o actualiza archivos PO para cada idioma.\n"
+"\n"
+"Para proyectos po4a: ejecuta 'po4a --no-translations' para actualizar plantillas.\n"
+"\n"
+"Para proyectos i18next/vue-i18n/yaml/properties/flutter/js-kv: crea archivos de idioma\n"
+"faltantes con traducciones vacías.\n"
+"\n"
+"Para proyectos android/markdown/desktop/polkit: no se requiere paso de init — usa 'lokit translate'\n"
+"directamente.\n"
+"\n"
+"Este comando es idempotente — es seguro ejecutarlo varias veces. Las traducciones existentes\n"
+"se conservan al actualizar archivos.\n"
+"\n"
+"FORMATO DE CONFIGURACIÓN (lokit.yaml)\n"
+"\n"
+"  source_lang: en                    # Idioma fuente (por defecto: en)\n"
+"  languages: [ru, de, fr, es, ...]   # Idiomas de destino\n"
+"\n"
+"  targets:\n"
+"    - name: myproject                # Nombre de visualización\n"
+"      format: gettext                # Formato de destino (ver abajo)\n"
+"      root: .                        # Directorio de trabajo (por defecto: .)\n"
+"      # ... opciones específicas de formato\n"
+"\n"
+"FORMATOS DE DESTINO\n"
+"\n"
+"  gettext — Extracción de cadenas del código fuente (shell, python, C, Go, etc.)\n"
+"    dir: po                          # Directorio de archivos PO (requerido)\n"
+"    pot: messages.pot                # Nombre de archivo POT (dentro de dir)\n"
+"    sources: [src, scripts]          # Directorios a escanear (por defecto: root)\n"
+"    keywords: [_, N_, gettext]       # Palabras clave de xgettext (por defecto: conjunto estándar)\n"
+"\n"
+"  po4a — Traducción de documentación (man pages, AsciiDoc, etc.)\n"
+"    config: po4a.cfg                 # Ruta a po4a.cfg (requerido)\n"
+"\n"
+"  i18next — Traducciones JSON planas\n"
+"    dir: public/translations         # Directorio de archivos JSON (requerido)\n"
+"    pattern: \"{lang}.json\"           # Patrón de archivo de idioma (requerido)\n"
+"\n"
+"  vue-i18n — Traducciones JSON anidadas\n"
+"    dir: frontend/src/i18n           # Directorio de archivos JSON (requerido)\n"
+"    pattern: \"{lang}.json\"           # Patrón de archivo de idioma (requerido)\n"
+"\n"
+"  android — strings.xml de Android\n"
+"    dir: app/src/main/res            # Directorio res/ de Android (requerido)\n"
+"\n"
+"  yaml — Traducciones YAML clave/valor\n"
+"    dir: translations                # Directorio de archivos YAML (requerido)\n"
+"    pattern: \"{lang}.yaml\"           # Patrón de archivo de idioma (requerido)\n"
+"\n"
+"  markdown — Traducción de documentos Markdown\n"
+"    dir: translations                # Directorio raíz; archivos en translations/LANG/ (requerido)\n"
+"\n"
+"  properties — Traducciones Java .properties\n"
+"    dir: translations                # Directorio de archivos .properties (requerido)\n"
+"    pattern: \"{lang}.properties\"     # Patrón de archivo de idioma (requerido)\n"
+"\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    dir: lib/l10n                    # Directorio de archivos ARB (requerido)\n"
+"    pattern: \"app_{lang}.arb\"        # Patrón de archivo de idioma (requerido)\n"
+"\n"
+"  js-kv — Traducciones clave/valor en JavaScript\n"
+"    dir: translations                # Directorio de archivos JS (requerido)\n"
+"    pattern: \"{lang}.js\"             # Patrón de archivo de idioma (requerido)\n"
+"\n"
+"  desktop — Entradas desktop de freedesktop (archivo único)\n"
+"    dir: .                           # Directorio con el archivo desktop\n"
+"    pattern: \"myapp.desktop\"         # Nombre del archivo desktop\n"
+"\n"
+"  polkit — Política XML de PolicyKit (archivo único)\n"
+"    dir: .                           # Directorio con el archivo de política\n"
+"    pattern: \"org.example.policy\"    # Nombre del archivo de política\n"
+"\n"
+"OPCIONES COMUNES (todos los formatos de destino)\n"
+"\n"
+"  languages: [ru, de]               # Sobrescribe la lista global de idiomas\n"
+"  prompt: \"Traducción personalizada...\"   # Sobrescribe el prompt de traducción IA\n"
+"\n"
+"EJEMPLOS\n"
+"\n"
+"  # Scripts de shell con gettext\n"
+"  source_lang: en\n"
+"  languages: [ru, de, fr]\n"
+"  targets:\n"
+"    - name: myapp\n"
+"      format: gettext\n"
+"      sources: [scripts, lib]\n"
+"      keywords: [gettext, eval_gettext]\n"
+"\n"
+"  # Proyecto Go con funciones wrapper\n"
+"  targets:\n"
+"    - name: myapp\n"
+"      format: gettext\n"
+"      sources: [.]\n"
+"      keywords: [T, N]\n"
+"\n"
+"  # Documentación + código\n"
+"  targets:\n"
+"    - name: code\n"
+"      format: gettext\n"
+"      sources: [src]\n"
+"    - name: docs\n"
+"      format: po4a\n"
+"      config: docs/po4a.cfg\n"
+"\n"
+"  # Aplicación web JSON\n"
+"  targets:\n"
+"    - name: frontend\n"
+"      format: i18next\n"
+"      dir: public/translations\n"
+"\n"
+"  # Aplicación Flutter\n"
+"  targets:\n"
+"    - name: app\n"
+"      format: flutter\n"
+"      dir: lib/l10n\n"
+"\n"
+"  # Aplicación Java con .properties\n"
+"  targets:\n"
+"    - name: app\n"
+"      format: properties\n"
+"      dir: src/main/resources"
 
-#: internal/cli/init.go:243
+#: internal/cli/init.go:251
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Los targets de Android no requieren init — usa 'lokit translate' directamente."
 
-#: internal/cli/init.go:264 internal/cli/target_core.go:526
+#: internal/cli/init.go:269
+msgid "Desktop targets do not require init — use 'lokit translate' directly."
+msgstr "Los targets de Desktop no requieren init — usa 'lokit translate' directamente."
+
+#: internal/cli/init.go:272
+msgid "Polkit targets do not require init — use 'lokit translate' directly."
+msgstr "Los targets de Polkit no requieren init — usa 'lokit translate' directamente."
+
+#: internal/cli/init.go:274 internal/cli/status.go:134
+#: internal/cli/translate_cmd.go:342
+msgid "[%s] Unknown target type %q, skipping"
+msgstr "[%s] Tipo de target desconocido %q, se omite"
+
+#: internal/cli/init.go:283
 msgid "Cannot read source language file %s: %v"
 msgstr "No se puede leer el archivo de idioma fuente %s: %v"
 
-#: internal/cli/init.go:269 internal/cli/target_content.go:89
-#: internal/cli/target_content.go:591 internal/cli/target_content.go:811
-#: internal/cli/target_vuei18n.go:81
+#: internal/cli/init.go:288 internal/cli/target_content.go:93
+#: internal/cli/target_content.go:595 internal/cli/target_content.go:815
+#: internal/cli/target_content.go:1024
 msgid "Source language (%s): %d keys"
 msgstr "Idioma fuente (%s): %d claves"
 
-#: internal/cli/init.go:295 internal/cli/target_content.go:111
-#: internal/cli/target_content.go:611 internal/cli/target_content.go:831
-#: internal/cli/target_vuei18n.go:101
+#: internal/cli/init.go:314 internal/cli/target_content.go:115
+#: internal/cli/target_content.go:615 internal/cli/target_content.go:835
+#: internal/cli/target_content.go:1044
 msgid "Created: %s (%d keys)"
 msgstr "Creado: %s (%d claves)"
 
-#: internal/cli/init.go:311 internal/cli/target_core.go:70
+#: internal/cli/init.go:330 internal/cli/target_core.go:69
 msgid "Updating %s: %v"
 msgstr "Actualizando %s: %v"
 
-#: internal/cli/init.go:314
+#: internal/cli/init.go:333
 msgid "Updated: %s (+%d new keys)"
 msgstr "Actualizado: %s (+%d claves nuevas)"
 
-#: internal/cli/init.go:317
+#: internal/cli/init.go:336
 msgid "%s: up to date"
-msgstr "%s: al día"
+msgstr "%s: actualizado"
 
-#: internal/cli/init.go:321 internal/cli/init.go:554
+#: internal/cli/init.go:340 internal/cli/init.go:573
 msgid "Summary: %d created, %d updated"
 msgstr "Resumen: %d creados, %d actualizados"
 
-#: internal/cli/init.go:324 internal/cli/init.go:483 internal/cli/init.go:560
+#: internal/cli/init.go:343 internal/cli/init.go:502 internal/cli/init.go:579
 msgid "Init complete!"
 msgstr "¡Inicialización completa!"
 
-#: internal/cli/init.go:337
+#: internal/cli/init.go:356
 msgid "pandoc not found, skipping manpage generation from markdown"
-msgstr "pandoc no encontrado, omitiendo generación de páginas de manual desde Markdown"
+msgstr "pandoc no encontrado, se omite la generación de manpage desde markdown"
 
-#: internal/cli/init.go:352
+#: internal/cli/init.go:371
 msgid "failed to list markdown files: %w"
-msgstr "Error al listar archivos Markdown: %w"
+msgstr "no se pudo listar archivos markdown: %w"
 
-#: internal/cli/init.go:385
+#: internal/cli/init.go:404
 msgid "Generating %s from %s"
 msgstr "Generando %s desde %s"
 
-#: internal/cli/init.go:390
+#: internal/cli/init.go:409
 msgid "pandoc failed for %s: %w"
 msgstr "pandoc falló para %s: %w"
 
-#: internal/cli/init.go:395
+#: internal/cli/init.go:414
 msgid "Failed to post-process %s: %v"
-msgstr "Error al postprocesar %s: %v"
+msgstr "No se pudo postprocesar %s: %v"
 
-#: internal/cli/init.go:402
+#: internal/cli/init.go:421
 msgid "Generated %d manpage(s) from markdown"
-msgstr "Generadas %d páginas de manual desde Markdown"
+msgstr "Generadas %d manpage(s) desde markdown"
 
-#: internal/cli/init.go:437
+#: internal/cli/init.go:456
 msgid "po4a is not installed. Install with: sudo apt install po4a"
-msgstr "po4a no está instalado. Instálalo con: sudo apt install po4a"
+msgstr "po4a no está instalado. Instala con: sudo apt install po4a"
 
-#: internal/cli/init.go:442
+#: internal/cli/init.go:461
 msgid "Failed to generate manpages from markdown: %v"
-msgstr "Error al generar páginas de manual desde Markdown: %v"
+msgstr "No se pudieron generar manpages desde markdown: %v"
 
-#: internal/cli/init.go:443
+#: internal/cli/init.go:462
 msgid "Continuing anyway, po4a might fail if source files don't exist"
-msgstr "Se continúa de todos modos; po4a podría fallar si los archivos fuente no existen"
+msgstr "Continuando de todos modos, po4a podría fallar si no existen archivos fuente"
 
-#: internal/cli/init.go:446
+#: internal/cli/init.go:465
 msgid "Running po4a --no-translations %s ..."
 msgstr "Ejecutando po4a --no-translations %s ..."
 
-#: internal/cli/init.go:452
+#: internal/cli/init.go:471
 msgid "po4a failed: %v"
 msgstr "po4a falló: %v"
 
-#: internal/cli/init.go:454
+#: internal/cli/init.go:473
 msgid "po4a updated POT and PO files"
-msgstr "po4a actualizó los archivos POT y PO"
+msgstr "po4a actualizó archivos POT y PO"
 
-#: internal/cli/init.go:471 internal/cli/init.go:489 internal/cli/lock.go:154
-#: internal/cli/lock.go:232 internal/cli/lock.go:324 internal/cli/lock.go:400
-#: internal/cli/root.go:325 internal/cli/translate_cmd.go:226
+#: internal/cli/init.go:490 internal/cli/init.go:508 internal/cli/lock.go:157
+#: internal/cli/lock.go:235 internal/cli/lock.go:327 internal/cli/lock.go:403
+#: internal/cli/root.go:327 internal/cli/translate_cmd.go:221
 msgid "%v"
 msgstr "%v"
 
-#: internal/cli/init.go:496 internal/cli/init.go:540
-#: internal/cli/target_content.go:118 internal/cli/target_content.go:198
-#: internal/cli/target_content.go:360 internal/cli/target_content.go:453
-#: internal/cli/target_content.go:463 internal/cli/target_content.go:616
-#: internal/cli/target_content.go:684 internal/cli/target_content.go:836
-#: internal/cli/target_content.go:904 internal/cli/target_core.go:152
-#: internal/cli/target_core.go:291
+#: internal/cli/init.go:515 internal/cli/init.go:559
+#: internal/cli/target_content.go:122 internal/cli/target_content.go:202
+#: internal/cli/target_content.go:364 internal/cli/target_content.go:457
+#: internal/cli/target_content.go:467 internal/cli/target_content.go:620
+#: internal/cli/target_content.go:688 internal/cli/target_content.go:840
+#: internal/cli/target_content.go:908 internal/cli/target_core.go:151
+#: internal/cli/target_core.go:290
 msgid "Reading %s: %v"
 msgstr "Leyendo %s: %v"
 
-#: internal/cli/init.go:500
+#: internal/cli/init.go:519
 msgid "Updating PO files for: %s"
 msgstr "Actualizando archivos PO para: %s"
 
-#: internal/cli/init.go:535
+#: internal/cli/init.go:554 internal/cli/target_content.go:1199
 msgid "Created: %s"
 msgstr "Creado: %s"
 
-#: internal/cli/init.go:546 internal/cli/target_content.go:124
-#: internal/cli/target_content.go:365 internal/cli/target_content.go:621
-#: internal/cli/target_content.go:841 internal/cli/target_vuei18n.go:108
+#: internal/cli/init.go:565 internal/cli/target_content.go:128
+#: internal/cli/target_content.go:369 internal/cli/target_content.go:625
+#: internal/cli/target_content.go:845 internal/cli/target_content.go:1051
 msgid "Writing %s: %v"
 msgstr "Escribiendo %s: %v"
 
-#: internal/cli/init.go:549 internal/cli/target_content.go:127
-#: internal/cli/target_content.go:368 internal/cli/target_content.go:624
-#: internal/cli/target_content.go:844 internal/cli/target_vuei18n.go:111
+#: internal/cli/init.go:568 internal/cli/target_content.go:131
+#: internal/cli/target_content.go:372 internal/cli/target_content.go:628
+#: internal/cli/target_content.go:848 internal/cli/target_content.go:1054
 msgid "Updated: %s"
 msgstr "Actualizado: %s"
 
-#: internal/cli/lock.go:108
-msgid "Remove stale lock entries"
-msgstr "Eliminar entradas de bloqueo obsoletas"
+#: internal/cli/lock.go:100
+msgid "Show per-language lock breakdown"
+msgstr "Mostrar desglose de bloqueos por idioma"
 
-#: internal/cli/lock.go:109
+#: internal/cli/lock.go:101
+msgid "Output lock status as JSON"
+msgstr "Mostrar estado de bloqueo en formato JSON"
+
+#: internal/cli/lock.go:111
+msgid "Remove stale lock entries"
+msgstr "Eliminar entradas obsoletas de bloqueo"
+
+#: internal/cli/lock.go:112
 msgid ""
 "Remove lock entries that no longer exist in source files.\n"
 "\n"
@@ -955,22 +1112,22 @@ msgid ""
 "  lokit lock clean --target ui\n"
 "  lokit lock clean --dry-run"
 msgstr ""
-"Eliminar entradas de lock que ya no existen en los archivos fuente.\n"
+"Elimina las entradas de bloqueo que ya no existen en los archivos fuente.\n"
 "\n"
 "Ejemplos:\n"
 "  lokit lock clean\n"
 "  lokit lock clean --target ui\n"
 "  lokit lock clean --dry-run"
 
-#: internal/cli/lock.go:121
+#: internal/cli/lock.go:124
 msgid "Show stale entries without modifying lokit.lock"
 msgstr "Mostrar entradas obsoletas sin modificar lokit.lock"
 
-#: internal/cli/lock.go:132
+#: internal/cli/lock.go:135
 msgid "Reset lock entries"
-msgstr "Restablecer entradas de lock"
+msgstr "Restablecer entradas de bloqueo"
 
-#: internal/cli/lock.go:133
+#: internal/cli/lock.go:136
 msgid ""
 "Reset lock data at different scopes:\n"
 "\n"
@@ -980,103 +1137,109 @@ msgid ""
 "\n"
 "Use --yes to skip confirmation."
 msgstr ""
-"Restablecer datos de lock en distintos ámbitos:\n"
+"Restablece los datos de bloqueo en diferentes niveles:\n"
 "\n"
 "  - archivo completo:          lokit lock reset\n"
-"  - target de todos los idiomas: lokit lock reset --target ui\n"
+"  - todos los idiomas de un target: lokit lock reset --target ui\n"
 "  - un solo idioma:            lokit lock reset --target ui --lang ru\n"
 "\n"
 "Usa --yes para omitir la confirmación."
 
-#: internal/cli/lock.go:145
+#: internal/cli/lock.go:148
 msgid "Target name from lokit.yaml"
-msgstr "Nombre del target en lokit.yaml"
+msgstr "Nombre del target desde lokit.yaml"
 
-#: internal/cli/lock.go:146
+#: internal/cli/lock.go:149
 msgid "Language code (requires --target)"
 msgstr "Código de idioma (requiere --target)"
 
-#: internal/cli/lock.go:147
+#: internal/cli/lock.go:150
 msgid "Skip confirmation prompt"
-msgstr "Omitir aviso de confirmación"
+msgstr "Omitir mensaje de confirmación"
 
-#: internal/cli/lock.go:160 internal/cli/lock.go:238 internal/cli/lock.go:330
-#: internal/cli/lock.go:389 internal/cli/translate_cmd.go:243
+#: internal/cli/lock.go:163 internal/cli/lock.go:241 internal/cli/lock.go:333
+#: internal/cli/lock.go:392 internal/cli/translate_cmd.go:238
 msgid "Could not load lock file: %v"
-msgstr "No se pudo cargar el archivo lock: %v"
+msgstr "No se pudo cargar el archivo de bloqueo: %v"
 
-#: internal/cli/lock.go:172 internal/cli/lock.go:340
-#: internal/cli/translate_cmd.go:288 internal/cli/translate_cmd.go:293
-#: internal/cli/translate_cmd.go:298 internal/cli/translate_cmd.go:303
-#: internal/cli/translate_cmd.go:308 internal/cli/translate_cmd.go:313
-#: internal/cli/translate_cmd.go:318 internal/cli/translate_cmd.go:323
-#: internal/cli/translate_cmd.go:328 internal/cli/translate_cmd.go:333
+#: internal/cli/lock.go:175 internal/cli/lock.go:343
+#: internal/cli/translate_cmd.go:283 internal/cli/translate_cmd.go:288
+#: internal/cli/translate_cmd.go:293 internal/cli/translate_cmd.go:298
+#: internal/cli/translate_cmd.go:303 internal/cli/translate_cmd.go:308
+#: internal/cli/translate_cmd.go:313 internal/cli/translate_cmd.go:318
+#: internal/cli/translate_cmd.go:323 internal/cli/translate_cmd.go:328
+#: internal/cli/translate_cmd.go:333 internal/cli/translate_cmd.go:338
 msgid "[%s] %v"
 msgstr "[%s] %v"
 
-#: internal/cli/lock.go:200 internal/cli/lock.go:376 internal/cli/lock.go:431
-#: internal/cli/translate_cmd.go:348
+#: internal/cli/lock.go:203 internal/cli/lock.go:379 internal/cli/lock.go:434
+#: internal/cli/translate_cmd.go:353
 msgid "Could not save lock file: %v"
-msgstr "No se pudo guardar el archivo lock: %v"
+msgstr "No se pudo guardar el archivo de bloqueo: %v"
 
-#: internal/cli/lock.go:204
+#: internal/cli/lock.go:207
 msgid "Lock initialized: %d target-language entries updated"
-msgstr "Lock inicializado: %d entradas target-idioma actualizadas"
+msgstr "Bloqueo inicializado: %d entradas de target-idioma actualizadas"
 
-#: internal/cli/lock.go:205
+#: internal/cli/lock.go:208
 msgid "Added: %d, skipped existing: %d"
-msgstr "Añadidos: %d, omitidos (existentes): %d"
+msgstr "Agregadas: %d, existentes omitidas: %d"
 
-#: internal/cli/lock.go:206
+#: internal/cli/lock.go:209
 msgid "Lock file: %s"
-msgstr "Archivo de lock: %s"
+msgstr "Archivo de bloqueo: %s"
 
-#: internal/cli/lock.go:286
+#: internal/cli/lock.go:289
 msgid "JSON output error: %v"
 msgstr "Error de salida JSON: %v"
 
-#: internal/cli/lock.go:292
+#: internal/cli/lock.go:295
 msgid "Lock File"
-msgstr "Archivo de lock"
+msgstr "Archivo de bloqueo"
 
-#: internal/cli/lock.go:293
+#: internal/cli/lock.go:296
 msgid "Path"
 msgstr "Ruta"
 
-#: internal/cli/lock.go:295 internal/cli/root.go:368 internal/cli/root.go:441
-#: internal/cli/root.go:485 internal/cli/status.go:74
-#: internal/cli/target_content.go:27 internal/cli/target_content.go:263
-#: internal/cli/target_content.go:525 internal/cli/target_content.go:745
-#: internal/cli/target_vuei18n.go:28
+#: internal/cli/lock.go:298 internal/cli/root.go:370 internal/cli/root.go:443
+#: internal/cli/root.go:491 internal/cli/status.go:74
+#: internal/cli/target_content.go:31 internal/cli/target_content.go:267
+#: internal/cli/target_content.go:529 internal/cli/target_content.go:749
+#: internal/cli/target_content.go:971 internal/cli/target_content.go:1173
+#: internal/cli/target_content.go:1254 internal/cli/target_content.go:1273
 msgid "not found"
 msgstr "no encontrado"
 
-#: internal/cli/lock.go:295
+#: internal/cli/lock.go:298
 msgid "Status"
 msgstr "Estado"
 
-#: internal/cli/lock.go:296 internal/cli/lock.go:302 internal/cli/status.go:62
+#: internal/cli/lock.go:299 internal/cli/lock.go:305 internal/cli/status.go:62
 msgid "Targets"
 msgstr "Targets"
 
-#: internal/cli/lock.go:297 internal/cli/lock.go:303 internal/cli/status.go:60
+#: internal/cli/lock.go:300 internal/cli/lock.go:306 internal/cli/status.go:60
 #: internal/cli/status.go:103 internal/cli/status.go:105
 msgid "Languages"
 msgstr "Idiomas"
 
-#: internal/cli/lock.go:298 internal/cli/lock.go:304
+#: internal/cli/lock.go:301 internal/cli/lock.go:307
 msgid "Keys"
 msgstr "Claves"
 
-#: internal/cli/lock.go:30
-msgid "Manage lokit.lock file"
-msgstr "Gestionar archivo lokit.lock"
-
-#: internal/cli/lock.go:307
+#: internal/cli/lock.go:310
 msgid "%d keys across %d languages"
 msgstr "%d claves en %d idiomas"
 
-#: internal/cli/lock.go:31
+#: internal/cli/lock.go:318
+msgid "%d keys"
+msgstr "%d claves"
+
+#: internal/cli/lock.go:33
+msgid "Manage lokit.lock file"
+msgstr "Gestionar archivo lokit.lock"
+
+#: internal/cli/lock.go:34
 msgid ""
 "Manage incremental translation lock data in lokit.lock.\n"
 "\n"
@@ -1086,88 +1249,84 @@ msgid ""
 "  clean   Remove stale lock entries not present in source\n"
 "  reset   Remove all or part of lock data"
 msgstr ""
-"Gestiona datos de lock de traducción incremental en lokit.lock.\n"
+"Gestiona los datos de bloqueo incremental de traducción en lokit.lock.\n"
 "\n"
 "Subcomandos:\n"
-"  init    Inicializa entradas del lock a partir de las cadenas fuente sin invocar IA\n"
-"  status  Muestra estadísticas del lock\n"
-"  clean   Elimina entradas obsoletas del lock que no están en la fuente\n"
-"  reset   Elimina todo o parte de los datos del lock"
+"  init    Inicializa entradas de bloqueo desde cadenas fuente sin llamadas a IA\n"
+"  status  Muestra estadísticas de bloqueo\n"
+"  clean   Elimina entradas obsoletas de bloqueo que no están en la fuente\n"
+"  reset   Elimina todos o parte de los datos de bloqueo"
 
-#: internal/cli/lock.go:315
-msgid "%d keys"
-msgstr "%d claves"
-
-#: internal/cli/lock.go:353
+#: internal/cli/lock.go:356
 msgid "[%s/%s] stale entries: %d (tracked: %d)"
 msgstr "[%s/%s] entradas obsoletas: %d (registradas: %d)"
 
-#: internal/cli/lock.go:361
+#: internal/cli/lock.go:364
 msgid "[%s/%s] removed stale entries: %d"
 msgstr "[%s/%s] entradas obsoletas eliminadas: %d"
 
-#: internal/cli/lock.go:368
+#: internal/cli/lock.go:371
 msgid "Dry run: total stale entries: %d"
 msgstr "Simulación: total de entradas obsoletas: %d"
 
-#: internal/cli/lock.go:379
+#: internal/cli/lock.go:382
 msgid "Removed stale entries: %d"
 msgstr "Entradas obsoletas eliminadas: %d"
 
-#: internal/cli/lock.go:394
+#: internal/cli/lock.go:397
 msgid "--lang requires --target"
 msgstr "--lang requiere --target"
 
-#: internal/cli/lock.go:406
+#: internal/cli/lock.go:409
 msgid "Reset entire lock file?"
-msgstr "¿Restablecer todo el archivo lock?"
+msgstr "¿Restablecer todo el archivo de bloqueo?"
 
-#: internal/cli/lock.go:407
+#: internal/cli/lock.go:410
 msgid "Cancelled"
 msgstr "Cancelado"
 
-#: internal/cli/lock.go:411
+#: internal/cli/lock.go:414
 msgid "Removing %s: %v"
 msgstr "Eliminando %s: %v"
 
-#: internal/cli/lock.go:414
+#: internal/cli/lock.go:417
 msgid "Reset complete: %s removed"
-msgstr "Restablecimiento completado: %s eliminado"
-
-#: internal/cli/lock.go:436
-msgid "Reset complete: %s/%s"
-msgstr "Restablecimiento completado: %s/%s"
+msgstr "Restablecimiento completo: %s eliminado"
 
 #: internal/cli/lock.go:439
-msgid "Reset complete: target %s"
-msgstr "Restablecimiento completado: target %s"
+msgid "Reset complete: %s/%s"
+msgstr "Restablecimiento completo: %s/%s"
 
-#: internal/cli/lock.go:466
+#: internal/cli/lock.go:442
+msgid "Reset complete: target %s"
+msgstr "Restablecimiento completo: target %s"
+
+#: internal/cli/lock.go:479
 msgid "Target %q not found in lokit.yaml"
 msgstr "Target %q no encontrado en lokit.yaml"
 
-#: internal/cli/lock.go:490
+#: internal/cli/lock.go:509
 msgid "unsupported target type %q"
 msgstr "tipo de target %q no soportado"
 
-#: internal/cli/lock.go:498
-msgid "cannot read POT %s: %v"
-msgstr "no se puede leer POT %s: %v"
-
-#: internal/cli/lock.go:532
-msgid "cannot read any po4a PO files for target %s"
-msgstr "no se pueden leer archivos PO de po4a para el target %s"
-
-#: internal/cli/lock.go:544 internal/cli/lock.go:561 internal/cli/lock.go:611
-#: internal/cli/lock.go:651 internal/cli/lock.go:668
+#: internal/cli/lock.go:524 internal/cli/lock.go:584 internal/cli/lock.go:686
+#: internal/cli/lock.go:700 internal/cli/lock.go:713
 msgid "cannot read source file %s: %v"
 msgstr "no se puede leer el archivo fuente %s: %v"
 
-#: internal/cli/lock.go:56
-msgid "Initialize lock from existing sources"
-msgstr "Inicializar lock desde fuentes existentes"
+#: internal/cli/lock.go:538
+msgid "cannot read POT %s: %v"
+msgstr "no se puede leer POT %s: %v"
 
-#: internal/cli/lock.go:57
+#: internal/cli/lock.go:572
+msgid "cannot read any po4a PO files for target %s"
+msgstr "no se pueden leer archivos PO de po4a para el target %s"
+
+#: internal/cli/lock.go:59
+msgid "Initialize lock from existing sources"
+msgstr "Inicializar bloqueo desde fuentes existentes"
+
+#: internal/cli/lock.go:60
 msgid ""
 "Initialize lokit.lock from current source files without calling AI.\n"
 "\n"
@@ -1179,45 +1338,45 @@ msgid ""
 "  lokit lock init --target ui\n"
 "  lokit lock init --target ui --force"
 msgstr ""
-"Inicializa lokit.lock a partir de los archivos fuente actuales sin llamar a la IA.\n"
+"Inicializa lokit.lock desde los archivos fuente actuales sin llamar a IA.\n"
 "\n"
-"Para cada par target/idioma, lokit almacena sumas de comprobación del contenido fuente usadas por\n"
-"la traducción incremental.\n"
+"Para cada combinación de target/idioma, lokit almacena sumas de comprobación del contenido fuente usadas para\n"
+"traducción incremental.\n"
 "\n"
 "Ejemplos:\n"
 "  lokit lock init\n"
 "  lokit lock init --target ui\n"
 "  lokit lock init --target ui --force"
 
-#: internal/cli/lock.go:575
+#: internal/cli/lock.go:604
 msgid "cannot read source strings.xml %s: %v"
-msgstr "no se puede leer el strings.xml fuente %s: %v"
+msgstr "no se puede leer source strings.xml %s: %v"
 
-#: internal/cli/lock.go:625
+#: internal/cli/lock.go:648
 msgid "cannot read markdown files in %s: %v"
-msgstr "no se pueden leer archivos Markdown en %s: %v"
+msgstr "no se pueden leer archivos markdown en %s: %v"
 
-#: internal/cli/lock.go:628 internal/cli/target_content.go:394
+#: internal/cli/lock.go:651 internal/cli/target_content.go:398
 msgid "cannot find source Markdown files in %s"
-msgstr "no se encontraron archivos Markdown fuente en %s"
+msgstr "no se pueden encontrar archivos Markdown fuente en %s"
 
-#: internal/cli/lock.go:635
+#: internal/cli/lock.go:658
 msgid "cannot read source Markdown file %s: %v"
-msgstr "no se puede leer el archivo Markdown fuente %s: %v"
+msgstr "no se puede leer archivo Markdown fuente %s: %v"
 
-#: internal/cli/lock.go:71 internal/cli/lock.go:96 internal/cli/lock.go:120
+#: internal/cli/lock.go:74 internal/cli/lock.go:99 internal/cli/lock.go:123
 msgid "Target name from lokit.yaml (default: all targets)"
-msgstr "Nombre del target en lokit.yaml (por defecto: todos los targets)"
+msgstr "Nombre del objetivo desde lokit.yaml (por defecto: todos los objetivos)"
 
-#: internal/cli/lock.go:72
+#: internal/cli/lock.go:75
 msgid "Overwrite existing lock entries for selected targets"
-msgstr "Sobrescribir entradas existentes del lock para los targets seleccionados"
+msgstr "Sobrescribir entradas de bloqueo existentes para los objetivos seleccionados"
 
-#: internal/cli/lock.go:83
+#: internal/cli/lock.go:86
 msgid "Show lock file statistics"
-msgstr "Mostrar estadísticas del archivo lock"
+msgstr "Mostrar estadísticas del archivo de bloqueo"
 
-#: internal/cli/lock.go:84
+#: internal/cli/lock.go:87
 msgid ""
 "Show statistics for lokit.lock, including tracked targets and keys.\n"
 "\n"
@@ -1227,7 +1386,7 @@ msgid ""
 "  lokit lock status --verbose\n"
 "  lokit lock status --json"
 msgstr ""
-"Mostrar estadísticas de lokit.lock, incluidos los targets y claves rastreados.\n"
+"Muestra estadísticas de lokit.lock, incluyendo objetivos y claves rastreadas.\n"
 "\n"
 "Ejemplos:\n"
 "  lokit lock status\n"
@@ -1235,37 +1394,31 @@ msgstr ""
 "  lokit lock status --verbose\n"
 "  lokit lock status --json"
 
-#: internal/cli/lock.go:97
-msgid "Show per-language lock breakdown"
-msgstr "Mostrar desglose del lock por idioma"
-
-#: internal/cli/lock.go:98
-msgid "Output lock status as JSON"
-msgstr "Mostrar el estado del lock en JSON"
-
 #: internal/cli/root.go:182
 msgid "Localization Kit: AI-powered translation for multiple formats"
-msgstr "Localization Kit: traducción potenciada por IA para múltiples formatos"
+msgstr "Localization Kit: Traducción con IA para múltiples formatos"
 
 #: internal/cli/root.go:183
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
-"Supported project types (auto-detected or configured via lokit.yaml):\n"
+"Supported project formats (auto-detected or configured via lokit.yaml):\n"
 "  gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files\n"
 "  po4a        Documentation translation (man pages, groff/roff markup)\n"
-"  i18next     React/i18next JSON translation files\n"
-"  vue-i18n    Vue i18n nested JSON translation files\n"
+"  i18next     Flat JSON translation files (key-value map)\n"
+"  vue-i18n    Nested JSON translation files\n"
 "  android     Android strings.xml resource files\n"
-"  json        Generic JSON translation files\n"
 "  yaml        YAML translation files\n"
 "  markdown    Markdown document translation\n"
 "  properties  Java .properties translation files\n"
 "  flutter     Flutter ARB (Application Resource Bundle) files\n"
+"  js-kv       JavaScript assignment key-value translation files\n"
+"  desktop     freedesktop desktop entry translations\n"
+"  polkit      PolicyKit XML policy translations\n"
 "\n"
 "Configuration:\n"
 "  Project settings are defined in lokit.yaml at the project root.\n"
-"  Each project can have multiple translation targets with different types.\n"
+"  Each project can have multiple translation targets with different formats.\n"
 "  See project examples for lokit.yaml format.\n"
 "\n"
 "AI Providers:\n"
@@ -1277,23 +1430,25 @@ msgid ""
 "  ollama         Ollama local server\n"
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
-"lokit — Localization Kit: traducción potenciada por IA para múltiples formatos.\n"
+"lokit — Localization Kit: Traducción impulsada por IA para múltiples formatos.\n"
 "\n"
-"Tipos de proyecto compatibles (auto-detectados o configurados vía lokit.yaml):\n"
+"Formatos de proyecto soportados (auto-detectados o configurados vía lokit.yaml):\n"
 "  gettext     Archivos PO planos (po/*.po) y anidados (po/lang/*.po)\n"
-"  po4a        Traducción de documentación (man pages, marcado groff/roff)\n"
-"  i18next     Archivos JSON de traducción para React/i18next\n"
-"  vue-i18n    Archivos JSON anidados para Vue i18n\n"
+"  po4a        Traducción de documentación (páginas man, marcado groff/roff)\n"
+"  i18next     Archivos de traducción JSON planos (mapa clave-valor)\n"
+"  vue-i18n    Archivos de traducción JSON anidados\n"
 "  android     Archivos de recursos strings.xml de Android\n"
-"  json        Archivos JSON genéricos de traducción\n"
-"  yaml        Archivos YAML de traducción\n"
+"  yaml        Archivos de traducción YAML\n"
 "  markdown    Traducción de documentos Markdown\n"
 "  properties  Archivos de traducción Java .properties\n"
 "  flutter     Archivos ARB (Application Resource Bundle) de Flutter\n"
+"  js-kv       Archivos de traducción clave-valor en asignaciones JavaScript\n"
+"  desktop     Traducciones de archivos de entrada freedesktop\n"
+"  polkit      Traducciones de políticas XML de PolicyKit\n"
 "\n"
 "Configuración:\n"
-"  Las opciones del proyecto se definen en lokit.yaml en la raíz del proyecto.\n"
-"  Cada proyecto puede tener múltiples targets de traducción con distintos tipos.\n"
+"  La configuración del proyecto se define en lokit.yaml en la raíz del proyecto.\n"
+"  Cada proyecto puede tener varios destinos de traducción con diferentes formatos.\n"
 "  Consulta los ejemplos de proyectos para el formato de lokit.yaml.\n"
 "\n"
 "Proveedores de IA:\n"
@@ -1303,210 +1458,217 @@ msgstr ""
 "  opencode       OpenCode Zen API (modelos gratuitos disponibles sin clave)\n"
 "  copilot        GitHub Copilot (OAuth nativo, gratis)\n"
 "  ollama         Servidor local Ollama\n"
-"  custom-openai  Endpoint compatible con OpenAI personalizado"
+"  custom-openai  Endpoint personalizado compatible con OpenAI"
 
-#: internal/cli/root.go:216
+#: internal/cli/root.go:218
 msgid "default"
 msgstr "predeterminado"
 
-#: internal/cli/root.go:219
+#: internal/cli/root.go:221
 msgid "Use \"%s [command] --help\" for more information about a command."
-msgstr "Usa \"%s [command] --help\" para obtener más información sobre un comando."
+msgstr "Usa \"%s [comando] --help\" para más información sobre un comando."
 
-#: internal/cli/root.go:225
+#: internal/cli/root.go:227
 msgid "Usage:"
 msgstr "Uso:"
 
-#: internal/cli/root.go:229
+#: internal/cli/root.go:231
 msgid "Aliases:"
 msgstr "Alias:"
 
-#: internal/cli/root.go:232
+#: internal/cli/root.go:234
 msgid "Examples:"
 msgstr "Ejemplos:"
 
-#: internal/cli/root.go:235
+#: internal/cli/root.go:237
 msgid "Available Commands:"
 msgstr "Comandos disponibles:"
 
-#: internal/cli/root.go:241
+#: internal/cli/root.go:243
 msgid "Additional Commands:"
 msgstr "Comandos adicionales:"
 
-#: internal/cli/root.go:244
+#: internal/cli/root.go:246
 msgid "Flags:"
 msgstr "Opciones:"
 
-#: internal/cli/root.go:247
+#: internal/cli/root.go:249
 msgid "Global Flags:"
 msgstr "Opciones globales:"
 
-#: internal/cli/root.go:250
+#: internal/cli/root.go:252
 msgid "Additional help topics:"
 msgstr "Temas de ayuda adicionales:"
 
-#: internal/cli/root.go:259
+#: internal/cli/root.go:261
 msgid "Help about any command"
 msgstr "Ayuda sobre cualquier comando"
 
-#: internal/cli/root.go:260
+#: internal/cli/root.go:262
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
 msgstr ""
-"Help proporciona ayuda para cualquier comando de la aplicación.\n"
-"Simplemente escribe %s help [ruta del comando] para obtener detalles completos."
+"La ayuda proporciona información sobre cualquier comando de la aplicación.\n"
+"Simplemente escribe %s help [ruta al comando] para ver los detalles completos."
 
-#: internal/cli/root.go:282
+#: internal/cli/root.go:284
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "Tema de ayuda desconocido %q\n"
 
-#: internal/cli/root.go:292
+#: internal/cli/root.go:294
 msgid "Project root directory"
 msgstr "Directorio raíz del proyecto"
 
-#: internal/cli/root.go:311
+#: internal/cli/root.go:313
 msgid "this command"
 msgstr "este comando"
 
-#: internal/cli/root.go:313
+#: internal/cli/root.go:315
 msgid "help for %s"
 msgstr "ayuda para %s"
 
-#: internal/cli/root.go:368
-msgid "POT"
-msgstr "POT"
-
-#: internal/cli/root.go:368
+#: internal/cli/root.go:370
 msgid "run 'lokit init'"
 msgstr "ejecuta 'lokit init'"
 
-#: internal/cli/root.go:372 internal/cli/root.go:489 internal/cli/root.go:533
+#: internal/cli/root.go:370
+msgid "POT"
+msgstr "POT"
+
+#: internal/cli/root.go:374 internal/cli/root.go:495 internal/cli/root.go:543
 msgid "Source strings"
-msgstr "Cadenas de origen"
+msgstr "Cadenas fuente"
 
-#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
-#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
-#: internal/cli/root.go:645 internal/cli/target_content.go:42
-#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
-#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
-msgid "Lang"
-msgstr "Idioma"
-
-#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
-#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
-#: internal/cli/root.go:645 internal/cli/target_content.go:42
-#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
-#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
-msgid "Done"
-msgstr "Completado"
-
-#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:538
-#: internal/cli/root.go:599
+#: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:548
+#: internal/cli/root.go:609
 msgid "Fuzzy"
-msgstr "Fuzzy"
+msgstr "Difuso"
 
-#: internal/cli/root.go:377 internal/cli/root.go:407 internal/cli/root.go:450
-#: internal/cli/root.go:494 internal/cli/root.go:538 internal/cli/root.go:599
-#: internal/cli/root.go:645 internal/cli/target_content.go:42
-#: internal/cli/target_content.go:280 internal/cli/target_content.go:540
-#: internal/cli/target_content.go:760 internal/cli/target_vuei18n.go:38
+#: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:452
+#: internal/cli/root.go:500 internal/cli/root.go:548 internal/cli/root.go:609
+#: internal/cli/root.go:655 internal/cli/target_content.go:46
+#: internal/cli/target_content.go:284 internal/cli/target_content.go:544
+#: internal/cli/target_content.go:764 internal/cli/target_content.go:981
+#: internal/cli/target_content.go:1291
 msgid "Progress"
 msgstr "Progreso"
 
-#: internal/cli/root.go:377 internal/cli/root.go:450 internal/cli/root.go:494
-#: internal/cli/root.go:538 internal/cli/root.go:645
-#: internal/cli/target_content.go:42 internal/cli/target_content.go:280
-#: internal/cli/target_content.go:540 internal/cli/target_content.go:760
-#: internal/cli/target_vuei18n.go:38
+#: internal/cli/root.go:379 internal/cli/root.go:452 internal/cli/root.go:500
+#: internal/cli/root.go:548 internal/cli/root.go:655
+#: internal/cli/target_content.go:46 internal/cli/target_content.go:284
+#: internal/cli/target_content.go:544 internal/cli/target_content.go:764
+#: internal/cli/target_content.go:981 internal/cli/target_content.go:1291
 msgid "Left"
-msgstr "Restante"
+msgstr "Restantes"
 
-#: internal/cli/root.go:384 internal/cli/root.go:415 internal/cli/root.go:461
-#: internal/cli/root.go:502 internal/cli/root.go:554 internal/cli/root.go:607
-#: internal/cli/root.go:657 internal/cli/target_content.go:49
-#: internal/cli/target_content.go:288 internal/cli/target_content.go:550
-#: internal/cli/target_content.go:770 internal/cli/target_vuei18n.go:50
+#: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:452
+#: internal/cli/root.go:500 internal/cli/root.go:548 internal/cli/root.go:609
+#: internal/cli/root.go:655 internal/cli/target_content.go:46
+#: internal/cli/target_content.go:284 internal/cli/target_content.go:544
+#: internal/cli/target_content.go:764 internal/cli/target_content.go:981
+#: internal/cli/target_content.go:1291
+msgid "Done"
+msgstr "Listo"
+
+#: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:452
+#: internal/cli/root.go:500 internal/cli/root.go:548 internal/cli/root.go:609
+#: internal/cli/root.go:655 internal/cli/target_content.go:46
+#: internal/cli/target_content.go:284 internal/cli/target_content.go:544
+#: internal/cli/target_content.go:764 internal/cli/target_content.go:981
+#: internal/cli/target_content.go:1291
+msgid "Lang"
+msgstr "Idioma"
+
+#: internal/cli/root.go:386 internal/cli/root.go:417 internal/cli/root.go:463
+#: internal/cli/root.go:508 internal/cli/root.go:564 internal/cli/root.go:617
+#: internal/cli/root.go:667 internal/cli/target_content.go:53
+#: internal/cli/target_content.go:292 internal/cli/target_content.go:554
+#: internal/cli/target_content.go:774 internal/cli/target_content.go:993
 msgid "missing"
 msgstr "faltante"
 
-#: internal/cli/root.go:402
+#: internal/cli/root.go:404
 msgid "po4a config"
-msgstr "configuración de po4a"
+msgstr "configuración po4a"
 
-#: internal/cli/root.go:407 internal/cli/root.go:599
+#: internal/cli/root.go:409 internal/cli/root.go:609
 msgid "Total"
 msgstr "Total"
 
-#: internal/cli/root.go:433 internal/cli/target_content.go:22
-#: internal/cli/target_content.go:257 internal/cli/target_content.go:517
-#: internal/cli/target_content.go:737 internal/cli/target_vuei18n.go:19
+#: internal/cli/root.go:435 internal/cli/target_content.go:26
+#: internal/cli/target_content.go:261 internal/cli/target_content.go:521
+#: internal/cli/target_content.go:741 internal/cli/target_content.go:962
 msgid "Translations"
 msgstr "Traducciones"
 
-#: internal/cli/root.go:441 internal/cli/root.go:485
-#: internal/cli/target_content.go:27 internal/cli/target_content.go:33
-#: internal/cli/target_content.go:263 internal/cli/target_content.go:525
-#: internal/cli/target_content.go:531 internal/cli/target_content.go:745
-#: internal/cli/target_content.go:751 internal/cli/target_vuei18n.go:28
+#: internal/cli/root.go:443 internal/cli/root.go:491
+#: internal/cli/target_content.go:31 internal/cli/target_content.go:37
+#: internal/cli/target_content.go:267 internal/cli/target_content.go:529
+#: internal/cli/target_content.go:535 internal/cli/target_content.go:749
+#: internal/cli/target_content.go:755 internal/cli/target_content.go:971
+#: internal/cli/target_content.go:1173 internal/cli/target_content.go:1254
+#: internal/cli/target_content.go:1273
 msgid "Source"
-msgstr "Origen"
+msgstr "Fuente"
 
-#: internal/cli/root.go:445 internal/cli/root.go:639
-#: internal/cli/target_content.go:37 internal/cli/target_content.go:535
-#: internal/cli/target_content.go:755 internal/cli/target_vuei18n.go:33
+#: internal/cli/root.go:447 internal/cli/root.go:649
+#: internal/cli/target_content.go:41 internal/cli/target_content.go:539
+#: internal/cli/target_content.go:759 internal/cli/target_content.go:976
+#: internal/cli/target_content.go:1177 internal/cli/target_content.go:1258
+#: internal/cli/target_content.go:1277
 msgid "Source keys"
-msgstr "Claves de origen"
+msgstr "Claves fuente"
 
-#: internal/cli/root.go:481
+#: internal/cli/root.go:487
 msgid "Res dir"
-msgstr "Dir recursos"
+msgstr "Res dir"
 
-#: internal/cli/root.go:528
+#: internal/cli/root.go:538
 msgid "No translatable strings found in %s"
 msgstr "No se encontraron cadenas traducibles en %s"
 
-#: internal/cli/root.go:532
+#: internal/cli/root.go:542
 msgid "Translation Statistics"
 msgstr "Estadísticas de traducción"
 
-#: internal/cli/root.go:574
+#: internal/cli/root.go:584
 msgid "Translation gaps:"
 msgstr "Brechas de traducción:"
 
-#: internal/cli/root.go:578
+#: internal/cli/root.go:588
 msgid "%d untranslated"
 msgstr "%d sin traducir"
 
-#: internal/cli/root.go:581
+#: internal/cli/root.go:591
 msgid "%d fuzzy"
-msgstr "%d fuzzy"
+msgstr "%d difusas"
 
-#: internal/cli/root.go:595
+#: internal/cli/root.go:605
 msgid "Documentation Statistics"
 msgstr "Estadísticas de documentación"
 
-#: internal/cli/root.go:626
+#: internal/cli/root.go:636
 msgid "No language files detected in %s"
 msgstr "No se detectaron archivos de idioma en %s"
 
-#: internal/cli/root.go:637
+#: internal/cli/root.go:647
 msgid "UI Translation Statistics"
-msgstr "Estadísticas de traducción de la IU"
+msgstr "Estadísticas de traducción de UI"
 
 #: internal/cli/root.go:65
 msgid "Invalid locked_pattern %q: %v"
 msgstr "locked_pattern inválido %q: %v"
 
 #: internal/cli/status.go:100
-msgid "%d keys x %d languages"
-msgstr "%d claves x %d idiomas"
-
-#: internal/cli/status.go:100
 msgid "Locked"
 msgstr "Bloqueado"
+
+#: internal/cli/status.go:100
+msgid "%d keys x %d languages"
+msgstr "%d claves x %d idiomas"
 
 #: internal/cli/status.go:105
 msgid "none detected"
@@ -1520,19 +1682,16 @@ msgstr "Mostrar información del proyecto y estadísticas de traducción"
 msgid ""
 "Show auto-detected project structure and translation statistics.\n"
 "\n"
-"Displays target type, file structure, detected languages, and per-language\n"
-"translation progress for gettext, po4a, i18next, vue-i18n, android, json,\n"
-"yaml, markdown, properties, and flutter projects. For projects\n"
+"Displays target format, file structure, detected languages, and per-language\n"
+"translation progress for gettext, po4a, i18next, vue-i18n, android,\n"
+"yaml, markdown, properties, flutter, js-kv, desktop, and polkit projects. For projects\n"
 "configured via lokit.yaml, shows each target separately.\n"
 "\n"
 "Does not modify any files."
 msgstr ""
-"Muestra la estructura del proyecto detectada automáticamente y estadísticas de traducción.\n"
+"Muestra la estructura del proyecto auto-detectada y estadísticas de traducción.\n"
 "\n"
-"Muestra el tipo de destino, la estructura de archivos, los idiomas detectados y el progreso de traducción por idioma\n"
-"para proyectos gettext, po4a, i18next, vue-i18n, android, json,\n"
-"yaml, markdown, properties y flutter. Para proyectos\n"
-"configurados mediante lokit.yaml, muestra cada destino por separado.\n"
+"Despliega el formato de destino, la estructura de archivos, los idiomas detectados y el progreso de traducción por idioma para proyectos gettext, po4a, i18next, vue-i18n, android, yaml, markdown, properties, flutter, js-kv, desktop y polkit. Para proyectos configurados mediante lokit.yaml, muestra cada destino por separado.\n"
 "\n"
 "No modifica ningún archivo."
 
@@ -1550,7 +1709,7 @@ msgstr "Raíz"
 
 #: internal/cli/status.go:57
 msgid "Source lang"
-msgstr "Idioma de origen"
+msgstr "Idioma fuente"
 
 #: internal/cli/status.go:71
 msgid "error: %v"
@@ -1569,461 +1728,456 @@ msgstr "vacío"
 msgid "%d targets, %d keys"
 msgstr "%d destinos, %d claves"
 
-#: internal/cli/target_content.go:104 internal/cli/target_content.go:335
-#: internal/cli/target_content.go:443 internal/cli/target_content.go:604
-#: internal/cli/target_content.go:824 internal/cli/target_vuei18n.go:94
+#: internal/cli/target_content.go:1020
+msgid "Cannot read source nested JSON file %s: %v"
+msgstr "No se puede leer el archivo JSON anidado de origen %s: %v"
+
+#: internal/cli/target_content.go:1058
+msgid "Vue i18n init: %d created, %d updated"
+msgstr "Inicialización de Vue i18n: %d creados, %d actualizados"
+
+#: internal/cli/target_content.go:108 internal/cli/target_content.go:339
+#: internal/cli/target_content.go:447 internal/cli/target_content.go:608
+#: internal/cli/target_content.go:828 internal/cli/target_content.go:1037
 msgid "Creating directory %s: %v"
 msgstr "Creando directorio %s: %v"
 
-#: internal/cli/target_content.go:131
-msgid "YAML init: %d created, %d updated"
-msgstr "Inicialización YAML: %d creados, %d actualizados"
+#: internal/cli/target_content.go:1081
+msgid "cannot read source nested JSON file %s: %w"
+msgstr "no se puede leer el archivo JSON anidado de origen %s: %w"
 
-#: internal/cli/target_content.go:137 internal/cli/target_content.go:380
-#: internal/cli/target_content.go:635 internal/cli/target_content.go:855
-#: internal/cli/target_core.go:76 internal/cli/target_core.go:187
-#: internal/cli/target_core.go:323 internal/cli/target_core.go:345
-#: internal/cli/target_core.go:367 internal/cli/target_core.go:574
-#: internal/cli/target_vuei18n.go:121
+#: internal/cli/target_content.go:1124
+msgid "No nested JSON files to translate"
+msgstr "No hay archivos JSON anidados para traducir"
+
+#: internal/cli/target_content.go:1185
+msgid "Cannot read source JS file %s: %v"
+msgstr "No se puede leer el archivo JS de origen %s: %v"
+
+#: internal/cli/target_content.go:1208
+msgid "cannot read source JS file %s: %w"
+msgstr "no se puede leer el archivo JS de origen %s: %w"
+
+#: internal/cli/target_content.go:1312
+msgid "cannot read desktop file %s: %w"
+msgstr "no se puede leer el archivo de escritorio %s: %w"
+
+#: internal/cli/target_content.go:1334
+msgid "cannot read policy file %s: %w"
+msgstr "no se puede leer el archivo de política %s: %w"
+
+#: internal/cli/target_content.go:135
+msgid "YAML init: %d created, %d updated"
+msgstr "Inicialización de YAML: %d creados, %d actualizados"
+
+#: internal/cli/target_content.go:141 internal/cli/target_content.go:384
+#: internal/cli/target_content.go:639 internal/cli/target_content.go:859
+#: internal/cli/target_content.go:1064 internal/cli/target_core.go:75
+#: internal/cli/target_core.go:186 internal/cli/target_core.go:326
+#: internal/cli/target_core.go:433
 msgid "Provider: %s (%s), Model: %s"
 msgstr "Proveedor: %s (%s), Modelo: %s"
 
-#: internal/cli/target_content.go:139 internal/cli/target_content.go:382
-#: internal/cli/target_content.go:637 internal/cli/target_content.go:857
-#: internal/cli/target_core.go:78 internal/cli/target_core.go:369
-#: internal/cli/target_core.go:576 internal/cli/target_vuei18n.go:123
+#: internal/cli/target_content.go:143 internal/cli/target_content.go:386
+#: internal/cli/target_content.go:641 internal/cli/target_content.go:861
+#: internal/cli/target_content.go:1066 internal/cli/target_core.go:77
+#: internal/cli/target_core.go:435
 msgid "Parallel: enabled, max concurrent: %d"
-msgstr "Paralelo: habilitado, concurrencia máxima: %d"
+msgstr "Paralelo: habilitado, máximo concurrentes: %d"
 
-#: internal/cli/target_content.go:142 internal/cli/target_content.go:385
-#: internal/cli/target_content.go:640 internal/cli/target_content.go:860
-#: internal/cli/target_core.go:81 internal/cli/target_core.go:372
-#: internal/cli/target_vuei18n.go:126
+#: internal/cli/target_content.go:146 internal/cli/target_content.go:389
+#: internal/cli/target_content.go:644 internal/cli/target_content.go:864
+#: internal/cli/target_content.go:1069 internal/cli/target_core.go:80
+#: internal/cli/target_core.go:438
 msgid "Chunk size: %d"
-msgstr "Tamaño del chunk: %d"
+msgstr "Tamaño de lote: %d"
 
-#: internal/cli/target_content.go:144 internal/cli/target_content.go:387
-#: internal/cli/target_content.go:642 internal/cli/target_content.go:862
-#: internal/cli/target_core.go:324 internal/cli/target_core.go:346
-#: internal/cli/target_vuei18n.go:128
+#: internal/cli/target_content.go:148 internal/cli/target_content.go:391
+#: internal/cli/target_content.go:646 internal/cli/target_content.go:866
+#: internal/cli/target_content.go:1071 internal/cli/target_core.go:327
 msgid "Translations dir: %s"
 msgstr "Directorio de traducciones: %s"
 
-#: internal/cli/target_content.go:145 internal/cli/target_content.go:388
-#: internal/cli/target_content.go:643 internal/cli/target_content.go:863
-#: internal/cli/target_core.go:84 internal/cli/target_core.go:190
-#: internal/cli/target_core.go:325 internal/cli/target_core.go:347
-#: internal/cli/target_core.go:375 internal/cli/target_vuei18n.go:129
+#: internal/cli/target_content.go:149 internal/cli/target_content.go:392
+#: internal/cli/target_content.go:647 internal/cli/target_content.go:867
+#: internal/cli/target_content.go:1072 internal/cli/target_core.go:83
+#: internal/cli/target_core.go:189 internal/cli/target_core.go:328
+#: internal/cli/target_core.go:441
 msgid "Translating: %s"
 msgstr "Traduciendo: %s"
 
-#: internal/cli/target_content.go:150
+#: internal/cli/target_content.go:154
 msgid "cannot find source YAML file for language %q in %s"
-msgstr "no se encuentra el archivo YAML fuente para el idioma %q en %s"
+msgstr "no se encuentra el archivo YAML de origen para el idioma %q en %s"
 
-#: internal/cli/target_content.go:155
+#: internal/cli/target_content.go:159
 msgid "cannot read source YAML %s: %w"
-msgstr "no se puede leer el archivo YAML fuente %s: %w"
+msgstr "no se puede leer el YAML de origen %s: %w"
 
-#: internal/cli/target_content.go:158 internal/cli/target_content.go:654
-#: internal/cli/target_content.go:874 internal/cli/target_core.go:384
-#: internal/cli/target_vuei18n.go:142
+#: internal/cli/target_content.go:162 internal/cli/target_content.go:658
+#: internal/cli/target_content.go:878 internal/cli/target_content.go:1085
+#: internal/cli/target_core.go:450
 msgid "Source strings: %d"
 msgstr "Cadenas fuente: %d"
 
-#: internal/cli/target_content.go:166 internal/cli/target_core.go:392
-#: internal/cli/target_core.go:593
+#: internal/cli/target_content.go:170 internal/cli/target_core.go:344
+#: internal/cli/target_core.go:458
 msgid "%s (%s): %d strings to translate (file will be auto-created)"
-msgstr "%s (%s): %d cadenas para traducir (el archivo se creará automáticamente)"
+msgstr "%s (%s): %d cadenas por traducir (el archivo se creará automáticamente)"
 
-#: internal/cli/target_content.go:172 internal/cli/target_content.go:180
-#: internal/cli/target_content.go:668 internal/cli/target_content.go:888
-#: internal/cli/target_core.go:92 internal/cli/target_core.go:198
-#: internal/cli/target_core.go:402 internal/cli/target_core.go:602
-#: internal/cli/target_vuei18n.go:154
+#: internal/cli/target_content.go:176 internal/cli/target_content.go:184
+#: internal/cli/target_content.go:672 internal/cli/target_content.go:892
+#: internal/cli/target_content.go:1097 internal/cli/target_core.go:91
+#: internal/cli/target_core.go:197 internal/cli/target_core.go:352
+#: internal/cli/target_core.go:468
 msgid "%s (%s): %d strings to translate"
-msgstr "%s (%s): %d cadenas para traducir"
+msgstr "%s (%s): %d cadenas por traducir"
 
-#: internal/cli/target_content.go:214
+#: internal/cli/target_content.go:218
 msgid "No YAML files to translate"
 msgstr "No hay archivos YAML para traducir"
 
-#: internal/cli/target_content.go:246 internal/cli/target_content.go:726
-#: internal/cli/target_content.go:946 internal/cli/target_vuei18n.go:217
+#: internal/cli/target_content.go:250 internal/cli/target_content.go:730
+#: internal/cli/target_content.go:950 internal/cli/target_content.go:1160
 msgid "  %s: %d/%d strings"
 msgstr "  %s: %d/%d cadenas"
 
-#: internal/cli/target_content.go:275
+#: internal/cli/target_content.go:279
 msgid "Source segments"
 msgstr "Segmentos fuente"
 
-#: internal/cli/target_content.go:319
+#: internal/cli/target_content.go:323
 msgid "Cannot find source Markdown files in %s"
-msgstr "No se encontraron archivos Markdown fuente en %s"
-
-#: internal/cli/target_content.go:320
-msgid "Expected: %s/*.md"
-msgstr "Se esperaba: %s/*.md"
+msgstr "No se encuentran archivos Markdown de origen en %s"
 
 #: internal/cli/target_content.go:324
+msgid "Expected: %s/*.md"
+msgstr "Esperado: %s/*.md"
+
+#: internal/cli/target_content.go:328
 msgid "Source language (%s): %d files"
 msgstr "Idioma fuente (%s): %d archivos"
 
-#: internal/cli/target_content.go:33 internal/cli/target_content.go:531
-#: internal/cli/target_content.go:751
-msgid "parse error: %v"
-msgstr "error de análisis: %v"
-
-#: internal/cli/target_content.go:345
+#: internal/cli/target_content.go:349
 msgid "Cannot read source Markdown file %s: %v"
-msgstr "No se puede leer el archivo Markdown fuente %s: %v"
+msgstr "No se puede leer el archivo Markdown de origen %s: %v"
 
-#: internal/cli/target_content.go:355
+#: internal/cli/target_content.go:359
 msgid "Created: %s (%d segments)"
 msgstr "Creado: %s (%d segmentos)"
 
-#: internal/cli/target_content.go:374
-msgid "Markdown init: %d created, %d updated"
-msgstr "Inicialización Markdown: %d creados, %d actualizados"
+#: internal/cli/target_content.go:37 internal/cli/target_content.go:535
+#: internal/cli/target_content.go:755
+msgid "parse error: %v"
+msgstr "error de análisis: %v"
 
-#: internal/cli/target_content.go:404
+#: internal/cli/target_content.go:378
+msgid "Markdown init: %d created, %d updated"
+msgstr "Inicialización de Markdown: %d creados, %d actualizados"
+
+#: internal/cli/target_content.go:408
 msgid "Source segments: %d (%d files)"
 msgstr "Segmentos fuente: %d (%d archivos)"
 
-#: internal/cli/target_content.go:433
+#: internal/cli/target_content.go:437
 msgid "%s (%s): %d segments to translate"
-msgstr "%s (%s): %d segmentos para traducir"
+msgstr "%s (%s): %d segmentos por traducir"
 
-#: internal/cli/target_content.go:474
+#: internal/cli/target_content.go:478
 msgid "No Markdown files to translate"
 msgstr "No hay archivos Markdown para traducir"
 
-#: internal/cli/target_content.go:506
+#: internal/cli/target_content.go:510
 msgid "  %s: %d/%d segments"
 msgstr "  %s: %d/%d segmentos"
 
-#: internal/cli/target_content.go:56 internal/cli/target_content.go:557
-#: internal/cli/target_content.go:777
+#: internal/cli/target_content.go:585
+msgid "Cannot find source .properties file: %s"
+msgstr "No se encuentra el archivo .properties de origen: %s"
+
+#: internal/cli/target_content.go:591
+msgid "Cannot read source .properties file %s: %v"
+msgstr "No se puede leer el archivo .properties de origen %s: %v"
+
+#: internal/cli/target_content.go:60 internal/cli/target_content.go:561
+#: internal/cli/target_content.go:781 internal/cli/target_content.go:1296
 msgid "parse error"
 msgstr "error de análisis"
 
-#: internal/cli/target_content.go:581
-msgid "Cannot find source .properties file: %s"
-msgstr "No se encontró el archivo .properties fuente: %s"
-
-#: internal/cli/target_content.go:587
-msgid "Cannot read source .properties file %s: %v"
-msgstr "No se puede leer el archivo .properties fuente %s: %v"
-
-#: internal/cli/target_content.go:629
+#: internal/cli/target_content.go:633
 msgid "Properties init: %d created, %d updated"
-msgstr "Inicialización .properties: %d creados, %d actualizados"
+msgstr "Inicialización de Properties: %d creados, %d actualizados"
 
-#: internal/cli/target_content.go:651
+#: internal/cli/target_content.go:655
 msgid "cannot read source .properties file %s: %w"
-msgstr "no se puede leer el archivo .properties fuente %s: %w"
+msgstr "no se puede leer el archivo .properties de origen %s: %w"
 
-#: internal/cli/target_content.go:694
+#: internal/cli/target_content.go:698
 msgid "No .properties files to translate"
 msgstr "No hay archivos .properties para traducir"
 
-#: internal/cli/target_content.go:78
-msgid "Cannot find source YAML file for language %q in %s"
-msgstr "No se encuentra el archivo YAML fuente para el idioma %q en %s"
+#: internal/cli/target_content.go:805
+msgid "Cannot find source ARB file: %s"
+msgstr "No se encuentra el archivo ARB de origen: %s"
 
-#: internal/cli/target_content.go:79
+#: internal/cli/target_content.go:811
+msgid "Cannot read source ARB file %s: %v"
+msgstr "No se puede leer el archivo ARB de origen %s: %v"
+
+#: internal/cli/target_content.go:82
+msgid "Cannot find source YAML file for language %q in %s"
+msgstr "No se encuentra el archivo YAML de origen para el idioma %q en %s"
+
+#: internal/cli/target_content.go:83
 msgid "Expected: %s"
 msgstr "Esperado: %s"
 
-#: internal/cli/target_content.go:801
-msgid "Cannot find source ARB file: %s"
-msgstr "No se encontró el archivo ARB fuente: %s"
-
-#: internal/cli/target_content.go:807
-msgid "Cannot read source ARB file %s: %v"
-msgstr "No se puede leer el archivo ARB fuente %s: %v"
-
-#: internal/cli/target_content.go:849
+#: internal/cli/target_content.go:853
 msgid "Flutter ARB init: %d created, %d updated"
-msgstr "Inicialización Flutter ARB: %d creados, %d actualizados"
+msgstr "Flutter ARB init: %d creados, %d actualizados"
 
-#: internal/cli/target_content.go:85
-msgid "Cannot read source YAML file %s: %v"
-msgstr "No se puede leer el archivo YAML fuente %s: %v"
-
-#: internal/cli/target_content.go:871
+#: internal/cli/target_content.go:875
 msgid "cannot read source ARB file %s: %w"
-msgstr "no se puede leer el archivo ARB fuente %s: %w"
+msgstr "no se puede leer el archivo ARB de origen %s: %w"
 
-#: internal/cli/target_content.go:914
+#: internal/cli/target_content.go:89
+msgid "Cannot read source YAML file %s: %v"
+msgstr "No se puede leer el archivo YAML de origen %s: %v"
+
+#: internal/cli/target_content.go:918
 msgid "No ARB files to translate"
 msgstr "No hay archivos ARB para traducir"
 
-#: internal/cli/target_core.go:123 internal/cli/target_core.go:228
-#: internal/cli/target_core.go:435 internal/cli/target_core.go:636
+#: internal/cli/target_core.go:122 internal/cli/target_core.go:227
+#: internal/cli/target_core.go:383 internal/cli/target_core.go:501
 msgid "  %s: %d/%d"
 msgstr "  %s: %d/%d"
 
-#: internal/cli/target_core.go:174 internal/cli/target_core.go:312
-#: internal/cli/target_core.go:484
+#: internal/cli/target_core.go:173 internal/cli/target_core.go:311
+#: internal/cli/target_core.go:550
 msgid "[%s] All translations complete!"
-msgstr "[%s] ¡Todas las traducciones completadas!"
+msgstr "[%s] ¡Todas las traducciones están completas!"
 
-#: internal/cli/target_core.go:188
+#: internal/cli/target_core.go:187
 msgid "po4a config: %s"
 msgstr "configuración po4a: %s"
 
-#: internal/cli/target_core.go:200
+#: internal/cli/target_core.go:199
 msgid "%s: PO file not found at %s"
 msgstr "%s: Archivo PO no encontrado en %s"
 
-#: internal/cli/target_core.go:245
+#: internal/cli/target_core.go:244
 msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
-msgstr "Usando prompt de traducción específico para documentación (preserva marcado groff/man)"
+msgstr "Usando prompt de traducción específico para documentación (preservación de marcado groff/man)"
 
-#: internal/cli/target_core.go:257
+#: internal/cli/target_core.go:256
 msgid "PO files missing, running po4a initialization..."
 msgstr "Faltan archivos PO, ejecutando inicialización de po4a..."
 
-#: internal/cli/target_core.go:277
+#: internal/cli/target_core.go:276
 msgid "auto-init failed: %v"
-msgstr "auto-init falló: %v"
+msgstr "auto-inicialización fallida: %v"
 
-#: internal/cli/target_core.go:288
+#: internal/cli/target_core.go:287
 msgid "[%s] No PO file for %s at %s, skipping"
-msgstr "[%s] No se encontró el archivo PO para %s en %s, omitiendo"
+msgstr "[%s] No hay archivo PO para %s en %s, se omite"
 
-#: internal/cli/target_core.go:374
-msgid "Res dir: %s"
-msgstr "Directorio de recursos: %s"
+#: internal/cli/target_core.go:333
+msgid "cannot read source language file %s: %w"
+msgstr "no se puede leer el archivo de idioma de origen %s: %w"
 
-#: internal/cli/target_core.go:381
-msgid "cannot read source strings.xml %s: %w"
-msgstr "no se puede leer el strings.xml de origen %s: %w"
-
-#: internal/cli/target_core.go:455
-msgid "Auto-creating %s with %d strings"
-msgstr "Creando automáticamente %s con %d cadenas"
-
-#: internal/cli/target_core.go:460
-msgid "Added %d new strings to %s"
-msgstr "Se añadieron %d cadenas nuevas a %s"
-
-#: internal/cli/target_core.go:51
-msgid "Extracting strings and updating PO files..."
-msgstr "Extrayendo cadenas y actualizando archivos PO..."
-
-#: internal/cli/target_core.go:53
-msgid "Extraction failed: %v"
-msgstr "Extracción fallida: %v"
-
-#: internal/cli/target_core.go:54
-msgid "Continuing with existing PO files"
-msgstr "Continuando con los archivos PO existentes"
-
-#: internal/cli/target_core.go:564
-msgid "All UI translations are complete!"
-msgstr "¡Todas las traducciones de la interfaz están completas!"
-
-#: internal/cli/target_core.go:578
-msgid "Parallel: disabled (sequential)"
-msgstr "Paralelo: desactivado (secuencial)"
-
-#: internal/cli/target_core.go:580
+#: internal/cli/target_core.go:336
 msgid "Source keys (%s): %d"
 msgstr "Claves de origen (%s): %d"
 
-#: internal/cli/target_core.go:583
-msgid "Translating UI strings: %s"
-msgstr "Traduciendo cadenas de la interfaz: %s"
-
-#: internal/cli/target_core.go:615 internal/cli/translate_cmd.go:255
-msgid "Interrupted, saving progress..."
-msgstr "Interrumpido, guardando el progreso..."
-
-#: internal/cli/target_core.go:668
+#: internal/cli/target_core.go:405
 msgid "Auto-creating %s with %d keys"
 msgstr "Creando automáticamente %s con %d claves"
 
-#: internal/cli/target_core.go:685
-msgid "Translation interrupted, partial progress saved"
-msgstr "Traducción interrumpida, progreso parcial guardado"
+#: internal/cli/target_core.go:422
+msgid "All UI translations are complete!"
+msgstr "¡Todas las traducciones de la interfaz están completas!"
 
-#: internal/cli/target_core.go:688
-msgid "UI translation failed: %v"
-msgstr "Fallo en la traducción de la interfaz: %v"
+#: internal/cli/target_core.go:440
+msgid "Res dir: %s"
+msgstr "Directorio res: %s"
 
-#: internal/cli/target_core.go:695 internal/cli/translate_cmd.go:352
-msgid "Translation completed with errors"
-msgstr "Traducción completada con errores"
+#: internal/cli/target_core.go:447
+msgid "cannot read source strings.xml %s: %w"
+msgstr "no se puede leer strings.xml de origen %s: %w"
 
-#: internal/cli/target_core.go:698
-msgid "Translation complete!"
-msgstr "¡Traducción completada!"
+#: internal/cli/target_core.go:50
+msgid "Extracting strings and updating PO files..."
+msgstr "Extrayendo cadenas y actualizando archivos PO..."
 
-#: internal/cli/target_core.go:83 internal/cli/target_core.go:189
+#: internal/cli/target_core.go:52
+msgid "Extraction failed: %v"
+msgstr "Error en la extracción: %v"
+
+#: internal/cli/target_core.go:521
+msgid "Auto-creating %s with %d strings"
+msgstr "Creando automáticamente %s con %d cadenas"
+
+#: internal/cli/target_core.go:526
+msgid "Added %d new strings to %s"
+msgstr "Se agregaron %d cadenas nuevas a %s"
+
+#: internal/cli/target_core.go:53
+msgid "Continuing with existing PO files"
+msgstr "Continuando con los archivos PO existentes"
+
+#: internal/cli/target_core.go:82 internal/cli/target_core.go:188
 msgid "PO dir: %s"
 msgstr "Directorio PO: %s"
 
-#: internal/cli/target_core.go:94
+#: internal/cli/target_core.go:93
 msgid "%s: PO file not found, will be created"
-msgstr "%s: no se encontró el archivo PO, se creará"
+msgstr "%s: Archivo PO no encontrado, se creará"
 
-#: internal/cli/target_vuei18n.go:115
-msgid "Vue i18n init: %d created, %d updated"
-msgstr "no se puede leer archivo vue-i18n de origen %s: %w"
-
-#: internal/cli/target_vuei18n.go:138
-msgid "cannot read source vue-i18n file %s: %w"
-msgstr "No hay archivos vue-i18n para traducir"
-
-#: internal/cli/target_vuei18n.go:181
-msgid "No vue-i18n files to translate"
-msgstr "No se puede leer el archivo vue-i18n de origen %s: %v"
-
-#: internal/cli/target_vuei18n.go:77
-msgid "Cannot read source vue-i18n file %s: %v"
-msgstr "No se puede leer el archivo fuente vue-i18n %s: %v"
-
-#: internal/cli/translate_cmd.go:109
+#: internal/cli/translate_cmd.go:104
 msgid "AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)"
-msgstr "Proveedor IA: google, gemini, groq, opencode, copilot, ollama, custom-openai (o usa provider.id en lokit.yaml)"
+msgstr "Proveedor de IA: google, gemini, groq, opencode, copilot, ollama, custom-openai (o use provider.id en lokit.yaml)"
 
-#: internal/cli/translate_cmd.go:110
+#: internal/cli/translate_cmd.go:105
 msgid "Model name (or use lokit.yaml provider.model)"
-msgstr "Nombre del modelo (o usa provider.model en lokit.yaml)"
+msgstr "Nombre del modelo (o use provider.model en lokit.yaml)"
 
-#: internal/cli/translate_cmd.go:111
+#: internal/cli/translate_cmd.go:106
 msgid "API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 msgstr "Clave API (o variable de entorno del proveedor: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"
 
-#: internal/cli/translate_cmd.go:112
+#: internal/cli/translate_cmd.go:107
 msgid "Custom API base URL"
-msgstr "URL base de la API personalizada"
+msgstr "URL base de API personalizada"
 
-#: internal/cli/translate_cmd.go:114
+#: internal/cli/translate_cmd.go:109
 msgid "Languages to translate (comma-separated, default: all with untranslated)"
-msgstr "Idiomas a traducir (separados por comas, por defecto: todos los que tengan entradas sin traducir)"
+msgstr "Idiomas a traducir (separados por coma, predeterminado: todos los no traducidos)"
 
-#: internal/cli/translate_cmd.go:116
+#: internal/cli/translate_cmd.go:111
 msgid "Entries per API request (0 = all at once)"
-msgstr "Entradas por solicitud API (0 = todas a la vez)"
+msgstr "Entradas por solicitud a la API (0 = todas a la vez)"
 
-#: internal/cli/translate_cmd.go:117
+#: internal/cli/translate_cmd.go:112
 msgid "Translate all entries, including already translated ones"
 msgstr "Traducir todas las entradas, incluidas las ya traducidas"
 
-#: internal/cli/translate_cmd.go:118
+#: internal/cli/translate_cmd.go:113
 msgid "Translate fuzzy entries and clear fuzzy flag"
-msgstr "Traducir entradas fuzzy y eliminar la marca fuzzy"
+msgstr "Traducir entradas difusas y limpiar la marca difusa"
 
-#: internal/cli/translate_cmd.go:119
+#: internal/cli/translate_cmd.go:114
 msgid "Custom system prompt (use {{targetLang}} placeholder)"
-msgstr "Prompt del sistema personalizado (use el marcador {{targetLang}})"
+msgstr "Prompt de sistema personalizado (use el marcador {{targetLang}})"
 
-#: internal/cli/translate_cmd.go:120
+#: internal/cli/translate_cmd.go:115
 msgid "Enable detailed logging"
 msgstr "Habilitar registro detallado"
 
-#: internal/cli/translate_cmd.go:121
+#: internal/cli/translate_cmd.go:116
 msgid "Show what would be translated without calling AI"
-msgstr "Mostrar qué se traduciría sin llamar a la IA"
+msgstr "Mostrar lo que se traduciría sin llamar a la IA"
 
-#: internal/cli/translate_cmd.go:122
+#: internal/cli/translate_cmd.go:117
 msgid "Ignore lock file and re-translate all changed entries"
-msgstr "Ignorar archivo lock y retraducir todas las entradas modificadas"
+msgstr "Ignorar archivo de bloqueo y retraducir todas las entradas modificadas"
 
-#: internal/cli/translate_cmd.go:124
+#: internal/cli/translate_cmd.go:119
 msgid "Enable parallel translation with optional worker count (e.g. --parallel or --parallel=8)"
-msgstr "Habilitar traducción en paralelo con recuento opcional de workers (p. ej. --parallel o --parallel=8)"
+msgstr "Habilitar traducción en paralelo con cantidad de trabajadores opcional (ej. --parallel o --parallel=8)"
 
-#: internal/cli/translate_cmd.go:125
+#: internal/cli/translate_cmd.go:120
 msgid "Delay between translation requests"
 msgstr "Retraso entre solicitudes de traducción"
 
-#: internal/cli/translate_cmd.go:127
+#: internal/cli/translate_cmd.go:122
 msgid "Request timeout (0 = provider default)"
-msgstr "Tiempo de espera de la solicitud (0 = valor por defecto del proveedor)"
+msgstr "Tiempo de espera de la solicitud (0 = valor predeterminado del proveedor)"
+
+#: internal/cli/translate_cmd.go:123
+msgid "HTTP/HTTPS proxy URL"
+msgstr "URL de proxy HTTP/HTTPS"
+
+#: internal/cli/translate_cmd.go:124
+msgid "Maximum retries on rate limit (429)"
+msgstr "Máximo de reintentos por límite de tasa (429)"
 
 #: internal/cli/translate_cmd.go:128
-msgid "HTTP/HTTPS proxy URL"
-msgstr "URL del proxy HTTP/HTTPS"
+msgid "Google AI (Gemini) — API key required"
+msgstr "Google AI (Gemini) — se requiere clave API"
 
 #: internal/cli/translate_cmd.go:129
-msgid "Maximum retries on rate limit (429)"
-msgstr "Reintentos máximos por límite de tasa (429)"
-
-#: internal/cli/translate_cmd.go:133
-msgid "Google AI (Gemini) — API key required"
-msgstr "Google IA (Gemini) — requiere clave API"
-
-#: internal/cli/translate_cmd.go:134
 msgid "Gemini Code Assist — browser OAuth (free)"
-msgstr "Gemini Code Assist — OAuth en navegador (gratis)"
+msgstr "Gemini Code Assist — OAuth por navegador (gratis)"
 
-#: internal/cli/translate_cmd.go:135
+#: internal/cli/translate_cmd.go:130
 msgid "Groq — API key required"
-msgstr "Groq — requiere clave API"
+msgstr "Groq — se requiere clave API"
 
-#: internal/cli/translate_cmd.go:136
+#: internal/cli/translate_cmd.go:131
 msgid "OpenCode — optional API key"
 msgstr "OpenCode — clave API opcional"
 
-#: internal/cli/translate_cmd.go:137
+#: internal/cli/translate_cmd.go:132
 msgid "GitHub Copilot — native OAuth (free)"
 msgstr "GitHub Copilot — OAuth nativo (gratis)"
 
-#: internal/cli/translate_cmd.go:138
+#: internal/cli/translate_cmd.go:133
 msgid "Ollama local server"
-msgstr "Servidor local Ollama"
+msgstr "Servidor local de Ollama"
 
-#: internal/cli/translate_cmd.go:139
+#: internal/cli/translate_cmd.go:134
 msgid "Custom OpenAI-compatible endpoint"
-msgstr "Endpoint compatible con OpenAI personalizado"
+msgstr "Endpoint personalizado compatible con OpenAI"
 
-#: internal/cli/translate_cmd.go:216
+#: internal/cli/translate_cmd.go:211
 msgid ""
 "No provider specified. Use --provider to choose an AI translation service.\n"
 "\n"
 msgstr ""
-"No se especificó proveedor. Use --provider para elegir un servicio de traducción de IA.\n"
+"No se especificó un proveedor. Usa --provider para elegir un servicio de traducción con IA.\n"
 "\n"
 
-#: internal/cli/translate_cmd.go:237
+#: internal/cli/translate_cmd.go:232
 msgid "No targets defined in lokit.yaml"
-msgstr "No se definieron targets en lokit.yaml"
+msgstr "No hay destinos definidos en lokit.yaml"
 
-#: internal/cli/translate_cmd.go:279
+#: internal/cli/translate_cmd.go:250
+msgid "Interrupted, saving progress..."
+msgstr "Interrumpido, guardando el progreso..."
+
+#: internal/cli/translate_cmd.go:274
 msgid "[%s] No languages to translate, skipping"
 msgstr "[%s] No hay idiomas para traducir, omitiendo"
 
-#: internal/cli/translate_cmd.go:337
-msgid "[%s] Unknown target type %q, skipping"
-msgstr "[%s] Tipo de target desconocido %q, omitiendo"
-
-#: internal/cli/translate_cmd.go:341
+#: internal/cli/translate_cmd.go:346
 msgid "Could not save lock file after target %s: %v"
-msgstr "No se pudo guardar el archivo de bloqueo después del target %s: %v"
+msgstr "No se pudo guardar el archivo de bloqueo después del destino %s: %v"
 
-#: internal/cli/translate_cmd.go:343
+#: internal/cli/translate_cmd.go:348
 msgid "Lock file saved after target %s/%s"
-msgstr "Archivo de bloqueo guardado tras el target %s/%s"
+msgstr "Archivo de bloqueo guardado después del destino %s/%s"
 
-#: internal/cli/translate_cmd.go:355
+#: internal/cli/translate_cmd.go:357
+msgid "Translation completed with errors"
+msgstr "Traducción completada con errores"
+
+#: internal/cli/translate_cmd.go:360
 msgid "All targets translated!"
-msgstr "¡Todos los targets traducidos!"
+msgstr "¡Todos los destinos traducidos!"
 
 #: internal/cli/translate_cmd.go:44
 msgid "Translate files using AI"
-msgstr "Traducir archivos con IA"
+msgstr "Traduce archivos usando IA"
 
 #: internal/cli/translate_cmd.go:45
 msgid ""
 "Translate files using AI providers.\n"
 "\n"
-"Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,\n"
-"YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is\n"
-"auto-detected or configured via lokit.yaml.\n"
+"Supports gettext PO, po4a, i18next, vue-i18n, Android strings.xml,\n"
+"YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop, and polkit formats.\n"
+"Project format is auto-detected or configured via lokit.yaml.\n"
+"No --format flag is required.\n"
 "\n"
 "For gettext/po4a projects, automatically initializes if needed (extracts\n"
 "strings, creates PO files).\n"
@@ -2039,85 +2193,71 @@ msgid ""
 "  locked_patterns — regex patterns matching keys treated as locked\n"
 "                  (e.g. \"^brand_.*\" locks all brand_ prefixed keys)\n"
 "\n"
-"Each target type has a built-in system prompt optimized for its format.\n"
+"Each target format has a built-in system prompt optimized for its structure.\n"
 "Use the --prompt flag to override it for the current run, or set prompt:\n"
 "in lokit.yaml target config for a permanent override.\n"
 "Use {{targetLang}} as a placeholder for the target language name.\n"
 "\n"
 "Examples:\n"
-"  # Translate a gettext project using GitHub Copilot (free)\n"
+"  # Basic translation run\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Translate an Android project using Gemini (free, OAuth)\n"
-"  lokit translate --provider gemini --model gemini-2.5-flash\n"
-"\n"
-"  # Translate an i18next project using Google AI (API key)\n"
-"  lokit translate --provider google --model gemini-2.5-flash\n"
 "\n"
 "  # Translate specific languages in parallel\n"
 "  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
 "\n"
+"  # Use a custom prompt\n"
+"  lokit translate --provider copilot --model gpt-4o \\\n"
+"    --prompt \"Translate to {{targetLang}}. Keep UI tone concise.\"\n"
+"\n"
+"  # Use local Ollama\n"
+"  lokit translate --provider ollama --model llama3.2\n"
+"\n"
 "  # Force full re-translation (ignore lock file)\n"
 "  lokit translate --provider copilot --model gpt-4o --force\n"
-"\n"
-"  # Translate all entries with a custom prompt\n"
-"  lokit translate --provider copilot --model gpt-4o --all \\\n"
-"    --prompt \"Translate to {{targetLang}}. Use informal tone.\"\n"
-"\n"
-"  # Translate a Flutter project\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
 "\n"
 "  # Dry run (show what would be translated)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 msgstr ""
-"Traducir archivos usando proveedores de IA.\n"
+"Traduce archivos utilizando proveedores de IA.\n"
 "\n"
-"Admite gettext PO, po4a, i18next JSON, Android strings.xml, JSON genérico,\n"
-"YAML, Markdown, Java .properties y formatos Flutter ARB. El tipo de proyecto se\n"
-"autodetecta o se configura vía lokit.yaml.\n"
+"Soporta formatos gettext PO, po4a, i18next, vue-i18n, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop y polkit.\n"
+"El formato del proyecto se auto-detecta o se configura vía lokit.yaml.\n"
+"No es necesario el flag --format.\n"
 "\n"
-"Para proyectos gettext/po4a, inicializa automáticamente si es necesario (extrae\n"
-"cadenas, crea archivos PO).\n"
+"Para proyectos gettext/po4a, se inicializa automáticamente si es necesario (extrae cadenas, crea archivos PO).\n"
 "\n"
-"Traducción incremental: lokit registra checksums de las cadenas fuente en lokit.lock.\n"
-"Solo las cadenas nuevas o modificadas se envían al proveedor de IA, ahorrando tokens y\n"
-"tiempo. Use --force para ignorar el archivo lock y re-traducir todo.\n"
+"Traducción incremental: lokit rastrea los checksums de las cadenas fuente en lokit.lock.\n"
+"Solo las cadenas nuevas o modificadas se envían al proveedor de IA, ahorrando tokens y tiempo. Usa --force para ignorar el archivo lock y retraducir todo.\n"
 "\n"
-"Filtrado de claves: configúrelo por target en lokit.yaml:\n"
-"  ignored_keys  — claves excluidas completamente de la traducción (nunca enviadas a la IA)\n"
-"  locked_keys   — claves cuyas traducciones se preservan (se omiten incluso con\n"
-"                  --all; sólo --force las sobrescribe)\n"
-"  locked_patterns — patrones regex que coinciden con claves tratadas como bloqueadas\n"
-"                  (p. ej. \"^brand_.*\" bloquea todas las claves con prefijo brand_)\n"
+"Filtrado de claves: configura por destino en lokit.yaml:\n"
+"  ignored_keys  — claves excluidas totalmente de la traducción (nunca enviadas a IA)\n"
+"  locked_keys   — claves cuyas traducciones se preservan (omitidas incluso con\n"
+"                  --all; solo --force las sobrescribe)\n"
+"  locked_patterns — patrones regex de claves tratadas como bloqueadas\n"
+"                  (ej. \"^brand_.*\" bloquea todas las claves con prefijo brand_)\n"
 "\n"
-"Cada tipo de target tiene un prompt del sistema integrado optimizado para su formato.\n"
-"Use la opción --prompt para sobrescribirlo en esta ejecución, o establezca prompt:\n"
-"en la configuración del target en lokit.yaml para una anulación permanente.\n"
-"Use {{targetLang}} como marcador para el nombre del idioma destino.\n"
+"Cada formato de destino tiene un prompt de sistema optimizado para su estructura.\n"
+"Usa el flag --prompt para sobrescribirlo en la ejecución actual, o configura prompt:\n"
+"en la configuración del destino en lokit.yaml para un cambio permanente.\n"
+"Utiliza {{targetLang}} como marcador para el nombre del idioma de destino.\n"
 "\n"
 "Ejemplos:\n"
-"  # Traducir un proyecto gettext usando GitHub Copilot (gratis)\n"
+"  # Ejecución básica de traducción\n"
 "  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Traducir un proyecto Android usando Gemini (gratis, OAuth)\n"
-"  lokit translate --provider gemini --model gemini-2.5-flash\n"
-"\n"
-"  # Traducir un proyecto i18next usando Google IA (clave API)\n"
-"  lokit translate --provider google --model gemini-2.5-flash\n"
 "\n"
 "  # Traducir idiomas específicos en paralelo\n"
 "  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel\n"
 "\n"
-"  # Forzar re-traducción completa (ignorar archivo lock)\n"
+"  # Usar un prompt personalizado\n"
+"  lokit translate --provider copilot --model gpt-4o \\n    --prompt \"Traduce a {{targetLang}}. Mantén un tono conciso para la interfaz.\"\n"
+"\n"
+"  # Usar Ollama local\n"
+"  lokit translate --provider ollama --model llama3.2\n"
+"\n"
+"  # Forzar retraducción completa (ignorar archivo lock)\n"
 "  lokit translate --provider copilot --model gpt-4o --force\n"
 "\n"
-"  # Traducir todas las entradas con un prompt personalizado\n"
-"  lokit translate --provider copilot --model gpt-4o --all \\n    --prompt \"Traducir a {{targetLang}}. Usar tono informal.\"\n"
-"\n"
-"  # Traducir un proyecto Flutter\n"
-"  lokit translate --provider copilot --model gpt-4o\n"
-"\n"
-"  # Ejecución de prueba (mostrar qué se traduciría)\n"
+"  # Simulación (mostrar qué se traduciría)\n"
 "  lokit translate --provider copilot --model gpt-4o --dry-run"
 
 #: internal/cli/version.go:13
@@ -2126,7 +2266,7 @@ msgstr "Mostrar información de la versión"
 
 #: internal/cli/version.go:14
 msgid "Display version, commit hash, and build date."
-msgstr "Mostrar la versión, el hash del commit y la fecha de compilación."
+msgstr "Muestra la versión, el hash del commit y la fecha de compilación."
 
 #: internal/cli/version.go:16
 msgid "lokit version %s"
