@@ -39,9 +39,6 @@ auth.json
 *.key
 *.pem
 
-# Test/example projects
-minios-live/
-
 # Generated locale files (built from po/*.po by make i18n-sync)
 # en/ kept in git as fallback for bare "go build" without make
 i18n/locales/*/

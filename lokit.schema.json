@@ -85,29 +85,30 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "name",
-        "type"
+        "name"
       ],
       "properties": {
         "name": {
           "type": "string",
           "description": "Target name (must be unique)."
         },
-        "type": {
+        "format": {
           "type": "string",
           "enum": [
             "gettext",
             "po4a",
             "i18next",
             "vue-i18n",
-            "json",
             "android",
             "yaml",
             "markdown",
             "properties",
-            "flutter"
+            "flutter",
+            "js-kv",
+            "desktop",
+            "polkit"
           ],
-          "description": "Translation format type."
+          "description": "Translation format."
         },
         "root": {
           "type": "string",
@@ -121,6 +122,14 @@
         "pattern": {
           "type": "string",
           "description": "File pattern relative to dir for language-based files. Must contain {lang}."
+        },
+        "source": {
+          "type": "string",
+          "description": "Source file path pattern relative to root."
+        },
+        "target": {
+          "type": "string",
+          "description": "Target file path pattern relative to root."
         },
         "pot": {
           "type": "string",
@@ -180,83 +189,15 @@
             "format": "regex"
           },
           "description": "Regex patterns for keys treated as locked (skipped unless --force)."
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "gettext"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "dir",
-              "pot"
-            ]
-          }
         },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "const": "po4a"
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "config"
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "enum": [
-                  "i18next",
-                  "vue-i18n",
-                  "json",
-                  "yaml",
-                  "properties",
-                  "flutter"
-                ]
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "dir",
-              "pattern"
-            ],
-            "properties": {
-              "pattern": {
-                "pattern": "\\{lang\\}"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "type": {
-                "enum": [
-                  "android",
-                  "markdown"
-                ]
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "dir"
-            ]
+        "surfaces": {
+          "type": "array",
+          "description": "Optional list of per-surface configs inheriting from target defaults.",
+          "items": {
+            "$ref": "#/$defs/target"
           }
         }
-      ]
+      }
     }
   }
 }

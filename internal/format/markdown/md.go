@@ -327,7 +327,7 @@ func (f *File) WriteFile(path string) error {
 
 // NewTranslationFile creates an empty target File with the same structure
 // as srcFile but all values cleared.
-func NewTranslationFile(src *File) *File {
+func NewTranslationFile(src *File, _ string) *File {
 	f := &File{
 		index:          make(map[string]int),
 		hasFrontmatter: src.hasFrontmatter,
@@ -368,7 +368,7 @@ func SyncKeys(src, target *File) {
 		}
 	}
 
-	rebuilt := NewTranslationFile(src)
+	rebuilt := NewTranslationFile(src, "")
 	for k, v := range targetVals {
 		rebuilt.Set(k, v)
 	}

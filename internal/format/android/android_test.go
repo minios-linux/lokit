@@ -217,7 +217,8 @@ func TestStats_MixedTypes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Parse error: %v", err)
 	}
-	total, translated, untranslated := f.Stats()
+	total, translated, pct := f.Stats()
+	untranslated := total - translated
 	// skip not counted; arr has empty item so is untranslated
 	if total != 3 {
 		t.Errorf("total: got %d, want 3", total)
@@ -227,6 +228,9 @@ func TestStats_MixedTypes(t *testing.T) {
 	}
 	if untranslated != 2 {
 		t.Errorf("untranslated: got %d, want 2", untranslated)
+	}
+	if pct <= 33 || pct >= 34 {
+		t.Errorf("pct: got %f, want around 33.33", pct)
 	}
 }
 
@@ -606,7 +610,7 @@ func TestNewTranslationFile(t *testing.T) {
 </resources>`
 
 	src, _ := Parse([]byte(source))
-	tgt := NewTranslationFile(src)
+	tgt := NewTranslationFile(src, "ru")
 
 	// translatable string should be empty
 	v, ok := tgt.Get("greeting")

@@ -272,7 +272,7 @@ func cloneNode(n *node) *node {
 }
 
 // NewTranslationFile creates an empty target file from src structure.
-func NewTranslationFile(src *File) *File {
+func NewTranslationFile(src *File, _ string) *File {
 	if src == nil {
 		return &File{index: make(map[string]int)}
 	}
@@ -298,7 +298,7 @@ func SyncKeys(src, target *File) {
 		targetVals[e.Path] = e.Value
 	}
 
-	ref := NewTranslationFile(src)
+	ref := NewTranslationFile(src, "")
 	for path, val := range targetVals {
 		ref.Set(path, val)
 	}

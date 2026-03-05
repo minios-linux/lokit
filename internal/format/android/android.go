@@ -509,8 +509,8 @@ func (f *File) UntranslatedEntries() []*Entry {
 	return result
 }
 
-// Stats returns (total, translated, untranslated) counts for translatable resources.
-func (f *File) Stats() (total, translated, untranslated int) {
+// Stats returns (total, translated, percent) for translatable resources.
+func (f *File) Stats() (total, translated int, pct float64) {
 	for _, e := range f.Entries {
 		if !e.IsTranslatable() {
 			continue
@@ -518,9 +518,10 @@ func (f *File) Stats() (total, translated, untranslated int) {
 		total++
 		if e.IsTranslated() {
 			translated++
-		} else {
-			untranslated++
 		}
+	}
+	if total > 0 {
+		pct = float64(translated) / float64(total) * 100
 	}
 	return
 }
@@ -710,7 +711,7 @@ func marshalStringValue(s string, useCDATA bool) string {
 // NewTranslationFile creates a new File with the same structure as source but
 // with all translatable values empty (untranslated). Non-translatable entries
 // are copied verbatim; comments are preserved.
-func NewTranslationFile(source *File) *File {
+func NewTranslationFile(source *File, _ string) *File {
 	f := &File{byName: make(map[string]int)}
 	for _, e := range source.Entries {
 		var ne *Entry

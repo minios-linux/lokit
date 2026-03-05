@@ -36,6 +36,7 @@ type Meta struct {
 type File struct {
 	Meta         Meta
 	Translations map[string]string // key (English) -> value (translated)
+	hasMeta      bool
 	// keys preserves the original key order from the file.
 	keys []string
 }
@@ -51,6 +52,11 @@ func ParseFile(path string) (*File, error) {
 
 // Parse parses i18next JSON data.
 func Parse(data []byte) (*File, error) {
+	var top map[string]json.RawMessage
+	if err := json.Unmarshal(data, &top); err != nil {
+		return nil, fmt.Errorf("parsing JSON: %w", err)
+	}
+
 	// First pass: decode into ordered structure to preserve key order.
 	var raw struct {
 		Meta         Meta            `json:"_meta"`
@@ -63,6 +69,7 @@ func Parse(data []byte) (*File, error) {
 	f := &File{
 		Meta:         raw.Meta,
 		Translations: make(map[string]string),
+		hasMeta:      top["_meta"] != nil,
 	}
 
 	// Parse translations preserving key order via json.Decoder.
@@ -152,17 +159,37 @@ func (f *File) UntranslatedKeys() []string {
 	return result
 }
 
-// Stats returns (total, translated, untranslated) counts.
-func (f *File) Stats() (total, translated, untranslated int) {
+// Set updates an existing translation value.
+func (f *File) Set(key, value string) bool {
+	if _, ok := f.Translations[key]; !ok {
+		return false
+	}
+	f.Translations[key] = value
+	return true
+}
+
+// Stats returns (total, translated, percent).
+func (f *File) Stats() (total, translated int, pct float64) {
 	total = len(f.Translations)
 	for _, v := range f.Translations {
 		if v != "" {
 			translated++
-		} else {
-			untranslated++
 		}
 	}
+	if total > 0 {
+		pct = float64(translated) / float64(total) * 100
+	}
 	return
+}
+
+// SourceValues returns key -> source string mapping.
+// In i18next files keys are natural English source strings.
+func (f *File) SourceValues() map[string]string {
+	m := make(map[string]string, len(f.Translations))
+	for k := range f.Translations {
+		m[k] = k
+	}
+	return m
 }
 
 // WriteFile writes the translation file back to disk in the original format,
@@ -186,11 +213,12 @@ func (f *File) Marshal() ([]byte, error) {
 	var b strings.Builder
 	b.WriteString("{\n")
 
-	// _meta.
-	b.WriteString("    \"_meta\": {\n")
-	b.WriteString(fmt.Sprintf("        \"name\": %s,\n", jsonString(f.Meta.Name)))
-	b.WriteString(fmt.Sprintf("        \"flag\": %s\n", jsonString(f.Meta.Flag)))
-	b.WriteString("    },\n")
+	if f.hasMeta {
+		b.WriteString("    \"_meta\": {\n")
+		b.WriteString(fmt.Sprintf("        \"name\": %s,\n", jsonString(f.Meta.Name)))
+		b.WriteString(fmt.Sprintf("        \"flag\": %s\n", jsonString(f.Meta.Flag)))
+		b.WriteString("    },\n")
+	}
 
 	// translations — preserve original key order, or sorted.
 	b.WriteString("    \"translations\": {\n")

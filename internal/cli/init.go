@@ -30,10 +30,10 @@ then creates or updates PO files for each language.
 
 For po4a projects: runs 'po4a --no-translations' to update templates.
 
-For i18next/vue-i18n/json/yaml/properties/flutter projects: creates missing language
+For i18next/vue-i18n/yaml/properties/flutter/js-kv projects: creates missing language
 files with empty translations.
 
-For android/markdown projects: no init step needed — use 'lokit translate'
+For android/markdown/desktop/polkit projects: no init step needed — use 'lokit translate'
 directly.
 
 This command is idempotent — safe to run multiple times. Existing
@@ -46,11 +46,11 @@ CONFIG FORMAT (lokit.yaml)
 
   targets:
     - name: myproject                # Display name
-      type: gettext                  # Target type (see below)
+      format: gettext                # Target format (see below)
       root: .                        # Working directory (default: .)
-      # ... type-specific options
+      # ... format-specific options
 
-TARGET TYPES
+TARGET FORMATS
 
   gettext — Source code string extraction (shell, python, C, Go, etc.)
     dir: po                          # PO files directory (required)
@@ -61,16 +61,12 @@ TARGET TYPES
   po4a — Documentation translation (man pages, AsciiDoc, etc.)
     config: po4a.cfg                 # Path to po4a.cfg (required)
 
-  i18next — i18next JSON translations
+  i18next — flat JSON translations
     dir: public/translations         # JSON files directory (required)
     pattern: "{lang}.json"           # Language file pattern (required)
 
-  vue-i18n — vue-i18n nested JSON translations
+  vue-i18n — nested JSON translations
     dir: frontend/src/i18n           # JSON files directory (required)
-    pattern: "{lang}.json"           # Language file pattern (required)
-
-  json — Simple JSON translations { "key": "value" }
-    dir: translations                # JSON files directory (required)
     pattern: "{lang}.json"           # Language file pattern (required)
 
   android — Android strings.xml
@@ -91,7 +87,19 @@ TARGET TYPES
     dir: lib/l10n                    # ARB files directory (required)
     pattern: "app_{lang}.arb"        # Language file pattern (required)
 
-COMMON OPTIONS (all target types)
+  js-kv — JavaScript assignment key/value translations
+    dir: translations                # JS files directory (required)
+    pattern: "{lang}.js"             # Language file pattern (required)
+
+  desktop — freedesktop desktop entries (single file)
+    dir: .                           # Directory with desktop file
+    pattern: "myapp.desktop"         # Desktop file name
+
+  polkit — PolicyKit XML policy (single file)
+    dir: .                           # Directory with policy file
+    pattern: "org.example.policy"    # Policy file name
+
+COMMON OPTIONS (all target formats)
 
   languages: [ru, de]               # Override global language list
   prompt: "Custom translation..."   # Override AI translation prompt
@@ -103,42 +111,42 @@ EXAMPLES
   languages: [ru, de, fr]
   targets:
     - name: myapp
-      type: gettext
+      format: gettext
       sources: [scripts, lib]
       keywords: [gettext, eval_gettext]
 
   # Go project with wrapper functions
   targets:
     - name: myapp
-      type: gettext
+      format: gettext
       sources: [.]
       keywords: [T, N]
 
   # Documentation + code
   targets:
     - name: code
-      type: gettext
+      format: gettext
       sources: [src]
     - name: docs
-      type: po4a
+      format: po4a
       config: docs/po4a.cfg
 
-  # i18next web application
+  # JSON web application
   targets:
     - name: frontend
-      type: i18next
+      format: i18next
       dir: public/translations
 
   # Flutter application
   targets:
     - name: app
-      type: flutter
+      format: flutter
       dir: lib/l10n
 
   # Java application with .properties
   targets:
     - name: app
-      type: properties
+      format: properties
       dir: src/main/resources`),
 		Run: func(cmd *cobra.Command, args []string) {
 			// Require lokit.yaml
@@ -224,7 +232,7 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string) {
 			proj.ManpagesDir = filepath.Dir(proj.Po4aConfig)
 			runInitPo4a(proj)
 
-		case config.TargetTypeI18Next, config.TargetTypeJSON:
+		case config.TargetTypeI18Next:
 			proj := &config.Project{
 				Name:               rt.Target.Name,
 				Version:            "0.0.0",
@@ -253,6 +261,17 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string) {
 
 		case config.TargetTypeFlutter:
 			runInitFlutter(rt, langs)
+
+		case config.TargetTypeJSKV:
+			runInitJSKV(rt, langs)
+
+		case config.TargetTypeDesktop:
+			logInfo(T("Desktop targets do not require init — use 'lokit translate' directly."))
+
+		case config.TargetTypePolkit:
+			logInfo(T("Polkit targets do not require init — use 'lokit translate' directly."))
+		default:
+			logWarning(T("[%s] Unknown target type %q, skipping"), rt.Target.Name, rt.Target.Type)
 		}
 	}
 }

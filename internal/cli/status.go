@@ -18,9 +18,9 @@ func newStatusCmd() *cobra.Command {
 		Short: T("Show project info and translation statistics"),
 		Long: T(`Show auto-detected project structure and translation statistics.
 
-Displays target type, file structure, detected languages, and per-language
-translation progress for gettext, po4a, i18next, vue-i18n, android, json,
-yaml, markdown, properties, and flutter projects. For projects
+Displays target format, file structure, detected languages, and per-language
+translation progress for gettext, po4a, i18next, vue-i18n, android,
+yaml, markdown, properties, flutter, js-kv, desktop, and polkit projects. For projects
 configured via lokit.yaml, shows each target separately.
 
 Does not modify any files.`),
@@ -110,7 +110,7 @@ func runStatusWithConfig(lf *config.LokitFile) {
 			showConfigGettextStats(rt, langs)
 		case config.TargetTypePo4a:
 			showConfigPo4aStats(rt, langs)
-		case config.TargetTypeI18Next, config.TargetTypeJSON:
+		case config.TargetTypeI18Next:
 			showConfigI18NextStats(rt, langs)
 		case config.TargetTypeVueI18n:
 			showConfigVueI18nStats(rt, langs)
@@ -124,6 +124,14 @@ func runStatusWithConfig(lf *config.LokitFile) {
 			showConfigPropertiesStats(rt, langs)
 		case config.TargetTypeFlutter:
 			showConfigFlutterStats(rt, langs)
+		case config.TargetTypeJSKV:
+			showConfigJSKVStats(rt, langs)
+		case config.TargetTypeDesktop:
+			showConfigDesktopStats(rt, langs)
+		case config.TargetTypePolkit:
+			showConfigPolkitStats(rt, langs)
+		default:
+			logWarning(T("[%s] Unknown target type %q, skipping"), rt.Target.Name, rt.Target.Type)
 		}
 
 		fmt.Fprintln(os.Stderr)

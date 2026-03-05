@@ -2204,7 +2204,17 @@ type JSONLangTask struct {
 
 // TranslateAllJSON translates multiple i18next JSON files according to opts.ParallelMode.
 func TranslateAllJSON(ctx context.Context, langTasks []JSONLangTask, opts Options) error {
-	return TranslateAllKV(ctx, toJSONKVTasks(langTasks), opts, i18nextChunkTranslator{})
+	tasks := make([]KVLangTask, 0, len(langTasks))
+	for _, task := range langTasks {
+		tasks = append(tasks, KVLangTask{
+			Lang:         task.Lang,
+			LangName:     task.LangName,
+			FilePath:     task.FilePath,
+			File:         task.File,
+			SourceValues: task.File.SourceValues(),
+		})
+	}
+	return TranslateAllKV(ctx, tasks, opts, I18NextChunkTranslator())
 }
 
 // splitStrings divides a string slice into chunks of the given size.
@@ -2300,421 +2310,20 @@ type AndroidLangTask struct {
 	SourceFile *android.File // Source (English) file for looking up original values
 }
 
-// androidSourceValues extracts source values from an Android source file
-// for lock file hashing. Each key maps to a string representation of its
-// source content (value for strings, joined items for arrays, joined plurals).
-func androidSourceValues(sourceFile *android.File) map[string]string {
-	if sourceFile == nil {
-		return nil
-	}
-	vals := make(map[string]string)
-	for _, e := range sourceFile.Entries {
-		if !e.IsTranslatable() || e.IsComment() {
-			continue
-		}
-		switch e.Kind {
-		case android.KindString:
-			vals[e.Name] = e.Value
-		case android.KindStringArray:
-			vals[e.Name] = strings.Join(e.Items, "\x00")
-		case android.KindPlurals:
-			var parts []string
-			for _, q := range e.PluralOrder {
-				parts = append(parts, q+"="+e.Plurals[q])
-			}
-			vals[e.Name] = strings.Join(parts, "\x00")
-		}
-	}
-	return vals
-}
-
 // TranslateAllAndroid translates multiple Android strings.xml files according to opts.ParallelMode.
 func TranslateAllAndroid(ctx context.Context, langTasks []AndroidLangTask, opts Options) error {
-	if opts.ParallelMode == ParallelFullParallel {
-		return translateAndroidFullParallel(ctx, langTasks, opts)
-	}
-	return translateAndroidSequential(ctx, langTasks, opts)
-}
-
-// translateAndroidSequential translates Android strings.xml files one language at a time.
-func translateAndroidSequential(ctx context.Context, langTasks []AndroidLangTask, opts Options) error {
-	var failedLangs []string
+	tasks := make([]KVLangTask, 0, len(langTasks))
 	for _, task := range langTasks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-
-		// Determine keys to translate
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply ignored/locked key filters
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-
-		// Apply lock file filter using source file values
-		srcVals := androidSourceValues(task.SourceFile)
-		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		opts.log("Translating %s (%s) — %d strings...", task.Lang, task.LangName, len(keysToTranslate))
-
-		if err := translateAndroidFile(ctx, task.File, task.SourceFile, keysToTranslate, taskOpts); err != nil {
-			if ctx.Err() != nil {
-				saveAndroidFile(task.File, task.FilePath, opts)
-				return ctx.Err()
-			}
-			saveAndroidFile(task.File, task.FilePath, opts)
-			opts.logError("Error translating %s: %v", task.Lang, err)
-			failedLangs = append(failedLangs, task.Lang)
-			continue
-		}
-
-		// Update lock file after successful translation
-		updateLockFileForKV(keysToTranslate, srcVals, taskOpts)
-
-		saveAndroidFile(task.File, task.FilePath, opts)
+		androidFile := newAndroidKVFile(task.File, task.SourceFile)
+		tasks = append(tasks, KVLangTask{
+			Lang:         task.Lang,
+			LangName:     task.LangName,
+			FilePath:     task.FilePath,
+			File:         androidFile,
+			SourceValues: androidFile.SourceValues(),
+		})
 	}
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
-	}
-	return nil
-}
-
-// translateAndroidFullParallel translates all Android strings.xml files in parallel.
-func translateAndroidFullParallel(ctx context.Context, langTasks []AndroidLangTask, opts Options) error {
-	rl := &rateLimitState{}
-
-	type flatTask struct {
-		lang         string
-		langName     string
-		keys         []string
-		file         *android.File
-		sourceFile   *android.File
-		filePath     string
-		systemPrompt string
-		total        *int64
-		done         *int64
-	}
-
-	var flatTasks []flatTask
-
-	for _, task := range langTasks {
-		var keysToTranslate []string
-		if opts.RetranslateExisting {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
-		}
-
-		// Apply lock file filter
-		taskOpts := opts
-		taskOpts.Language = task.Lang
-		taskOpts.LanguageName = task.LangName
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-		srcVals := androidSourceValues(task.SourceFile)
-		keysToTranslate = filterChangedKeys(keysToTranslate, srcVals, taskOpts)
-
-		if len(keysToTranslate) == 0 {
-			continue
-		}
-
-		chunkSize := opts.effectiveChunkSize()
-		if chunkSize == 0 {
-			chunkSize = len(keysToTranslate)
-		}
-		chunks := splitStrings(keysToTranslate, chunkSize)
-
-		total := int64(len(keysToTranslate))
-		done := int64(0)
-
-		systemPrompt := taskOpts.resolvedPrompt()
-
-		for _, chunk := range chunks {
-			flatTasks = append(flatTasks, flatTask{
-				lang:         task.Lang,
-				langName:     task.LangName,
-				keys:         chunk,
-				file:         task.File,
-				sourceFile:   task.SourceFile,
-				filePath:     task.FilePath,
-				systemPrompt: systemPrompt,
-				total:        &total,
-				done:         &done,
-			})
-		}
-	}
-
-	if len(flatTasks) == 0 {
-		return nil
-	}
-
-	// Mutex per file to protect concurrent writes
-	fileMu := make(map[string]*sync.Mutex)
-	for _, ft := range flatTasks {
-		if _, ok := fileMu[ft.filePath]; !ok {
-			fileMu[ft.filePath] = &sync.Mutex{}
-		}
-	}
-
-	err := runParallelGeneric(ctx, flatTasks, opts.effectiveMaxConcurrent(), opts.RequestDelay, func(ctx context.Context, ft flatTask) error {
-		translations, err := translateAndroidChunk(ctx, ft.keys, ft.sourceFile, ft.systemPrompt, opts, rl)
-		if err != nil {
-			return err
-		}
-
-		mu := fileMu[ft.filePath]
-		mu.Lock()
-		applyAndroidTranslations(ft.file, ft.keys, translations)
-		mu.Unlock()
-
-		// Update lock file (thread-safe via internal mutex)
-		taskOpts := opts
-		taskOpts.Language = ft.lang
-		srcVals := androidSourceValues(ft.sourceFile)
-		updateLockFileForKV(ft.keys, srcVals, taskOpts)
-
-		newDone := atomic.AddInt64(ft.done, int64(len(ft.keys)))
-		if opts.OnProgress != nil {
-			opts.OnProgress(ft.lang, int(newDone), int(atomic.LoadInt64(ft.total)))
-		}
-		return nil
-	})
-
-	// Save all files
-	saved := make(map[string]bool)
-	for _, ft := range flatTasks {
-		if !saved[ft.filePath] {
-			saveAndroidFile(ft.file, ft.filePath, opts)
-			saved[ft.filePath] = true
-		}
-	}
-
-	return err
-}
-
-// translateAndroidFile translates specific keys in an Android strings.xml file.
-func translateAndroidFile(ctx context.Context, file *android.File, sourceFile *android.File, keys []string, opts Options) error {
-	chunkSize := opts.effectiveChunkSize()
-	if chunkSize == 0 {
-		chunkSize = len(keys)
-	}
-
-	rl := &rateLimitState{}
-	chunks := splitStrings(keys, chunkSize)
-	systemPrompt := opts.resolvedPrompt()
-	done := 0
-
-	for i, chunk := range chunks {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d strings)", i+1, len(chunks), len(chunk))
-		}
-
-		translations, err := translateAndroidChunk(ctx, chunk, sourceFile, systemPrompt, opts, rl)
-		if err != nil {
-			return fmt.Errorf("translating chunk %d/%d: %w", i+1, len(chunks), err)
-		}
-
-		applyAndroidTranslations(file, chunk, translations)
-
-		done += len(chunk)
-		if opts.OnProgress != nil {
-			opts.OnProgress(opts.Language, done, len(keys))
-		}
-
-		if i < len(chunks)-1 && opts.RequestDelay > 0 {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case <-time.After(opts.RequestDelay):
-			}
-		}
-	}
-
-	return nil
-}
-
-// androidTranslationUnit represents a single translatable atom sent to the AI.
-// For KindString:      value is the string text.
-// For KindStringArray: value is one <item> text; itemIdx is its index in the array.
-// For KindPlurals:     value is one quantity form; quantity is its keyword.
-type androidTranslationUnit struct {
-	key      string // resource name
-	kind     android.EntryKind
-	value    string // source text
-	itemIdx  int    // KindStringArray: index into Items
-	quantity string // KindPlurals: quantity keyword
-}
-
-// translateAndroidChunk sends a batch of Android resource keys to the AI and
-// returns translations. Each key may expand to multiple units (array items,
-// plural forms), all sent in a single request.
-func translateAndroidChunk(ctx context.Context, keys []string, sourceFile *android.File, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
-	// Expand keys → translation units
-	units := buildAndroidUnits(keys, sourceFile)
-	if len(units) == 0 {
-		return nil, nil
-	}
-
-	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Translate these Android app UI strings to %s:\n\n", opts.LanguageName))
-	for i, u := range units {
-		if u.value != "" {
-			userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(u.value)))
-		} else {
-			userMsg.WriteString(fmt.Sprintf("%d. [%s] (translate based on string resource name)\n", i+1, u.key))
-		}
-	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(units)))
-
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseTranslations(text, len(units))
-}
-
-// buildAndroidUnits expands a list of resource keys into individual translation
-// units, one per translatable string atom.
-func buildAndroidUnits(keys []string, sourceFile *android.File) []androidTranslationUnit {
-	var units []androidTranslationUnit
-	for _, key := range keys {
-		e := sourceFile.GetEntry(key)
-		if e == nil {
-			// Key not in source — add a single unit with empty value
-			units = append(units, androidTranslationUnit{key: key, kind: android.KindString})
-			continue
-		}
-		switch e.Kind {
-		case android.KindString:
-			units = append(units, androidTranslationUnit{
-				key:   key,
-				kind:  android.KindString,
-				value: e.Value,
-			})
-		case android.KindStringArray:
-			for idx, item := range e.Items {
-				units = append(units, androidTranslationUnit{
-					key:     key,
-					kind:    android.KindStringArray,
-					value:   item,
-					itemIdx: idx,
-				})
-			}
-		case android.KindPlurals:
-			for _, q := range e.PluralOrder {
-				units = append(units, androidTranslationUnit{
-					key:      key,
-					kind:     android.KindPlurals,
-					value:    e.Plurals[q],
-					quantity: q,
-				})
-			}
-		}
-	}
-	return units
-}
-
-// applyAndroidTranslations applies a flat slice of translations (one per unit)
-// back to the target Android file. Units must be in the same order as returned
-// by buildAndroidUnits for the given keys.
-func applyAndroidTranslations(file *android.File, keys []string, translations []string) {
-	units := buildAndroidUnits(keys, file) // use target file to know structure
-
-	// Build a temporary accumulator for array/plural results
-	type arrayAcc struct {
-		items []string
-	}
-	type pluralAcc struct {
-		forms map[string]string
-	}
-	arrays := map[string]*arrayAcc{}
-	plurals := map[string]*pluralAcc{}
-
-	// Pre-populate accumulators with current values so partial translations
-	// don't wipe already-translated forms.
-	for _, key := range keys {
-		e := file.GetEntry(key)
-		if e == nil {
-			continue
-		}
-		switch e.Kind {
-		case android.KindStringArray:
-			acc := &arrayAcc{items: make([]string, len(e.Items))}
-			copy(acc.items, e.Items)
-			arrays[key] = acc
-		case android.KindPlurals:
-			acc := &pluralAcc{forms: make(map[string]string)}
-			for q, v := range e.Plurals {
-				acc.forms[q] = v
-			}
-			plurals[key] = acc
-		}
-	}
-
-	for i, u := range units {
-		if i >= len(translations) || translations[i] == "" {
-			continue
-		}
-		tr := translations[i]
-		switch u.kind {
-		case android.KindString:
-			file.Set(u.key, tr)
-		case android.KindStringArray:
-			acc, ok := arrays[u.key]
-			if !ok {
-				continue
-			}
-			if u.itemIdx < len(acc.items) {
-				acc.items[u.itemIdx] = tr
-			}
-		case android.KindPlurals:
-			acc, ok := plurals[u.key]
-			if !ok {
-				continue
-			}
-			acc.forms[u.quantity] = tr
-		}
-	}
-
-	// Flush accumulators back to file
-	for key, acc := range arrays {
-		file.SetItems(key, acc.items)
-	}
-	for key, acc := range plurals {
-		file.SetPlurals(key, acc.forms)
-	}
-}
-
-// saveAndroidFile saves an Android strings.xml file and logs the result.
-func saveAndroidFile(file *android.File, path string, opts Options) {
-	// Translated locale files omit translatable="false" resources — Android
-	// inherits them from the default values/strings.xml automatically.
-	if err := file.WriteTargetFile(path); err != nil {
-		opts.logError("Error saving %s: %v", path, err)
-	} else {
-		total, translated, _ := file.Stats()
-		opts.log("Saved %s (%d/%d translated)", path, translated, total)
-	}
+	return TranslateAllKV(ctx, tasks, opts, DefaultKVChunkTranslator())
 }
 
 // ---------------------------------------------------------------------------
@@ -2737,7 +2346,17 @@ type YAMLLangTask struct {
 
 // TranslateAllYAML translates YAML files for all language tasks.
 func TranslateAllYAML(ctx context.Context, langTasks []YAMLLangTask, opts Options) error {
-	return TranslateAllKV(ctx, toYAMLKVTasks(langTasks), opts, defaultKVChunkTranslator{})
+	tasks := make([]KVLangTask, 0, len(langTasks))
+	for _, task := range langTasks {
+		tasks = append(tasks, KVLangTask{
+			Lang:         task.Lang,
+			LangName:     task.LangName,
+			FilePath:     task.FilePath,
+			File:         task.File,
+			SourceValues: task.SourceFile.SourceValues(),
+		})
+	}
+	return TranslateAllKV(ctx, tasks, opts, DefaultKVChunkTranslator())
 }
 
 // ---------------------------------------------------------------------------
@@ -2760,7 +2379,17 @@ type MarkdownLangTask struct {
 
 // TranslateAllMarkdown translates Markdown files for all language tasks.
 func TranslateAllMarkdown(ctx context.Context, langTasks []MarkdownLangTask, opts Options) error {
-	return TranslateAllKV(ctx, toMarkdownKVTasks(langTasks), opts, markdownChunkTranslator{})
+	tasks := make([]KVLangTask, 0, len(langTasks))
+	for _, task := range langTasks {
+		tasks = append(tasks, KVLangTask{
+			Lang:         task.Lang,
+			LangName:     task.LangName,
+			FilePath:     task.FilePath,
+			File:         task.File,
+			SourceValues: task.SourceFile.SourceValues(),
+		})
+	}
+	return TranslateAllKV(ctx, tasks, opts, MarkdownKVChunkTranslator())
 }
 
 // ---------------------------------------------------------------------------
@@ -2783,7 +2412,17 @@ type PropertiesLangTask struct {
 
 // TranslateAllProperties translates .properties files for all language tasks.
 func TranslateAllProperties(ctx context.Context, langTasks []PropertiesLangTask, opts Options) error {
-	return TranslateAllKV(ctx, toPropertiesKVTasks(langTasks), opts, defaultKVChunkTranslator{})
+	tasks := make([]KVLangTask, 0, len(langTasks))
+	for _, task := range langTasks {
+		tasks = append(tasks, KVLangTask{
+			Lang:         task.Lang,
+			LangName:     task.LangName,
+			FilePath:     task.FilePath,
+			File:         task.File,
+			SourceValues: task.SourceFile.SourceValues(),
+		})
+	}
+	return TranslateAllKV(ctx, tasks, opts, DefaultKVChunkTranslator())
 }
 
 // ---------------------------------------------------------------------------
@@ -2806,7 +2445,17 @@ type ARBLangTask struct {
 
 // TranslateAllARB translates ARB files for all language tasks.
 func TranslateAllARB(ctx context.Context, langTasks []ARBLangTask, opts Options) error {
-	return TranslateAllKV(ctx, toARBKVTasks(langTasks), opts, defaultKVChunkTranslator{})
+	tasks := make([]KVLangTask, 0, len(langTasks))
+	for _, task := range langTasks {
+		tasks = append(tasks, KVLangTask{
+			Lang:         task.Lang,
+			LangName:     task.LangName,
+			FilePath:     task.FilePath,
+			File:         task.File,
+			SourceValues: task.SourceFile.SourceValues(),
+		})
+	}
+	return TranslateAllKV(ctx, tasks, opts, DefaultKVChunkTranslator())
 }
 
 // ---------------------------------------------------------------------------
@@ -2824,5 +2473,15 @@ type VueI18nLangTask struct {
 
 // TranslateAllVueI18n translates vue-i18n JSON files for all language tasks.
 func TranslateAllVueI18n(ctx context.Context, langTasks []VueI18nLangTask, opts Options) error {
-	return TranslateAllKV(ctx, toVueI18nKVTasks(langTasks), opts, defaultKVChunkTranslator{})
+	tasks := make([]KVLangTask, 0, len(langTasks))
+	for _, task := range langTasks {
+		tasks = append(tasks, KVLangTask{
+			Lang:         task.Lang,
+			LangName:     task.LangName,
+			FilePath:     task.FilePath,
+			File:         task.File,
+			SourceValues: task.SourceFile.SourceValues(),
+		})
+	}
+	return TranslateAllKV(ctx, tasks, opts, DefaultKVChunkTranslator())
 }

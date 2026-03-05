@@ -48,7 +48,7 @@ func TestNewTranslationFileAndWrite(t *testing.T) {
 		t.Fatalf("Parse src: %v", err)
 	}
 
-	tgt := NewTranslationFile(src)
+	tgt := NewTranslationFile(src, "ru")
 	if got, ok := tgt.Get("a.b"); !ok || got != "" {
 		t.Fatalf("Get(a.b) = %q, %v", got, ok)
 	}

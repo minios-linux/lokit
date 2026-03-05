@@ -14,9 +14,12 @@ import (
 	. "github.com/minios-linux/lokit/i18n"
 	"github.com/minios-linux/lokit/internal/format/android"
 	arbfile "github.com/minios-linux/lokit/internal/format/arb"
+	"github.com/minios-linux/lokit/internal/format/desktop"
 	"github.com/minios-linux/lokit/internal/format/i18next"
+	"github.com/minios-linux/lokit/internal/format/jskv"
 	mdfile "github.com/minios-linux/lokit/internal/format/markdown"
 	po "github.com/minios-linux/lokit/internal/format/po"
+	"github.com/minios-linux/lokit/internal/format/polkit"
 	propfile "github.com/minios-linux/lokit/internal/format/properties"
 	"github.com/minios-linux/lokit/internal/format/vuei18n"
 	yamlfile "github.com/minios-linux/lokit/internal/format/yaml"
@@ -463,6 +466,16 @@ func loadResolvedTargets(target string) ([]config.ResolvedTarget, error) {
 		}
 	}
 
+	var matches []config.ResolvedTarget
+	for _, rt := range resolved {
+		if strings.HasPrefix(rt.Target.Name, target+"/") {
+			matches = append(matches, rt)
+		}
+	}
+	if len(matches) > 0 {
+		return matches, nil
+	}
+
 	return nil, fmt.Errorf(T("Target %q not found in lokit.yaml"), target)
 }
 
@@ -472,7 +485,7 @@ func collectSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
 		return collectGettextSourceEntries(rt)
 	case config.TargetTypePo4a:
 		return collectPo4aSourceEntries(rt)
-	case config.TargetTypeI18Next, config.TargetTypeJSON:
+	case config.TargetTypeI18Next:
 		return collectI18NextSourceEntries(rt)
 	case config.TargetTypeVueI18n:
 		return collectVueI18nSourceEntries(rt)
@@ -485,10 +498,37 @@ func collectSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
 	case config.TargetTypeProperties:
 		return collectPropertiesSourceEntries(rt)
 	case config.TargetTypeFlutter:
-		return collectARBSourceEntries(rt)
+		return collectFlutterSourceEntries(rt)
+	case config.TargetTypeJSKV:
+		return collectJSKVSourceEntries(rt)
+	case config.TargetTypeDesktop:
+		return collectDesktopSourceEntries(rt)
+	case config.TargetTypePolkit:
+		return collectPolkitSourceEntries(rt)
 	default:
 		return nil, fmt.Errorf(T("unsupported target type %q"), rt.Target.Type)
 	}
+}
+
+type kvSourceFile interface {
+	SourceValues() map[string]string
+}
+
+func collectSimpleKVSourceEntries(rt config.ResolvedTarget, parse func(path string) (kvSourceFile, error)) (map[string]string, error) {
+	srcPath := rt.ExistingSourcePath()
+	if srcPath == "" {
+		srcPath = rt.SourcePath()
+	}
+	srcFile, err := parse(srcPath)
+	if err != nil {
+		return nil, fmt.Errorf(T("cannot read source file %s: %v"), srcPath, err)
+	}
+
+	entries := make(map[string]string)
+	for key, v := range srcFile.SourceValues() {
+		entries[key] = lockfile.KVEntryContent(key, v)
+	}
+	return entries, nil
 }
 
 func collectGettextSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
@@ -552,20 +592,9 @@ func collectI18NextSourceEntries(rt config.ResolvedTarget) (map[string]string, e
 }
 
 func collectVueI18nSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
-	srcPath := rt.ExistingSourcePath()
-	if srcPath == "" {
-		srcPath = rt.SourcePath()
-	}
-	srcFile, err := vuei18n.ParseFile(srcPath)
-	if err != nil {
-		return nil, fmt.Errorf(T("cannot read source file %s: %v"), srcPath, err)
-	}
-
-	entries := make(map[string]string)
-	for key, v := range srcFile.SourceValues() {
-		entries[key] = lockfile.KVEntryContent(key, v)
-	}
-	return entries, nil
+	return collectSimpleKVSourceEntries(rt, func(path string) (kvSourceFile, error) {
+		return vuei18n.ParseFile(path)
+	})
 }
 
 func collectAndroidSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
@@ -575,24 +604,7 @@ func collectAndroidSourceEntries(rt config.ResolvedTarget) (map[string]string, e
 		return nil, fmt.Errorf(T("cannot read source strings.xml %s: %v"), srcPath, err)
 	}
 
-	srcVals := make(map[string]string)
-	for _, e := range srcFile.Entries {
-		if !e.IsTranslatable() || e.IsComment() {
-			continue
-		}
-		switch e.Kind {
-		case android.KindString:
-			srcVals[e.Name] = e.Value
-		case android.KindStringArray:
-			srcVals[e.Name] = strings.Join(e.Items, "\x00")
-		case android.KindPlurals:
-			var parts []string
-			for _, q := range e.PluralOrder {
-				parts = append(parts, q+"="+e.Plurals[q])
-			}
-			srcVals[e.Name] = strings.Join(parts, "\x00")
-		}
-	}
+	srcVals := androidSourceValuesByUnit(srcFile)
 
 	entries := make(map[string]string)
 	for key, v := range srcVals {
@@ -601,21 +613,32 @@ func collectAndroidSourceEntries(rt config.ResolvedTarget) (map[string]string, e
 	return entries, nil
 }
 
-func collectYAMLSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
-	srcPath := rt.ExistingSourcePath()
-	if srcPath == "" {
-		srcPath = rt.SourcePath()
+func androidSourceValuesByUnit(srcFile *android.File) map[string]string {
+	vals := make(map[string]string)
+	for _, e := range srcFile.Entries {
+		if !e.IsTranslatable() || e.IsComment() {
+			continue
+		}
+		switch e.Kind {
+		case android.KindString:
+			vals[e.Name] = e.Value
+		case android.KindStringArray:
+			for idx, v := range e.Items {
+				vals[fmt.Sprintf("%s[%d]", e.Name, idx)] = v
+			}
+		case android.KindPlurals:
+			for _, q := range e.PluralOrder {
+				vals[fmt.Sprintf("%s#%s", e.Name, q)] = e.Plurals[q]
+			}
+		}
 	}
-	srcFile, err := yamlfile.ParseFile(srcPath)
-	if err != nil {
-		return nil, fmt.Errorf(T("cannot read source file %s: %v"), srcPath, err)
-	}
+	return vals
+}
 
-	entries := make(map[string]string)
-	for key, v := range srcFile.SourceValues() {
-		entries[key] = lockfile.KVEntryContent(key, v)
-	}
-	return entries, nil
+func collectYAMLSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
+	return collectSimpleKVSourceEntries(rt, func(path string) (kvSourceFile, error) {
+		return yamlfile.ParseFile(path)
+	})
 }
 
 func collectMarkdownSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
@@ -642,11 +665,23 @@ func collectMarkdownSourceEntries(rt config.ResolvedTarget) (map[string]string, 
 }
 
 func collectPropertiesSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
+	return collectSimpleKVSourceEntries(rt, func(path string) (kvSourceFile, error) {
+		return propfile.ParseFile(path)
+	})
+}
+
+func collectFlutterSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
+	return collectSimpleKVSourceEntries(rt, func(path string) (kvSourceFile, error) {
+		return arbfile.ParseFile(path)
+	})
+}
+
+func collectJSKVSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
 	srcPath := rt.ExistingSourcePath()
 	if srcPath == "" {
 		srcPath = rt.SourcePath()
 	}
-	srcFile, err := propfile.ParseFile(srcPath)
+	srcFile, err := jskv.ParseFile(srcPath)
 	if err != nil {
 		return nil, fmt.Errorf(T("cannot read source file %s: %v"), srcPath, err)
 	}
@@ -658,16 +693,25 @@ func collectPropertiesSourceEntries(rt config.ResolvedTarget) (map[string]string
 	return entries, nil
 }
 
-func collectARBSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
-	srcPath := rt.ExistingSourcePath()
-	if srcPath == "" {
-		srcPath = rt.SourcePath()
-	}
-	srcFile, err := arbfile.ParseFile(srcPath)
+func collectDesktopSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
+	srcPath := rt.SourcePath()
+	srcFile, err := desktop.ParseFile(srcPath, rt.Target.SourceLang)
 	if err != nil {
 		return nil, fmt.Errorf(T("cannot read source file %s: %v"), srcPath, err)
 	}
+	entries := make(map[string]string)
+	for key, v := range srcFile.SourceValues() {
+		entries[key] = lockfile.KVEntryContent(key, v)
+	}
+	return entries, nil
+}
 
+func collectPolkitSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
+	srcPath := rt.SourcePath()
+	srcFile, err := polkit.ParseFile(srcPath, rt.Target.SourceLang)
+	if err != nil {
+		return nil, fmt.Errorf(T("cannot read source file %s: %v"), srcPath, err)
+	}
 	entries := make(map[string]string)
 	for key, v := range srcFile.SourceValues() {
 		entries[key] = lockfile.KVEntryContent(key, v)

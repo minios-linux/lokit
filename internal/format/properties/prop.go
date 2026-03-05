@@ -241,7 +241,7 @@ func (f *File) WriteFile(path string) error {
 
 // NewTranslationFile creates an empty target File mirroring src's structure
 // with all values cleared.
-func NewTranslationFile(src *File) *File {
+func NewTranslationFile(src *File, _ string) *File {
 	f := &File{index: make(map[string]int)}
 	for _, ln := range src.lines {
 		idx := len(f.lines)
@@ -268,7 +268,7 @@ func SyncKeys(src, target *File) {
 	}
 
 	// Rebuild from source structure.
-	rebuilt := NewTranslationFile(src)
+	rebuilt := NewTranslationFile(src, "")
 	for k, v := range existing {
 		if _, ok := rebuilt.index[k]; ok {
 			rebuilt.lines[rebuilt.index[k]].value = v

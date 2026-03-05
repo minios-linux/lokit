@@ -182,21 +182,23 @@ func newRootCmd() *cobra.Command {
 		Short: T("Localization Kit: AI-powered translation for multiple formats"),
 		Long: T(`lokit — Localization Kit: AI-powered translation for multiple formats.
 
-Supported project types (auto-detected or configured via lokit.yaml):
+Supported project formats (auto-detected or configured via lokit.yaml):
   gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
   po4a        Documentation translation (man pages, groff/roff markup)
-  i18next     React/i18next JSON translation files
-  vue-i18n    Vue i18n nested JSON translation files
+  i18next     Flat JSON translation files (key-value map)
+  vue-i18n    Nested JSON translation files
   android     Android strings.xml resource files
-  json        Generic JSON translation files
   yaml        YAML translation files
   markdown    Markdown document translation
   properties  Java .properties translation files
   flutter     Flutter ARB (Application Resource Bundle) files
+  js-kv       JavaScript assignment key-value translation files
+  desktop     freedesktop desktop entry translations
+  polkit      PolicyKit XML policy translations
 
 Configuration:
   Project settings are defined in lokit.yaml at the project root.
-  Each project can have multiple translation targets with different types.
+  Each project can have multiple translation targets with different formats.
   See project examples for lokit.yaml format.
 
 AI Providers:
@@ -427,7 +429,7 @@ func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
 	}
 }
 
-// showConfigI18NextStats shows translation stats for an i18next/json target.
+// showConfigI18NextStats shows translation stats for a flat JSON target.
 func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
 	transDir := rt.AbsTranslationsDir()
 	keyVal(T("Translations"), transDir)
@@ -462,7 +464,11 @@ func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		_, translated, untranslated := file.Stats()
+		_, translated, _ := file.Stats()
+		untranslated := srcKeys - translated
+		if untranslated < 0 {
+			untranslated = 0
+		}
 		percent := 0
 		if srcKeys > 0 {
 			percent = translated * 100 / srcKeys
@@ -503,7 +509,11 @@ func showConfigAndroidStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		_, translated, untranslated := file.Stats()
+		_, translated, _ := file.Stats()
+		untranslated := srcTotal - translated
+		if untranslated < 0 {
+			untranslated = 0
+		}
 		percent := 0
 		if srcTotal > 0 {
 			percent = translated * 100 / srcTotal
@@ -658,7 +668,11 @@ func showI18NextStats(proj *config.Project) {
 			continue
 		}
 
-		_, translated, untranslated := file.Stats()
+		_, translated, _ := file.Stats()
+		untranslated := srcKeys - translated
+		if untranslated < 0 {
+			untranslated = 0
+		}
 		percent := 0
 		if srcKeys > 0 {
 			percent = translated * 100 / srcKeys

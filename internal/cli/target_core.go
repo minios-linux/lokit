@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strings"
 
@@ -316,48 +315,115 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	return translate.TranslateAll(ctx, langTasks, opts)
 }
 
-// translateI18NextTarget translates i18next JSON files.
+// translateI18NextTarget translates flat JSON translation files.
 func translateI18NextTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
-	transDir := rt.AbsTranslationsDir()
-
-	logInfo(T("Provider: %s (%s), Model: %s"), prov.Name, prov.ID, prov.Model)
-	logInfo(T("Translations dir: %s"), transDir)
-	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
-
-	// Build a Project-like structure for reuse with existing i18next code
-	proj := &config.Project{
-		Name:               rt.Target.Name,
-		Type:               config.ProjectTypeI18Next,
-		I18NextDir:         transDir,
-		I18NextPathPattern: rt.Target.Pattern,
-		SourceLang:         rt.Target.SourceLang,
-		Languages:          langs,
-	}
-
-	runTranslateI18Next(proj, &rt.Target, prov, a)
-	return nil
+	return translateJSONLikeTarget(ctx, rt, prov, a, langs)
 }
 
-// translateJSONTarget translates simple JSON translation files { "translations": {...} }.
-func translateJSONTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
 	transDir := rt.AbsTranslationsDir()
 
 	logInfo(T("Provider: %s (%s), Model: %s"), prov.Name, prov.ID, prov.Model)
 	logInfo(T("Translations dir: %s"), transDir)
 	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
 
-	// JSON targets can use the same i18next code path since the format is compatible
-	proj := &config.Project{
-		Name:               rt.Target.Name,
-		Type:               config.ProjectTypeI18Next,
-		I18NextDir:         transDir,
-		I18NextPathPattern: rt.Target.Pattern,
-		SourceLang:         rt.Target.SourceLang,
-		Languages:          langs,
+	srcPath := rt.SourcePath()
+	srcFile, err := i18next.ParseFile(srcPath)
+	if err != nil {
+		return fmt.Errorf(T("cannot read source language file %s: %w"), srcPath, err)
+	}
+	srcKeys := srcFile.Keys()
+	logInfo(T("Source keys (%s): %d"), rt.Target.SourceLang, len(srcKeys))
+
+	if a.dryRun {
+		for _, lang := range langs {
+			filePath := rt.TranslationPath(lang)
+			file, err := i18next.ParseFile(filePath)
+			if err != nil {
+				langName := i18next.ResolveMeta(lang).Name
+				logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, len(srcKeys))
+				continue
+			}
+			count := len(file.UntranslatedKeys())
+			if a.retranslate {
+				count = len(file.Keys())
+			}
+			langName := i18next.ResolveMeta(lang).Name
+			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
+		}
+		return nil
 	}
 
-	runTranslateI18Next(proj, &rt.Target, prov, a)
-	return nil
+	parallelMode := translate.ParallelSequential
+	if a.parallel {
+		parallelMode = translate.ParallelFullParallel
+	}
+
+	systemPrompt := a.prompt
+	if systemPrompt == "" {
+		systemPrompt = rt.Target.Prompt
+	}
+
+	opts := translate.Options{
+		Provider:            prov,
+		ChunkSize:           a.chunkSize,
+		ParallelMode:        parallelMode,
+		MaxConcurrent:       a.maxConcurrent,
+		RequestDelay:        a.requestDelay,
+		Timeout:             a.timeout,
+		MaxRetries:          a.maxRetries,
+		RetranslateExisting: a.retranslate,
+		SystemPrompt:        systemPrompt,
+		PromptType:          "i18next",
+		Verbose:             a.verbose,
+		LockFile:            a.lockFile,
+		LockTarget:          rt.Target.Name,
+		ForceTranslate:      a.force,
+		OnProgress: func(lang string, done, total int) {
+			logInfo(T("  %s: %d/%d"), lang, done, total)
+		},
+		OnLog: func(format string, args ...any) {
+			logInfo(format, args...)
+		},
+		OnError: func(format string, args ...any) {
+			logError(format, args...)
+		},
+	}
+
+	setExclusionOpts(&opts, &rt.Target)
+
+	var langTasks []translate.KVLangTask
+	for _, lang := range langs {
+		filePath := rt.TranslationPath(lang)
+		file, err := i18next.ParseFile(filePath)
+		if err != nil {
+			meta := i18next.ResolveMeta(lang)
+			file = &i18next.File{Meta: meta, Translations: make(map[string]string)}
+			for _, key := range srcKeys {
+				file.Translations[key] = ""
+			}
+			logInfo(T("Auto-creating %s with %d keys"), filePath, len(srcKeys))
+		}
+
+		if !a.retranslate && len(file.UntranslatedKeys()) == 0 {
+			continue
+		}
+
+		langTasks = append(langTasks, translate.KVLangTask{
+			Lang:         lang,
+			LangName:     i18next.ResolveMeta(lang).Name,
+			FilePath:     filePath,
+			File:         file,
+			SourceValues: srcFile.SourceValues(),
+		})
+	}
+
+	if len(langTasks) == 0 {
+		logSuccess(T("All UI translations are complete!"))
+		return nil
+	}
+
+	return translate.TranslateAllKV(ctx, langTasks, opts, translate.I18NextChunkTranslator())
 }
 
 // translateAndroidTarget translates Android strings.xml files.
@@ -451,7 +517,7 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		file, err := android.ParseFile(filePath)
 		if err != nil {
 			// Auto-create translation file from source with empty values
-			file = android.NewTranslationFile(srcFile)
+			file = android.NewTranslationFile(srcFile, lang)
 			logInfo(T("Auto-creating %s with %d strings"), filePath, srcTotal)
 		} else {
 			// Sync keys: add any new keys from source
@@ -512,188 +578,4 @@ func filterOutLang(langs []string, exclude string) []string {
 		}
 	}
 	return result
-}
-
-// ---------------------------------------------------------------------------
-// i18next translate
-// ---------------------------------------------------------------------------
-
-func runTranslateI18Next(proj *config.Project, target *config.Target, prov translate.Provider, a translateArgs) {
-	// Load source language file for key reference
-	srcPath := proj.I18NextPath(proj.SourceLang)
-	srcFile, err := i18next.ParseFile(srcPath)
-	if err != nil {
-		logError(T("Cannot read source language file %s: %v"), srcPath, err)
-		os.Exit(1)
-	}
-	srcKeys := srcFile.Keys()
-
-	// Determine target languages
-	var targetLangs []string
-	if a.langs != "" {
-		targetLangs = strings.Split(a.langs, ",")
-	} else {
-		for _, lang := range proj.Languages {
-			if lang == proj.SourceLang {
-				continue
-			}
-			filePath := proj.I18NextPath(lang)
-			file, err := i18next.ParseFile(filePath)
-			if err != nil {
-				// File doesn't exist or can't be read — needs translation
-				targetLangs = append(targetLangs, lang)
-				continue
-			}
-			untranslated := file.UntranslatedKeys()
-			if len(untranslated) > 0 || a.retranslate {
-				targetLangs = append(targetLangs, lang)
-			}
-		}
-	}
-
-	// Filter out source language
-	filtered := targetLangs[:0]
-	for _, lang := range targetLangs {
-		if lang != proj.SourceLang {
-			filtered = append(filtered, lang)
-		}
-	}
-	targetLangs = filtered
-
-	if len(targetLangs) == 0 {
-		logSuccess(T("All UI translations are complete!"))
-		return
-	}
-
-	// Parallel mode
-	parallelMode := translate.ParallelSequential
-	if a.parallel {
-		parallelMode = translate.ParallelFullParallel
-	}
-
-	logInfo(T("Provider: %s (%s), Model: %s"), prov.Name, prov.ID, prov.Model)
-	if a.parallel {
-		logInfo(T("Parallel: enabled, max concurrent: %d"), a.maxConcurrent)
-	} else {
-		logInfo(T("Parallel: disabled (sequential)"))
-	}
-	logInfo(T("Source keys (%s): %d"), proj.SourceLang, len(srcKeys))
-
-	if len(targetLangs) > 0 {
-		logInfo(T("Translating UI strings: %s"), strings.Join(targetLangs, ", "))
-	}
-
-	// Dry run
-	if a.dryRun {
-		for _, lang := range targetLangs {
-			filePath := proj.I18NextPath(lang)
-			file, err := i18next.ParseFile(filePath)
-			if err != nil {
-				langName := i18next.ResolveMeta(lang).Name
-				logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, len(srcKeys))
-				continue
-			}
-			untranslated := file.UntranslatedKeys()
-			count := len(untranslated)
-			if a.retranslate {
-				count = len(file.Keys())
-			}
-			langName := i18next.ResolveMeta(lang).Name
-			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
-		}
-		return
-	}
-
-	// Setup signal handling for graceful cancellation
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, os.Interrupt)
-	go func() {
-		<-sigCh
-		logWarning(T("Interrupted, saving progress..."))
-		cancel()
-	}()
-
-	// Build translation options
-	opts := translate.Options{
-		Provider:            prov,
-		ChunkSize:           a.chunkSize,
-		ParallelMode:        parallelMode,
-		MaxConcurrent:       a.maxConcurrent,
-		RequestDelay:        a.requestDelay,
-		Timeout:             a.timeout,
-		MaxRetries:          a.maxRetries,
-		RetranslateExisting: a.retranslate,
-		SystemPrompt:        a.prompt,  // User-provided custom prompt
-		PromptType:          "i18next", // Use i18next-specific prompt template
-		Verbose:             a.verbose,
-		LockFile:            a.lockFile,
-		LockTarget:          proj.Name,
-		ForceTranslate:      a.force,
-		OnProgress: func(lang string, done, total int) {
-			logInfo(T("  %s: %d/%d"), lang, done, total)
-		},
-		OnLog: func(format string, args ...any) {
-			logInfo(format, args...)
-		},
-		OnError: func(format string, args ...any) {
-			logError(format, args...)
-		},
-	}
-
-	if target != nil {
-		setExclusionOpts(&opts, target)
-	}
-
-	// Translate UI strings
-	hadErrors := false
-	if len(targetLangs) > 0 {
-		// Build language tasks
-		var langTasks []translate.JSONLangTask
-		for _, lang := range targetLangs {
-			filePath := proj.I18NextPath(lang)
-			file, err := i18next.ParseFile(filePath)
-			if err != nil {
-				// Auto-create file with all keys empty
-				meta := i18next.ResolveMeta(lang)
-				file = &i18next.File{
-					Meta:         meta,
-					Translations: make(map[string]string),
-				}
-				for _, key := range srcKeys {
-					file.Translations[key] = ""
-				}
-				logInfo(T("Auto-creating %s with %d keys"), filePath, len(srcKeys))
-			}
-
-			langName := i18next.ResolveMeta(lang).Name
-
-			langTasks = append(langTasks, translate.JSONLangTask{
-				Lang:     lang,
-				LangName: langName,
-				File:     file,
-				FilePath: filePath,
-			})
-		}
-
-		if len(langTasks) > 0 {
-			err := translate.TranslateAllJSON(ctx, langTasks, opts)
-			if err != nil {
-				if ctx.Err() != nil {
-					logWarning(T("Translation interrupted, partial progress saved"))
-					os.Exit(0)
-				}
-				logError(T("UI translation failed: %v"), err)
-				hadErrors = true
-			}
-		}
-	}
-
-	if hadErrors {
-		logError(T("Translation completed with errors"))
-		os.Exit(1)
-	}
-	logSuccess(T("Translation complete!"))
 }

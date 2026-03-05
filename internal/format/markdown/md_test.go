@@ -142,7 +142,7 @@ func TestStats_Empty(t *testing.T) {
 
 func TestUntranslatedKeys_AfterNewTranslationFile(t *testing.T) {
 	src, _ := Parse([]byte("---\ntitle: Hello\n---\n\n# Body\n\nText here.\n"))
-	target := NewTranslationFile(src)
+	target := NewTranslationFile(src, "ru")
 	untr := target.UntranslatedKeys()
 	if len(untr) != len(src.Keys()) {
 		t.Errorf("expected all %d keys untranslated, got %d: %v", len(src.Keys()), len(untr), untr)
@@ -198,7 +198,7 @@ func TestMarshal_FrontmatterPreserved(t *testing.T) {
 
 func TestNewTranslationFile_ClearsValues(t *testing.T) {
 	src, _ := Parse([]byte("# Hello\n\nWorld.\n"))
-	target := NewTranslationFile(src)
+	target := NewTranslationFile(src, "ru")
 	for _, key := range target.Keys() {
 		val, _ := target.Get(key)
 		if val != "" {

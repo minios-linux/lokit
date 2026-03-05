@@ -132,7 +132,7 @@ func TestMarshal_PreservesCommentsAndBlanks(t *testing.T) {
 func TestNewTranslationFile_ClearsValues(t *testing.T) {
 	src := "a=hello\nb=world\n"
 	srcFile, _ := Parse([]byte(src))
-	target := NewTranslationFile(srcFile)
+	target := NewTranslationFile(srcFile, "ru")
 	if v, _ := target.Get("a"); v != "" {
 		t.Errorf("expected empty value for a, got %q", v)
 	}

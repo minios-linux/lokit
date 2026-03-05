@@ -94,7 +94,7 @@ func TestLoadLokitFileDefaultsAndValidation(t *testing.T) {
 		yaml := "languages: [ru, de]\n" +
 			"targets:\n" +
 			"  - name: app\n" +
-			"    type: gettext\n" +
+			"    format: gettext\n" +
 			"    dir: po\n" +
 			"    pot: messages.pot\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
@@ -128,7 +128,7 @@ func TestLoadLokitFileDefaultsAndValidation(t *testing.T) {
 
 	t.Run("rejects deprecated keys", func(t *testing.T) {
 		dir := t.TempDir()
-		yaml := "targets:\n  - name: app\n    type: gettext\n    po_dir: po\n"
+		yaml := "targets:\n  - name: app\n    format: gettext\n    po_dir: po\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
 			t.Fatalf("WriteFile: %v", err)
 		}
@@ -143,7 +143,7 @@ func TestLoadLokitFileDefaultsAndValidation(t *testing.T) {
 
 	t.Run("validates required dir", func(t *testing.T) {
 		dir := t.TempDir()
-		yaml := "targets:\n  - name: app\n    type: gettext\n"
+		yaml := "targets:\n  - name: app\n    format: gettext\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
 			t.Fatalf("WriteFile: %v", err)
 		}
@@ -158,7 +158,7 @@ func TestLoadLokitFileDefaultsAndValidation(t *testing.T) {
 
 	t.Run("validates required pot for gettext", func(t *testing.T) {
 		dir := t.TempDir()
-		yaml := "targets:\n  - name: app\n    type: gettext\n    dir: po\n"
+		yaml := "targets:\n  - name: app\n    format: gettext\n    dir: po\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
 			t.Fatalf("WriteFile: %v", err)
 		}
@@ -173,7 +173,7 @@ func TestLoadLokitFileDefaultsAndValidation(t *testing.T) {
 
 	t.Run("validates required config for po4a", func(t *testing.T) {
 		dir := t.TempDir()
-		yaml := "targets:\n  - name: docs\n    type: po4a\n"
+		yaml := "targets:\n  - name: docs\n    format: po4a\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
 			t.Fatalf("WriteFile: %v", err)
 		}
@@ -231,11 +231,11 @@ func TestLokitFileResolveAutoDetectAndAllLanguages(t *testing.T) {
 
 func TestLoadLokitFilePatternValidation(t *testing.T) {
 	t.Run("requires pattern for file-per-language targets", func(t *testing.T) {
-		types := []string{TargetTypeI18Next, TargetTypeVueI18n, TargetTypeJSON, TargetTypeYAML, TargetTypeProperties, TargetTypeFlutter}
+		types := []string{TargetTypeI18Next, TargetTypeVueI18n, TargetTypeYAML, TargetTypeProperties, TargetTypeFlutter, TargetTypeJSKV}
 		for _, targetType := range types {
 			t.Run(targetType, func(t *testing.T) {
 				dir := t.TempDir()
-				yaml := "targets:\n  - name: app\n    type: " + targetType + "\n    dir: i18n\n"
+				yaml := "targets:\n  - name: app\n    format: " + targetType + "\n    dir: i18n\n"
 				if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
 					t.Fatalf("WriteFile: %v", err)
 				}
@@ -253,7 +253,7 @@ func TestLoadLokitFilePatternValidation(t *testing.T) {
 
 	t.Run("rejects pattern without lang placeholder", func(t *testing.T) {
 		dir := t.TempDir()
-		yaml := "targets:\n  - name: app\n    type: i18next\n    dir: i18n\n    pattern: common.json\n"
+		yaml := "targets:\n  - name: app\n    format: i18next\n    dir: i18n\n    pattern: common.json\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
 			t.Fatalf("WriteFile: %v", err)
 		}
@@ -264,6 +264,27 @@ func TestLoadLokitFilePatternValidation(t *testing.T) {
 		}
 		if !strings.Contains(err.Error(), "pattern") {
 			t.Fatalf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("rejects unknown format values", func(t *testing.T) {
+		formats := []string{"unsupported-a", "unsupported-b", "unsupported-c", "unsupported-d"}
+		for _, format := range formats {
+			t.Run(format, func(t *testing.T) {
+				dir := t.TempDir()
+				yaml := "targets:\n  - name: app\n    format: " + format + "\n    dir: i18n\n    pattern: '{lang}.json'\n"
+				if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+					t.Fatalf("WriteFile: %v", err)
+				}
+
+				_, err := LoadLokitFile(dir)
+				if err == nil {
+					t.Fatal("expected validation error")
+				}
+				if !strings.Contains(err.Error(), "unknown type") {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			})
 		}
 	})
 }
@@ -327,7 +348,7 @@ func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 			"  base_url: http://localhost:11434\n" +
 			"targets:\n" +
 			"  - name: app\n" +
-			"    type: i18next\n" +
+			"    format: i18next\n" +
 			"    dir: i18n\n" +
 			"    pattern: '{lang}.json'\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
@@ -351,7 +372,7 @@ func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 			"  base_url: https://example.com/v1\n" +
 			"targets:\n" +
 			"  - name: app\n" +
-			"    type: i18next\n" +
+			"    format: i18next\n" +
 			"    dir: i18n\n" +
 			"    pattern: '{lang}.json'\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
@@ -373,7 +394,7 @@ func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 			"languages: [pt-br]\n" +
 			"targets:\n" +
 			"  - name: app\n" +
-			"    type: i18next\n" +
+			"    format: i18next\n" +
 			"    dir: i18n\n" +
 			"    pattern: '{lang}.json'\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
@@ -395,7 +416,7 @@ func TestLoadLokitFileRejectsLegacyKeysAndDuplicateNames(t *testing.T) {
 		dir := t.TempDir()
 		yaml := "targets:\n" +
 			"  - name: app\n" +
-			"    type: i18next\n" +
+			"    format: i18next\n" +
 			"    dir: i18n\n" +
 			"    path_pattern: '{lang}.json'\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
@@ -414,11 +435,11 @@ func TestLoadLokitFileRejectsLegacyKeysAndDuplicateNames(t *testing.T) {
 		dir := t.TempDir()
 		yaml := "targets:\n" +
 			"  - name: app\n" +
-			"    type: i18next\n" +
+			"    format: i18next\n" +
 			"    dir: i18n\n" +
 			"    pattern: '{lang}.json'\n" +
 			"  - name: app\n" +
-			"    type: yaml\n" +
+			"    format: yaml\n" +
 			"    dir: locales\n" +
 			"    pattern: '{lang}.yaml'\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
@@ -443,7 +464,7 @@ func TestLoadLokitFileDoesNotAutoLoadNestedConfigs(t *testing.T) {
 	}
 	nestedYAML := "targets:\n" +
 		"  - name: web\n" +
-		"    type: i18next\n" +
+		"    format: i18next\n" +
 		"    dir: i18n\n" +
 		"    pattern: '{lang}.json'\n"
 	if err := os.WriteFile(filepath.Join(nested, LokitFileName), []byte(nestedYAML), 0644); err != nil {
@@ -456,5 +477,82 @@ func TestLoadLokitFileDoesNotAutoLoadNestedConfigs(t *testing.T) {
 	}
 	if lf != nil {
 		t.Fatalf("expected nil for root without lokit.yaml, got %#v", lf)
+	}
+}
+
+func TestLoadLokitFileAcceptsFormatField(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte("source_lang: en\ntargets:\n  - name: ui\n    format: i18next\n    dir: i18n\n    pattern: '{lang}.json'\n"), 0644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	lf, err := LoadLokitFile(dir)
+	if err != nil {
+		t.Fatalf("LoadLokitFile() error = %v", err)
+	}
+	if len(lf.Targets) != 1 {
+		t.Fatalf("expected 1 target, got %d", len(lf.Targets))
+	}
+	if lf.Targets[0].Type != TargetTypeI18Next {
+		t.Fatalf("expected type %q, got %q", TargetTypeI18Next, lf.Targets[0].Type)
+	}
+}
+
+func TestResolveSurfaces(t *testing.T) {
+	dir := t.TempDir()
+	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: app\n    root: .\n    surfaces:\n      - name: ui\n        format: i18next\n        dir: i18n\n        pattern: '{lang}.json'\n"
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(dir, "i18n"), 0755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "i18n", "en.json"), []byte("{}"), 0644); err != nil {
+		t.Fatalf("write source: %v", err)
+	}
+
+	lf, err := LoadLokitFile(dir)
+	if err != nil {
+		t.Fatalf("LoadLokitFile() error = %v", err)
+	}
+	resolved, err := lf.Resolve(dir)
+	if err != nil {
+		t.Fatalf("Resolve() error = %v", err)
+	}
+	if len(resolved) != 1 {
+		t.Fatalf("expected 1 resolved surface, got %d", len(resolved))
+	}
+	if resolved[0].Target.Name != "app/ui" {
+		t.Fatalf("unexpected resolved name: %q", resolved[0].Target.Name)
+	}
+}
+
+func TestResolveExtractIDExpansion(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "data"), 0755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "data", "alpha.txt"), []byte("a"), 0644); err != nil {
+		t.Fatalf("write alpha: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "data", "beta.txt"), []byte("b"), 0644); err != nil {
+		t.Fatalf("write beta: %v", err)
+	}
+
+	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: matrix\n    format: markdown\n    source: data/{id}.txt\n    target: data/{id}.{lang}.txt\n    extract:\n      source: data/{id}.txt\n      id_field: id\n      fields: [text]\n"
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	lf, err := LoadLokitFile(dir)
+	if err != nil {
+		t.Fatalf("LoadLokitFile() error = %v", err)
+	}
+	resolved, err := lf.Resolve(dir)
+	if err != nil {
+		t.Fatalf("Resolve() error = %v", err)
+	}
+	if len(resolved) != 2 {
+		t.Fatalf("expected 2 expanded targets, got %d", len(resolved))
 	}
 }

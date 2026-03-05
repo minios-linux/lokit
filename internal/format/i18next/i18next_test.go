@@ -28,9 +28,9 @@ func TestParseAndMarshal_PreservesOrderAndCounts(t *testing.T) {
 		t.Fatalf("unexpected key order: %v", keys)
 	}
 
-	total, translated, untranslated := f.Stats()
-	if total != 3 || translated != 2 || untranslated != 1 {
-		t.Fatalf("unexpected stats: total=%d translated=%d untranslated=%d", total, translated, untranslated)
+	total, translated, pct := f.Stats()
+	if total != 3 || translated != 2 || pct <= 66 || pct >= 67 {
+		t.Fatalf("unexpected stats: total=%d translated=%d pct=%f", total, translated, pct)
 	}
 
 	out, err := f.Marshal()
@@ -66,5 +66,25 @@ func TestResolveMeta_NormalizationAndFallback(t *testing.T) {
 	unknown := ResolveMeta("zz-ZZ")
 	if unknown.Name != "zz-ZZ" || unknown.Flag != "" {
 		t.Fatalf("unexpected unknown metadata fallback: %#v", unknown)
+	}
+}
+
+func TestMarshal_WithoutMeta_DoesNotInjectMeta(t *testing.T) {
+	data := []byte(`{
+  "translations": {
+    "Home": "Home"
+  }
+}`)
+
+	f, err := Parse(data)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+	out, err := f.Marshal()
+	if err != nil {
+		t.Fatalf("Marshal error: %v", err)
+	}
+	if strings.Contains(string(out), `"_meta"`) {
+		t.Fatalf("unexpected _meta injection: %s", string(out))
 	}
 }

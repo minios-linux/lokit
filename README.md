@@ -1,6 +1,6 @@
 # lokit — Localization Kit
 
-**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, vue-i18n JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, and generic JSON formats — either auto-detected or configured via `lokit.yaml`.
+**lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, vue-i18n JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop entries, and polkit policy files — either auto-detected or configured via `lokit.yaml`.
 
 ## Features
 
@@ -20,12 +20,14 @@
 | **po4a** | `.po` + `po4a.cfg` | Documentation / manpages |
 | **i18next** | `.json` | Web apps with i18next |
 | **vue-i18n** | `.json` | Vue apps with nested JSON locales |
-| **json** | `.json` | Simple JSON key-value translations |
 | **android** | `strings.xml` | Android resource files |
 | **yaml** | `.yaml` / `.yml` | YAML key-value translations |
 | **markdown** | `.md` | Markdown document translation |
 | **properties** | `.properties` | Java application translations |
 | **flutter** | `.arb` | Flutter Application Resource Bundle |
+| **js-kv** | `.js` | JavaScript assignment key-value translations |
+| **desktop** | `.desktop` | freedesktop desktop entry translations |
+| **polkit** | `.policy` | PolicyKit XML policy translations |
 
 ## Supported AI Providers
 
@@ -50,7 +52,7 @@ curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/maste
 Install specific version:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.9.1
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash -s -- --version v0.9.2
 ```
 
 Install options:
@@ -111,22 +113,22 @@ source_lang: en
 
 targets:
   - name: app
-    type: gettext
+    format: gettext
     dir: po
 
   - name: docs
-    type: po4a
+    format: po4a
     root: manpages
     config: po4a.cfg
 
   - name: website
-    type: i18next
+    format: i18next
     root: submodules/site
     dir: public/translations
     languages: [de, es, fr, pt-BR, ru]
 
   - name: mobile
-    type: flutter
+    format: flutter
     dir: lib/l10n
 ```
 
@@ -172,7 +174,7 @@ provider:
 # Translation targets
 targets:
   - name: my-app              # Display name (required)
-    type: gettext              # Type (required, see below)
+    format: gettext            # Format (required, see below)
     root: .                    # Working directory relative to config (default: .)
 
     # --- gettext options ---
@@ -184,7 +186,7 @@ targets:
     # --- po4a options ---
     config: po4a.cfg           # po4a config path relative to root
 
-    # --- i18next / vue-i18n / json options ---
+    # --- i18next / vue-i18n options ---
     dir: public/translations      # JSON directory
     pattern: "{lang}/common.json" # Required per-language file layout
 
@@ -211,8 +213,6 @@ targets:
 
 **vue-i18n** — For Vue applications with nested JSON locale files (for example `buttons.save: "Save"` in JSON object form).
 
-**json** — For simple JSON translations. JSON files with `translations` block.
-
 **android** — For Android applications. Translates `strings.xml` resource files.
 
 **yaml** — For YAML key-value translation files. Define `pattern` (example: `{lang}.yaml`).
@@ -225,7 +225,7 @@ targets:
 
 ### Custom file layouts with `pattern`
 
-For file-per-language targets (`i18next`, `vue-i18n`, `json`, `yaml`, `properties`, `flutter`),
+For file-per-language targets (`i18next`, `vue-i18n`, `yaml`, `properties`, `flutter`, `js-kv`),
 you must define `pattern`.
 
 - `pattern` is relative to `dir`
@@ -235,12 +235,12 @@ you must define `pattern`.
 ```yaml
 targets:
   - name: frontend
-    type: i18next
+    format: i18next
     dir: frontend/src/i18n
     pattern: "{lang}/common.json"
 
   - name: java
-    type: properties
+    format: properties
     dir: src/main/resources/i18n
     pattern: "messages_{lang}.properties"
 ```
@@ -267,7 +267,7 @@ lokit init --lang ru,de        # Specific languages
 
 - Runs `xgettext` for gettext projects
 - Runs `po4a --no-translations` for po4a projects
-- Creates missing language files for i18next, vue-i18n, json, yaml, properties, flutter
+- Creates missing language files for i18next, vue-i18n, yaml, properties, flutter, js-kv
 - Idempotent — safe to run repeatedly
 
 ### `lokit translate`
@@ -330,17 +330,17 @@ Show version, commit hash, and build date.
 languages: [de, es, fr, id, it, pt, pt-BR, ru]
 targets:
   - name: scripts
-    type: gettext
+    format: gettext
     dir: po
     pot: messages.pot
 
   - name: manpages
-    type: po4a
+    format: po4a
     root: manpages
     config: po4a.cfg
 
   - name: cli-tool
-    type: gettext
+    format: gettext
     root: submodules/my-tool
     dir: po
     pot: messages.pot
@@ -358,7 +358,7 @@ languages: [de, es, fr, ru, ja, zh]
 source_lang: en
 targets:
   - name: app
-    type: flutter
+    format: flutter
     dir: lib/l10n
     pattern: app_{lang}.arb
 ```
@@ -376,7 +376,7 @@ languages: [de, es, fr, ru]
 source_lang: en
 targets:
   - name: app
-    type: properties
+    format: properties
     dir: src/main/resources
     pattern: messages_{lang}.properties
 ```
@@ -430,7 +430,7 @@ All user data is stored in `~/.local/share/lokit/` (respects `$XDG_DATA_HOME`):
 
 ### System Prompts
 
-Each target type has a built-in system prompt optimized for its format (gettext, po4a/docs, i18next/vue-i18n/json, android, yaml, markdown, properties, flutter). Prompts can be customized in two ways:
+Each target format has a built-in system prompt optimized for its structure (gettext, po4a/docs, i18next, vue-i18n, android, yaml, markdown, properties, flutter, js-kv, desktop, polkit). Prompts can be customized in two ways:
 
 - **Per target** — set `prompt:` in the target config in `lokit.yaml`
 - **Per run** — use the `--prompt` flag on the command line
@@ -464,7 +464,7 @@ You can control which keys are translated per target in `lokit.yaml`:
 ```yaml
 targets:
   - name: ui
-    type: i18next
+    format: i18next
     dir: translations
     pattern: "{lang}.json"
     source_lang: en
@@ -496,7 +496,7 @@ targets:
 
 - `ignored_keys` are always skipped, even with `--force`.
 - `locked_keys` and `locked_patterns` are skipped during normal and `--all` runs. Only `--force` overrides them.
-- These settings work with all formats: gettext PO, po4a, i18next, Android, YAML, Markdown, .properties, and Flutter ARB.
+- These settings work with all formats: gettext PO, po4a, i18next, vue-i18n, Android, YAML, Markdown, .properties, Flutter ARB, js-kv, desktop, and polkit.
 
 ## Project Structure Support
 

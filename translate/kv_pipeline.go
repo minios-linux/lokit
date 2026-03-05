@@ -4,45 +4,20 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
+
+	formatfile "github.com/minios-linux/lokit/internal/format"
 )
 
-type kvFile interface {
-	Keys() []string
-	UntranslatedKeys() []string
-	Set(key, value string)
-	Stats() (total, translated int, pct float64)
-	WriteFile(path string) error
-}
-
-type kvFileAdapter struct {
-	keysFn         func() []string
-	untranslatedFn func() []string
-	setFn          func(string, string)
-	statsFn        func() (int, int, float64)
-	writeFn        func(string) error
-}
-
-func (f kvFileAdapter) Keys() []string { return f.keysFn() }
-
-func (f kvFileAdapter) UntranslatedKeys() []string { return f.untranslatedFn() }
-
-func (f kvFileAdapter) Set(key, value string) { f.setFn(key, value) }
-
-func (f kvFileAdapter) Stats() (total, translated int, pct float64) { return f.statsFn() }
-
-func (f kvFileAdapter) WriteFile(path string) error { return f.writeFn(path) }
-
-type kvLangTask struct {
+type KVLangTask struct {
 	Lang         string
 	LangName     string
 	FilePath     string
-	File         kvFile
+	File         formatfile.KVFile
 	SourceValues map[string]string
 }
 
-type kvChunkTranslator interface {
+type KVChunkTranslator interface {
 	BuildUserPrompt(keys []string, srcVals map[string]string, opts Options) string
 	DefaultChunkSize() int
 }
@@ -71,14 +46,20 @@ func (markdownChunkTranslator) BuildUserPrompt(keys []string, srcVals map[string
 
 func (markdownChunkTranslator) DefaultChunkSize() int { return 1 }
 
-func TranslateAllKV(ctx context.Context, langTasks []kvLangTask, opts Options, translator kvChunkTranslator) error {
+func DefaultKVChunkTranslator() KVChunkTranslator { return defaultKVChunkTranslator{} }
+
+func I18NextChunkTranslator() KVChunkTranslator { return i18nextChunkTranslator{} }
+
+func MarkdownKVChunkTranslator() KVChunkTranslator { return markdownChunkTranslator{} }
+
+func TranslateAllKV(ctx context.Context, langTasks []KVLangTask, opts Options, translator KVChunkTranslator) error {
 	if opts.ParallelMode == ParallelFullParallel {
 		return translateKVFullParallel(ctx, langTasks, opts, translator)
 	}
 	return translateKVSequential(ctx, langTasks, opts, translator)
 }
 
-func translateKVSequential(ctx context.Context, langTasks []kvLangTask, opts Options, translator kvChunkTranslator) error {
+func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Options, translator KVChunkTranslator) error {
 	var failedLangs []string
 	for _, task := range langTasks {
 		select {
@@ -128,7 +109,7 @@ func translateKVSequential(ctx context.Context, langTasks []kvLangTask, opts Opt
 	return nil
 }
 
-func translateKVFullParallel(ctx context.Context, langTasks []kvLangTask, opts Options, translator kvChunkTranslator) error {
+func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts Options, translator KVChunkTranslator) error {
 	rl := &rateLimitState{}
 
 	type flatTask struct {
@@ -136,7 +117,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []kvLangTask, opts O
 		langName     string
 		keys         []string
 		filePath     string
-		file         kvFile
+		file         formatfile.KVFile
 		sourceValues map[string]string
 	}
 
@@ -174,64 +155,35 @@ func translateKVFullParallel(ctx context.Context, langTasks []kvLangTask, opts O
 		return nil
 	}
 
-	maxConcurrent := opts.MaxConcurrent
-	if maxConcurrent <= 0 {
-		maxConcurrent = len(tasks)
-	}
+	err := runParallelGeneric(ctx, tasks, opts.effectiveMaxConcurrent(), opts.RequestDelay, func(ctx context.Context, t flatTask) error {
+		taskOpts := opts
+		taskOpts.Language = t.lang
+		taskOpts.LanguageName = t.langName
 
-	sem := make(chan struct{}, maxConcurrent)
-	var wg sync.WaitGroup
-	var failedMu sync.Mutex
-	var failedLangs []string
-
-	for _, t := range tasks {
-		t := t
-		wg.Add(1)
-		sem <- struct{}{}
-		go func() {
-			defer wg.Done()
-			defer func() { <-sem }()
-
-			select {
-			case <-ctx.Done():
-				return
-			default:
+		opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(t.keys))
+		if err := translateKVFileWithRL(ctx, t.file, t.sourceValues, t.keys, taskOpts, translator, rl); err != nil {
+			if ctx.Err() == nil {
+				saveKVFile(t.file, t.filePath, opts)
 			}
+			return err
+		}
 
-			taskOpts := opts
-			taskOpts.Language = t.lang
-			taskOpts.LanguageName = t.langName
-
-			opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(t.keys))
-			if err := translateKVFileWithRL(ctx, t.file, t.sourceValues, t.keys, taskOpts, translator, rl); err != nil {
-				if ctx.Err() == nil {
-					saveKVFile(t.file, t.filePath, opts)
-					opts.logError("Error translating %s: %v", t.lang, err)
-					failedMu.Lock()
-					failedLangs = append(failedLangs, t.lang)
-					failedMu.Unlock()
-				}
-				return
-			}
-
-			updateLockFileForKV(t.keys, t.sourceValues, taskOpts)
-			saveKVFile(t.file, t.filePath, opts)
-		}()
-	}
-
-	wg.Wait()
-	if len(failedLangs) > 0 {
-		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
+		updateLockFileForKV(t.keys, t.sourceValues, taskOpts)
+		saveKVFile(t.file, t.filePath, opts)
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func translateKVFile(ctx context.Context, file kvFile, srcVals map[string]string, keys []string, opts Options, translator kvChunkTranslator) error {
+func translateKVFile(ctx context.Context, file formatfile.KVFile, srcVals map[string]string, keys []string, opts Options, translator KVChunkTranslator) error {
 	rl := &rateLimitState{}
 	return translateKVFileWithRL(ctx, file, srcVals, keys, opts, translator, rl)
 }
 
-func translateKVFileWithRL(ctx context.Context, file kvFile, srcVals map[string]string, keys []string, opts Options, translator kvChunkTranslator, rl *rateLimitState) error {
+func translateKVFileWithRL(ctx context.Context, file formatfile.KVFile, srcVals map[string]string, keys []string, opts Options, translator KVChunkTranslator, rl *rateLimitState) error {
 	chunkSize := opts.effectiveChunkSize()
 	if chunkSize <= 0 {
 		chunkSize = translator.DefaultChunkSize()
@@ -283,7 +235,7 @@ func translateKVFileWithRL(ctx context.Context, file kvFile, srcVals map[string]
 	return nil
 }
 
-func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]string, systemPrompt string, opts Options, translator kvChunkTranslator, rl *rateLimitState) ([]string, error) {
+func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]string, systemPrompt string, opts Options, translator KVChunkTranslator, rl *rateLimitState) ([]string, error) {
 	userPrompt := translator.BuildUserPrompt(keys, srcVals, opts)
 	text, err := callProvider(ctx, opts.Provider, systemPrompt, userPrompt, rl, opts.effectiveMaxRetries(), opts.Verbose)
 	if err != nil {
@@ -292,7 +244,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 	return parseTranslations(text, len(keys))
 }
 
-func saveKVFile(file kvFile, path string, opts Options) {
+func saveKVFile(file formatfile.KVFile, path string, opts Options) {
 	if err := file.WriteFile(path); err != nil {
 		opts.logError("Error saving %s: %v", path, err)
 		return
@@ -343,128 +295,4 @@ func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, langName 
 	}
 	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
 	return userMsg.String()
-}
-
-func toJSONKVTasks(langTasks []JSONLangTask) []kvLangTask {
-	tasks := make([]kvLangTask, 0, len(langTasks))
-	for _, task := range langTasks {
-		f := task.File
-		tasks = append(tasks, kvLangTask{
-			Lang:     task.Lang,
-			LangName: task.LangName,
-			FilePath: task.FilePath,
-			File: kvFileAdapter{
-				keysFn:         f.Keys,
-				untranslatedFn: f.UntranslatedKeys,
-				setFn: func(key, value string) {
-					if _, ok := f.Translations[key]; ok {
-						f.Translations[key] = value
-					}
-				},
-				statsFn: func() (total, translated int, pct float64) {
-					total, translated, _ = f.Stats()
-					if total > 0 {
-						pct = float64(translated) / float64(total) * 100
-					}
-					return
-				},
-				writeFn: f.WriteFile,
-			},
-			SourceValues: nil,
-		})
-	}
-	return tasks
-}
-
-func toYAMLKVTasks(langTasks []YAMLLangTask) []kvLangTask {
-	tasks := make([]kvLangTask, 0, len(langTasks))
-	for _, task := range langTasks {
-		f := task.File
-		tasks = append(tasks, kvLangTask{
-			Lang:         task.Lang,
-			LangName:     task.LangName,
-			FilePath:     task.FilePath,
-			File:         kvAdapterFromSettable(f.Keys, f.UntranslatedKeys, f.Set, f.Stats, f.WriteFile),
-			SourceValues: task.SourceFile.SourceValues(),
-		})
-	}
-	return tasks
-}
-
-func toMarkdownKVTasks(langTasks []MarkdownLangTask) []kvLangTask {
-	tasks := make([]kvLangTask, 0, len(langTasks))
-	for _, task := range langTasks {
-		f := task.File
-		tasks = append(tasks, kvLangTask{
-			Lang:         task.Lang,
-			LangName:     task.LangName,
-			FilePath:     task.FilePath,
-			File:         kvAdapterFromSettable(f.Keys, f.UntranslatedKeys, f.Set, f.Stats, f.WriteFile),
-			SourceValues: task.SourceFile.SourceValues(),
-		})
-	}
-	return tasks
-}
-
-func toPropertiesKVTasks(langTasks []PropertiesLangTask) []kvLangTask {
-	tasks := make([]kvLangTask, 0, len(langTasks))
-	for _, task := range langTasks {
-		f := task.File
-		tasks = append(tasks, kvLangTask{
-			Lang:         task.Lang,
-			LangName:     task.LangName,
-			FilePath:     task.FilePath,
-			File:         kvAdapterFromSettable(f.Keys, f.UntranslatedKeys, f.Set, f.Stats, f.WriteFile),
-			SourceValues: task.SourceFile.SourceValues(),
-		})
-	}
-	return tasks
-}
-
-func toARBKVTasks(langTasks []ARBLangTask) []kvLangTask {
-	tasks := make([]kvLangTask, 0, len(langTasks))
-	for _, task := range langTasks {
-		f := task.File
-		tasks = append(tasks, kvLangTask{
-			Lang:         task.Lang,
-			LangName:     task.LangName,
-			FilePath:     task.FilePath,
-			File:         kvAdapterFromSettable(f.Keys, f.UntranslatedKeys, f.Set, f.Stats, f.WriteFile),
-			SourceValues: task.SourceFile.SourceValues(),
-		})
-	}
-	return tasks
-}
-
-func toVueI18nKVTasks(langTasks []VueI18nLangTask) []kvLangTask {
-	tasks := make([]kvLangTask, 0, len(langTasks))
-	for _, task := range langTasks {
-		f := task.File
-		tasks = append(tasks, kvLangTask{
-			Lang:         task.Lang,
-			LangName:     task.LangName,
-			FilePath:     task.FilePath,
-			File:         kvAdapterFromSettable(f.Keys, f.UntranslatedKeys, f.Set, f.Stats, f.WriteFile),
-			SourceValues: task.SourceFile.SourceValues(),
-		})
-	}
-	return tasks
-}
-
-func kvAdapterFromSettable(
-	keysFn func() []string,
-	untranslatedFn func() []string,
-	setFn func(string, string) bool,
-	statsFn func() (int, int, float64),
-	writeFn func(string) error,
-) kvFileAdapter {
-	return kvFileAdapter{
-		keysFn:         keysFn,
-		untranslatedFn: untranslatedFn,
-		setFn: func(key, value string) {
-			setFn(key, value)
-		},
-		statsFn: statsFn,
-		writeFn: writeFn,
-	}
 }

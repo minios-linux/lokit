@@ -27,7 +27,7 @@ const (
 type ProjectType string
 
 const (
-	ProjectTypeI18Next ProjectType = "i18next" // i18next JSON translations
+	ProjectTypeI18Next ProjectType = "i18next" // flat JSON translations
 )
 
 // Project holds project configuration used as an internal bridge structure.
@@ -66,12 +66,12 @@ type Project struct {
 	// DocsDir is the directory containing documentation if found.
 	DocsDir string
 
-	// I18NextDir is the directory containing i18next JSON translation files.
+	// I18NextDir is the directory containing flat JSON translation files.
 	// Typically "public/translations" relative to project root.
 	I18NextDir string
 	// SourceLang is the source language code (default "en").
 	SourceLang string
-	// I18NextPathPattern optionally overrides the i18next/json language file
+	// I18NextPathPattern optionally overrides the language file
 	// layout relative to I18NextDir. It must contain "{lang}".
 	I18NextPathPattern string
 

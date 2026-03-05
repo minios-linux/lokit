@@ -45,12 +45,14 @@ func (f *testKVFile) UntranslatedKeys() []string {
 	return out
 }
 
-func (f *testKVFile) Set(key, value string) {
+func (f *testKVFile) Set(key, value string) bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if _, ok := f.values[key]; ok {
 		f.values[key] = value
+		return true
 	}
+	return false
 }
 
 func (f *testKVFile) Stats() (int, int, float64) {
@@ -75,6 +77,16 @@ func (f *testKVFile) WriteFile(path string) error {
 	defer f.mu.Unlock()
 	f.writtenTo = path
 	return nil
+}
+
+func (f *testKVFile) SourceValues() map[string]string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	out := make(map[string]string, len(f.values))
+	for k := range f.values {
+		out[k] = k
+	}
+	return out
 }
 
 func (f *testKVFile) Value(key string) string {
@@ -442,7 +454,7 @@ func TestBuildMarkdownUserPrompt_IncludesMarkdownRules(t *testing.T) {
 	}
 }
 
-func TestToJSONKVTasks_AdapterWritesThroughToTranslations(t *testing.T) {
+func TestI18NextFile_SetAndSourceValues(t *testing.T) {
 	f := &i18next.File{
 		Translations: map[string]string{
 			"Save":   "",
@@ -450,26 +462,24 @@ func TestToJSONKVTasks_AdapterWritesThroughToTranslations(t *testing.T) {
 		},
 	}
 
-	tasks := toJSONKVTasks([]JSONLangTask{{
-		Lang:     "ru",
-		LangName: "Russian",
-		File:     f,
-		FilePath: "ru.json",
-	}})
-
-	if len(tasks) != 1 {
-		t.Fatalf("tasks len = %d, want 1", len(tasks))
+	ok := f.Set("Save", "Сохранить")
+	if !ok {
+		t.Fatal("expected Set on existing key to return true")
 	}
-
-	tasks[0].File.Set("Save", "Сохранить")
 	if got := f.Translations["Save"]; got != "Сохранить" {
-		t.Fatalf("translation was not updated through adapter: got %q", got)
+		t.Fatalf("translation was not updated: got %q", got)
 	}
 
-	// Unknown keys must not be inserted for i18next.
-	tasks[0].File.Set("Unknown", "X")
+	if f.Set("Unknown", "X") {
+		t.Fatal("Set returned true for unknown key")
+	}
 	if _, ok := f.Translations["Unknown"]; ok {
-		t.Fatal("adapter inserted unknown key")
+		t.Fatal("Set inserted unknown key")
+	}
+
+	sourceValues := f.SourceValues()
+	if sourceValues["Save"] != "Save" || sourceValues["Cancel"] != "Cancel" {
+		t.Fatalf("unexpected source values: %#v", sourceValues)
 	}
 }
 
@@ -486,7 +496,7 @@ func TestTranslateAllKVSequential_TranslatesAndSaves(t *testing.T) {
 	defer ts.Close()
 
 	f := newTestKVFile([]string{"a", "b"}, map[string]string{"a": "", "b": ""})
-	tasks := []kvLangTask{{
+	tasks := []KVLangTask{{
 		Lang:         "ru",
 		LangName:     "Russian",
 		FilePath:     "ru.yaml",
@@ -503,7 +513,7 @@ func TestTranslateAllKVSequential_TranslatesAndSaves(t *testing.T) {
 		ParallelMode: ParallelSequential,
 	}
 
-	if err := TranslateAllKV(t.Context(), tasks, opts, defaultKVChunkTranslator{}); err != nil {
+	if err := TranslateAllKV(t.Context(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
 		t.Fatalf("TranslateAllKV error: %v", err)
 	}
 
@@ -529,7 +539,7 @@ func TestTranslateAllKVFullParallel_TranslatesAllTasks(t *testing.T) {
 
 	f1 := newTestKVFile([]string{"k1"}, map[string]string{"k1": ""})
 	f2 := newTestKVFile([]string{"k2"}, map[string]string{"k2": ""})
-	tasks := []kvLangTask{
+	tasks := []KVLangTask{
 		{Lang: "fr", LangName: "French", FilePath: "fr.yaml", File: f1, SourceValues: map[string]string{"k1": "One"}},
 		{Lang: "de", LangName: "German", FilePath: "de.yaml", File: f2, SourceValues: map[string]string{"k2": "Two"}},
 	}
@@ -544,7 +554,7 @@ func TestTranslateAllKVFullParallel_TranslatesAllTasks(t *testing.T) {
 		MaxConcurrent: 2,
 	}
 
-	if err := TranslateAllKV(t.Context(), tasks, opts, defaultKVChunkTranslator{}); err != nil {
+	if err := TranslateAllKV(t.Context(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
 		t.Fatalf("TranslateAllKV error: %v", err)
 	}
 

@@ -44,9 +44,10 @@ func newTranslateCmd() *cobra.Command {
 		Short: T("Translate files using AI"),
 		Long: T(`Translate files using AI providers.
 
-Supports gettext PO, po4a, i18next JSON, Android strings.xml, generic JSON,
-YAML, Markdown, Java .properties, and Flutter ARB formats. Project type is
-auto-detected or configured via lokit.yaml.
+Supports gettext PO, po4a, i18next, vue-i18n, Android strings.xml,
+YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop, and polkit formats.
+Project format is auto-detected or configured via lokit.yaml.
+No --format flag is required.
 
 For gettext/po4a projects, automatically initializes if needed (extracts
 strings, creates PO files).
@@ -62,33 +63,27 @@ Key filtering: configure per-target in lokit.yaml:
   locked_patterns — regex patterns matching keys treated as locked
                   (e.g. "^brand_.*" locks all brand_ prefixed keys)
 
-Each target type has a built-in system prompt optimized for its format.
+Each target format has a built-in system prompt optimized for its structure.
 Use the --prompt flag to override it for the current run, or set prompt:
 in lokit.yaml target config for a permanent override.
 Use {{targetLang}} as a placeholder for the target language name.
 
 Examples:
-  # Translate a gettext project using GitHub Copilot (free)
+  # Basic translation run
   lokit translate --provider copilot --model gpt-4o
-
-  # Translate an Android project using Gemini (free, OAuth)
-  lokit translate --provider gemini --model gemini-2.5-flash
-
-  # Translate an i18next project using Google AI (API key)
-  lokit translate --provider google --model gemini-2.5-flash
 
   # Translate specific languages in parallel
   lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
 
+  # Use a custom prompt
+  lokit translate --provider copilot --model gpt-4o \
+    --prompt "Translate to {{targetLang}}. Keep UI tone concise."
+
+  # Use local Ollama
+  lokit translate --provider ollama --model llama3.2
+
   # Force full re-translation (ignore lock file)
   lokit translate --provider copilot --model gpt-4o --force
-
-  # Translate all entries with a custom prompt
-  lokit translate --provider copilot --model gpt-4o --all \
-    --prompt "Translate to {{targetLang}}. Use informal tone."
-
-  # Translate a Flutter project
-  lokit translate --provider copilot --model gpt-4o
 
   # Dry run (show what would be translated)
   lokit translate --provider copilot --model gpt-4o --dry-run`),
@@ -298,11 +293,6 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 				logError(T("[%s] %v"), rt.Target.Name, err)
 				hadErrors = true
 			}
-		case config.TargetTypeJSON:
-			if err := translateJSONTarget(ctx, rt, prov, a, targetLangs); err != nil {
-				logError(T("[%s] %v"), rt.Target.Name, err)
-				hadErrors = true
-			}
 		case config.TargetTypeVueI18n:
 			if err := translateVueI18nTarget(ctx, rt, prov, a, targetLangs); err != nil {
 				logError(T("[%s] %v"), rt.Target.Name, err)
@@ -330,6 +320,21 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 			}
 		case config.TargetTypeFlutter:
 			if err := translateFlutterTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError(T("[%s] %v"), rt.Target.Name, err)
+				hadErrors = true
+			}
+		case config.TargetTypeJSKV:
+			if err := translateJSKVTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError(T("[%s] %v"), rt.Target.Name, err)
+				hadErrors = true
+			}
+		case config.TargetTypeDesktop:
+			if err := translateDesktopTarget(ctx, rt, prov, a, targetLangs); err != nil {
+				logError(T("[%s] %v"), rt.Target.Name, err)
+				hadErrors = true
+			}
+		case config.TargetTypePolkit:
+			if err := translatePolkitTarget(ctx, rt, prov, a, targetLangs); err != nil {
 				logError(T("[%s] %v"), rt.Target.Name, err)
 				hadErrors = true
 			}

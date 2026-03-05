@@ -52,12 +52,54 @@ type ProviderSettings struct {
 	Temperature *float64 `yaml:"temperature,omitempty"`
 }
 
-// Target describes a single translation unit (PO directory, po4a config, i18next dir, etc.).
+// ExtractConfig defines structured extraction settings for matrix-like targets.
+type ExtractConfig struct {
+	// Source is the extraction source path or path pattern.
+	Source string `yaml:"source,omitempty"`
+	// IDField is the field name used as stable item identifier.
+	IDField string `yaml:"id_field,omitempty"`
+	// Fields lists translatable fields to extract.
+	Fields []string `yaml:"fields,omitempty"`
+}
+
+// Surface describes one translation surface inside a multi-surface target.
+type Surface struct {
+	Name string `yaml:"name,omitempty"`
+
+	Format     string `yaml:"format,omitempty"`
+	Type       string `yaml:"-"`
+	Root       string `yaml:"root,omitempty"`
+	Dir        string `yaml:"dir,omitempty"`
+	Pattern    string `yaml:"pattern,omitempty"`
+	Source     string `yaml:"source,omitempty"`
+	TargetPath string `yaml:"target,omitempty"`
+
+	POT      string   `yaml:"pot,omitempty"`
+	Sources  []string `yaml:"sources,omitempty"`
+	Keywords []string `yaml:"keywords,omitempty"`
+
+	Config string `yaml:"config,omitempty"`
+
+	Languages  []string `yaml:"languages,omitempty"`
+	SourceLang string   `yaml:"source_lang,omitempty"`
+	Prompt     string   `yaml:"prompt,omitempty"`
+
+	LockedKeys     []string `yaml:"locked_keys,omitempty"`
+	IgnoredKeys    []string `yaml:"ignored_keys,omitempty"`
+	LockedPatterns []string `yaml:"locked_patterns,omitempty"`
+
+	Extract *ExtractConfig `yaml:"extract,omitempty"`
+}
+
+// Target describes a single translation unit.
 type Target struct {
 	// Name is a human-readable label shown in status/logs.
 	Name string `yaml:"name"`
-	// Type: "gettext", "po4a", "i18next", "vue-i18n", "json".
-	Type string `yaml:"type"`
+	// Format: "gettext", "po4a", "i18next", "vue-i18n", "android", "yaml",
+	// "markdown", "properties", "flutter", "js-kv", "desktop", "polkit".
+	Format string `yaml:"format"`
+	// Type is an internal normalized format field.
+	Type string `yaml:"-"`
 	// Root is the working directory relative to lokit.yaml (default ".").
 	Root string `yaml:"root,omitempty"`
 	// Dir is the unified directory option for targets that need a base directory.
@@ -68,6 +110,10 @@ type Target struct {
 	// - "{lang}/common.json"
 	// - "locale_{lang}.properties"
 	Pattern string `yaml:"pattern,omitempty"`
+	// Source is the source file path template relative to Root.
+	Source string `yaml:"source,omitempty"`
+	// TargetPath is the target file path template relative to Root.
+	TargetPath string `yaml:"target,omitempty"`
 
 	// --- gettext options ---
 
@@ -103,6 +149,11 @@ type Target struct {
 	IgnoredKeys []string `yaml:"ignored_keys,omitempty"`
 	// LockedPatterns lists regex patterns; keys matching any pattern are treated as locked.
 	LockedPatterns []string `yaml:"locked_patterns,omitempty"`
+
+	// Surfaces defines multiple translation surfaces under one logical target.
+	Surfaces []Surface `yaml:"surfaces,omitempty"`
+
+	Extract *ExtractConfig `yaml:"extract,omitempty"`
 }
 
 // TargetTypeGettext is used for gettext PO projects (shell, python, C source code).
@@ -111,14 +162,11 @@ const TargetTypeGettext = "gettext"
 // TargetTypePo4a is used for po4a documentation projects.
 const TargetTypePo4a = "po4a"
 
-// TargetTypeI18Next is used for i18next JSON translation projects.
+// TargetTypeI18Next is used for flat JSON key-value translation projects.
 const TargetTypeI18Next = "i18next"
 
-// TargetTypeVueI18n is used for vue-i18n nested JSON translation projects.
+// TargetTypeVueI18n is used for nested JSON translation projects.
 const TargetTypeVueI18n = "vue-i18n"
-
-// TargetTypeJSON is used for simple JSON translation projects { "translations": {...} }.
-const TargetTypeJSON = "json"
 
 // TargetTypeAndroid is used for Android strings.xml translation projects.
 const TargetTypeAndroid = "android"
@@ -134,6 +182,135 @@ const TargetTypeProperties = "properties"
 
 // TargetTypeFlutter is used for Flutter ARB (Application Resource Bundle) files.
 const TargetTypeFlutter = "flutter"
+
+// TargetTypeJSKV is used for JS assignment key-value translation files.
+const TargetTypeJSKV = "js-kv"
+
+// TargetTypeDesktop is used for freedesktop .desktop single-file translations.
+const TargetTypeDesktop = "desktop"
+
+// TargetTypePolkit is used for polkit .policy single-file translations.
+const TargetTypePolkit = "polkit"
+
+type targetFormatMeta struct {
+	requiresDir           bool
+	requiresPattern       bool
+	patternNeedsLang      bool
+	requiresPOT           bool
+	requiresConfig        bool
+	dirExample            string
+	patternExample        string
+	potExample            string
+	configExample         string
+	detectUsesPattern     bool
+	detectFunc            func(dir string) []string
+	detectCustomLanguages func(t Target, absRoot string) []string
+}
+
+var targetFormatRegistry = map[string]targetFormatMeta{
+	TargetTypeGettext: {
+		requiresDir: true,
+		requiresPOT: true,
+		dirExample:  "po",
+		potExample:  "messages.pot",
+		detectCustomLanguages: func(t Target, absRoot string) []string {
+			return detectLanguagesFlat(filepath.Join(absRoot, t.Dir))
+		},
+	},
+	TargetTypePo4a: {
+		requiresConfig: true,
+		configExample:  "po4a.cfg",
+		detectCustomLanguages: func(t Target, absRoot string) []string {
+			cfgPath := filepath.Join(absRoot, t.Config)
+			if langs := parsePo4aLangs(cfgPath); len(langs) > 0 {
+				return langs
+			}
+			return DetectLanguagesNested(filepath.Join(filepath.Dir(cfgPath), "po"))
+		},
+	},
+	TargetTypeI18Next: {
+		requiresDir:       true,
+		requiresPattern:   true,
+		patternNeedsLang:  true,
+		dirExample:        "public/translations",
+		patternExample:    "{lang}.json",
+		detectUsesPattern: true,
+		detectFunc:        detectLanguagesI18Next,
+	},
+	TargetTypeVueI18n: {
+		requiresDir:       true,
+		requiresPattern:   true,
+		patternNeedsLang:  true,
+		dirExample:        "src/locales",
+		patternExample:    "{lang}.json",
+		detectUsesPattern: true,
+		detectFunc:        detectLanguagesI18Next,
+	},
+	TargetTypeAndroid: {
+		requiresDir: true,
+		dirExample:  "app/src/main/res",
+		detectFunc:  detectLanguagesAndroid,
+	},
+	TargetTypeYAML: {
+		requiresDir:       true,
+		requiresPattern:   true,
+		patternNeedsLang:  true,
+		dirExample:        "translations",
+		patternExample:    "{lang}.yaml",
+		detectUsesPattern: true,
+		detectFunc:        detectLanguagesYAML,
+	},
+	TargetTypeMarkdown: {
+		requiresDir: true,
+		dirExample:  "docs",
+		detectFunc:  detectLanguagesMarkdown,
+	},
+	TargetTypeProperties: {
+		requiresDir:       true,
+		requiresPattern:   true,
+		patternNeedsLang:  true,
+		dirExample:        "translations",
+		patternExample:    "{lang}.properties",
+		detectUsesPattern: true,
+		detectFunc:        detectLanguagesProperties,
+	},
+	TargetTypeFlutter: {
+		requiresDir:       true,
+		requiresPattern:   true,
+		patternNeedsLang:  true,
+		dirExample:        "lib/l10n",
+		patternExample:    "app_{lang}.arb",
+		detectUsesPattern: true,
+		detectFunc:        detectLanguagesFlutter,
+	},
+	TargetTypeJSKV: {
+		requiresDir:       true,
+		requiresPattern:   true,
+		patternNeedsLang:  true,
+		dirExample:        "translations",
+		patternExample:    "{lang}.js",
+		detectUsesPattern: true,
+		detectFunc:        detectLanguagesJSKV,
+	},
+	TargetTypeDesktop: {
+		requiresDir:      true,
+		requiresPattern:  true,
+		dirExample:       ".",
+		patternExample:   "myapp.desktop",
+		patternNeedsLang: false,
+	},
+	TargetTypePolkit: {
+		requiresDir:      true,
+		requiresPattern:  true,
+		dirExample:       ".",
+		patternExample:   "org.example.policy",
+		patternNeedsLang: false,
+	},
+}
+
+func validTargetTypes() string {
+	return "gettext, po4a, i18next, vue-i18n, android, yaml, markdown, properties, flutter, js-kv, desktop, polkit"
+}
 
 // ---------------------------------------------------------------------------
 // Loading
@@ -152,14 +329,13 @@ func validateNoDeprecatedTargetKeys(data []byte, path string) error {
 
 	for i, t := range raw.Targets {
 		deprecated := map[string]string{
+			"type":             "format",
 			"po_dir":           "dir",
 			"translations_dir": "dir",
 			"res_dir":          "dir",
 			"path_pattern":     "pattern",
 			"pot_file":         "pot",
 			"po4a_config":      "config",
-			"recipes_dir":      "remove this field (no replacement)",
-			"blog_dir":         "remove this field (no replacement)",
 		}
 		for oldKey, replacement := range deprecated {
 			if _, ok := t[oldKey]; !ok {
@@ -306,9 +482,51 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			return nil, fmt.Errorf("%s: duplicate target name %q", path, t.Name)
 		}
 		targetNames[t.Name] = struct{}{}
-		if t.Type == "" {
-			return nil, fmt.Errorf("%s: target %q has no type", path, t.Name)
+		if len(t.Surfaces) > 0 {
+			if t.Format != "" {
+				return nil, fmt.Errorf("%s: target %q uses both target format and surfaces; use one style only", path, t.Name)
+			}
+			if t.Dir != "" || t.Pattern != "" || t.Source != "" || t.TargetPath != "" || t.POT != "" || t.Config != "" {
+				return nil, fmt.Errorf("%s: target %q uses both top-level format fields and surfaces; use one style only", path, t.Name)
+			}
+			for si := range t.Surfaces {
+				s := &t.Surfaces[si]
+				if s.Format == "" {
+					return nil, fmt.Errorf("%s: target %q surface #%d has no format", path, t.Name, si+1)
+				}
+				s.Type = s.Format
+				meta, ok := targetFormatRegistry[s.Type]
+				if !ok {
+					return nil, fmt.Errorf("%s: target %q surface #%d has unknown type %q (valid: %s)", path, t.Name, si+1, s.Type, validTargetTypes())
+				}
+				if meta.requiresDir && s.Dir == "" && s.Source == "" && s.TargetPath == "" {
+					return nil, fmt.Errorf("%s: target %q surface #%d (%s) requires \"dir\" (e.g. dir: %s)", path, t.Name, si+1, s.Type, meta.dirExample)
+				}
+				if meta.requiresPOT && s.POT == "" {
+					return nil, fmt.Errorf("%s: target %q surface #%d (%s) requires \"pot\" (e.g. pot: %s)", path, t.Name, si+1, s.Type, meta.potExample)
+				}
+				if meta.requiresConfig && s.Config == "" {
+					return nil, fmt.Errorf("%s: target %q surface #%d (%s) requires \"config\" (e.g. config: %s)", path, t.Name, si+1, s.Type, meta.configExample)
+				}
+				if meta.requiresPattern && s.Source == "" && s.TargetPath == "" {
+					if s.Pattern == "" {
+						return nil, fmt.Errorf("%s: target %q surface #%d (%s) requires \"pattern\" (e.g. pattern: %s)", path, t.Name, si+1, s.Type, meta.patternExample)
+					}
+					if meta.patternNeedsLang && !strings.Contains(s.Pattern, "{lang}") {
+						return nil, fmt.Errorf("%s: target %q surface #%d (%s) field \"pattern\" must contain \"{lang}\"", path, t.Name, si+1, s.Type)
+					}
+				}
+				if s.TargetPath != "" && meta.patternNeedsLang && !strings.Contains(s.TargetPath, "{lang}") {
+					return nil, fmt.Errorf("%s: target %q surface #%d (%s) field \"target\" must contain \"{lang}\"", path, t.Name, si+1, s.Type)
+				}
+			}
+			continue
 		}
+
+		if t.Format == "" {
+			return nil, fmt.Errorf("%s: target %q has no format", path, t.Name)
+		}
+		t.Type = t.Format
 
 		// Default root
 		if t.Root == "" {
@@ -331,68 +549,29 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			return nil, err
 		}
 
-		switch t.Type {
-		case TargetTypeGettext:
-			if t.Dir == "" {
-				return nil, fmt.Errorf("%s: target %q (gettext) requires \"dir\" (e.g. dir: po)", path, t.Name)
-			}
-			if t.POT == "" {
-				return nil, fmt.Errorf("%s: target %q (gettext) requires \"pot\" (e.g. pot: messages.pot)", path, t.Name)
-			}
-		case TargetTypePo4a:
-			if t.Config == "" {
-				return nil, fmt.Errorf("%s: target %q (po4a) requires \"config\" (e.g. config: po4a.cfg)", path, t.Name)
-			}
-		case TargetTypeI18Next, TargetTypeVueI18n, TargetTypeJSON:
-			if t.Dir == "" {
-				return nil, fmt.Errorf("%s: target %q (%s) requires \"dir\" (e.g. dir: public/translations)", path, t.Name, t.Type)
-			}
+		meta, ok := targetFormatRegistry[t.Type]
+		if !ok {
+			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: %s)", path, t.Name, t.Type, validTargetTypes())
+		}
+		if meta.requiresDir && t.Dir == "" && t.TargetPath == "" && t.Source == "" {
+			return nil, fmt.Errorf("%s: target %q (%s) requires \"dir\" (e.g. dir: %s)", path, t.Name, t.Type, meta.dirExample)
+		}
+		if meta.requiresPOT && t.POT == "" {
+			return nil, fmt.Errorf("%s: target %q (%s) requires \"pot\" (e.g. pot: %s)", path, t.Name, t.Type, meta.potExample)
+		}
+		if meta.requiresConfig && t.Config == "" {
+			return nil, fmt.Errorf("%s: target %q (%s) requires \"config\" (e.g. config: %s)", path, t.Name, t.Type, meta.configExample)
+		}
+		if meta.requiresPattern && t.Source == "" && t.TargetPath == "" {
 			if t.Pattern == "" {
-				return nil, fmt.Errorf("%s: target %q (%s) requires \"pattern\" (e.g. pattern: {lang}.json)", path, t.Name, t.Type)
+				return nil, fmt.Errorf("%s: target %q (%s) requires \"pattern\" (e.g. pattern: %s)", path, t.Name, t.Type, meta.patternExample)
 			}
-			if !strings.Contains(t.Pattern, "{lang}") {
+			if meta.patternNeedsLang && !strings.Contains(t.Pattern, "{lang}") {
 				return nil, fmt.Errorf("%s: target %q (%s) field \"pattern\" must contain \"{lang}\"", path, t.Name, t.Type)
 			}
-		case TargetTypeAndroid:
-			if t.Dir == "" {
-				return nil, fmt.Errorf("%s: target %q (android) requires \"dir\" (e.g. dir: app/src/main/res)", path, t.Name)
-			}
-		case TargetTypeYAML:
-			if t.Dir == "" {
-				return nil, fmt.Errorf("%s: target %q (yaml) requires \"dir\" (e.g. dir: translations)", path, t.Name)
-			}
-			if t.Pattern == "" {
-				return nil, fmt.Errorf("%s: target %q (yaml) requires \"pattern\" (e.g. pattern: {lang}.yaml)", path, t.Name)
-			}
-			if !strings.Contains(t.Pattern, "{lang}") {
-				return nil, fmt.Errorf("%s: target %q (yaml) field \"pattern\" must contain \"{lang}\"", path, t.Name)
-			}
-		case TargetTypeMarkdown:
-			if t.Dir == "" {
-				return nil, fmt.Errorf("%s: target %q (markdown) requires \"dir\" (e.g. dir: docs)", path, t.Name)
-			}
-		case TargetTypeProperties:
-			if t.Dir == "" {
-				return nil, fmt.Errorf("%s: target %q (properties) requires \"dir\" (e.g. dir: translations)", path, t.Name)
-			}
-			if t.Pattern == "" {
-				return nil, fmt.Errorf("%s: target %q (properties) requires \"pattern\" (e.g. pattern: {lang}.properties)", path, t.Name)
-			}
-			if !strings.Contains(t.Pattern, "{lang}") {
-				return nil, fmt.Errorf("%s: target %q (properties) field \"pattern\" must contain \"{lang}\"", path, t.Name)
-			}
-		case TargetTypeFlutter:
-			if t.Dir == "" {
-				return nil, fmt.Errorf("%s: target %q (flutter) requires \"dir\" (e.g. dir: lib/l10n)", path, t.Name)
-			}
-			if t.Pattern == "" {
-				return nil, fmt.Errorf("%s: target %q (flutter) requires \"pattern\" (e.g. pattern: app_{lang}.arb)", path, t.Name)
-			}
-			if !strings.Contains(t.Pattern, "{lang}") {
-				return nil, fmt.Errorf("%s: target %q (flutter) field \"pattern\" must contain \"{lang}\"", path, t.Name)
-			}
-		default:
-			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: gettext, po4a, i18next, vue-i18n, json, android, yaml, markdown, properties, flutter)", path, t.Name, t.Type)
+		}
+		if t.TargetPath != "" && meta.patternNeedsLang && !strings.Contains(t.TargetPath, "{lang}") {
+			return nil, fmt.Errorf("%s: target %q (%s) field \"target\" must contain \"{lang}\"", path, t.Name, t.Type)
 		}
 	}
 
@@ -420,82 +599,192 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 
 	var resolved []ResolvedTarget
 	for _, t := range lf.Targets {
-		absRoot := filepath.Join(absProjectRoot, t.Root)
-
-		// Auto-detect languages if not specified
-		langs := t.Languages
-		if len(langs) == 0 {
-			langs = detectTargetLanguages(t, absRoot)
+		if len(t.Surfaces) == 0 {
+			absRoot := filepath.Join(absProjectRoot, t.Root)
+			expanded := expandTargetIDs(t, absRoot)
+			for _, et := range expanded {
+				langs := et.Languages
+				if len(langs) == 0 {
+					langs = detectTargetLanguages(et, absRoot)
+				}
+				resolved = append(resolved, ResolvedTarget{Target: et, AbsRoot: absRoot, Languages: langs})
+			}
+			continue
 		}
 
-		resolved = append(resolved, ResolvedTarget{
-			Target:    t,
-			AbsRoot:   absRoot,
-			Languages: langs,
-		})
+		for i, s := range t.Surfaces {
+			st := Target{
+				Name:           t.Name,
+				Format:         s.Format,
+				Type:           s.Type,
+				Root:           coalesceString(s.Root, t.Root),
+				Dir:            s.Dir,
+				Pattern:        s.Pattern,
+				Source:         s.Source,
+				TargetPath:     s.TargetPath,
+				POT:            s.POT,
+				Sources:        s.Sources,
+				Keywords:       s.Keywords,
+				SourceLang:     coalesceString(s.SourceLang, t.SourceLang),
+				Config:         s.Config,
+				Languages:      s.Languages,
+				Prompt:         coalesceString(s.Prompt, t.Prompt),
+				LockedKeys:     mergeStringSlices(t.LockedKeys, s.LockedKeys),
+				IgnoredKeys:    mergeStringSlices(t.IgnoredKeys, s.IgnoredKeys),
+				LockedPatterns: mergeStringSlices(t.LockedPatterns, s.LockedPatterns),
+				Extract:        firstExtract(s.Extract, t.Extract),
+			}
+			if st.Type == "" {
+				st.Type = st.Format
+			}
+			if st.Name == "" {
+				st.Name = fmt.Sprintf("surface-%d", i+1)
+			}
+			if s.Name != "" {
+				st.Name = t.Name + "/" + s.Name
+			}
+			if st.SourceLang == "" {
+				st.SourceLang = lf.SourceLang
+			}
+			if len(st.Languages) == 0 {
+				st.Languages = t.Languages
+			}
+			if len(st.Sources) == 0 {
+				st.Sources = t.Sources
+			}
+
+			absRoot := filepath.Join(absProjectRoot, st.Root)
+			expanded := expandTargetIDs(st, absRoot)
+			for _, et := range expanded {
+				langs := et.Languages
+				if len(langs) == 0 {
+					langs = detectTargetLanguages(et, absRoot)
+				}
+				resolved = append(resolved, ResolvedTarget{Target: et, AbsRoot: absRoot, Languages: langs})
+			}
+		}
 	}
 
 	return resolved, nil
 }
 
+func coalesceString(v, fallback string) string {
+	if v != "" {
+		return v
+	}
+	return fallback
+}
+
+func mergeStringSlices(a, b []string) []string {
+	if len(a) == 0 && len(b) == 0 {
+		return nil
+	}
+	out := make([]string, 0, len(a)+len(b))
+	out = append(out, a...)
+	out = append(out, b...)
+	return out
+}
+
+func firstExtract(a, b *ExtractConfig) *ExtractConfig {
+	if a != nil {
+		return a
+	}
+	return b
+}
+
+func expandTargetIDs(t Target, absRoot string) []Target {
+	if !strings.Contains(t.Source, "{id}") && !strings.Contains(t.TargetPath, "{id}") && !strings.Contains(t.Pattern, "{id}") {
+		return []Target{t}
+	}
+
+	sourcePattern := t.Source
+	if t.Extract != nil && t.Extract.Source != "" {
+		sourcePattern = t.Extract.Source
+	}
+	if sourcePattern == "" {
+		sourcePattern = t.Pattern
+	}
+	if sourcePattern == "" || !strings.Contains(sourcePattern, "{id}") {
+		return []Target{t}
+	}
+
+	globPattern := sourcePattern
+	globPattern = strings.ReplaceAll(globPattern, "{id}", "*")
+	globPattern = strings.ReplaceAll(globPattern, "{lang}", t.SourceLang)
+	globPattern = strings.ReplaceAll(globPattern, "{source_lang}", t.SourceLang)
+
+	absGlob := filepath.Join(absRoot, filepath.FromSlash(globPattern))
+	paths, err := filepath.Glob(absGlob)
+	if err != nil || len(paths) == 0 {
+		return []Target{t}
+	}
+
+	reStr := regexp.QuoteMeta(filepath.ToSlash(sourcePattern))
+	reStr = strings.ReplaceAll(reStr, regexp.QuoteMeta("{id}"), "([^/]+)")
+	reStr = strings.ReplaceAll(reStr, regexp.QuoteMeta("{lang}"), regexp.QuoteMeta(t.SourceLang))
+	reStr = strings.ReplaceAll(reStr, regexp.QuoteMeta("{source_lang}"), regexp.QuoteMeta(t.SourceLang))
+	re := regexp.MustCompile("^" + reStr + "$")
+
+	seen := make(map[string]bool)
+	ids := make([]string, 0)
+	for _, p := range paths {
+		rel, err := filepath.Rel(absRoot, p)
+		if err != nil {
+			continue
+		}
+		rel = filepath.ToSlash(rel)
+		m := re.FindStringSubmatch(rel)
+		if len(m) < 2 {
+			continue
+		}
+		id := m[1]
+		if id == "" || seen[id] {
+			continue
+		}
+		seen[id] = true
+		ids = append(ids, id)
+	}
+
+	if len(ids) == 0 {
+		return []Target{t}
+	}
+	sort.Strings(ids)
+
+	out := make([]Target, 0, len(ids))
+	for _, id := range ids {
+		cp := t
+		cp.Source = strings.ReplaceAll(cp.Source, "{id}", id)
+		cp.TargetPath = strings.ReplaceAll(cp.TargetPath, "{id}", id)
+		cp.Pattern = strings.ReplaceAll(cp.Pattern, "{id}", id)
+		if cp.Extract != nil {
+			e := *cp.Extract
+			e.Source = strings.ReplaceAll(e.Source, "{id}", id)
+			cp.Extract = &e
+		}
+		cp.Name = fmt.Sprintf("%s/%s", t.Name, id)
+		out = append(out, cp)
+	}
+
+	return out
+}
+
 // detectTargetLanguages auto-detects languages from existing translation files.
 func detectTargetLanguages(t Target, absRoot string) []string {
-	switch t.Type {
-	case TargetTypeGettext:
-		poDir := filepath.Join(absRoot, t.Dir)
-		return detectLanguagesFlat(poDir)
-
-	case TargetTypePo4a:
-		cfgPath := filepath.Join(absRoot, t.Config)
-		if langs := parsePo4aLangs(cfgPath); len(langs) > 0 {
-			return langs
-		}
-		// Fallback: scan po/ subdirectory
-		poDir := filepath.Join(filepath.Dir(cfgPath), "po")
-		return DetectLanguagesNested(poDir)
-
-	case TargetTypeI18Next, TargetTypeVueI18n:
-		transDir := filepath.Join(absRoot, t.Dir)
-		if t.Pattern != "" {
-			return detectLanguagesByPattern(transDir, t.Pattern)
-		}
-		return detectLanguagesI18Next(transDir)
-
-	case TargetTypeJSON:
-		transDir := filepath.Join(absRoot, t.Dir)
-		if t.Pattern != "" {
-			return detectLanguagesByPattern(transDir, t.Pattern)
-		}
-		return detectLanguagesJSON(transDir)
-
-	case TargetTypeAndroid:
-		resDir := filepath.Join(absRoot, t.Dir)
-		return detectLanguagesAndroid(resDir)
-
-	case TargetTypeYAML:
-		transDir := filepath.Join(absRoot, t.Dir)
-		if t.Pattern != "" {
-			return detectLanguagesByPattern(transDir, t.Pattern)
-		}
-		return detectLanguagesYAML(transDir)
-
-	case TargetTypeMarkdown:
-		transDir := filepath.Join(absRoot, t.Dir)
-		return detectLanguagesMarkdown(transDir)
-
-	case TargetTypeProperties:
-		transDir := filepath.Join(absRoot, t.Dir)
-		if t.Pattern != "" {
-			return detectLanguagesByPattern(transDir, t.Pattern)
-		}
-		return detectLanguagesProperties(transDir)
-
-	case TargetTypeFlutter:
-		transDir := filepath.Join(absRoot, t.Dir)
-		if t.Pattern != "" {
-			return detectLanguagesByPattern(transDir, t.Pattern)
-		}
-		return detectLanguagesFlutter(transDir)
+	meta, ok := targetFormatRegistry[t.Type]
+	if !ok {
+		return nil
+	}
+	if t.TargetPath != "" && strings.Contains(t.TargetPath, "{lang}") {
+		return detectLanguagesByPattern(absRoot, t.TargetPath)
+	}
+	if meta.detectCustomLanguages != nil {
+		return meta.detectCustomLanguages(t, absRoot)
+	}
+	if meta.detectUsesPattern && t.Pattern != "" {
+		return detectLanguagesByPattern(filepath.Join(absRoot, t.Dir), t.Pattern)
+	}
+	if meta.detectFunc != nil {
+		return meta.detectFunc(filepath.Join(absRoot, t.Dir))
 	}
 	return nil
 }
@@ -557,6 +846,28 @@ func detectLanguagesJSON(dir string) []string {
 			continue
 		}
 		lang := strings.TrimSuffix(name, ".json")
+		if isLangCode(lang) || isI18NextLangCode(lang) {
+			langs = append(langs, lang)
+		}
+	}
+	sort.Strings(langs)
+	return langs
+}
+
+// detectLanguagesJSKV finds language codes from .js translation files.
+func detectLanguagesJSKV(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var langs []string
+	for _, entry := range entries {
+		name := entry.Name()
+		if entry.IsDir() || !strings.HasSuffix(name, ".js") {
+			continue
+		}
+		lang := strings.TrimSuffix(name, ".js")
 		if isLangCode(lang) || isI18NextLangCode(lang) {
 			langs = append(langs, lang)
 		}
@@ -689,12 +1000,18 @@ func (rt *ResolvedTarget) AbsPo4aConfig() string {
 	return filepath.Join(rt.AbsRoot, rt.Target.Config)
 }
 
-// AbsTranslationsDir returns the absolute translations dir for i18next/json targets.
+// AbsTranslationsDir returns the absolute translations directory for file-based targets.
 func (rt *ResolvedTarget) AbsTranslationsDir() string {
+	if rt.Target.TargetPath != "" || rt.Target.Source != "" {
+		return rt.AbsRoot
+	}
 	return filepath.Join(rt.AbsRoot, rt.Target.Dir)
 }
 
 func (rt *ResolvedTarget) translationPathPatterns() []string {
+	if rt.Target.TargetPath != "" {
+		return []string{rt.Target.TargetPath}
+	}
 	if rt.Target.Pattern == "" {
 		return nil
 	}
@@ -742,6 +1059,11 @@ func (rt *ResolvedTarget) ExistingTranslationPath(lang string) string {
 
 // SourcePathCandidates returns source-language path candidates.
 func (rt *ResolvedTarget) SourcePathCandidates() []string {
+	if rt.Target.Source != "" {
+		base := rt.AbsTranslationsDir()
+		p := applyLangPattern(rt.Target.Source, rt.Target.SourceLang)
+		return []string{filepath.Join(base, filepath.FromSlash(p))}
+	}
 	return rt.TranslationPathCandidates(rt.Target.SourceLang)
 }
 
