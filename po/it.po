@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-05 15:54+0000\n"
-"PO-Revision-Date: 2026-03-05 15:54+0000\n"
+"POT-Creation-Date: 2026-03-07 13:46+0000\n"
+"PO-Revision-Date: 2026-03-07 10:43+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: it\n"
@@ -485,10 +485,10 @@ msgid "Creating directory for %s: %v"
 msgstr "Creazione directory per %s: %v"
 
 #: internal/cli/helpers.go:211 internal/cli/init.go:311
-#: internal/cli/init.go:551 internal/cli/target_content.go:112
-#: internal/cli/target_content.go:356 internal/cli/target_content.go:612
-#: internal/cli/target_content.go:832 internal/cli/target_content.go:1041
-#: internal/cli/target_content.go:1196
+#: internal/cli/init.go:551 internal/cli/target_content.go:138
+#: internal/cli/target_content.go:397 internal/cli/target_content.go:663
+#: internal/cli/target_content.go:883 internal/cli/target_content.go:1092
+#: internal/cli/target_content.go:1247
 msgid "Creating %s: %v"
 msgstr "Creazione di %s: %v"
 
@@ -974,15 +974,15 @@ msgstr "[%s] Tipo di target sconosciuto %q, ignorato"
 msgid "Cannot read source language file %s: %v"
 msgstr "Impossibile leggere il file lingua sorgente %s: %v"
 
-#: internal/cli/init.go:288 internal/cli/target_content.go:93
-#: internal/cli/target_content.go:595 internal/cli/target_content.go:815
-#: internal/cli/target_content.go:1024
+#: internal/cli/init.go:288 internal/cli/target_content.go:119
+#: internal/cli/target_content.go:646 internal/cli/target_content.go:866
+#: internal/cli/target_content.go:1075
 msgid "Source language (%s): %d keys"
 msgstr "Lingua sorgente (%s): %d chiavi"
 
-#: internal/cli/init.go:314 internal/cli/target_content.go:115
-#: internal/cli/target_content.go:615 internal/cli/target_content.go:835
-#: internal/cli/target_content.go:1044
+#: internal/cli/init.go:314 internal/cli/target_content.go:141
+#: internal/cli/target_content.go:666 internal/cli/target_content.go:886
+#: internal/cli/target_content.go:1095
 msgid "Created: %s (%d keys)"
 msgstr "Creato: %s (%d chiavi)"
 
@@ -1061,11 +1061,11 @@ msgid "%v"
 msgstr "%v"
 
 #: internal/cli/init.go:515 internal/cli/init.go:559
-#: internal/cli/target_content.go:122 internal/cli/target_content.go:202
-#: internal/cli/target_content.go:364 internal/cli/target_content.go:457
-#: internal/cli/target_content.go:467 internal/cli/target_content.go:620
-#: internal/cli/target_content.go:688 internal/cli/target_content.go:840
-#: internal/cli/target_content.go:908 internal/cli/target_core.go:151
+#: internal/cli/target_content.go:148 internal/cli/target_content.go:228
+#: internal/cli/target_content.go:405 internal/cli/target_content.go:507
+#: internal/cli/target_content.go:517 internal/cli/target_content.go:671
+#: internal/cli/target_content.go:739 internal/cli/target_content.go:891
+#: internal/cli/target_content.go:959 internal/cli/target_core.go:151
 #: internal/cli/target_core.go:290
 msgid "Reading %s: %v"
 msgstr "Lettura di %s: %v"
@@ -1074,19 +1074,19 @@ msgstr "Lettura di %s: %v"
 msgid "Updating PO files for: %s"
 msgstr "Aggiornamento dei file PO per: %s"
 
-#: internal/cli/init.go:554 internal/cli/target_content.go:1199
+#: internal/cli/init.go:554 internal/cli/target_content.go:1250
 msgid "Created: %s"
 msgstr "Creato: %s"
 
-#: internal/cli/init.go:565 internal/cli/target_content.go:128
-#: internal/cli/target_content.go:369 internal/cli/target_content.go:625
-#: internal/cli/target_content.go:845 internal/cli/target_content.go:1051
+#: internal/cli/init.go:565 internal/cli/target_content.go:154
+#: internal/cli/target_content.go:410 internal/cli/target_content.go:676
+#: internal/cli/target_content.go:896 internal/cli/target_content.go:1102
 msgid "Writing %s: %v"
 msgstr "Scrittura di %s: %v"
 
-#: internal/cli/init.go:568 internal/cli/target_content.go:131
-#: internal/cli/target_content.go:372 internal/cli/target_content.go:628
-#: internal/cli/target_content.go:848 internal/cli/target_content.go:1054
+#: internal/cli/init.go:568 internal/cli/target_content.go:157
+#: internal/cli/target_content.go:413 internal/cli/target_content.go:679
+#: internal/cli/target_content.go:899 internal/cli/target_content.go:1105
 msgid "Updated: %s"
 msgstr "Aggiornato: %s"
 
@@ -1200,18 +1200,18 @@ msgstr "File di blocco"
 msgid "Path"
 msgstr "Percorso"
 
-#: internal/cli/lock.go:298 internal/cli/root.go:370 internal/cli/root.go:443
-#: internal/cli/root.go:491 internal/cli/status.go:74
-#: internal/cli/target_content.go:31 internal/cli/target_content.go:267
-#: internal/cli/target_content.go:529 internal/cli/target_content.go:749
-#: internal/cli/target_content.go:971 internal/cli/target_content.go:1173
-#: internal/cli/target_content.go:1254 internal/cli/target_content.go:1273
-msgid "not found"
-msgstr "non trovato"
-
 #: internal/cli/lock.go:298
 msgid "Status"
 msgstr "Stato"
+
+#: internal/cli/lock.go:298 internal/cli/root.go:370 internal/cli/root.go:443
+#: internal/cli/root.go:491 internal/cli/status.go:74
+#: internal/cli/target_content.go:57 internal/cli/target_content.go:293
+#: internal/cli/target_content.go:580 internal/cli/target_content.go:800
+#: internal/cli/target_content.go:1022 internal/cli/target_content.go:1224
+#: internal/cli/target_content.go:1305 internal/cli/target_content.go:1324
+msgid "not found"
+msgstr "non trovato"
 
 #: internal/cli/lock.go:299 internal/cli/lock.go:305 internal/cli/status.go:62
 msgid "Targets"
@@ -1308,8 +1308,8 @@ msgstr "Target %q non trovato in lokit.yaml"
 msgid "unsupported target type %q"
 msgstr "tipo di target %q non supportato"
 
-#: internal/cli/lock.go:524 internal/cli/lock.go:584 internal/cli/lock.go:686
-#: internal/cli/lock.go:700 internal/cli/lock.go:713
+#: internal/cli/lock.go:524 internal/cli/lock.go:584 internal/cli/lock.go:692
+#: internal/cli/lock.go:706 internal/cli/lock.go:719
 msgid "cannot read source file %s: %v"
 msgstr "impossibile leggere il file sorgente %s: %v"
 
@@ -1355,11 +1355,15 @@ msgstr "impossibile leggere source strings.xml %s: %v"
 msgid "cannot read markdown files in %s: %v"
 msgstr "impossibile leggere i file markdown in %s: %v"
 
-#: internal/cli/lock.go:651 internal/cli/target_content.go:398
+#: internal/cli/lock.go:651 internal/cli/target_content.go:439
 msgid "cannot find source Markdown files in %s"
 msgstr "impossibile trovare file Markdown sorgente in %s"
 
 #: internal/cli/lock.go:658
+msgid "cannot compute relative path for %s: %v"
+msgstr "impossibile calcolare il percorso relativo per %s: %v"
+
+#: internal/cli/lock.go:663
 msgid "cannot read source Markdown file %s: %v"
 msgstr "impossibile leggere il file Markdown sorgente %s: %v"
 
@@ -1541,51 +1545,51 @@ msgstr "POT"
 msgid "Source strings"
 msgstr "Stringhe sorgente"
 
-#: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:548
-#: internal/cli/root.go:609
-msgid "Fuzzy"
-msgstr "Fuzzy"
-
 #: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:452
 #: internal/cli/root.go:500 internal/cli/root.go:548 internal/cli/root.go:609
-#: internal/cli/root.go:655 internal/cli/target_content.go:46
-#: internal/cli/target_content.go:284 internal/cli/target_content.go:544
-#: internal/cli/target_content.go:764 internal/cli/target_content.go:981
-#: internal/cli/target_content.go:1291
+#: internal/cli/root.go:655 internal/cli/target_content.go:72
+#: internal/cli/target_content.go:315 internal/cli/target_content.go:595
+#: internal/cli/target_content.go:815 internal/cli/target_content.go:1032
+#: internal/cli/target_content.go:1342
 msgid "Progress"
 msgstr "Avanzamento"
 
 #: internal/cli/root.go:379 internal/cli/root.go:452 internal/cli/root.go:500
 #: internal/cli/root.go:548 internal/cli/root.go:655
-#: internal/cli/target_content.go:46 internal/cli/target_content.go:284
-#: internal/cli/target_content.go:544 internal/cli/target_content.go:764
-#: internal/cli/target_content.go:981 internal/cli/target_content.go:1291
+#: internal/cli/target_content.go:72 internal/cli/target_content.go:315
+#: internal/cli/target_content.go:595 internal/cli/target_content.go:815
+#: internal/cli/target_content.go:1032 internal/cli/target_content.go:1342
 msgid "Left"
 msgstr "Rimasti"
 
 #: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:452
 #: internal/cli/root.go:500 internal/cli/root.go:548 internal/cli/root.go:609
-#: internal/cli/root.go:655 internal/cli/target_content.go:46
-#: internal/cli/target_content.go:284 internal/cli/target_content.go:544
-#: internal/cli/target_content.go:764 internal/cli/target_content.go:981
-#: internal/cli/target_content.go:1291
+#: internal/cli/root.go:655 internal/cli/target_content.go:72
+#: internal/cli/target_content.go:315 internal/cli/target_content.go:595
+#: internal/cli/target_content.go:815 internal/cli/target_content.go:1032
+#: internal/cli/target_content.go:1342
 msgid "Done"
 msgstr "Completato"
 
 #: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:452
 #: internal/cli/root.go:500 internal/cli/root.go:548 internal/cli/root.go:609
-#: internal/cli/root.go:655 internal/cli/target_content.go:46
-#: internal/cli/target_content.go:284 internal/cli/target_content.go:544
-#: internal/cli/target_content.go:764 internal/cli/target_content.go:981
-#: internal/cli/target_content.go:1291
+#: internal/cli/root.go:655 internal/cli/target_content.go:72
+#: internal/cli/target_content.go:315 internal/cli/target_content.go:595
+#: internal/cli/target_content.go:815 internal/cli/target_content.go:1032
+#: internal/cli/target_content.go:1342
 msgid "Lang"
 msgstr "Lingua"
 
+#: internal/cli/root.go:379 internal/cli/root.go:409 internal/cli/root.go:548
+#: internal/cli/root.go:609
+msgid "Fuzzy"
+msgstr "Fuzzy"
+
 #: internal/cli/root.go:386 internal/cli/root.go:417 internal/cli/root.go:463
 #: internal/cli/root.go:508 internal/cli/root.go:564 internal/cli/root.go:617
-#: internal/cli/root.go:667 internal/cli/target_content.go:53
-#: internal/cli/target_content.go:292 internal/cli/target_content.go:554
-#: internal/cli/target_content.go:774 internal/cli/target_content.go:993
+#: internal/cli/root.go:667 internal/cli/target_content.go:79
+#: internal/cli/target_content.go:323 internal/cli/target_content.go:605
+#: internal/cli/target_content.go:825 internal/cli/target_content.go:1044
 msgid "missing"
 msgstr "mancanti"
 
@@ -1597,27 +1601,27 @@ msgstr "configurazione po4a"
 msgid "Total"
 msgstr "Totale"
 
-#: internal/cli/root.go:435 internal/cli/target_content.go:26
-#: internal/cli/target_content.go:261 internal/cli/target_content.go:521
-#: internal/cli/target_content.go:741 internal/cli/target_content.go:962
+#: internal/cli/root.go:435 internal/cli/target_content.go:52
+#: internal/cli/target_content.go:287 internal/cli/target_content.go:572
+#: internal/cli/target_content.go:792 internal/cli/target_content.go:1013
 msgid "Translations"
 msgstr "Traduzioni"
 
 #: internal/cli/root.go:443 internal/cli/root.go:491
-#: internal/cli/target_content.go:31 internal/cli/target_content.go:37
-#: internal/cli/target_content.go:267 internal/cli/target_content.go:529
-#: internal/cli/target_content.go:535 internal/cli/target_content.go:749
-#: internal/cli/target_content.go:755 internal/cli/target_content.go:971
-#: internal/cli/target_content.go:1173 internal/cli/target_content.go:1254
-#: internal/cli/target_content.go:1273
+#: internal/cli/target_content.go:57 internal/cli/target_content.go:63
+#: internal/cli/target_content.go:293 internal/cli/target_content.go:580
+#: internal/cli/target_content.go:586 internal/cli/target_content.go:800
+#: internal/cli/target_content.go:806 internal/cli/target_content.go:1022
+#: internal/cli/target_content.go:1224 internal/cli/target_content.go:1305
+#: internal/cli/target_content.go:1324
 msgid "Source"
 msgstr "Sorgente"
 
 #: internal/cli/root.go:447 internal/cli/root.go:649
-#: internal/cli/target_content.go:41 internal/cli/target_content.go:539
-#: internal/cli/target_content.go:759 internal/cli/target_content.go:976
-#: internal/cli/target_content.go:1177 internal/cli/target_content.go:1258
-#: internal/cli/target_content.go:1277
+#: internal/cli/target_content.go:67 internal/cli/target_content.go:590
+#: internal/cli/target_content.go:810 internal/cli/target_content.go:1027
+#: internal/cli/target_content.go:1228 internal/cli/target_content.go:1309
+#: internal/cli/target_content.go:1328
 msgid "Source keys"
 msgstr "Chiavi sorgente"
 
@@ -1662,12 +1666,12 @@ msgid "Invalid locked_pattern %q: %v"
 msgstr "locked_pattern non valido %q: %v"
 
 #: internal/cli/status.go:100
-msgid "Locked"
-msgstr "Bloccato"
-
-#: internal/cli/status.go:100
 msgid "%d keys x %d languages"
 msgstr "%d chiavi x %d lingue"
+
+#: internal/cli/status.go:100
+msgid "Locked"
+msgstr "Bloccato"
 
 #: internal/cli/status.go:105
 msgid "none detected"
@@ -1710,14 +1714,14 @@ msgstr "Root"
 msgid "Source lang"
 msgstr "Lingua sorgente"
 
-#: internal/cli/status.go:71
-msgid "error: %v"
-msgstr "errore: %v"
-
 #: internal/cli/status.go:71 internal/cli/status.go:74
 #: internal/cli/status.go:78 internal/cli/status.go:80
 msgid "Lock file"
 msgstr "File di lock"
+
+#: internal/cli/status.go:71
+msgid "error: %v"
+msgstr "errore: %v"
 
 #: internal/cli/status.go:78
 msgid "empty"
@@ -1727,223 +1731,228 @@ msgstr "vuoto"
 msgid "%d targets, %d keys"
 msgstr "%d destinazioni, %d chiavi"
 
-#: internal/cli/target_content.go:1020
+#: internal/cli/target_content.go:1071
 msgid "Cannot read source nested JSON file %s: %v"
 msgstr "Impossibile leggere il file JSON nidificato sorgente %s: %v"
 
-#: internal/cli/target_content.go:1058
+#: internal/cli/target_content.go:108
+msgid "Cannot find source YAML file for language %q in %s"
+msgstr "Impossibile trovare il file YAML sorgente per la lingua %q in %s"
+
+#: internal/cli/target_content.go:109
+msgid "Expected: %s"
+msgstr "Atteso: %s"
+
+#: internal/cli/target_content.go:1109
 msgid "Vue i18n init: %d created, %d updated"
 msgstr "Inizializzazione Vue i18n: %d creati, %d aggiornati"
 
-#: internal/cli/target_content.go:108 internal/cli/target_content.go:339
-#: internal/cli/target_content.go:447 internal/cli/target_content.go:608
-#: internal/cli/target_content.go:828 internal/cli/target_content.go:1037
-msgid "Creating directory %s: %v"
-msgstr "Creazione directory %s: %v"
-
-#: internal/cli/target_content.go:1081
+#: internal/cli/target_content.go:1132
 msgid "cannot read source nested JSON file %s: %w"
 msgstr "impossibile leggere il file JSON nidificato sorgente %s: %w"
 
-#: internal/cli/target_content.go:1124
+#: internal/cli/target_content.go:115
+msgid "Cannot read source YAML file %s: %v"
+msgstr "Impossibile leggere il file YAML sorgente %s: %v"
+
+#: internal/cli/target_content.go:1175
 msgid "No nested JSON files to translate"
 msgstr "Nessun file JSON nidificato da tradurre"
 
-#: internal/cli/target_content.go:1185
+#: internal/cli/target_content.go:1236
 msgid "Cannot read source JS file %s: %v"
 msgstr "Impossibile leggere il file JS sorgente %s: %v"
 
-#: internal/cli/target_content.go:1208
+#: internal/cli/target_content.go:1259
 msgid "cannot read source JS file %s: %w"
 msgstr "impossibile leggere il file JS sorgente %s: %w"
 
-#: internal/cli/target_content.go:1312
+#: internal/cli/target_content.go:134 internal/cli/target_content.go:376
+#: internal/cli/target_content.go:493 internal/cli/target_content.go:659
+#: internal/cli/target_content.go:879 internal/cli/target_content.go:1088
+msgid "Creating directory %s: %v"
+msgstr "Creazione directory %s: %v"
+
+#: internal/cli/target_content.go:1363
 msgid "cannot read desktop file %s: %w"
 msgstr "impossibile leggere il file desktop %s: %w"
 
-#: internal/cli/target_content.go:1334
+#: internal/cli/target_content.go:1385
 msgid "cannot read policy file %s: %w"
 msgstr "impossibile leggere il file policy %s: %w"
 
-#: internal/cli/target_content.go:135
+#: internal/cli/target_content.go:161
 msgid "YAML init: %d created, %d updated"
 msgstr "Inizializzazione YAML: %d creati, %d aggiornati"
 
-#: internal/cli/target_content.go:141 internal/cli/target_content.go:384
-#: internal/cli/target_content.go:639 internal/cli/target_content.go:859
-#: internal/cli/target_content.go:1064 internal/cli/target_core.go:75
+#: internal/cli/target_content.go:167 internal/cli/target_content.go:425
+#: internal/cli/target_content.go:690 internal/cli/target_content.go:910
+#: internal/cli/target_content.go:1115 internal/cli/target_core.go:75
 #: internal/cli/target_core.go:186 internal/cli/target_core.go:326
 #: internal/cli/target_core.go:433
 msgid "Provider: %s (%s), Model: %s"
 msgstr "Provider: %s (%s), Modello: %s"
 
-#: internal/cli/target_content.go:143 internal/cli/target_content.go:386
-#: internal/cli/target_content.go:641 internal/cli/target_content.go:861
-#: internal/cli/target_content.go:1066 internal/cli/target_core.go:77
+#: internal/cli/target_content.go:169 internal/cli/target_content.go:427
+#: internal/cli/target_content.go:692 internal/cli/target_content.go:912
+#: internal/cli/target_content.go:1117 internal/cli/target_core.go:77
 #: internal/cli/target_core.go:435
 msgid "Parallel: enabled, max concurrent: %d"
 msgstr "Parallelo: abilitato, massimo concorrenti: %d"
 
-#: internal/cli/target_content.go:146 internal/cli/target_content.go:389
-#: internal/cli/target_content.go:644 internal/cli/target_content.go:864
-#: internal/cli/target_content.go:1069 internal/cli/target_core.go:80
+#: internal/cli/target_content.go:172 internal/cli/target_content.go:430
+#: internal/cli/target_content.go:695 internal/cli/target_content.go:915
+#: internal/cli/target_content.go:1120 internal/cli/target_core.go:80
 #: internal/cli/target_core.go:438
 msgid "Chunk size: %d"
 msgstr "Dimensione chunk: %d"
 
-#: internal/cli/target_content.go:148 internal/cli/target_content.go:391
-#: internal/cli/target_content.go:646 internal/cli/target_content.go:866
-#: internal/cli/target_content.go:1071 internal/cli/target_core.go:327
+#: internal/cli/target_content.go:174 internal/cli/target_content.go:432
+#: internal/cli/target_content.go:697 internal/cli/target_content.go:917
+#: internal/cli/target_content.go:1122 internal/cli/target_core.go:327
 msgid "Translations dir: %s"
 msgstr "Directory traduzioni: %s"
 
-#: internal/cli/target_content.go:149 internal/cli/target_content.go:392
-#: internal/cli/target_content.go:647 internal/cli/target_content.go:867
-#: internal/cli/target_content.go:1072 internal/cli/target_core.go:83
+#: internal/cli/target_content.go:175 internal/cli/target_content.go:433
+#: internal/cli/target_content.go:698 internal/cli/target_content.go:918
+#: internal/cli/target_content.go:1123 internal/cli/target_core.go:83
 #: internal/cli/target_core.go:189 internal/cli/target_core.go:328
 #: internal/cli/target_core.go:441
 msgid "Translating: %s"
 msgstr "Traduzione in corso: %s"
 
-#: internal/cli/target_content.go:154
+#: internal/cli/target_content.go:180
 msgid "cannot find source YAML file for language %q in %s"
 msgstr "impossibile trovare il file YAML sorgente per la lingua %q in %s"
 
-#: internal/cli/target_content.go:159
+#: internal/cli/target_content.go:185
 msgid "cannot read source YAML %s: %w"
 msgstr "impossibile leggere YAML sorgente %s: %w"
 
-#: internal/cli/target_content.go:162 internal/cli/target_content.go:658
-#: internal/cli/target_content.go:878 internal/cli/target_content.go:1085
+#: internal/cli/target_content.go:188 internal/cli/target_content.go:709
+#: internal/cli/target_content.go:929 internal/cli/target_content.go:1136
 #: internal/cli/target_core.go:450
 msgid "Source strings: %d"
 msgstr "Stringhe sorgenti: %d"
 
-#: internal/cli/target_content.go:170 internal/cli/target_core.go:344
+#: internal/cli/target_content.go:196 internal/cli/target_core.go:344
 #: internal/cli/target_core.go:458
 msgid "%s (%s): %d strings to translate (file will be auto-created)"
 msgstr "%s (%s): %d stringhe da tradurre (il file sarà creato automaticamente)"
 
-#: internal/cli/target_content.go:176 internal/cli/target_content.go:184
-#: internal/cli/target_content.go:672 internal/cli/target_content.go:892
-#: internal/cli/target_content.go:1097 internal/cli/target_core.go:91
+#: internal/cli/target_content.go:202 internal/cli/target_content.go:210
+#: internal/cli/target_content.go:723 internal/cli/target_content.go:943
+#: internal/cli/target_content.go:1148 internal/cli/target_core.go:91
 #: internal/cli/target_core.go:197 internal/cli/target_core.go:352
 #: internal/cli/target_core.go:468
 msgid "%s (%s): %d strings to translate"
 msgstr "%s (%s): %d stringhe da tradurre"
 
-#: internal/cli/target_content.go:218
+#: internal/cli/target_content.go:244
 msgid "No YAML files to translate"
 msgstr "Nessun file YAML da tradurre"
 
-#: internal/cli/target_content.go:250 internal/cli/target_content.go:730
-#: internal/cli/target_content.go:950 internal/cli/target_content.go:1160
+#: internal/cli/target_content.go:276 internal/cli/target_content.go:781
+#: internal/cli/target_content.go:1001 internal/cli/target_content.go:1211
 msgid "  %s: %d/%d strings"
 msgstr "  %s: %d/%d stringhe"
 
-#: internal/cli/target_content.go:279
+#: internal/cli/target_content.go:310
 msgid "Source segments"
 msgstr "Segmenti sorgenti"
 
-#: internal/cli/target_content.go:323
+#: internal/cli/target_content.go:360
 msgid "Cannot find source Markdown files in %s"
 msgstr "Impossibile trovare file Markdown sorgenti in %s"
 
-#: internal/cli/target_content.go:324
-msgid "Expected: %s/*.md"
-msgstr "Atteso: %s/*.md"
+#: internal/cli/target_content.go:361
+msgid "Expected markdown files under: %s"
+msgstr "File Markdown attesi in: %s"
 
-#: internal/cli/target_content.go:328
+#: internal/cli/target_content.go:365
 msgid "Source language (%s): %d files"
 msgstr "Lingua sorgente (%s): %d file"
 
-#: internal/cli/target_content.go:349
+#: internal/cli/target_content.go:383 internal/cli/target_content.go:459
+#: internal/cli/target_content.go:500
+msgid "Computing relative path for %s: %v"
+msgstr "Calcolo del percorso relativo per %s: %v"
+
+#: internal/cli/target_content.go:390
 msgid "Cannot read source Markdown file %s: %v"
 msgstr "Impossibile leggere il file Markdown sorgente %s: %v"
 
-#: internal/cli/target_content.go:359
+#: internal/cli/target_content.go:400
 msgid "Created: %s (%d segments)"
 msgstr "Creato: %s (%d segmenti)"
 
-#: internal/cli/target_content.go:37 internal/cli/target_content.go:535
-#: internal/cli/target_content.go:755
-msgid "parse error: %v"
-msgstr "errore di parsing: %v"
-
-#: internal/cli/target_content.go:378
+#: internal/cli/target_content.go:419
 msgid "Markdown init: %d created, %d updated"
 msgstr "Inizializzazione Markdown: %d creati, %d aggiornati"
 
-#: internal/cli/target_content.go:408
+#: internal/cli/target_content.go:449
 msgid "Source segments: %d (%d files)"
 msgstr "Segmenti sorgenti: %d (%d file)"
 
-#: internal/cli/target_content.go:437
+#: internal/cli/target_content.go:483
 msgid "%s (%s): %d segments to translate"
 msgstr "%s (%s): %d segmenti da tradurre"
 
-#: internal/cli/target_content.go:478
+#: internal/cli/target_content.go:529
 msgid "No Markdown files to translate"
 msgstr "Nessun file Markdown da tradurre"
 
-#: internal/cli/target_content.go:510
+#: internal/cli/target_content.go:561
 msgid "  %s: %d/%d segments"
 msgstr "  %s: %d/%d segmenti"
 
-#: internal/cli/target_content.go:585
+#: internal/cli/target_content.go:63 internal/cli/target_content.go:586
+#: internal/cli/target_content.go:806
+msgid "parse error: %v"
+msgstr "errore di parsing: %v"
+
+#: internal/cli/target_content.go:636
 msgid "Cannot find source .properties file: %s"
 msgstr "Impossibile trovare il file .properties sorgente: %s"
 
-#: internal/cli/target_content.go:591
+#: internal/cli/target_content.go:642
 msgid "Cannot read source .properties file %s: %v"
 msgstr "Impossibile leggere il file .properties sorgente %s: %v"
 
-#: internal/cli/target_content.go:60 internal/cli/target_content.go:561
-#: internal/cli/target_content.go:781 internal/cli/target_content.go:1296
-msgid "parse error"
-msgstr "errore di parsing"
-
-#: internal/cli/target_content.go:633
+#: internal/cli/target_content.go:684
 msgid "Properties init: %d created, %d updated"
 msgstr "Inizializzazione Properties: %d creati, %d aggiornati"
 
-#: internal/cli/target_content.go:655
+#: internal/cli/target_content.go:706
 msgid "cannot read source .properties file %s: %w"
 msgstr "impossibile leggere il file .properties sorgente %s: %w"
 
-#: internal/cli/target_content.go:698
+#: internal/cli/target_content.go:749
 msgid "No .properties files to translate"
 msgstr "Nessun file .properties da tradurre"
 
-#: internal/cli/target_content.go:805
+#: internal/cli/target_content.go:856
 msgid "Cannot find source ARB file: %s"
 msgstr "Impossibile trovare il file ARB sorgente: %s"
 
-#: internal/cli/target_content.go:811
+#: internal/cli/target_content.go:86 internal/cli/target_content.go:612
+#: internal/cli/target_content.go:832 internal/cli/target_content.go:1347
+msgid "parse error"
+msgstr "errore di parsing"
+
+#: internal/cli/target_content.go:862
 msgid "Cannot read source ARB file %s: %v"
 msgstr "Impossibile leggere il file ARB sorgente %s: %v"
 
-#: internal/cli/target_content.go:82
-msgid "Cannot find source YAML file for language %q in %s"
-msgstr "Impossibile trovare il file YAML sorgente per la lingua %q in %s"
-
-#: internal/cli/target_content.go:83
-msgid "Expected: %s"
-msgstr "Atteso: %s"
-
-#: internal/cli/target_content.go:853
+#: internal/cli/target_content.go:904
 msgid "Flutter ARB init: %d created, %d updated"
 msgstr "Flutter ARB init: %d creati, %d aggiornati"
 
-#: internal/cli/target_content.go:875
+#: internal/cli/target_content.go:926
 msgid "cannot read source ARB file %s: %w"
 msgstr "impossibile leggere il file ARB sorgente %s: %w"
 
-#: internal/cli/target_content.go:89
-msgid "Cannot read source YAML file %s: %v"
-msgstr "Impossibile leggere il file YAML sorgente %s: %v"
-
-#: internal/cli/target_content.go:918
+#: internal/cli/target_content.go:969
 msgid "No ARB files to translate"
 msgstr "Nessun file ARB da tradurre"
 

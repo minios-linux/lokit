@@ -1547,7 +1547,8 @@ func parsePluralTranslations(content string, entries []*po.Entry, nplurals int) 
 
 // parseTranslations extracts a JSON array of strings from the AI response text.
 func parseTranslations(content string, expected int) ([]string, error) {
-	content = strings.TrimSpace(content)
+	raw := strings.TrimSpace(content)
+	content = raw
 
 	// Strip markdown code blocks if present
 	if m := markdownCodeBlock.FindStringSubmatch(content); len(m) > 1 {
@@ -1568,6 +1569,12 @@ func parseTranslations(content string, expected int) ([]string, error) {
 
 	var translations []string
 	if err := json.Unmarshal([]byte(content), &translations); err != nil {
+		if expected == 1 {
+			var single string
+			if err2 := json.Unmarshal([]byte(content), &single); err2 == nil && strings.TrimSpace(single) != "" {
+				return []string{single}, nil
+			}
+		}
 		return nil, fmt.Errorf("failed to parse translation response as JSON array: %w\nResponse: %s", err, truncate(content, 300))
 	}
 
@@ -1576,6 +1583,38 @@ func parseTranslations(content string, expected int) ([]string, error) {
 	}
 
 	return translations, nil
+}
+
+func looksLikeNonTranslationResponse(text string) bool {
+	lower := strings.ToLower(strings.TrimSpace(text))
+	if lower == "" {
+		return true
+	}
+
+	prefixes := []string{
+		"i'm sorry",
+		"i am sorry",
+		"sorry,",
+		"i cannot",
+		"i can't",
+		"as an ai",
+		"here is the translation",
+		"here's the translation",
+		"translation:",
+		"error:",
+		"{" + `"error"`,
+	}
+	for _, p := range prefixes {
+		if strings.HasPrefix(lower, p) {
+			return true
+		}
+	}
+
+	if strings.Contains(lower, "\n") && strings.Contains(lower, "[") && strings.Contains(lower, "]") {
+		return true
+	}
+
+	return false
 }
 
 // ---------------------------------------------------------------------------
@@ -1739,7 +1778,7 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 // The sourceValues map provides key -> source content for hashing.
 // If sourceValues is nil, the key itself is used as the source content
 // (as in i18next where keys are natural English text).
-func filterChangedKeys(keys []string, sourceValues map[string]string, opts Options) []string {
+func filterChangedKeys(keys []string, sourceValues map[string]string, lockKeyPrefix string, opts Options) []string {
 	if opts.LockFile == nil || opts.ForceTranslate || len(keys) == 0 {
 		return keys
 	}
@@ -1747,13 +1786,14 @@ func filterChangedKeys(keys []string, sourceValues map[string]string, opts Optio
 	lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 	var changed []string
 	for _, key := range keys {
+		lockKey := scopedLockKey(lockKeyPrefix, key)
 		content := key
 		if sourceValues != nil {
 			if v, ok := sourceValues[key]; ok && v != "" {
-				content = lockfile.KVEntryContent(key, v)
+				content = lockfile.KVEntryContent(lockKey, v)
 			}
 		}
-		if opts.LockFile.IsChanged(lockTarget, key, content) {
+		if opts.LockFile.IsChanged(lockTarget, lockKey, content) {
 			changed = append(changed, key)
 		}
 	}
@@ -1839,20 +1879,28 @@ func updateLockFileForPO(entries []*po.Entry, opts Options) {
 
 // updateLockFileForKV updates the lock file with checksums for successfully
 // translated key-value entries.
-func updateLockFileForKV(keys []string, sourceValues map[string]string, opts Options) {
+func updateLockFileForKV(keys []string, sourceValues map[string]string, lockKeyPrefix string, opts Options) {
 	if opts.LockFile == nil {
 		return
 	}
 	lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 	for _, key := range keys {
+		lockKey := scopedLockKey(lockKeyPrefix, key)
 		content := key
 		if sourceValues != nil {
 			if v, ok := sourceValues[key]; ok && v != "" {
-				content = lockfile.KVEntryContent(key, v)
+				content = lockfile.KVEntryContent(lockKey, v)
 			}
 		}
-		opts.LockFile.Update(lockTarget, key, content)
+		opts.LockFile.Update(lockTarget, lockKey, content)
 	}
+}
+
+func scopedLockKey(prefix, key string) string {
+	if prefix == "" {
+		return key
+	}
+	return prefix + ":" + key
 }
 
 // splitEntries divides entries into chunks of the given size.
@@ -2375,6 +2423,8 @@ type MarkdownLangTask struct {
 	File *mdfile.File
 	// SourceFile is the source Markdown file.
 	SourceFile *mdfile.File
+	// LockKeyPrefix scopes lock keys per file to avoid collisions.
+	LockKeyPrefix string
 }
 
 // TranslateAllMarkdown translates Markdown files for all language tasks.
@@ -2382,11 +2432,12 @@ func TranslateAllMarkdown(ctx context.Context, langTasks []MarkdownLangTask, opt
 	tasks := make([]KVLangTask, 0, len(langTasks))
 	for _, task := range langTasks {
 		tasks = append(tasks, KVLangTask{
-			Lang:         task.Lang,
-			LangName:     task.LangName,
-			FilePath:     task.FilePath,
-			File:         task.File,
-			SourceValues: task.SourceFile.SourceValues(),
+			Lang:          task.Lang,
+			LangName:      task.LangName,
+			FilePath:      task.FilePath,
+			File:          task.File,
+			SourceValues:  task.SourceFile.SourceValues(),
+			LockKeyPrefix: task.LockKeyPrefix,
 		})
 	}
 	return TranslateAllKV(ctx, tasks, opts, MarkdownKVChunkTranslator())

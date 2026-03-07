@@ -192,6 +192,93 @@ func TestMarshal_FrontmatterPreserved(t *testing.T) {
 	}
 }
 
+func TestParse_AndMarshal_NestedFrontmatter(t *testing.T) {
+	data := []byte(`---
+layout: article
+meta:
+  title: Sample Project
+  summary: Generic text for testing nested frontmatter
+items:
+  - label: Item One
+    description: Baseline description for tests.
+---
+
+# Body
+`)
+
+	f, err := Parse(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	title, ok := f.Get("fm:meta.title")
+	if !ok || title != "Sample Project" {
+		t.Fatalf("fm:meta.title: want %q, got %q (ok=%v)", "Sample Project", title, ok)
+	}
+	itemLabel, ok := f.Get("fm:items.0.label")
+	if !ok || itemLabel != "Item One" {
+		t.Fatalf("fm:items.0.label: want %q, got %q (ok=%v)", "Item One", itemLabel, ok)
+	}
+
+	f.Set("fm:meta.summary", "Updated neutral summary for regression testing")
+	f.Set("fm:items.0.description", "Updated neutral description for regression testing.")
+
+	out, err := f.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	outStr := string(out)
+	if !strings.Contains(outStr, "meta:") {
+		t.Fatalf("output should contain meta map, got: %q", outStr)
+	}
+	if !strings.Contains(outStr, "Updated neutral summary for regression testing") {
+		t.Fatalf("output should contain updated nested frontmatter value, got: %q", outStr)
+	}
+	if !strings.Contains(outStr, "Updated neutral description for regression testing.") {
+		t.Fatalf("output should contain updated list nested value, got: %q", outStr)
+	}
+}
+
+func TestParse_AndMarshal_DottedFrontmatterKeyNoCollision(t *testing.T) {
+	data := []byte(`---
+a.b: flat-value
+a:
+  b: nested-value
+---
+
+# Body
+`)
+
+	f, err := Parse(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	flat, ok := f.Get("fm:a\\.b")
+	if !ok || flat != "flat-value" {
+		t.Fatalf("fm:a\\.b: want %q, got %q (ok=%v)", "flat-value", flat, ok)
+	}
+	nested, ok := f.Get("fm:a.b")
+	if !ok || nested != "nested-value" {
+		t.Fatalf("fm:a.b: want %q, got %q (ok=%v)", "nested-value", nested, ok)
+	}
+
+	f.Set("fm:a\\.b", "flat-translated")
+	f.Set("fm:a.b", "nested-translated")
+
+	out, err := f.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	outStr := string(out)
+	if !strings.Contains(outStr, "flat-translated") {
+		t.Fatalf("output should contain translated dotted key value, got: %q", outStr)
+	}
+	if !strings.Contains(outStr, "nested-translated") {
+		t.Fatalf("output should contain translated nested key value, got: %q", outStr)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // NewTranslationFile / SyncKeys
 // ---------------------------------------------------------------------------

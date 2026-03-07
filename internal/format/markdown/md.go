@@ -2,8 +2,9 @@
 //
 // Each Markdown file is split into translatable segments:
 //
-//   - Frontmatter fields (YAML between --- delimiters) are stored as
-//     individual segments with keys like "fm:title", "fm:description".
+//   - Frontmatter scalar fields (YAML between --- delimiters) are stored as
+//     individual segments with keys like "fm:title", "fm:hero.text",
+//     "fm:features.0.title".
 //
 //   - The Markdown body is split on headings (# to ######) and horizontal
 //     rules (---, ***, ___) into sections, stored as segments with keys
@@ -90,21 +91,10 @@ func Parse(data []byte) (*File, error) {
 		var fmNode yaml.Node
 		if err := yaml.Unmarshal([]byte(fmRaw), &fmNode); err == nil && len(fmNode.Content) > 0 {
 			root := fmNode.Content[0]
-			if root.Kind == yaml.MappingNode {
+			if root.Kind == yaml.MappingNode || root.Kind == yaml.SequenceNode {
 				f.hasFrontmatter = true
 				f.fmNode = &fmNode
-				for i := 0; i+1 < len(root.Content); i += 2 {
-					keyNode := root.Content[i]
-					valNode := root.Content[i+1]
-					if valNode.Kind != yaml.ScalarNode {
-						continue
-					}
-					f.fmKeys = append(f.fmKeys, keyNode.Value)
-					key := "fm:" + keyNode.Value
-					idx := len(f.segments)
-					f.segments = append(f.segments, Segment{Key: key, Value: valNode.Value})
-					f.index[key] = idx
-				}
+				extractFrontmatterSegments(root, "", f)
 			}
 		}
 	}
@@ -259,18 +249,8 @@ func (f *File) Marshal() ([]byte, error) {
 	// Front matter.
 	if f.hasFrontmatter && f.fmNode != nil && len(f.fmNode.Content) > 0 {
 		root := f.fmNode.Content[0]
-		if root.Kind == yaml.MappingNode {
-			for i := 0; i+1 < len(root.Content); i += 2 {
-				keyNode := root.Content[i]
-				valNode := root.Content[i+1]
-				if valNode.Kind != yaml.ScalarNode {
-					continue
-				}
-				fmKey := "fm:" + keyNode.Value
-				if idx, ok := f.index[fmKey]; ok {
-					valNode.Value = f.segments[idx].Value
-				}
-			}
+		if root.Kind == yaml.MappingNode || root.Kind == yaml.SequenceNode {
+			applyFrontmatterSegments(root, "", f)
 		}
 		fmBytes, err := yaml.Marshal(f.fmNode)
 		if err != nil {
@@ -388,4 +368,65 @@ func insideRanges(pos int, ranges [][]int) bool {
 		}
 	}
 	return false
+}
+
+func extractFrontmatterSegments(node *yaml.Node, prefix string, f *File) {
+	switch node.Kind {
+	case yaml.MappingNode:
+		for i := 0; i+1 < len(node.Content); i += 2 {
+			keyNode := node.Content[i]
+			valNode := node.Content[i+1]
+			extractFrontmatterSegments(valNode, appendYAMLPath(prefix, keyNode.Value), f)
+		}
+	case yaml.SequenceNode:
+		for i, child := range node.Content {
+			extractFrontmatterSegments(child, appendYAMLPath(prefix, fmt.Sprintf("%d", i)), f)
+		}
+	case yaml.ScalarNode:
+		if prefix == "" {
+			return
+		}
+		f.fmKeys = append(f.fmKeys, prefix)
+		key := "fm:" + prefix
+		idx := len(f.segments)
+		f.segments = append(f.segments, Segment{Key: key, Value: node.Value})
+		f.index[key] = idx
+	}
+}
+
+func applyFrontmatterSegments(node *yaml.Node, prefix string, f *File) {
+	switch node.Kind {
+	case yaml.MappingNode:
+		for i := 0; i+1 < len(node.Content); i += 2 {
+			keyNode := node.Content[i]
+			valNode := node.Content[i+1]
+			applyFrontmatterSegments(valNode, appendYAMLPath(prefix, keyNode.Value), f)
+		}
+	case yaml.SequenceNode:
+		for i, child := range node.Content {
+			applyFrontmatterSegments(child, appendYAMLPath(prefix, fmt.Sprintf("%d", i)), f)
+		}
+	case yaml.ScalarNode:
+		if prefix == "" {
+			return
+		}
+		fmKey := "fm:" + prefix
+		if idx, ok := f.index[fmKey]; ok {
+			node.Value = f.segments[idx].Value
+		}
+	}
+}
+
+func appendYAMLPath(prefix, part string) string {
+	part = escapeYAMLPathPart(part)
+	if prefix == "" {
+		return part
+	}
+	return prefix + "." + part
+}
+
+func escapeYAMLPathPart(part string) string {
+	part = strings.ReplaceAll(part, "\\", "\\\\")
+	part = strings.ReplaceAll(part, ".", "\\.")
+	return part
 }

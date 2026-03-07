@@ -3,8 +3,10 @@ package cli
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/minios-linux/lokit/config"
@@ -20,6 +22,30 @@ import (
 	yamlfile "github.com/minios-linux/lokit/internal/format/yaml"
 	"github.com/minios-linux/lokit/translate"
 )
+
+func discoverMarkdownFiles(dir string) ([]string, error) {
+	var files []string
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if path != dir && strings.HasPrefix(d.Name(), ".") {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if strings.EqualFold(filepath.Ext(path), ".md") {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	sort.Strings(files)
+	return files, nil
+}
 
 func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
 	transDir := rt.AbsTranslationsDir()
@@ -262,18 +288,23 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 
 	srcLang := rt.Target.SourceLang
 	srcDir := filepath.Join(transDir, srcLang)
-	srcFiles, _ := filepath.Glob(filepath.Join(srcDir, "*.md"))
+	srcFiles, _ := discoverMarkdownFiles(srcDir)
 	if len(srcFiles) == 0 {
-		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcDir+"/*.md)")
+		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcDir+")")
 		return
 	}
 
 	srcTotal := 0
+	srcByRelPath := make(map[string]*mdfile.File, len(srcFiles))
 	for _, p := range srcFiles {
 		f, err := mdfile.ParseFile(p)
 		if err == nil {
 			t, _, _ := f.Stats()
 			srcTotal += t
+			relPath, relErr := filepath.Rel(srcDir, p)
+			if relErr == nil {
+				srcByRelPath[filepath.ToSlash(relPath)] = f
+			}
 		}
 	}
 	keyVal(T("Source segments"), fmt.Sprintf("%d (%s, %d files)", srcTotal, srcLang, len(srcFiles)))
@@ -286,7 +317,7 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 
 	for _, lang := range langs {
 		langDir := filepath.Join(transDir, lang)
-		files, _ := filepath.Glob(filepath.Join(langDir, "*.md"))
+		files, _ := discoverMarkdownFiles(langDir)
 		if len(files) == 0 {
 			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
 				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
@@ -298,6 +329,12 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 			f, err := mdfile.ParseFile(p)
 			if err != nil {
 				continue
+			}
+			relPath, relErr := filepath.Rel(langDir, p)
+			if relErr == nil {
+				if srcFile, ok := srcByRelPath[filepath.ToSlash(relPath)]; ok {
+					mdfile.SyncKeys(srcFile, f)
+				}
 			}
 			_, tr, _ := f.Stats()
 			translated += tr
@@ -318,10 +355,10 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 	srcLang := rt.Target.SourceLang
 	srcDir := filepath.Join(transDir, srcLang)
 
-	srcFiles, _ := filepath.Glob(filepath.Join(srcDir, "*.md"))
+	srcFiles, _ := discoverMarkdownFiles(srcDir)
 	if len(srcFiles) == 0 {
 		logError(T("Cannot find source Markdown files in %s"), srcDir)
-		logInfo(T("Expected: %s/*.md"), srcDir)
+		logInfo(T("Expected markdown files under: %s"), srcDir)
 		os.Exit(1)
 	}
 
@@ -341,8 +378,12 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 		}
 
 		for _, srcPath := range srcFiles {
-			base := filepath.Base(srcPath)
-			targetPath := filepath.Join(langDir, base)
+			relPath, err := filepath.Rel(srcDir, srcPath)
+			if err != nil {
+				logError(T("Computing relative path for %s: %v"), srcPath, err)
+				continue
+			}
+			targetPath := filepath.Join(langDir, relPath)
 
 			srcFile, err := mdfile.ParseFile(srcPath)
 			if err != nil {
@@ -393,7 +434,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 
 	srcLang := rt.Target.SourceLang
 	srcDir := filepath.Join(transDir, srcLang)
-	srcFiles, _ := filepath.Glob(filepath.Join(srcDir, "*.md"))
+	srcFiles, _ := discoverMarkdownFiles(srcDir)
 	if len(srcFiles) == 0 {
 		return fmt.Errorf(T("cannot find source Markdown files in %s"), srcDir)
 	}
@@ -413,8 +454,12 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 			langDir := filepath.Join(transDir, lang)
 			count := 0
 			for _, srcPath := range srcFiles {
-				base := filepath.Base(srcPath)
-				targetPath := filepath.Join(langDir, base)
+				relPath, err := filepath.Rel(srcDir, srcPath)
+				if err != nil {
+					logError(T("Computing relative path for %s: %v"), srcPath, err)
+					continue
+				}
+				targetPath := filepath.Join(langDir, relPath)
 				srcFile, err := mdfile.ParseFile(srcPath)
 				if err != nil {
 					continue
@@ -432,6 +477,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 					count += len(srcFile.Keys())
 					continue
 				}
+				mdfile.SyncKeys(srcFile, tf)
 				count += len(tf.UntranslatedKeys())
 			}
 			logInfo(T("%s (%s): %d segments to translate"), lang, langName, count)
@@ -449,8 +495,12 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 		}
 
 		for _, srcPath := range srcFiles {
-			base := filepath.Base(srcPath)
-			targetPath := filepath.Join(langDir, base)
+			relPath, err := filepath.Rel(srcDir, srcPath)
+			if err != nil {
+				logError(T("Computing relative path for %s: %v"), srcPath, err)
+				continue
+			}
+			targetPath := filepath.Join(langDir, relPath)
 
 			srcFile, err := mdfile.ParseFile(srcPath)
 			if err != nil {
@@ -470,7 +520,8 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 				mdfile.SyncKeys(srcFile, targetFile)
 			}
 
-			tasks = append(tasks, translate.MarkdownLangTask{Lang: lang, LangName: langName, FilePath: targetPath, File: targetFile, SourceFile: srcFile})
+			lockKeyPrefix := filepath.ToSlash(relPath)
+			tasks = append(tasks, translate.MarkdownLangTask{Lang: lang, LangName: langName, FilePath: targetPath, File: targetFile, SourceFile: srcFile, LockKeyPrefix: lockKeyPrefix})
 		}
 	}
 

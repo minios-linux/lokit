@@ -455,6 +455,175 @@ func TestBuildMarkdownUserPrompt_IncludesMarkdownRules(t *testing.T) {
 	}
 }
 
+func TestParseTranslations_SingleItemRejectsRawText(t *testing.T) {
+	content := "mermaid\\ngraph TD\\nA-->B"
+	_, err := parseTranslations(content, 1)
+	if err == nil {
+		t.Fatal("expected parseTranslations to reject non-JSON raw text")
+	}
+}
+
+func TestParseTranslations_SingleItemRejectsWrapperText(t *testing.T) {
+	content := "Here is the translation: Privet"
+	_, err := parseTranslations(content, 1)
+	if err == nil {
+		t.Fatal("expected parseTranslations to reject wrapper text fallback")
+	}
+}
+
+func TestParseTranslations_SingleItemAcceptsJSONString(t *testing.T) {
+	content := `"Privet"`
+	translations, err := parseTranslations(content, 1)
+	if err != nil {
+		t.Fatalf("parseTranslations returned error: %v", err)
+	}
+	if len(translations) != 1 || translations[0] != "Privet" {
+		t.Fatalf("unexpected parsed translations: %#v", translations)
+	}
+}
+
+func TestIsMarkdownTranslationLikelyValid_HeadingMismatch(t *testing.T) {
+	src := "## Section\n\nParagraph"
+	dst := "Abschnitt\n\nAbsatz"
+	if isMarkdownTranslationLikelyValid(src, dst) {
+		t.Fatal("expected heading mismatch to be invalid")
+	}
+}
+
+func TestIsMarkdownTranslationLikelyValid_CodeFenceMissing(t *testing.T) {
+	src := "### Example\n\n```bash\necho hi\n```"
+	dst := "### Beispiel\n\nCode block omitted"
+	if isMarkdownTranslationLikelyValid(src, dst) {
+		t.Fatal("expected missing fenced code block to be invalid")
+	}
+}
+
+func TestIsMarkdownTranslationLikelyValid_ValidStructure(t *testing.T) {
+	src := "### Example\n\n```bash\necho hi\n```\n\nText"
+	dst := "### Beispiel\n\n```bash\necho hi\n```\n\nText"
+	if !isMarkdownTranslationLikelyValid(src, dst) {
+		t.Fatal("expected markdown translation with preserved structure to be valid")
+	}
+}
+
+func TestMaskAndRestoreMarkdownCodeBlocks(t *testing.T) {
+	src := "### H\n\n```mermaid\ngraph TD\nA-->B\n```\n\nText"
+	masked, blocks := maskMarkdownCodeBlocks(src)
+	if len(blocks) != 1 {
+		t.Fatalf("expected 1 code block, got %d", len(blocks))
+	}
+	if !strings.Contains(masked, "__LOKIT_CODE_BLOCK_0__") {
+		t.Fatalf("expected placeholder in masked text, got %q", masked)
+	}
+	restored := restoreMarkdownCodeBlocks(masked, blocks)
+	if restored != src {
+		t.Fatalf("restored text mismatch\nwant: %q\ngot:  %q", src, restored)
+	}
+}
+
+func TestMaskAndRestoreMarkdownCodeBlocks_WithInlineBackticks(t *testing.T) {
+	src := "### H\n\n```python\nx = \"`hello`\"\n```\n\nText"
+	masked, blocks := maskMarkdownCodeBlocks(src)
+	if len(blocks) != 1 {
+		t.Fatalf("expected 1 code block, got %d", len(blocks))
+	}
+	if !strings.Contains(masked, "__LOKIT_CODE_BLOCK_0__") {
+		t.Fatalf("expected placeholder in masked text, got %q", masked)
+	}
+	restored := restoreMarkdownCodeBlocks(masked, blocks)
+	if restored != src {
+		t.Fatalf("restored text mismatch\nwant: %q\ngot:  %q", src, restored)
+	}
+}
+
+func TestTranslateMarkdownSingleRetry_RestoresMaskedCodeBlocks(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/chat/completions" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		_, _ = io.Copy(io.Discard, r.Body)
+		_ = r.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"Perevod __LOKIT_CODE_BLOCK_0__ gotov\"]"}}]}`))
+	}))
+	defer ts.Close()
+
+	opts := Options{
+		Provider: Provider{
+			ID:      ProviderCustomOpenAI,
+			BaseURL: ts.URL,
+			Model:   "test-model",
+		},
+		LanguageName: "Russian",
+	}
+
+	src := "### H\n\n```python\nx = \"`hello`\"\n```\n\nText"
+	translations, err := translateMarkdownSingleRetry(
+		context.Background(),
+		"sec:0",
+		map[string]string{"sec:0": src},
+		opts.resolvedPrompt(),
+		opts,
+		&rateLimitState{},
+	)
+	if err != nil {
+		t.Fatalf("translateMarkdownSingleRetry error: %v", err)
+	}
+	if len(translations) != 1 {
+		t.Fatalf("expected 1 translation, got %d", len(translations))
+	}
+	if strings.Contains(translations[0], "__LOKIT_CODE_BLOCK_0__") {
+		t.Fatalf("placeholder was not restored: %q", translations[0])
+	}
+	if !strings.Contains(translations[0], "```python") || !strings.Contains(translations[0], "`hello`") {
+		t.Fatalf("expected restored fenced code block in translation, got %q", translations[0])
+	}
+}
+
+func TestTranslateMarkdownSingleRetry_AcceptsRawFallbackForMarkdown(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/chat/completions" {
+			t.Fatalf("unexpected path: %s", r.URL.Path)
+		}
+		_, _ = io.Copy(io.Discard, r.Body)
+		_ = r.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"Perevod __LOKIT_CODE_BLOCK_0__ gotov"}}]}`))
+	}))
+	defer ts.Close()
+
+	opts := Options{
+		Provider: Provider{
+			ID:      ProviderCustomOpenAI,
+			BaseURL: ts.URL,
+			Model:   "test-model",
+		},
+		LanguageName: "Russian",
+	}
+
+	src := "### H\n\n```python\nx = \"`hello`\"\n```\n\nText"
+	translations, err := translateMarkdownSingleRetry(
+		context.Background(),
+		"sec:0",
+		map[string]string{"sec:0": src},
+		opts.resolvedPrompt(),
+		opts,
+		&rateLimitState{},
+	)
+	if err != nil {
+		t.Fatalf("translateMarkdownSingleRetry error: %v", err)
+	}
+	if len(translations) != 1 {
+		t.Fatalf("expected 1 translation, got %d", len(translations))
+	}
+	if strings.Contains(translations[0], "__LOKIT_CODE_BLOCK_0__") {
+		t.Fatalf("placeholder was not restored: %q", translations[0])
+	}
+	if !strings.Contains(translations[0], "```python") || !strings.Contains(translations[0], "`hello`") {
+		t.Fatalf("expected restored fenced code block in translation, got %q", translations[0])
+	}
+}
+
 func TestI18NextFile_SetAndSourceValues(t *testing.T) {
 	f := &i18next.File{
 		Translations: map[string]string{

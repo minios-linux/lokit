@@ -94,6 +94,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -139,6 +140,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -596,6 +598,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -832,6 +835,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -877,6 +881,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -1334,6 +1339,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -1570,6 +1576,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -1615,6 +1622,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -2072,6 +2080,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -2308,6 +2317,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -2353,6 +2363,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -2810,6 +2821,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -3046,6 +3058,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -3091,6 +3104,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -3548,6 +3562,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -3784,6 +3799,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -3829,6 +3845,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -4286,6 +4303,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -4522,6 +4540,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -4567,6 +4586,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -5024,6 +5044,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -5260,6 +5281,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -5305,6 +5327,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -5762,6 +5785,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -5998,6 +6022,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -6043,6 +6068,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -6500,6 +6526,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -6736,6 +6763,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -6781,6 +6809,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -7238,6 +7267,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -7474,6 +7504,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -7519,6 +7550,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -7976,6 +8008,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -8212,6 +8245,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -8257,6 +8291,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -8714,6 +8749,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a
@@ -8950,6 +8986,7 @@ checksums:
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
         Code Assist project configured!: 075bd00cf0c3de838a52070308057eae
         'Code Assist setup failed: %v': 8f5d77d6acc52933c755a8b6df4cf637
+        'Computing relative path for %s: %v': bb1e061053dfaf2d6f66f8454d3a50ad
         Config: fa535ffb25e1fd20341652f9be21e06e
         'Config error: %v': a48f3f74ad9edaf1147ab81381bb8703
         'Config resolve error: %v': 094f392883da8f1e981a38d512ec8524
@@ -8995,6 +9032,7 @@ checksums:
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
+        'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
         'Expected: %s/*.md': e661c762fbe0bb946d0c4fe70eb171af
         ? |-
@@ -9452,6 +9490,7 @@ checksums:
         'You can now use: lokit translate --provider gemini --model gemini-2.5-flash': 4e910dfb4b4337884c4defeb635a6452
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
         'built:': 4812dafe898f0411120502e9d16a86dd
+        'cannot compute relative path for %s: %v': f852f92dab228ed0aa3239bcdc4f0272
         cannot find source Markdown files in %s: 5e2c2e9cf755a7a2f0f82df72a4c8702
         cannot find source YAML file for language %q in %s: fdd83e986ab00745af86b85b1c5a6a4b
         'cannot read POT %s: %v': 59f47ba523199510b87ef9dee30d8b4a

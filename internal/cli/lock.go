@@ -643,7 +643,7 @@ func collectYAMLSourceEntries(rt config.ResolvedTarget) (map[string]string, erro
 
 func collectMarkdownSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
 	srcDir := filepath.Join(rt.AbsTranslationsDir(), rt.Target.SourceLang)
-	srcFiles, err := filepath.Glob(filepath.Join(srcDir, "*.md"))
+	srcFiles, err := discoverMarkdownFiles(srcDir)
 	if err != nil {
 		return nil, fmt.Errorf(T("cannot read markdown files in %s: %v"), srcDir, err)
 	}
@@ -653,12 +653,18 @@ func collectMarkdownSourceEntries(rt config.ResolvedTarget) (map[string]string, 
 
 	entries := make(map[string]string)
 	for _, srcPath := range srcFiles {
+		relPath, err := filepath.Rel(srcDir, srcPath)
+		if err != nil {
+			return nil, fmt.Errorf(T("cannot compute relative path for %s: %v"), srcPath, err)
+		}
+		lockPrefix := filepath.ToSlash(relPath)
 		srcFile, err := mdfile.ParseFile(srcPath)
 		if err != nil {
 			return nil, fmt.Errorf(T("cannot read source Markdown file %s: %v"), srcPath, err)
 		}
 		for key, v := range srcFile.SourceValues() {
-			entries[key] = lockfile.KVEntryContent(key, v)
+			lockKey := lockPrefix + ":" + key
+			entries[lockKey] = lockfile.KVEntryContent(lockKey, v)
 		}
 	}
 	return entries, nil
