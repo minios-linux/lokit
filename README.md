@@ -6,10 +6,10 @@
 
 - **Config-first workflow** — `lokit.yaml` is required and acts as the single source of truth
 - **Multi-target support** — one config can define many translation targets across different formats
-- **AI translation** — 7 providers including free GitHub Copilot and Gemini
+- **AI translation** — 8 providers including GitHub Copilot, Gemini, OpenAI, Ollama, and more
 - **Translation statistics** — per-target progress tracking
 - **Smart PO management** — extract, merge, update with `xgettext` and `msgmerge`
-- **Native OAuth** — GitHub Copilot (device code) and Gemini (browser)
+- **Native auth flows** — GitHub Copilot (device code), Gemini (browser), and OpenAI (browser OAuth or device code)
 - **Parallel translation** — concurrent API requests with configurable chunking
 
 ## Supported Formats
@@ -31,15 +31,16 @@
 
 ## Supported AI Providers
 
-| Provider | Auth | Free tier |
-|----------|------|-----------|
-| **GitHub Copilot** | OAuth (device code) | ✅ with GitHub account |
-| **Gemini Code Assist** | OAuth (browser) | ✅ 60 req/min |
-| **Google AI (Gemini)** | API key | ✅ limited |
-| **Groq** | API key | ✅ limited |
-| **OpenCode** | API key (optional) | ✅ free models available |
-| **Ollama** | none (local) | ✅ |
-| **Custom OpenAI** | API key | depends |
+| Provider | Auth |
+|----------|------|
+| **GitHub Copilot** | OAuth (device code) |
+| **Gemini Code Assist** | OAuth (browser) |
+| **Google AI (Gemini)** | API key |
+| **Groq** | API key |
+| **OpenCode** | API key (optional) |
+| **OpenAI** | browser OAuth, device code, or API key |
+| **Ollama** | none (local) |
+| **Custom OpenAI** | API key |
 
 ## Installation
 
@@ -162,7 +163,7 @@ source_lang: en
 provider:
   id: copilot
   model: gpt-4o
-  # base_url is supported only for custom-openai and ollama
+  # base_url is supported for custom-openai and ollama only
   # base_url: http://localhost:11434
   # prompt: "Translate to {{targetLang}} with concise style."
   # settings:
@@ -296,7 +297,7 @@ lokit translate --provider copilot --model gpt-4o
   --prompt string           Custom system prompt ({{targetLang}} placeholder)
   --proxy string            HTTP/HTTPS proxy URL
   --api-key string          API key (or provider env var)
-  --base-url string         Custom API endpoint
+  --base-url string         Custom API endpoint (custom-openai, ollama)
   --timeout duration        Request timeout (0 = provider default)
   --retries int             Retries on rate limit (default: 3)
   --delay duration          Delay between translation requests
@@ -408,10 +409,25 @@ lokit translate --provider copilot --model gpt-4o --lang ru,de
 lokit translate --provider ollama --model llama3
 ```
 
+### OpenAI
+
+```bash
+lokit auth login --provider openai
+lokit auth login --provider openai --headless
+lokit auth login --provider openai --auth-method oauth
+lokit auth login --provider openai --auth-method device
+lokit auth login --provider openai --auth-method api-key
+lokit translate --provider openai --model gpt-5
+```
+
+OAuth/device auth uses ChatGPT Codex endpoint and supports GPT-5/Codex models. For `gpt-4o`/`gpt-4.1` or custom OpenAI-compatible endpoints, use API key auth (or `custom-openai`).
+
 ### Custom OpenAI endpoint
 
 ```bash
-lokit auth login --provider custom-openai --api-key YOUR_KEY --base-url https://api.example.com/v1
+lokit auth login --provider custom-openai
+# or non-interactively:
+# lokit auth login --provider custom-openai --api-key YOUR_KEY --base-url https://api.example.com/v1
 lokit translate --provider custom-openai --model my-model
 ```
 
@@ -431,7 +447,7 @@ All user data is stored in `~/.local/share/lokit/` (respects `$XDG_DATA_HOME`):
 
 **Lookup order** (highest → lowest):
 1. `--api-key` flag
-2. Provider-specific environment variable (`GOOGLE_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, `OPENCODE_API_KEY`)
+2. Provider-specific environment variable (`GOOGLE_API_KEY`, `GROQ_API_KEY`, `OPENAI_API_KEY`, `CUSTOM_OPENAI_API_KEY`, `OPENCODE_API_KEY`)
 3. Stored credentials in `auth.json`
 
 ### System Prompts

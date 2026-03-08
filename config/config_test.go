@@ -364,6 +364,30 @@ func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 		}
 	})
 
+	t.Run("rejects provider base_url for openai", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "provider:\n" +
+			"  id: openai\n" +
+			"  model: gpt-4o\n" +
+			"  base_url: https://api.openai.com/v1\n" +
+			"targets:\n" +
+			"  - name: app\n" +
+			"    format: i18next\n" +
+			"    dir: i18n\n" +
+			"    pattern: '{lang}.json'\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		_, err := LoadLokitFile(dir)
+		if err == nil {
+			t.Fatal("expected error for base_url with openai provider")
+		}
+		if !strings.Contains(err.Error(), "base_url") {
+			t.Fatalf("unexpected error: %v", err)
+		}
+	})
+
 	t.Run("rejects provider base_url for unsupported provider", func(t *testing.T) {
 		dir := t.TempDir()
 		yaml := "provider:\n" +

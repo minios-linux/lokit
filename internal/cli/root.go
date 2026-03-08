@@ -203,10 +203,11 @@ Configuration:
 
 AI Providers:
   google         Google AI (Gemini) — API key
-  gemini         Gemini Code Assist — browser OAuth (free)
+  gemini         Gemini CLI — browser OAuth
   groq           Groq — API key required
-  opencode       OpenCode Zen API (free models available without key)
-  copilot        GitHub Copilot (native OAuth, free)
+  opencode       OpenCode Zen API — API key (optional)
+  copilot        GitHub Copilot — native OAuth
+  openai         OpenAI — browser OAuth, device code, or API key
   ollama         Ollama local server
   custom-openai  Custom OpenAI-compatible endpoint`),
 		SilenceUsage:  true,

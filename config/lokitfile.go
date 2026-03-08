@@ -411,6 +411,7 @@ func validateProviderConfig(path string, provider *ProviderConfig) error {
 		"groq":          {},
 		"opencode":      {},
 		"copilot":       {},
+		"openai":        {},
 		"ollama":        {},
 		"custom-openai": {},
 	}

@@ -12,8 +12,8 @@
 // The file is a JSON object keyed by provider ID, where each value is a
 // discriminated union on the "type" field:
 //
-//   - "oauth"  — OAuth tokens (copilot, gemini)
-//   - "api"    — API keys (google, groq, opencode, custom-openai)
+//   - "oauth"  — OAuth tokens (copilot, gemini, openai)
+//   - "api"    — API keys (google, groq, opencode, openai, custom-openai)
 //
 // File permissions are 0600 (owner read/write only).
 //
@@ -54,10 +54,13 @@ type Info struct {
 	Email     string `json:"email,omitempty"`     // Google account email
 	ProjectID string `json:"projectId,omitempty"` // Code Assist project ID
 
+	// OpenAI-specific OAuth fields
+	AccountID string `json:"accountId,omitempty"` // ChatGPT account or organization ID
+
 	// API key fields (type == "api")
 	Key string `json:"key,omitempty"`
 
-	// Custom endpoint URL (custom-openai)
+	// Custom endpoint URL (openai/custom-openai)
 	BaseURL string `json:"baseUrl,omitempty"`
 }
 
@@ -201,21 +204,26 @@ func Remove(providerID string) error {
 // ---------------------------------------------------------------------------
 
 // SetOAuth stores OAuth credentials for a provider.
-func SetOAuth(providerID, access, refresh string, expires int64) error {
+// The accountID parameter is optional (pass "" to preserve any existing value).
+func SetOAuth(providerID, access, refresh string, expires int64, accountID string) error {
 	store := Load()
 	existing := store[providerID]
 
 	info := &Info{
-		Type:    "oauth",
-		Access:  access,
-		Refresh: refresh,
-		Expires: expires,
+		Type:      "oauth",
+		Access:    access,
+		Refresh:   refresh,
+		Expires:   expires,
+		AccountID: accountID,
 	}
 
 	// Preserve extra fields from existing entry
 	if existing != nil && existing.IsOAuth() {
 		if info.Refresh == "" && existing.Refresh != "" {
 			info.Refresh = existing.Refresh
+		}
+		if info.AccountID == "" && existing.AccountID != "" {
+			info.AccountID = existing.AccountID
 		}
 		info.Email = existing.Email
 		info.ProjectID = existing.ProjectID
@@ -295,8 +303,10 @@ func EnvVarForProvider(providerID string) string {
 		return "GROQ_API_KEY"
 	case "opencode":
 		return "OPENCODE_API_KEY"
-	case "custom-openai":
+	case "openai":
 		return "OPENAI_API_KEY"
+	case "custom-openai":
+		return "CUSTOM_OPENAI_API_KEY"
 	case "ollama", "copilot", "gemini":
 		return "" // no API key needed
 	default:

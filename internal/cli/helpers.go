@@ -14,6 +14,7 @@ import (
 	"github.com/minios-linux/lokit/gemini"
 	. "github.com/minios-linux/lokit/i18n"
 	po "github.com/minios-linux/lokit/internal/format/po"
+	"github.com/minios-linux/lokit/openai"
 	"github.com/minios-linux/lokit/settings"
 	"github.com/minios-linux/lokit/translate"
 )
@@ -246,7 +247,11 @@ func resolveProvider(name, baseURL, apiKey, model, proxy string, timeout time.Du
 	}
 
 	if baseURL != "" {
-		prov.BaseURL = baseURL
+		// The openai provider uses a fixed API base URL; custom endpoints
+		// should use the custom-openai provider instead.
+		if prov.ID != translate.ProviderOpenAI {
+			prov.BaseURL = baseURL
+		}
 	} else if prov.ID == translate.ProviderCustomOpenAI {
 		// Check credentials store for base URL
 		if storedURL := settings.GetBaseURL(prov.ID); storedURL != "" {
@@ -278,6 +283,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 			translate.ProviderGroq:         "llama-3.3-70b-versatile, mixtral-8x7b-32768",
 			translate.ProviderOpenCode:     "big-pickle, gemini-2.5-flash, claude-sonnet-4.5, gpt-4o",
 			translate.ProviderCopilot:      "gpt-4o, gpt-5, claude-sonnet-4, gemini-2.5-pro",
+			translate.ProviderOpenAI:       "gpt-4o, gpt-4.1, gpt-5, gpt-5-mini",
 			translate.ProviderOllama:       "llama3.2, qwen2.5, mistral",
 			translate.ProviderCustomOpenAI: "gpt-4o, gpt-4o-mini (depends on your endpoint)",
 		}
@@ -304,7 +310,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 			return fmt.Errorf(T("provider 'google' requires an API key or Gemini OAuth login\n\n" +
 				"Option 1: Store an API key:\n" +
 				"  lokit auth login --provider google\n\n" +
-				"Option 2: Login with Google OAuth (free tier: 60 req/min):\n" +
+				"Option 2: Login with Google OAuth:\n" +
 				"  lokit auth login --provider gemini\n\n" +
 				"Option 3: Pass key directly:\n" +
 				"  --api-key YOUR_KEY or export GOOGLE_API_KEY=YOUR_KEY\n\n" +
@@ -316,7 +322,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 			return fmt.Errorf(T("provider 'gemini' requires Google OAuth login\n\n" +
 				"Login with your Google account:\n" +
 				"  lokit auth login --provider gemini\n\n" +
-				"This uses Gemini Code Assist (free tier: 60 req/min).\n" +
+				"This uses Gemini CLI OAuth.\n" +
 				"For API key access, use --provider google instead."))
 		}
 
@@ -327,7 +333,37 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 				"  lokit auth login --provider groq\n\n" +
 				"Option 2: Pass key directly:\n" +
 				"  --api-key YOUR_KEY or export GROQ_API_KEY=YOUR_KEY\n\n" +
-				"Get a free API key from: https://console.groq.com/keys"))
+				"Get an API key from: https://console.groq.com/keys"))
+		}
+
+	case translate.ProviderOpenAI:
+		baseURL := strings.TrimRight(prov.BaseURL, "/")
+		if baseURL != "" && baseURL != "https://api.openai.com/v1" {
+			return fmt.Errorf(T("provider 'openai' does not support custom provider.base_url\n\n" +
+				"How to fix:\n" +
+				"  - Remove provider.base_url from config, or\n" +
+				"  - Switch to provider 'custom-openai' for custom endpoints."))
+		}
+		if apiKey == "" && openai.LoadToken() == nil {
+			return fmt.Errorf(T("provider 'openai' requires authentication\n\n" +
+				"Option 1: Login interactively:\n" +
+				"  lokit auth login --provider openai\n\n" +
+				"Option 2: Choose a specific method:\n" +
+				"  lokit auth login --provider openai --auth-method oauth\n" +
+				"  lokit auth login --provider openai --auth-method device\n" +
+				"  lokit auth login --provider openai --auth-method api-key\n\n" +
+				"Option 3: Pass key directly:\n" +
+				"  --api-key YOUR_KEY or export OPENAI_API_KEY=YOUR_KEY\n\n" +
+				"Get an API key from: https://platform.openai.com/api-keys"))
+		}
+		if apiKey == "" && openai.LoadToken() != nil &&
+			!openai.IsOAuthModel(prov.Model) {
+			return fmt.Errorf(T("provider 'openai' via OAuth/device auth supports GPT-5/Codex models\n\n" +
+				"Use one of these models:\n" +
+				"  gpt-5\n" +
+				"  gpt-5-mini\n" +
+				"  gpt-5.3-codex\n\n" +
+				"For gpt-4o or gpt-4.1, use an OpenAI API key instead."))
 		}
 
 	case translate.ProviderOpenCode:
@@ -362,7 +398,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 				"Start Ollama with: ollama serve\n" +
 				"Install from: https://ollama.com\n" +
 				"Alternative providers:\n" +
-				"  --provider copilot         (GitHub Copilot, free)\n" +
+				"  --provider copilot\n" +
 				"  --provider google          (requires API key)"))
 		}
 		resp.Body.Close()

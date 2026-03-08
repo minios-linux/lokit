@@ -32,6 +32,7 @@ import (
 	"github.com/minios-linux/lokit/internal/format/vuei18n"
 	yamlfile "github.com/minios-linux/lokit/internal/format/yaml"
 	"github.com/minios-linux/lokit/lockfile"
+	"github.com/minios-linux/lokit/openai"
 )
 
 // ---------------------------------------------------------------------------
@@ -44,8 +45,10 @@ const (
 	ProviderGroq         = "groq"
 	ProviderOpenCode     = "opencode"
 	ProviderCopilot      = "copilot"
+	ProviderOpenAI       = "openai"
 	ProviderCustomOpenAI = "custom-openai"
 	ProviderOllama       = "ollama"
+	openAIAPIBaseURL     = "https://api.openai.com/v1"
 )
 
 // ---------------------------------------------------------------------------
@@ -199,7 +202,7 @@ func DefaultProviders() map[string]Provider {
 		},
 		ProviderGemini: {
 			ID:      ProviderGemini,
-			Name:    "Gemini Code Assist (OAuth)",
+			Name:    "Gemini CLI (OAuth)",
 			Model:   "",
 			Timeout: 120 * time.Second,
 		},
@@ -223,6 +226,13 @@ func DefaultProviders() map[string]Provider {
 			BaseURL: copilot.CopilotAPIBase,
 			Model:   "",
 			Timeout: 120 * time.Second,
+		},
+		ProviderOpenAI: {
+			ID:      ProviderOpenAI,
+			Name:    "OpenAI",
+			BaseURL: openAIAPIBaseURL,
+			Model:   "",
+			Timeout: 60 * time.Second,
 		},
 		ProviderCustomOpenAI: {
 			ID:      ProviderCustomOpenAI,
@@ -710,6 +720,8 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 		return callOpenCode(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
 	case ProviderCopilot:
 		return callCopilot(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
+	case ProviderOpenAI:
+		return callOpenAI(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
 	case ProviderCustomOpenAI:
 		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
 	case ProviderOllama:
@@ -718,6 +730,137 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 		// Fallback: treat as OpenAI-compatible
 		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
 	}
+}
+
+func callOpenAI(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
+	if prov.APIKey == "" {
+		if !openai.IsOAuthModel(prov.Model) {
+			return "", fmt.Errorf("OpenAI OAuth/device auth supports GPT-5/Codex models; use an API key for %s", prov.Model)
+		}
+		return callOpenAIOAuth(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
+	}
+
+	// When using an API key, select the API format based on model name.
+	// Models starting with "gpt-" use the Responses API; all others
+	// (including o-series like o3, o4-mini) use Chat Completions, which
+	// is broadly compatible. If OpenAI deprecates Chat Completions for
+	// newer models, this heuristic should be expanded.
+	// The openai provider always uses the fixed OpenAI API base URL;
+	// for custom endpoints use the custom-openai provider instead.
+	format := formatOpenAIChat
+	if strings.HasPrefix(prov.Model, "gpt-") {
+		format = formatOpenAIResponses
+	}
+	return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, format, rl, maxRetries, verbose)
+}
+
+func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
+	info, err := openai.EnsureAuth(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	fullPrompt := systemPrompt + "\n\n" + userPrompt
+	body, err := buildOpenAIResponsesRequest(prov.Model, fullPrompt)
+	if err != nil {
+		return "", fmt.Errorf("building request: %w", err)
+	}
+
+	client := makeHTTPClient(prov.Proxy, prov.Timeout)
+
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if rl != nil {
+			if err := rl.waitIfPaused(ctx); err != nil {
+				return "", err
+			}
+		}
+
+		select {
+		case <-ctx.Done():
+			return "", ctx.Err()
+		default:
+		}
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, openai.CodexResponsesEndpoint, bytes.NewReader(body))
+		if err != nil {
+			return "", fmt.Errorf("creating request: %w", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+info.Access)
+		if info.AccountID != "" {
+			req.Header.Set("ChatGPT-Account-Id", info.AccountID)
+		}
+
+		if verbose {
+			log.Printf("[DEBUG] %s attempt %d: POST %s", prov.Name, attempt+1, openai.CodexResponsesEndpoint)
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			if attempt < maxRetries {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				select {
+				case <-ctx.Done():
+					return "", ctx.Err()
+				case <-time.After(wait):
+				}
+				continue
+			}
+			return "", fmt.Errorf("API request failed: %w", err)
+		}
+
+		respBody, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		if resp.StatusCode == http.StatusUnauthorized && attempt == 0 {
+			if err := openai.RefreshAccessToken(ctx, info); err == nil {
+				continue
+			}
+		}
+
+		if resp.StatusCode == http.StatusTooManyRequests {
+			retryDelay := parseRetryDelay(respBody)
+			if verbose {
+				log.Printf("[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)", retryDelay, attempt+1, maxRetries)
+			}
+			if rl != nil {
+				rl.pause(retryDelay)
+			}
+			if attempt < maxRetries {
+				select {
+				case <-ctx.Done():
+					return "", ctx.Err()
+				case <-time.After(retryDelay):
+				}
+				if rl != nil {
+					rl.unpause()
+				}
+				continue
+			}
+			return "", fmt.Errorf("rate limited after %d retries: %s", maxRetries, string(respBody))
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			if attempt < maxRetries && resp.StatusCode >= 500 {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				select {
+				case <-ctx.Done():
+					return "", ctx.Err()
+				case <-time.After(wait):
+				}
+				continue
+			}
+			return "", fmt.Errorf("API returned status %d: %s", resp.StatusCode, truncate(string(respBody), 500))
+		}
+
+		text, err := extractResponseText(respBody)
+		if err != nil {
+			return "", err
+		}
+		return text, nil
+	}
+
+	return "", fmt.Errorf("exhausted all %d retries", maxRetries)
 }
 
 // ---------------------------------------------------------------------------
@@ -1121,15 +1264,15 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 				return "", fmt.Errorf("Copilot API returned 403 Forbidden: access denied\n\n" +
 					"Common causes:\n" +
 					"  1. Geographic restrictions - GitHub Copilot may be blocked in your region\n" +
-					"  2. No active Copilot subscription ($10/month or free for students/OSS maintainers)\n" +
+					"  2. Copilot access not enabled for this account\n" +
 					"  3. Invalid or expired authentication token\n\n" +
 					"Solutions:\n" +
 					"  - Re-authenticate: lokit auth logout --provider copilot && lokit auth login --provider copilot\n" +
 					"  - Use proxy/VPN if geographic restrictions apply\n" +
-					"  - Try alternative providers that may work in your region:\n" +
-					"      lokit auth login --provider gemini      (Google, 60 req/min free)\n" +
-					"      lokit auth login --provider google      (Google AI Studio)\n" +
-					"      lokit translate --provider ollama --model llama3.2  (local, no restrictions)")
+					"  - Try another provider:\n" +
+					"      lokit auth login --provider gemini\n" +
+					"      lokit auth login --provider google\n" +
+					"      lokit translate --provider ollama --model llama3.2")
 			}
 
 			return "", fmt.Errorf("Copilot API returned status %d: %s", resp.StatusCode, truncate(string(respBody), 500))

@@ -108,7 +108,8 @@ func TestEnvVarForProviderAndMaskKey(t *testing.T) {
 		"google":        "GOOGLE_API_KEY",
 		"groq":          "GROQ_API_KEY",
 		"opencode":      "OPENCODE_API_KEY",
-		"custom-openai": "OPENAI_API_KEY",
+		"openai":        "OPENAI_API_KEY",
+		"custom-openai": "CUSTOM_OPENAI_API_KEY",
 		"copilot":       "",
 		"gemini":        "",
 		"ollama":        "",
@@ -141,11 +142,12 @@ func TestSetOAuthPreservesExistingFields(t *testing.T) {
 		Refresh:   "old-refresh",
 		Email:     "user@example.com",
 		ProjectID: "project-1",
+		AccountID: "acct-1",
 	}); err != nil {
 		t.Fatalf("Set() error: %v", err)
 	}
 
-	if err := SetOAuth("gemini", "new-access", "", 999); err != nil {
+	if err := SetOAuth("gemini", "new-access", "", 999, ""); err != nil {
 		t.Fatalf("SetOAuth() error: %v", err)
 	}
 
@@ -159,7 +161,7 @@ func TestSetOAuthPreservesExistingFields(t *testing.T) {
 	if got.Refresh != "old-refresh" {
 		t.Fatalf("refresh = %q, want old-refresh", got.Refresh)
 	}
-	if got.Email != "user@example.com" || got.ProjectID != "project-1" {
-		t.Fatalf("email/project not preserved: %#v", got)
+	if got.Email != "user@example.com" || got.ProjectID != "project-1" || got.AccountID != "acct-1" {
+		t.Fatalf("oauth metadata not preserved: %#v", got)
 	}
 }

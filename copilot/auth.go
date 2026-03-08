@@ -57,7 +57,7 @@ func LoadToken() *settings.Info {
 
 // SaveToken saves a Copilot OAuth token to the unified auth store.
 func SaveToken(access string) error {
-	return settings.SetOAuth(providerID, access, "", 0)
+	return settings.SetOAuth(providerID, access, "", 0, "")
 }
 
 // DeleteToken removes the Copilot credentials from the unified auth store.

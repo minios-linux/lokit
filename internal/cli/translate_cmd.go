@@ -101,9 +101,9 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVar(&provider, "provider", "", T("AI provider: google, gemini, groq, opencode, copilot, ollama, custom-openai (or use lokit.yaml provider.id)"))
+	cmd.Flags().StringVar(&provider, "provider", "", T("AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)"))
 	cmd.Flags().StringVar(&model, "model", "", T("Model name (or use lokit.yaml provider.model)"))
-	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, OPENCODE_API_KEY)"))
+	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)"))
 	cmd.Flags().StringVar(&baseURL, "base-url", "", T("Custom API base URL"))
 
 	cmd.Flags().StringVarP(&langs, "lang", "l", "", T("Languages to translate (comma-separated, default: all with untranslated)"))
@@ -126,10 +126,11 @@ Examples:
 	_ = cmd.RegisterFlagCompletionFunc("provider", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{
 			"google\t" + T("Google AI (Gemini) — API key required"),
-			"gemini\t" + T("Gemini Code Assist — browser OAuth (free)"),
+			"gemini\t" + T("Gemini CLI — browser OAuth"),
 			"groq\t" + T("Groq — API key required"),
 			"opencode\t" + T("OpenCode — optional API key"),
-			"copilot\t" + T("GitHub Copilot — native OAuth (free)"),
+			"copilot\t" + T("GitHub Copilot — native OAuth"),
+			"openai\t" + T("OpenAI — OAuth, device code, or API key"),
 			"ollama\t" + T("Ollama local server"),
 			"custom-openai\t" + T("Custom OpenAI-compatible endpoint"),
 		}, cobra.ShellCompDirectiveNoFileComp
@@ -146,6 +147,8 @@ Examples:
 			return []string{"big-pickle", "gemini-2.5-flash", "claude-sonnet-4.5", "gpt-4o"}, cobra.ShellCompDirectiveNoFileComp
 		case "copilot":
 			return []string{"gpt-4o", "gpt-5", "gpt-5-mini", "claude-sonnet-4", "gemini-2.5-pro"}, cobra.ShellCompDirectiveNoFileComp
+		case "openai":
+			return []string{"gpt-5", "gpt-5-mini", "gpt-5.3-codex", "gpt-4.1", "gpt-4o"}, cobra.ShellCompDirectiveNoFileComp
 		case "ollama":
 			return []string{"llama3.2", "qwen2.5", "mistral", "phi3"}, cobra.ShellCompDirectiveNoFileComp
 		default:

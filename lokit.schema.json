@@ -50,6 +50,7 @@
             "groq",
             "opencode",
             "copilot",
+            "openai",
             "ollama",
             "custom-openai"
           ],
@@ -61,7 +62,7 @@
         },
         "base_url": {
           "type": "string",
-          "description": "Optional endpoint URL (custom-openai or ollama only)."
+          "description": "Optional endpoint URL (custom-openai or ollama)."
         },
         "prompt": {
           "type": "string",

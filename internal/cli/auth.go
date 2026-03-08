@@ -12,6 +12,7 @@ import (
 	"github.com/minios-linux/lokit/copilot"
 	"github.com/minios-linux/lokit/gemini"
 	. "github.com/minios-linux/lokit/i18n"
+	"github.com/minios-linux/lokit/openai"
 	"github.com/minios-linux/lokit/settings"
 	"github.com/spf13/cobra"
 )
@@ -23,13 +24,16 @@ func newAuthCmd() *cobra.Command {
 		Long: T(`Manage authentication credentials for all AI providers.
 
 OAuth providers (interactive browser/device flow):
-  copilot       GitHub Copilot (device code flow, free with GitHub account)
-  gemini        Google Gemini Code Assist (browser OAuth, free tier: 60 req/min)
+  copilot       GitHub Copilot (device code flow)
+  gemini        Google Gemini CLI (browser OAuth)
+
+Multi-method providers:
+  openai        OpenAI (browser OAuth, device code, or API key)
 
 API key providers (paste your key):
   google        Google AI Studio (Gemini API key)
-  groq          Groq Cloud (free tier available)
-  opencode      OpenCode Zen API (free models available without key)
+  groq          Groq Cloud
+  opencode      OpenCode Zen API
   custom-openai Custom OpenAI-compatible endpoint
 
 No auth required:
@@ -38,6 +42,8 @@ No auth required:
 Examples:
   lokit auth login                         Interactive provider selection
   lokit auth login --provider copilot      OAuth with GitHub Copilot
+  lokit auth login --provider openai       Choose OpenAI auth method
+  lokit auth login --provider openai --headless
   lokit auth login --provider google       Store Google AI API key
   lokit auth logout --provider google      Remove Google API key
   lokit auth logout                        Remove all credentials
@@ -58,19 +64,24 @@ var allProviders = []struct {
 	id   string
 	name string
 	desc string
-	auth string // "oauth", "api-key", "none"
+	auth string // "oauth", "api-key", "mixed", "none"
 }{
-	{"copilot", "GitHub Copilot", "free with GitHub account", "oauth"},
-	{"gemini", "Google Gemini", "Code Assist, free tier: 60 req/min", "oauth"},
-	{"google", "Google AI Studio", "Gemini API key, free tier available", "api-key"},
-	{"groq", "Groq Cloud", "fast inference, free tier available", "api-key"},
-	{"opencode", "OpenCode", "multi-provider proxy", "api-key"},
+	{"copilot", "GitHub Copilot", "device code OAuth", "oauth"},
+	{"gemini", "Google Gemini", "Gemini CLI OAuth", "oauth"},
+	{"google", "Google AI Studio", "Gemini API key", "api-key"},
+	{"groq", "Groq Cloud", "API key", "api-key"},
+	{"opencode", "OpenCode", "Zen endpoint", "api-key"},
+	{"openai", "OpenAI", "browser OAuth, device code, or API key", "mixed"},
 	{"custom-openai", "Custom OpenAI", "any OpenAI-compatible endpoint", "api-key"},
 	{"ollama", "Ollama", "local server, no auth needed", "none"},
 }
 
 func newAuthLoginCmd() *cobra.Command {
 	var provider string
+	var authMethod string
+	var headless bool
+	var apiKey string
+	var baseURL string
 
 	cmd := &cobra.Command{
 		Use:   "login",
@@ -82,6 +93,7 @@ If --provider is not specified, you will be prompted to choose.
 OAuth providers:
   copilot       Device code flow — enter code in browser
   gemini        Browser-based OAuth — sign in with Google
+  openai        Browser OAuth or device code
 
 API key providers:
   google        Paste your Google AI Studio API key
@@ -89,19 +101,33 @@ API key providers:
   opencode      Paste your OpenCode API key
   custom-openai Paste your API key + endpoint URL`),
 		Run: func(cmd *cobra.Command, args []string) {
+			if headless {
+				if provider != "" && provider != "openai" {
+					logError(T("--headless is only supported for provider 'openai'"))
+					os.Exit(1)
+				}
+				if authMethod != "" && authMethod != "device" {
+					logError(T("--headless conflicts with --auth-method=%s"), authMethod)
+					os.Exit(1)
+				}
+				provider = "openai"
+				authMethod = "device"
+			}
+
 			if provider == "" {
 				sectionHeader(T("Select provider to authenticate"))
 				fmt.Fprintln(os.Stderr)
 				for i, p := range allProviders {
-					if p.auth == "none" {
-						continue
-					}
 					authLabel := ""
 					switch p.auth {
 					case "oauth":
 						authLabel = T("OAuth")
 					case "api-key":
 						authLabel = T("API key")
+					case "none":
+						authLabel = T("No auth")
+					case "mixed":
+						authLabel = T("OAuth / API key")
 					}
 					fmt.Fprintf(os.Stderr, "  %d. %s%-13s%s %s (%s)\n",
 						i+1, colorYellow, p.id, colorReset, T(p.desc), authLabel)
@@ -117,13 +143,8 @@ API key providers:
 				choice := strings.TrimSpace(scanner.Text())
 
 				found := false
-				displayIdx := 0
-				for _, p := range allProviders {
-					if p.auth == "none" {
-						continue
-					}
-					displayIdx++
-					if choice == fmt.Sprintf("%d", displayIdx) || choice == p.id {
+				for i, p := range allProviders {
+					if choice == fmt.Sprintf("%d", i+1) || choice == p.id {
 						provider = p.id
 						found = true
 						break
@@ -135,25 +156,21 @@ API key providers:
 				}
 			}
 
-			ctx, cancel := context.WithCancel(context.Background())
-			defer cancel()
-
-			sigCh := make(chan os.Signal, 1)
-			signal.Notify(sigCh, os.Interrupt)
-			go func() {
-				<-sigCh
-				cancel()
-			}()
-
 			switch provider {
 			case "copilot":
-				authLoginCopilot(ctx)
+				authLoginWithInterrupt(authLoginCopilot)
 			case "gemini":
-				authLoginGemini(ctx)
+				authLoginWithInterrupt(authLoginGemini)
+			case "openai":
+				authLoginOpenAI(authMethod, apiKey)
 			case "google", "groq", "opencode":
-				authLoginAPIKey(provider)
+				authLoginAPIKey(provider, apiKey)
 			case "custom-openai":
-				authLoginCustomOpenAI()
+				authLoginCustomOpenAI(apiKey, baseURL)
+			case "ollama":
+				logInfo(T("No authentication is required for Ollama."))
+				logInfo(T("You can now use: lokit translate --provider ollama --model llama3.2"))
+				fmt.Fprintln(os.Stderr)
 			default:
 				logError(T("Unknown provider '%s'. Run 'lokit auth login' for options."), provider)
 				os.Exit(1)
@@ -162,18 +179,46 @@ API key providers:
 	}
 
 	cmd.Flags().StringVar(&provider, "provider", "", T("Provider to authenticate"))
+	cmd.Flags().StringVar(&authMethod, "auth-method", "", T("Authentication method for providers with multiple options"))
+	cmd.Flags().BoolVar(&headless, "headless", false, T("Use headless/device authentication for OpenAI"))
+	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key for API-based providers"))
+	cmd.Flags().StringVar(&baseURL, "base-url", "", T("Base URL for custom-openai"))
 	_ = cmd.RegisterFlagCompletionFunc("provider", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		completions := make([]string, 0, len(allProviders))
 		for _, p := range allProviders {
-			if p.auth == "none" {
-				continue
-			}
 			completions = append(completions, fmt.Sprintf("%s\t%s", p.id, p.name))
 		}
 		return completions, cobra.ShellCompDirectiveNoFileComp
 	})
+	_ = cmd.RegisterFlagCompletionFunc("auth-method", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		provider, _ := cmd.Flags().GetString("provider")
+		if provider != "openai" {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		return []string{
+			"oauth\t" + T("Browser OAuth"),
+			"device\t" + T("Device code"),
+			"api-key\t" + T("API key"),
+		}, cobra.ShellCompDirectiveNoFileComp
+	})
 
 	return cmd
+}
+
+func authLoginWithInterrupt(fn func(context.Context)) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt)
+	defer signal.Stop(sigCh)
+
+	go func() {
+		<-sigCh
+		cancel()
+	}()
+
+	fn(ctx)
 }
 
 func authLoginCopilot(ctx context.Context) {
@@ -230,7 +275,7 @@ func authLoginGemini(ctx context.Context) {
 		_, err = gemini.SetupUser(ctx, info)
 		if errors.Is(err, gemini.ErrProjectIDRequired) {
 			fmt.Fprintln(os.Stderr)
-			logWarning(T("Gemini Code Assist requires a GCP project ID to work in your region."))
+			logWarning(T("Gemini CLI OAuth requires a GCP project ID to work."))
 			logInfo(T("Find your project ID at: https://console.cloud.google.com"))
 			logInfo(T("(Create a project if you don't have one, then enable the Gemini API)"))
 			fmt.Fprintln(os.Stderr)
@@ -270,7 +315,94 @@ func authLoginGemini(ctx context.Context) {
 	fmt.Fprintln(os.Stderr)
 }
 
-func authLoginAPIKey(providerID string) {
+func authLoginOpenAI(method, providedKey string) {
+	if providedKey != "" && method == "" {
+		method = "api-key"
+	}
+	if method == "" {
+		sectionHeader(T("OpenAI Authentication"))
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "  1. %s\n", T("Browser OAuth"))
+		fmt.Fprintf(os.Stderr, "  2. %s\n", T("Device code"))
+		fmt.Fprintf(os.Stderr, "  3. %s\n", T("API key"))
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "  %s ", T("Choose authentication method:"))
+
+		scanner := bufio.NewScanner(os.Stdin)
+		if !scanner.Scan() {
+			logError(T("No input received"))
+			os.Exit(1)
+		}
+
+		switch strings.TrimSpace(scanner.Text()) {
+		case "1", "oauth", "browser":
+			method = "oauth"
+		case "2", "device":
+			method = "device"
+		case "3", "api", "api-key":
+			method = "api-key"
+		default:
+			logError(T("Invalid authentication method"))
+			os.Exit(1)
+		}
+	}
+
+	switch method {
+	case "oauth", "browser":
+		authLoginWithInterrupt(func(ctx context.Context) {
+			sectionHeader(T("OpenAI Authentication"))
+			_, err := openai.BrowserOAuthFlow(ctx, func(authURL string) {
+				logInfo(T("Opening browser for OpenAI sign-in..."))
+				fmt.Fprintln(os.Stderr)
+				logInfo(T("If the browser doesn't open, visit:"))
+				fmt.Fprintf(os.Stderr, "     %s%s%s\n\n", colorGreen, authURL, colorReset)
+				logInfo(T("Waiting for authorization..."))
+			})
+			if err != nil {
+				if ctx.Err() != nil {
+					logWarning(T("Authentication cancelled"))
+					os.Exit(0)
+				}
+				logError(T("Authentication failed: %v"), err)
+				os.Exit(1)
+			}
+
+			logSuccess(T("OpenAI authentication successful!"))
+			logInfo(T("You can now use: lokit translate --provider openai --model gpt-5"))
+			fmt.Fprintln(os.Stderr)
+		})
+	case "device":
+		authLoginWithInterrupt(func(ctx context.Context) {
+			sectionHeader(T("OpenAI Authentication"))
+			_, err := openai.DeviceCodeFlow(ctx, func(verificationURI, userCode string) {
+				logInfo(T("Open this URL in your browser:"))
+				fmt.Fprintf(os.Stderr, "     %s%s%s\n\n", colorGreen, verificationURI, colorReset)
+				logInfo(T("Enter this code:"))
+				fmt.Fprintf(os.Stderr, "     %s%s%s\n\n", colorYellow, userCode, colorReset)
+				logInfo(T("Waiting for authorization..."))
+			})
+			if err != nil {
+				if ctx.Err() != nil {
+					logWarning(T("Authentication cancelled"))
+					os.Exit(0)
+				}
+				logError(T("Authentication failed: %v"), err)
+				os.Exit(1)
+			}
+
+			logSuccess(T("OpenAI authentication successful!"))
+			logInfo(T("You can now use: lokit translate --provider openai --model gpt-5"))
+			fmt.Fprintln(os.Stderr)
+		})
+	case "api", "api-key":
+		authLoginAPIKey("openai", providedKey)
+	default:
+		logError(T("Unknown authentication method '%s'"), method)
+		os.Exit(1)
+	}
+}
+
+func authLoginAPIKey(providerID, providedKey string) {
 	providerInfo := map[string]struct {
 		name    string
 		helpURL string
@@ -291,6 +423,11 @@ func authLoginAPIKey(providerID string) {
 			helpURL: "",
 			example: "lokit translate --provider opencode --model gemini-2.5-flash",
 		},
+		"openai": {
+			name:    "OpenAI",
+			helpURL: "https://platform.openai.com/api-keys",
+			example: "lokit translate --provider openai --model gpt-4o",
+		},
 	}
 
 	info := providerInfo[providerID]
@@ -300,6 +437,18 @@ func authLoginAPIKey(providerID string) {
 	if info.helpURL != "" {
 		logInfo(T("Get your API key from: %s%s%s"), colorGreen, info.helpURL, colorReset)
 		fmt.Fprintln(os.Stderr)
+	}
+
+	if providedKey != "" {
+		if err := settings.SetAPIKey(providerID, providedKey); err != nil {
+			logError(T("Failed to save API key: %v"), err)
+			os.Exit(1)
+		}
+
+		logSuccess(T("%s API key saved!"), info.name)
+		logInfo(T("You can now use: %s"), info.example)
+		fmt.Fprintln(os.Stderr)
+		return
 	}
 
 	existing := settings.GetAPIKey(providerID)
@@ -336,12 +485,27 @@ func authLoginAPIKey(providerID string) {
 	fmt.Fprintln(os.Stderr)
 }
 
-func authLoginCustomOpenAI() {
+func authLoginCustomOpenAI(providedKey, providedBaseURL string) {
 	sectionHeader(T("Custom OpenAI-Compatible Endpoint"))
 
 	scanner := bufio.NewScanner(os.Stdin)
 
 	existing := settings.Get("custom-openai")
+	if providedBaseURL != "" {
+		apiKey := providedKey
+		if apiKey == "" && existing != nil {
+			apiKey = existing.Key
+		}
+		if err := settings.SetAPIKeyWithBaseURL("custom-openai", apiKey, providedBaseURL); err != nil {
+			logError(T("Failed to save credentials: %v"), err)
+			os.Exit(1)
+		}
+		logSuccess(T("Custom OpenAI endpoint saved!"))
+		logInfo(T("You can now use: lokit translate --provider custom-openai --model MODEL_NAME"))
+		fmt.Fprintln(os.Stderr)
+		return
+	}
+
 	if existing != nil && existing.BaseURL != "" {
 		keyVal(T("Current endpoint"), fmt.Sprintf("%s%s%s", colorYellow, existing.BaseURL, colorReset))
 		fmt.Fprintf(os.Stderr, "  %s ", T("Enter new endpoint URL, or press Enter to keep:"))
@@ -420,7 +584,7 @@ Examples:
 						os.Exit(1)
 					}
 					logSuccess(T("Gemini credentials removed"))
-				case "google", "groq", "opencode", "custom-openai":
+				case "google", "groq", "opencode", "openai", "custom-openai":
 					if err := settings.Remove(provider); err != nil {
 						logError(T("Failed to remove %s credentials: %v"), provider, err)
 						os.Exit(1)
@@ -442,7 +606,7 @@ Examples:
 				logError(T("Failed to remove Gemini credentials: %v"), err)
 				errCount++
 			}
-			for _, pid := range []string{"google", "groq", "opencode", "custom-openai"} {
+			for _, pid := range []string{"google", "groq", "opencode", "openai", "custom-openai"} {
 				if err := settings.Remove(pid); err != nil {
 					logError(T("Failed to remove %s credentials: %v"), pid, err)
 					errCount++
@@ -481,6 +645,9 @@ func newAuthListCmd() *cobra.Command {
 			keyVal(T("copilot"), copilot.TokenStatus())
 			keyVal(T("gemini"), gemini.TokenStatus())
 
+			fmt.Fprintf(os.Stderr, "\n  %s%s%s\n", colorBold+colorYellow, T("Flexible Auth Providers"), colorReset)
+			keyVal(T("openai"), openai.TokenStatus())
+
 			fmt.Fprintf(os.Stderr, "\n  %s%s%s\n", colorBold+colorYellow, T("API Key Providers"), colorReset)
 			apiKeyProviders := []struct {
 				id   string
@@ -515,6 +682,7 @@ func newAuthListCmd() *cobra.Command {
 				{"google"},
 				{"groq"},
 				{"opencode"},
+				{"openai"},
 				{"custom-openai"},
 			}
 			for _, p := range envProviders {

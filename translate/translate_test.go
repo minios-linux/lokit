@@ -738,3 +738,18 @@ func TestTranslateAllKVFullParallel_TranslatesAllTasks(t *testing.T) {
 		t.Fatalf("files not saved: fr=%q de=%q", f1.writtenTo, f2.writtenTo)
 	}
 }
+
+func TestCallOpenAI_RejectsNonOAuthModel(t *testing.T) {
+	prov := Provider{
+		ID:    ProviderOpenAI,
+		Model: "gpt-4o",
+	}
+
+	_, err := callOpenAI(context.Background(), prov, "system", "user", nil, 0, false)
+	if err == nil {
+		t.Fatal("expected error for non-OAuth model without API key")
+	}
+	if !strings.Contains(err.Error(), "GPT-5/Codex models") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
