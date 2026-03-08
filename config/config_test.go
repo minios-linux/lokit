@@ -505,6 +505,54 @@ func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 			t.Fatalf("expected hint in error, got: %v", err)
 		}
 	})
+
+	t.Run("accepts target-local languages without locale validation", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "source_lang: en\n" +
+			"languages: [ru]\n" +
+			"targets:\n" +
+			"  - name: app\n" +
+			"    format: gettext\n" +
+			"    dir: po\n" +
+			"    pot: messages.pot\n" +
+			"    languages: [pt_BR, pt-br]\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		lf, err := LoadLokitFile(dir)
+		if err != nil {
+			t.Fatalf("LoadLokitFile error: %v", err)
+		}
+		got := lf.Targets[0].Languages
+		want := []string{"pt_BR", "pt-br"}
+		if !reflect.DeepEqual(got, want) {
+			t.Fatalf("target languages = %v, want %v", got, want)
+		}
+	})
+
+	t.Run("accepts target-local source_lang without locale validation", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "source_lang: en\n" +
+			"languages: [ru]\n" +
+			"targets:\n" +
+			"  - name: app\n" +
+			"    format: gettext\n" +
+			"    dir: po\n" +
+			"    pot: messages.pot\n" +
+			"    source_lang: en_US\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		lf, err := LoadLokitFile(dir)
+		if err != nil {
+			t.Fatalf("LoadLokitFile error: %v", err)
+		}
+		if got := lf.Targets[0].SourceLang; got != "en_US" {
+			t.Fatalf("target source_lang = %q, want en_US", got)
+		}
+	})
 }
 
 func TestLoadLokitFileRejectsLegacyKeysAndDuplicateNames(t *testing.T) {

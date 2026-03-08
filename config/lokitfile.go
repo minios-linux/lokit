@@ -543,12 +543,10 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		if t.SourceLang == "" {
 			t.SourceLang = lf.SourceLang
 		}
-		if err := validateLocaleCode(path, fmt.Sprintf("targets[%d].source_lang", i), t.SourceLang); err != nil {
-			return nil, err
-		}
-		if err := validateLocaleList(path, fmt.Sprintf("targets[%d].languages", i), t.Languages); err != nil {
-			return nil, err
-		}
+		// Intentionally do not validate target-local source/languages.
+		// Some gettext/po4a projects use repository-specific locale forms
+		// (for example, pt_BR, pt-br, or even custom variants) that should pass
+		// through unchanged for per-target configuration.
 
 		meta, ok := targetFormatRegistry[t.Type]
 		if !ok {
