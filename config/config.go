@@ -86,11 +86,43 @@ func (p *Project) POPath(lang string) string {
 	return resolvePOPath(p.PODir, p.POStructure, p.Name, lang, &p.nestedPOFiles)
 }
 
+func poLocalePreferred(lang string) string {
+	return strings.ReplaceAll(lang, "-", "_")
+}
+
+func poLocaleCandidates(lang string) []string {
+	seen := make(map[string]struct{}, 2)
+	out := make([]string, 0, 2)
+
+	add := func(v string) {
+		if v == "" {
+			return
+		}
+		if _, ok := seen[v]; ok {
+			return
+		}
+		seen[v] = struct{}{}
+		out = append(out, v)
+	}
+
+	add(lang)
+	add(strings.ReplaceAll(lang, "-", "_"))
+	add(strings.ReplaceAll(lang, "_", "-"))
+
+	return out
+}
+
 // resolvePOPath resolves the .po file path for a given language, directory, and structure.
 func resolvePOPath(poDir string, structure POStructure, projectName, lang string, cache *map[string]string) string {
 	switch structure {
 	case POStructureFlat:
-		return filepath.Join(poDir, lang+".po")
+		for _, candidate := range poLocaleCandidates(lang) {
+			path := filepath.Join(poDir, candidate+".po")
+			if _, err := os.Stat(path); err == nil {
+				return path
+			}
+		}
+		return filepath.Join(poDir, poLocalePreferred(lang)+".po")
 	case POStructureNested, POStructurePo4a:
 		// Check cache first
 		if *cache != nil {
@@ -98,25 +130,27 @@ func resolvePOPath(poDir string, structure POStructure, projectName, lang string
 				return path
 			}
 		}
-		// Search for .po file in language subdirectory
-		langDir := filepath.Join(poDir, lang)
-		if entries, err := os.ReadDir(langDir); err == nil {
-			for _, entry := range entries {
-				if strings.HasSuffix(entry.Name(), ".po") && !entry.IsDir() {
-					path := filepath.Join(langDir, entry.Name())
-					// Cache the result
-					if *cache == nil {
-						*cache = make(map[string]string)
+		for _, candidate := range poLocaleCandidates(lang) {
+			// Search for .po file in language subdirectory
+			langDir := filepath.Join(poDir, candidate)
+			if entries, err := os.ReadDir(langDir); err == nil {
+				for _, entry := range entries {
+					if strings.HasSuffix(entry.Name(), ".po") && !entry.IsDir() {
+						path := filepath.Join(langDir, entry.Name())
+						// Cache the result
+						if *cache == nil {
+							*cache = make(map[string]string)
+						}
+						(*cache)[lang] = path
+						return path
 					}
-					(*cache)[lang] = path
-					return path
 				}
 			}
 		}
 		// Fallback: return expected path using project name
-		return filepath.Join(poDir, lang, projectName+".po")
+		return filepath.Join(poDir, poLocalePreferred(lang), projectName+".po")
 	default:
-		return filepath.Join(poDir, lang+".po")
+		return filepath.Join(poDir, poLocalePreferred(lang)+".po")
 	}
 }
 

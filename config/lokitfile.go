@@ -1089,7 +1089,14 @@ func (rt *ResolvedTarget) AbsResDir() string {
 
 // POPath returns the .po file path for a language in a gettext target.
 func (rt *ResolvedTarget) POPath(lang string) string {
-	return filepath.Join(rt.AbsPODir(), lang+".po")
+	poDir := rt.AbsPODir()
+	for _, candidate := range poLocaleCandidates(lang) {
+		path := filepath.Join(poDir, candidate+".po")
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	return filepath.Join(poDir, poLocalePreferred(lang)+".po")
 }
 
 // DocsPOPath returns the .po file path for a language in a po4a target.
@@ -1097,17 +1104,20 @@ func (rt *ResolvedTarget) DocsPOPath(lang string) string {
 	cfgDir := filepath.Dir(rt.AbsPo4aConfig())
 	poDir := filepath.Join(cfgDir, "po")
 
-	// Search for .po file in language subdirectory
-	langDir := filepath.Join(poDir, lang)
-	if entries, err := os.ReadDir(langDir); err == nil {
-		for _, entry := range entries {
-			if strings.HasSuffix(entry.Name(), ".po") && !entry.IsDir() {
-				return filepath.Join(langDir, entry.Name())
+	for _, candidate := range poLocaleCandidates(lang) {
+		// Search for .po file in language subdirectory
+		langDir := filepath.Join(poDir, candidate)
+		if entries, err := os.ReadDir(langDir); err == nil {
+			for _, entry := range entries {
+				if strings.HasSuffix(entry.Name(), ".po") && !entry.IsDir() {
+					return filepath.Join(langDir, entry.Name())
+				}
 			}
 		}
 	}
 	// Fallback
-	return filepath.Join(poDir, lang, lang+".po")
+	preferred := poLocalePreferred(lang)
+	return filepath.Join(poDir, preferred, preferred+".po")
 }
 
 // AllLanguages returns the deduplicated union of all target languages.

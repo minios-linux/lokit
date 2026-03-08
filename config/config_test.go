@@ -18,6 +18,23 @@ func TestProjectPOPathAndPOTResolution(t *testing.T) {
 		}
 	})
 
+	t.Run("flat structure resolves bcp47 to underscore po filename", func(t *testing.T) {
+		dir := t.TempDir()
+		poDir := filepath.Join(dir, "po")
+		if err := os.MkdirAll(poDir, 0755); err != nil {
+			t.Fatalf("MkdirAll: %v", err)
+		}
+		existing := filepath.Join(poDir, "pt_BR.po")
+		if err := os.WriteFile(existing, []byte(""), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		p := &Project{PODir: poDir, POStructure: POStructureFlat}
+		if got := p.POPath("pt-BR"); got != existing {
+			t.Fatalf("POPath(flat, pt-BR) = %q, want %q", got, existing)
+		}
+	})
+
 	t.Run("nested structure picks existing file and caches", func(t *testing.T) {
 		dir := t.TempDir()
 		poDir := filepath.Join(dir, "po")
@@ -55,6 +72,16 @@ func TestProjectPOPathAndPOTResolution(t *testing.T) {
 		}
 	})
 
+	t.Run("nested fallback path prefers underscore variant for region locales", func(t *testing.T) {
+		dir := t.TempDir()
+		p := &Project{Name: "lokit", PODir: filepath.Join(dir, "po"), POStructure: POStructureNested}
+		got := p.POPath("pt-BR")
+		want := filepath.Join(dir, "po", "pt_BR", "lokit.po")
+		if got != want {
+			t.Fatalf("POPath(nested fallback, pt-BR) = %q, want %q", got, want)
+		}
+	})
+
 	t.Run("pot path resolved from pot directory", func(t *testing.T) {
 		dir := t.TempDir()
 		poDir := filepath.Join(dir, "po")
@@ -73,6 +100,51 @@ func TestProjectPOPathAndPOTResolution(t *testing.T) {
 		p := &Project{PODir: poDir, POStructure: POStructurePo4a}
 		if got := p.POTPathResolved(); got != pot {
 			t.Fatalf("POTPathResolved() = %q, want %q", got, pot)
+		}
+	})
+}
+
+func TestResolvedTargetPOPathLocaleVariants(t *testing.T) {
+	t.Run("gettext target resolves pt-BR to existing pt_BR.po", func(t *testing.T) {
+		dir := t.TempDir()
+		poDir := filepath.Join(dir, "po")
+		if err := os.MkdirAll(poDir, 0755); err != nil {
+			t.Fatalf("MkdirAll: %v", err)
+		}
+		existing := filepath.Join(poDir, "pt_BR.po")
+		if err := os.WriteFile(existing, []byte(""), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		rt := &ResolvedTarget{AbsRoot: dir, Target: Target{Dir: "po"}}
+		if got := rt.POPath("pt-BR"); got != existing {
+			t.Fatalf("ResolvedTarget.POPath(pt-BR) = %q, want %q", got, existing)
+		}
+	})
+
+	t.Run("po4a docs path resolves pt-BR to existing pt_BR directory", func(t *testing.T) {
+		dir := t.TempDir()
+		cfgDir := filepath.Join(dir, "manpages")
+		if err := os.MkdirAll(cfgDir, 0755); err != nil {
+			t.Fatalf("MkdirAll cfgDir: %v", err)
+		}
+		cfgPath := filepath.Join(cfgDir, "po4a.cfg")
+		if err := os.WriteFile(cfgPath, []byte("[po4a_langs] pt-BR\n"), 0644); err != nil {
+			t.Fatalf("WriteFile cfg: %v", err)
+		}
+
+		langDir := filepath.Join(cfgDir, "po", "pt_BR")
+		if err := os.MkdirAll(langDir, 0755); err != nil {
+			t.Fatalf("MkdirAll langDir: %v", err)
+		}
+		existing := filepath.Join(langDir, "docs.po")
+		if err := os.WriteFile(existing, []byte(""), 0644); err != nil {
+			t.Fatalf("WriteFile po: %v", err)
+		}
+
+		rt := &ResolvedTarget{AbsRoot: dir, Target: Target{Config: "manpages/po4a.cfg"}}
+		if got := rt.DocsPOPath("pt-BR"); got != existing {
+			t.Fatalf("ResolvedTarget.DocsPOPath(pt-BR) = %q, want %q", got, existing)
 		}
 	})
 }
