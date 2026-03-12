@@ -17,6 +17,7 @@ import (
 
 func newInitCmd() *cobra.Command {
 	var langs string
+	var targets []string
 
 	cmd := &cobra.Command{
 		Use:   "init",
@@ -32,6 +33,9 @@ For po4a projects: runs 'po4a --no-translations' to update templates.
 
 For i18next/vue-i18n/yaml/properties/flutter/js-kv projects: creates missing language
 files with empty translations.
+
+For index-source targets (source object with index, records_path, key_field,
+fields): creates per-record translation files from the index file.
 
 For android/markdown/desktop/polkit projects: no init step needed — use 'lokit translate'
 directly.
@@ -69,6 +73,15 @@ TARGET FORMATS
     dir: frontend/src/i18n           # JSON files directory (required)
     pattern: "{lang}.json"           # Language file pattern (required)
 
+  vue-i18n (index source mode) — per-record JSON translations from one source index
+    dir: web/public/data/recipe-translations
+    pattern: "{lang}/{id}.json"      # Must include {id}
+    source:
+      index: web/public/data/recipes.json
+      records_path: "$"              # Supported: $ or $.field
+      key_field: id
+      fields: [name, description, longDescription]
+
   android — Android strings.xml
     dir: app/src/main/res            # Android res/ directory (required)
 
@@ -77,7 +90,8 @@ TARGET FORMATS
     pattern: "{lang}.yaml"           # Language file pattern (required)
 
   markdown — Markdown document translation
-    dir: translations                # Root dir; files at translations/LANG/ (required)
+    dir: translations                # Root dir for markdown trees (required)
+    pattern: "{lang}"               # Optional language directory pattern (default: {lang})
 
   properties — Java .properties translations
     dir: translations                # .properties files directory (required)
@@ -161,22 +175,28 @@ EXAMPLES
 				os.Exit(1)
 			}
 
-			runInitWithConfig(lf, langs)
+			runInitWithConfig(lf, langs, targets)
 		},
 	}
 
 	cmd.Flags().StringVarP(&langs, "lang", "l", "", T("Languages to init (comma-separated, default: all from config)"))
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
 
 	return cmd
 }
 
 // runInitWithConfig initializes translation files using lokit.yaml targets.
-func runInitWithConfig(lf *config.LokitFile, langsFlag string) {
+func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string) {
 	absRoot, _ := filepath.Abs(rootDir)
 
 	resolved, err := lf.Resolve(rootDir)
 	if err != nil {
 		logError(T("Config resolve error: %v"), err)
+		os.Exit(1)
+	}
+	resolved, err = filterResolvedTargetsByNames(resolved, targets)
+	if err != nil {
+		logError(T("%v"), err)
 		os.Exit(1)
 	}
 
@@ -245,7 +265,11 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string) {
 			runInitI18Next(proj)
 
 		case config.TargetTypeVueI18n:
-			runInitVueI18n(rt, langs)
+			if rt.Target.Source != nil && rt.Target.Source.IsIndex() {
+				runInitIndex(rt, langs)
+			} else {
+				runInitVueI18n(rt, langs)
+			}
 
 		case config.TargetTypeAndroid:
 			logInfo(T("Android targets do not require init — use 'lokit translate' directly."))

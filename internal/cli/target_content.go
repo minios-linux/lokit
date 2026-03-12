@@ -47,6 +47,27 @@ func discoverMarkdownFiles(dir string) ([]string, error) {
 	return files, nil
 }
 
+func markdownLangDir(rt config.ResolvedTarget, lang string) string {
+	if rt.Target.Pattern == "" {
+		return filepath.Join(rt.AbsTranslationsDir(), lang)
+	}
+	path := rt.TranslationPath(lang)
+	if path == "" {
+		return filepath.Join(rt.AbsTranslationsDir(), lang)
+	}
+	return path
+}
+
+func markdownSourceDir(rt config.ResolvedTarget) string {
+	if p := rt.ExistingSourcePath(); p != "" {
+		return p
+	}
+	if p := rt.SourcePath(); p != "" {
+		return p
+	}
+	return markdownLangDir(rt, rt.Target.SourceLang)
+}
+
 func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
 	transDir := rt.AbsTranslationsDir()
 	keyVal(T("Translations"), transDir)
@@ -257,6 +278,7 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		SystemPrompt:        systemPrompt,
 		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
@@ -287,7 +309,7 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 	keyVal(T("Translations"), transDir)
 
 	srcLang := rt.Target.SourceLang
-	srcDir := filepath.Join(transDir, srcLang)
+	srcDir := markdownSourceDir(rt)
 	srcFiles, _ := discoverMarkdownFiles(srcDir)
 	if len(srcFiles) == 0 {
 		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcDir+")")
@@ -316,7 +338,7 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
 
 	for _, lang := range langs {
-		langDir := filepath.Join(transDir, lang)
+		langDir := markdownLangDir(rt, lang)
 		files, _ := discoverMarkdownFiles(langDir)
 		if len(files) == 0 {
 			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
@@ -351,9 +373,8 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 }
 
 func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
-	transDir := rt.AbsTranslationsDir()
 	srcLang := rt.Target.SourceLang
-	srcDir := filepath.Join(transDir, srcLang)
+	srcDir := markdownSourceDir(rt)
 
 	srcFiles, _ := discoverMarkdownFiles(srcDir)
 	if len(srcFiles) == 0 {
@@ -371,7 +392,7 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		langDir := filepath.Join(transDir, lang)
+		langDir := markdownLangDir(rt, lang)
 		if err := os.MkdirAll(langDir, 0o755); err != nil {
 			logError(T("Creating directory %s: %v"), langDir, err)
 			continue
@@ -432,8 +453,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	logInfo(T("Translations dir: %s"), transDir)
 	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
 
-	srcLang := rt.Target.SourceLang
-	srcDir := filepath.Join(transDir, srcLang)
+	srcDir := markdownSourceDir(rt)
 	srcFiles, _ := discoverMarkdownFiles(srcDir)
 	if len(srcFiles) == 0 {
 		return fmt.Errorf(T("cannot find source Markdown files in %s"), srcDir)
@@ -451,7 +471,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	if a.dryRun {
 		for _, lang := range langs {
 			langName := i18next.ResolveMeta(lang).Name
-			langDir := filepath.Join(transDir, lang)
+			langDir := markdownLangDir(rt, lang)
 			count := 0
 			for _, srcPath := range srcFiles {
 				relPath, err := filepath.Rel(srcDir, srcPath)
@@ -488,7 +508,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	var tasks []translate.MarkdownLangTask
 	for _, lang := range langs {
 		langName := i18next.ResolveMeta(lang).Name
-		langDir := filepath.Join(transDir, lang)
+		langDir := markdownLangDir(rt, lang)
 		if err := os.MkdirAll(langDir, 0o755); err != nil {
 			logError(T("Creating directory %s: %v"), langDir, err)
 			continue
@@ -542,6 +562,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		SystemPrompt:        systemPrompt,
 		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
@@ -762,6 +783,7 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		SystemPrompt:        systemPrompt,
 		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
@@ -982,6 +1004,7 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		SystemPrompt:        systemPrompt,
 		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
@@ -1188,6 +1211,7 @@ func translateVueI18nTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		SystemPrompt:        systemPrompt,
 		PromptType:          "default",
 		RetranslateExisting: a.retranslate,
@@ -1265,6 +1289,7 @@ func translateJSKVTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	}
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		ChunkSize:           a.chunkSize,
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
@@ -1362,7 +1387,7 @@ func translateDesktopTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 	if err != nil {
 		return fmt.Errorf(T("cannot read desktop file %s: %w"), path, err)
 	}
-	opts := translate.Options{Provider: prov, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
+	opts := translate.Options{Provider: prov, SourceLanguage: rt.Target.SourceLang, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
 	setExclusionOpts(&opts, &rt.Target)
 	var tasks []translate.KVLangTask
 	for _, lang := range langs {
@@ -1384,7 +1409,7 @@ func translatePolkitTarget(ctx context.Context, rt config.ResolvedTarget, prov t
 	if err != nil {
 		return fmt.Errorf(T("cannot read policy file %s: %w"), path, err)
 	}
-	opts := translate.Options{Provider: prov, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
+	opts := translate.Options{Provider: prov, SourceLanguage: rt.Target.SourceLang, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
 	setExclusionOpts(&opts, &rt.Target)
 	var tasks []translate.KVLangTask
 	for _, lang := range langs {

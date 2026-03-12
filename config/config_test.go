@@ -302,6 +302,22 @@ func TestLokitFileResolveAutoDetectAndAllLanguages(t *testing.T) {
 }
 
 func TestLoadLokitFilePatternValidation(t *testing.T) {
+	t.Run("defaults markdown pattern to {lang}", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "targets:\n  - name: docs\n    format: markdown\n    dir: docs\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		lf, err := LoadLokitFile(dir)
+		if err != nil {
+			t.Fatalf("LoadLokitFile error: %v", err)
+		}
+		if got := lf.Targets[0].Pattern; got != "{lang}" {
+			t.Fatalf("target pattern = %q, want {lang}", got)
+		}
+	})
+
 	t.Run("requires pattern for file-per-language targets", func(t *testing.T) {
 		types := []string{TargetTypeI18Next, TargetTypeVueI18n, TargetTypeYAML, TargetTypeProperties, TargetTypeFlutter, TargetTypeJSKV}
 		for _, targetType := range types {
@@ -683,7 +699,7 @@ func TestResolveExtractIDExpansion(t *testing.T) {
 		t.Fatalf("write beta: %v", err)
 	}
 
-	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: matrix\n    format: markdown\n    source: data/{id}.txt\n    target: data/{id}.{lang}.txt\n    extract:\n      source: data/{id}.txt\n      id_field: id\n      fields: [text]\n"
+	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: matrix\n    format: markdown\n    source: data/{id}.txt\n    target: data/{id}.{lang}.txt\n"
 	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0644); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
@@ -698,5 +714,97 @@ func TestResolveExtractIDExpansion(t *testing.T) {
 	}
 	if len(resolved) != 2 {
 		t.Fatalf("expected 2 expanded targets, got %d", len(resolved))
+	}
+}
+
+func TestLoadLokitFileSourceObjectIndexMode(t *testing.T) {
+	dir := t.TempDir()
+	yaml := "source_lang: en\ntargets:\n  - name: recipes\n    format: vue-i18n\n    root: data\n    dir: recipe-translations\n    pattern: \"{lang}/{id}.json\"\n    languages: [de]\n    source:\n      index: recipes.json\n      records_path: \"$\"\n      key_field: id\n      fields: [name, description]\n"
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	lf, err := LoadLokitFile(dir)
+	if err != nil {
+		t.Fatalf("LoadLokitFile() error = %v", err)
+	}
+	if lf == nil || len(lf.Targets) != 1 {
+		t.Fatalf("expected one target")
+	}
+	s := lf.Targets[0].Source
+	if s == nil || !s.IsIndex() {
+		t.Fatalf("expected source index config")
+	}
+	if s.RecordsPath != "$" {
+		t.Fatalf("unexpected records_path: %q", s.RecordsPath)
+	}
+}
+
+func TestLoadLokitFileSourceObjectValidation(t *testing.T) {
+	dir := t.TempDir()
+	yaml := "source_lang: en\ntargets:\n  - name: recipes\n    format: vue-i18n\n    root: data\n    dir: recipe-translations\n    pattern: \"{lang}.json\"\n    source:\n      index: recipes.json\n      fields: [name]\n"
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	_, err := LoadLokitFile(dir)
+	if err == nil {
+		t.Fatalf("expected validation error")
+	}
+	if !strings.Contains(err.Error(), "key_field") {
+		t.Fatalf("expected key_field validation error, got: %v", err)
+	}
+}
+
+func TestLoadLokitFileSourceObjectRequiresIDPlaceholder(t *testing.T) {
+	dir := t.TempDir()
+	yaml := "source_lang: en\ntargets:\n  - name: recipes\n    format: vue-i18n\n    root: data\n    dir: recipe-translations\n    pattern: \"{lang}.json\"\n    source:\n      index: recipes.json\n      key_field: id\n      fields: [name]\n"
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	_, err := LoadLokitFile(dir)
+	if err == nil {
+		t.Fatalf("expected validation error")
+	}
+	if !strings.Contains(err.Error(), "{id}") {
+		t.Fatalf("expected {id} validation error, got: %v", err)
+	}
+}
+
+func TestLoadLokitFileSourceObjectDefaultsRecordsPath(t *testing.T) {
+	dir := t.TempDir()
+	yaml := "source_lang: en\ntargets:\n  - name: recipes\n    format: vue-i18n\n    root: data\n    dir: recipe-translations\n    pattern: \"{lang}/{id}.json\"\n    source:\n      index: recipes.json\n      key_field: id\n      fields: [name]\n"
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	lf, err := LoadLokitFile(dir)
+	if err != nil {
+		t.Fatalf("LoadLokitFile() error = %v", err)
+	}
+	if got := lf.Targets[0].Source.RecordsPath; got != "$" {
+		t.Fatalf("expected default records_path '$', got %q", got)
+	}
+}
+
+func TestResolveIndexSourcePropagatesLoadError(t *testing.T) {
+	dir := t.TempDir()
+	yaml := "source_lang: en\ntargets:\n  - name: recipes\n    format: vue-i18n\n    root: data\n    dir: recipe-translations\n    pattern: \"{lang}/{id}.json\"\n    source:\n      index: missing.json\n      key_field: id\n      fields: [name]\n"
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	lf, err := LoadLokitFile(dir)
+	if err != nil {
+		t.Fatalf("LoadLokitFile() error = %v", err)
+	}
+
+	_, err = lf.Resolve(dir)
+	if err == nil {
+		t.Fatalf("expected resolve error")
+	}
+	if !strings.Contains(err.Error(), "reading source index") {
+		t.Fatalf("expected source index error, got: %v", err)
 	}
 }

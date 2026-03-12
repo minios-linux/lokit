@@ -214,6 +214,10 @@ targets:
 
 **vue-i18n** — For Vue applications with nested JSON locale files (for example `buttons.save: "Save"` in JSON object form).
 
+For source-backed key/value formats (`vue-i18n`, `yaml`, `properties`, `flutter`, `js-kv`, `markdown`),
+lokit translates only keys that have non-empty source text. Keys with missing/empty source
+values are skipped (for example optional fields like `longDescription` that are absent in source records).
+
 **android** — For Android applications. Translates `strings.xml` resource files.
 
 **yaml** — For YAML key-value translation files. Define `pattern` (example: `{lang}.yaml`).
@@ -252,6 +256,42 @@ targets:
     pattern: "messages_{lang}.properties"
 ```
 
+### Index source mode (`source` object)
+
+For catalog-style projects (one source index file + many per-record translation files),
+`source` can be an object instead of a string.
+
+- `source.index` points to the source index file
+- `source.records_path` selects the records array (`$` or `$.field`)
+- `source.key_field` provides values for `{id}` in `pattern` / `target`
+- `source.fields` lists translatable fields copied from each record
+
+Example (`minios-store` style):
+
+```yaml
+targets:
+  - name: recipes
+    format: vue-i18n
+    root: web/public/data
+    dir: recipe-translations
+    pattern: "{lang}/{id}.json"
+    languages: [de, es, fr]
+    source:
+      index: recipes.json
+      records_path: "$"
+      key_field: id
+      fields: [name, description, longDescription]
+```
+
+In index mode, lokit writes flat JSON objects per record/language and skips missing
+or empty source fields.
+
+Notes:
+
+- `pattern` or `target` must include `{id}` in index mode.
+- `--target recipes` selects all expanded records like `recipes/<id>`.
+- You can still target a single record with `--target recipes/<id>`.
+
 ## Commands
 
 ### `lokit status`
@@ -275,6 +315,7 @@ lokit init --lang ru,de        # Specific languages
 - Runs `xgettext` for gettext projects
 - Runs `po4a --no-translations` for po4a projects
 - Creates missing language files for i18next, vue-i18n, yaml, properties, flutter, js-kv
+- In index mode, creates per-record files from `source.index` for each target language
 - Idempotent — safe to run repeatedly
 
 ### `lokit translate`
@@ -294,7 +335,7 @@ lokit translate --provider copilot --model gpt-4o
   --fuzzy                   Translate fuzzy entries (default: true)
   --dry-run                 Show what would be translated
   --force, -f               Ignore lock file, re-translate all entries
-  --prompt string           Custom system prompt ({{targetLang}} placeholder)
+  --prompt string           Custom system prompt ({{targetLang}}/{{sourceLang}} placeholders)
   --proxy string            HTTP/HTTPS proxy URL
   --api-key string          API key (or provider env var)
   --base-url string         Custom API endpoint (custom-openai, ollama)

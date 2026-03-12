@@ -13,6 +13,8 @@ import (
 )
 
 func newStatusCmd() *cobra.Command {
+	var targets []string
+
 	cmd := &cobra.Command{
 		Use:   "status",
 		Short: T("Show project info and translation statistics"),
@@ -23,23 +25,25 @@ translation progress for gettext, po4a, i18next, vue-i18n, android,
 yaml, markdown, properties, flutter, js-kv, desktop, and polkit projects. For projects
 configured via lokit.yaml, shows each target separately.
 
-Does not modify any files.`),
+		Does not modify any files.`),
 		Run: func(cmd *cobra.Command, args []string) {
-			runStatus()
+			runStatus(targets)
 		},
 	}
+
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
 
 	return cmd
 }
 
-func runStatus() {
+func runStatus(targets []string) {
 	lf, err := config.LoadLokitFile(rootDir)
 	if err != nil {
 		logError(T("Config error: %v"), err)
 		os.Exit(1)
 	}
 	if lf != nil {
-		runStatusWithConfig(lf)
+		runStatusWithConfig(lf, targets)
 		return
 	}
 
@@ -48,7 +52,7 @@ func runStatus() {
 	os.Exit(1)
 }
 
-func runStatusWithConfig(lf *config.LokitFile) {
+func runStatusWithConfig(lf *config.LokitFile, targets []string) {
 	absRoot, _ := filepath.Abs(rootDir)
 
 	sectionHeader(T("Project"))
@@ -73,17 +77,22 @@ func runStatusWithConfig(lf *config.LokitFile) {
 	} else if !lockExists {
 		keyVal(T("Lock file"), T("not found"))
 	} else {
-		targets, keys := lockF.Stats()
-		if targets == 0 {
+		lockTargets, keys := lockF.Stats()
+		if lockTargets == 0 {
 			keyVal(T("Lock file"), T("empty"))
 		} else {
-			keyVal(T("Lock file"), fmt.Sprintf(T("%d targets, %d keys"), targets, keys))
+			keyVal(T("Lock file"), fmt.Sprintf(T("%d targets, %d keys"), lockTargets, keys))
 		}
 	}
 
 	resolved, err := lf.Resolve(rootDir)
 	if err != nil {
 		logError(T("Config resolve error: %v"), err)
+		os.Exit(1)
+	}
+	resolved, err = filterResolvedTargetsByNames(resolved, targets)
+	if err != nil {
+		logError(T("%v"), err)
 		os.Exit(1)
 	}
 
@@ -113,7 +122,11 @@ func runStatusWithConfig(lf *config.LokitFile) {
 		case config.TargetTypeI18Next:
 			showConfigI18NextStats(rt, langs)
 		case config.TargetTypeVueI18n:
-			showConfigVueI18nStats(rt, langs)
+			if rt.Target.Source != nil && rt.Target.Source.IsIndex() {
+				showConfigIndexStats(rt, langs)
+			} else {
+				showConfigVueI18nStats(rt, langs)
+			}
 		case config.TargetTypeAndroid:
 			showConfigAndroidStats(rt, langs)
 		case config.TargetTypeYAML:

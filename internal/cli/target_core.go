@@ -104,6 +104,7 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		ChunkSize:           a.chunkSize,
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
@@ -209,6 +210,7 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		ChunkSize:           a.chunkSize,
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
@@ -366,6 +368,7 @@ func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		ChunkSize:           a.chunkSize,
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,
@@ -484,6 +487,7 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 
 	opts := translate.Options{
 		Provider:            prov,
+		SourceLanguage:      rt.Target.SourceLang,
 		ChunkSize:           a.chunkSize,
 		ParallelMode:        parallelMode,
 		MaxConcurrent:       a.maxConcurrent,

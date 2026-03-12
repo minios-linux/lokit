@@ -456,27 +456,7 @@ func loadResolvedTargets(target string) ([]config.ResolvedTarget, error) {
 		return nil, fmt.Errorf(T("Config resolve error: %v"), err)
 	}
 
-	if target == "" {
-		return resolved, nil
-	}
-
-	for _, rt := range resolved {
-		if rt.Target.Name == target {
-			return []config.ResolvedTarget{rt}, nil
-		}
-	}
-
-	var matches []config.ResolvedTarget
-	for _, rt := range resolved {
-		if strings.HasPrefix(rt.Target.Name, target+"/") {
-			matches = append(matches, rt)
-		}
-	}
-	if len(matches) > 0 {
-		return matches, nil
-	}
-
-	return nil, fmt.Errorf(T("Target %q not found in lokit.yaml"), target)
+	return filterResolvedTargetsByNames(resolved, []string{target})
 }
 
 func collectSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
@@ -488,6 +468,9 @@ func collectSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
 	case config.TargetTypeI18Next:
 		return collectI18NextSourceEntries(rt)
 	case config.TargetTypeVueI18n:
+		if rt.Target.Source != nil && rt.Target.Source.IsIndex() {
+			return collectIndexSourceEntries(rt)
+		}
 		return collectVueI18nSourceEntries(rt)
 	case config.TargetTypeAndroid:
 		return collectAndroidSourceEntries(rt)
@@ -642,7 +625,7 @@ func collectYAMLSourceEntries(rt config.ResolvedTarget) (map[string]string, erro
 }
 
 func collectMarkdownSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
-	srcDir := filepath.Join(rt.AbsTranslationsDir(), rt.Target.SourceLang)
+	srcDir := markdownSourceDir(rt)
 	srcFiles, err := discoverMarkdownFiles(srcDir)
 	if err != nil {
 		return nil, fmt.Errorf(T("cannot read markdown files in %s: %v"), srcDir, err)

@@ -16,7 +16,8 @@ import (
 
 func newTranslateCmd() *cobra.Command {
 	var (
-		langs string
+		langs   string
+		targets []string
 
 		provider string
 		apiKey   string
@@ -66,7 +67,7 @@ Key filtering: configure per-target in lokit.yaml:
 Each target format has a built-in system prompt optimized for its structure.
 Use the --prompt flag to override it for the current run, or set prompt:
 in lokit.yaml target config for a permanent override.
-Use {{targetLang}} as a placeholder for the target language name.
+Use {{targetLang}} and {{sourceLang}} as placeholders for language names.
 
 Examples:
   # Basic translation run
@@ -74,6 +75,9 @@ Examples:
 
   # Translate specific languages in parallel
   lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+
+  # Translate only selected targets
+  lokit translate --provider copilot --model gpt-4o --target website --target blog
 
   # Use a custom prompt
   lokit translate --provider copilot --model gpt-4o \
@@ -90,6 +94,7 @@ Examples:
 		Run: func(cmd *cobra.Command, args []string) {
 			runTranslate(translateArgs{
 				langs:    langs,
+				targets:  targets,
 				provider: provider, apiKey: apiKey, model: model,
 				baseURL:   baseURL,
 				chunkSize: chunkSize, retranslate: retranslate,
@@ -107,11 +112,12 @@ Examples:
 	cmd.Flags().StringVar(&baseURL, "base-url", "", T("Custom API base URL"))
 
 	cmd.Flags().StringVarP(&langs, "lang", "l", "", T("Languages to translate (comma-separated, default: all with untranslated)"))
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
 
 	cmd.Flags().IntVar(&chunkSize, "chunk", 0, T("Entries per API request (0 = all at once)"))
 	cmd.Flags().BoolVarP(&retranslate, "all", "a", false, T("Translate all entries, including already translated ones"))
 	cmd.Flags().BoolVar(&fuzzy, "fuzzy", true, T("Translate fuzzy entries and clear fuzzy flag"))
-	cmd.Flags().StringVar(&prompt, "prompt", "", T("Custom system prompt (use {{targetLang}} placeholder)"))
+	cmd.Flags().StringVar(&prompt, "prompt", "", T("Custom system prompt (use {{targetLang}}/{{sourceLang}} placeholders)"))
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, T("Enable detailed logging"))
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, T("Show what would be translated without calling AI"))
 	cmd.Flags().BoolVarP(&force, "force", "f", false, T("Ignore lock file and re-translate all changed entries"))
@@ -161,6 +167,7 @@ Examples:
 
 type translateArgs struct {
 	langs                            string
+	targets                          []string
 	provider, apiKey, model, baseURL string
 	chunkSize                        int
 	retranslate, fuzzy               bool
@@ -230,6 +237,11 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 		logError(T("Config resolve error: %v"), err)
 		os.Exit(1)
 	}
+	resolved, err = filterResolvedTargetsByNames(resolved, a.targets)
+	if err != nil {
+		logError(T("%v"), err)
+		os.Exit(1)
+	}
 
 	if len(resolved) == 0 {
 		logError(T("No targets defined in lokit.yaml"))
@@ -297,7 +309,11 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 				hadErrors = true
 			}
 		case config.TargetTypeVueI18n:
-			if err := translateVueI18nTarget(ctx, rt, prov, a, targetLangs); err != nil {
+			translateFn := translateVueI18nTarget
+			if rt.Target.Source != nil && rt.Target.Source.IsIndex() {
+				translateFn = translateIndexTarget
+			}
+			if err := translateFn(ctx, rt, prov, a, targetLangs); err != nil {
 				logError(T("[%s] %v"), rt.Target.Name, err)
 				hadErrors = true
 			}

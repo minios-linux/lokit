@@ -27,7 +27,7 @@ type KVChunkTranslator interface {
 type defaultKVChunkTranslator struct{}
 
 func (defaultKVChunkTranslator) BuildUserPrompt(keys []string, srcVals map[string]string, opts Options) string {
-	return buildKVUserPrompt(keys, srcVals, opts.LanguageName)
+	return buildKVUserPrompt(keys, srcVals, opts.SourceLanguageName, opts.LanguageName)
 }
 
 func (defaultKVChunkTranslator) DefaultChunkSize() int { return 0 }
@@ -35,7 +35,7 @@ func (defaultKVChunkTranslator) DefaultChunkSize() int { return 0 }
 type i18nextChunkTranslator struct{}
 
 func (i18nextChunkTranslator) BuildUserPrompt(keys []string, _ map[string]string, opts Options) string {
-	return buildI18NextUserPrompt(keys, opts.LanguageName)
+	return buildI18NextUserPrompt(keys, opts.SourceLanguageName, opts.LanguageName)
 }
 
 func (i18nextChunkTranslator) DefaultChunkSize() int { return 0 }
@@ -45,7 +45,7 @@ type markdownChunkTranslator struct{}
 var markdownFencedCode = regexp.MustCompile("(?ms)^```[^\n]*\n.*?^```[ \t]*$|^~~~[^\n]*\n.*?^~~~[ \t]*$")
 
 func (markdownChunkTranslator) BuildUserPrompt(keys []string, srcVals map[string]string, opts Options) string {
-	return buildMarkdownUserPrompt(keys, srcVals, opts.LanguageName)
+	return buildMarkdownUserPrompt(keys, srcVals, opts.SourceLanguageName, opts.LanguageName)
 }
 
 func (markdownChunkTranslator) DefaultChunkSize() int { return 1 }
@@ -75,6 +75,7 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 		taskOpts := opts
 		taskOpts.Language = task.Lang
 		taskOpts.LanguageName = task.LangName
+		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
 
 		var keysToTranslate []string
 		if opts.RetranslateExisting {
@@ -84,6 +85,7 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 		}
 
 		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
+		keysToTranslate = filterKeysWithSourceValues(keysToTranslate, task.SourceValues, taskOpts)
 		keysToTranslate = filterChangedKeys(keysToTranslate, task.SourceValues, task.LockKeyPrefix, taskOpts)
 
 		if len(keysToTranslate) == 0 {
@@ -132,6 +134,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 		taskOpts := opts
 		taskOpts.Language = lt.Lang
 		taskOpts.LanguageName = lt.LangName
+		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
 
 		var keys []string
 		if opts.RetranslateExisting {
@@ -141,6 +144,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 		}
 
 		keys = filterExcludedKeys(keys, taskOpts)
+		keys = filterKeysWithSourceValues(keys, lt.SourceValues, taskOpts)
 		keys = filterChangedKeys(keys, lt.SourceValues, lt.LockKeyPrefix, taskOpts)
 
 		if len(keys) == 0 {
@@ -166,6 +170,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 		taskOpts := opts
 		taskOpts.Language = t.lang
 		taskOpts.LanguageName = t.langName
+		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
 
 		opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(t.keys))
 		translatedKeys, err := translateKVFileWithRL(ctx, t.file, t.sourceValues, t.keys, taskOpts, translator, rl)
@@ -329,9 +334,13 @@ func saveKVFile(file formatfile.KVFile, path string, opts Options) {
 	opts.log("Saved %s (%d/%d translated)", path, translated, total)
 }
 
-func buildKVUserPrompt(keys []string, srcVals map[string]string, langName string) string {
+func buildKVUserPrompt(keys []string, srcVals map[string]string, sourceLangName, langName string) string {
 	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Translate these strings to %s:\n\n", langName))
+	if sourceLangName != "" {
+		userMsg.WriteString(fmt.Sprintf("Translate these strings from %s to %s:\n\n", sourceLangName, langName))
+	} else {
+		userMsg.WriteString(fmt.Sprintf("Translate these strings to %s:\n\n", langName))
+	}
 	for i, key := range keys {
 		src := key
 		if srcVals != nil {
@@ -345,9 +354,13 @@ func buildKVUserPrompt(keys []string, srcVals map[string]string, langName string
 	return userMsg.String()
 }
 
-func buildI18NextUserPrompt(keys []string, langName string) string {
+func buildI18NextUserPrompt(keys []string, sourceLangName, langName string) string {
 	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Translate these UI strings to %s:\n\n", langName))
+	if sourceLangName != "" {
+		userMsg.WriteString(fmt.Sprintf("Translate these UI strings from %s to %s:\n\n", sourceLangName, langName))
+	} else {
+		userMsg.WriteString(fmt.Sprintf("Translate these UI strings to %s:\n\n", langName))
+	}
 	for i, key := range keys {
 		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(key)))
 	}
@@ -355,9 +368,13 @@ func buildI18NextUserPrompt(keys []string, langName string) string {
 	return userMsg.String()
 }
 
-func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, langName string) string {
+func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, sourceLangName, langName string) string {
 	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Translate these text segments to %s.\n", langName))
+	if sourceLangName != "" {
+		userMsg.WriteString(fmt.Sprintf("Translate these text segments from %s to %s.\n", sourceLangName, langName))
+	} else {
+		userMsg.WriteString(fmt.Sprintf("Translate these text segments to %s.\n", langName))
+	}
 	userMsg.WriteString("For Markdown segments, preserve all formatting, headings, code blocks, and inline markup.\n")
 	userMsg.WriteString("Do not omit content, do not summarize, and keep the same heading levels (#, ##, ###) and fenced code blocks.\n")
 	userMsg.WriteString("Return a JSON array with exactly the same number of translated strings.\n\n")
@@ -487,7 +504,11 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	maskedSrc, blocks := maskMarkdownCodeBlocks(src)
 
 	var userMsg strings.Builder
-	userMsg.WriteString(fmt.Sprintf("Retry translation to %s for one Markdown segment.\n", opts.LanguageName))
+	if opts.SourceLanguageName != "" {
+		userMsg.WriteString(fmt.Sprintf("Retry translation from %s to %s for one Markdown segment.\n", opts.SourceLanguageName, opts.LanguageName))
+	} else {
+		userMsg.WriteString(fmt.Sprintf("Retry translation to %s for one Markdown segment.\n", opts.LanguageName))
+	}
 	userMsg.WriteString("Previous response was invalid because it changed structure or omitted content.\n")
 	userMsg.WriteString("Requirements:\n")
 	userMsg.WriteString("- Keep the full segment content (do not summarize or drop lines)\n")

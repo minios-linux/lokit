@@ -125,8 +125,45 @@
           "description": "File pattern relative to dir for language-based files. Must contain {lang}."
         },
         "source": {
-          "type": "string",
-          "description": "Source file path pattern relative to root."
+          "oneOf": [
+            {
+              "type": "string",
+              "description": "Source file path pattern relative to root."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "index",
+                "key_field",
+                "fields"
+              ],
+              "properties": {
+                "index": {
+                  "type": "string",
+                  "description": "Path to index file relative to root."
+                },
+                "records_path": {
+                  "type": "string",
+                  "default": "$",
+                  "description": "Record array selector. Supported: '$' or '$.field'."
+                },
+                "key_field": {
+                  "type": "string",
+                  "description": "Record field used to fill {id} in target paths."
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "description": "Translatable fields extracted from each record."
+                }
+              },
+              "description": "Index source configuration for one-file source catalogs."
+            }
+          ]
         },
         "target": {
           "type": "string",

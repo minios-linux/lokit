@@ -417,9 +417,9 @@ func TestJSONRawMessage_Mixed(t *testing.T) {
 func TestBuildKVUserPrompt_UsesSourceValuesAndFallbackToKey(t *testing.T) {
 	keys := []string{"home.title", "menu.help"}
 	srcVals := map[string]string{"home.title": "Home"}
-	prompt := buildKVUserPrompt(keys, srcVals, "Russian")
+	prompt := buildKVUserPrompt(keys, srcVals, "English", "Russian")
 
-	if !strings.Contains(prompt, "Translate these strings to Russian") {
+	if !strings.Contains(prompt, "Translate these strings from English to Russian") {
 		t.Fatalf("prompt missing language header: %q", prompt)
 	}
 	if !strings.Contains(prompt, `1. "Home"`) {
@@ -432,9 +432,9 @@ func TestBuildKVUserPrompt_UsesSourceValuesAndFallbackToKey(t *testing.T) {
 
 func TestBuildI18NextUserPrompt_UsesKeysAsSource(t *testing.T) {
 	keys := []string{"Save", "Cancel"}
-	prompt := buildI18NextUserPrompt(keys, "German")
+	prompt := buildI18NextUserPrompt(keys, "English", "German")
 
-	if !strings.Contains(prompt, "Translate these UI strings to German") {
+	if !strings.Contains(prompt, "Translate these UI strings from English to German") {
 		t.Fatalf("prompt missing language header: %q", prompt)
 	}
 	if !strings.Contains(prompt, `1. "Save"`) || !strings.Contains(prompt, `2. "Cancel"`) {
@@ -445,7 +445,7 @@ func TestBuildI18NextUserPrompt_UsesKeysAsSource(t *testing.T) {
 func TestBuildMarkdownUserPrompt_IncludesMarkdownRules(t *testing.T) {
 	keys := []string{"intro"}
 	srcVals := map[string]string{"intro": "# Welcome\nText"}
-	prompt := buildMarkdownUserPrompt(keys, srcVals, "French")
+	prompt := buildMarkdownUserPrompt(keys, srcVals, "English", "French")
 
 	if !strings.Contains(prompt, "preserve all formatting") {
 		t.Fatalf("markdown rules missing from prompt: %q", prompt)
@@ -695,6 +695,48 @@ func TestTranslateAllKVSequential_TranslatesAndSaves(t *testing.T) {
 	}
 	if f.writtenTo != "ru.yaml" {
 		t.Fatalf("file not saved to expected path: %q", f.writtenTo)
+	}
+}
+
+func TestTranslateAllKVSequential_SkipsMissingOrEmptySourceValues(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body)
+		_ = r.Body.Close()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"Привет\"]"}}]}`))
+	}))
+	defer ts.Close()
+
+	f := newTestKVFile([]string{"name", "longDescription"}, map[string]string{"name": "", "longDescription": ""})
+	tasks := []KVLangTask{{
+		Lang:     "ru",
+		LangName: "Russian",
+		FilePath: "ru.json",
+		File:     f,
+		SourceValues: map[string]string{
+			"name":            "Example App",
+			"longDescription": "",
+		},
+	}}
+
+	opts := Options{
+		Provider: Provider{
+			ID:      ProviderCustomOpenAI,
+			BaseURL: ts.URL,
+			Model:   "test-model",
+		},
+		ParallelMode: ParallelSequential,
+	}
+
+	if err := TranslateAllKV(context.Background(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
+		t.Fatalf("TranslateAllKV error: %v", err)
+	}
+
+	if got := f.Value("name"); got != "Привет" {
+		t.Fatalf("value[name] = %q, want translated value", got)
+	}
+	if got := f.Value("longDescription"); got != "" {
+		t.Fatalf("value[longDescription] = %q, want empty (skipped)", got)
 	}
 }
 

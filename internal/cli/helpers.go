@@ -406,3 +406,67 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 
 	return nil
 }
+
+func filterResolvedTargetsByNames(resolved []config.ResolvedTarget, targets []string) ([]config.ResolvedTarget, error) {
+	if len(targets) == 0 {
+		return resolved, nil
+	}
+
+	selected := make([]string, 0, len(targets))
+	seenInput := make(map[string]struct{}, len(targets))
+	for _, raw := range targets {
+		for _, part := range strings.Split(raw, ",") {
+			name := strings.TrimSpace(part)
+			if name == "" {
+				continue
+			}
+			if _, ok := seenInput[name]; ok {
+				continue
+			}
+			seenInput[name] = struct{}{}
+			selected = append(selected, name)
+		}
+	}
+
+	if len(selected) == 0 {
+		return resolved, nil
+	}
+
+	result := make([]config.ResolvedTarget, 0, len(resolved))
+	added := make(map[string]struct{}, len(resolved))
+
+	appendTarget := func(rt config.ResolvedTarget) {
+		if _, ok := added[rt.Target.Name]; ok {
+			return
+		}
+		added[rt.Target.Name] = struct{}{}
+		result = append(result, rt)
+	}
+
+	for _, target := range selected {
+		exactFound := false
+		for _, rt := range resolved {
+			if rt.Target.Name == target {
+				appendTarget(rt)
+				exactFound = true
+				break
+			}
+		}
+		if exactFound {
+			continue
+		}
+
+		prefixFound := false
+		for _, rt := range resolved {
+			if strings.HasPrefix(rt.Target.Name, target+"/") {
+				appendTarget(rt)
+				prefixFound = true
+			}
+		}
+		if !prefixFound {
+			return nil, fmt.Errorf(T("Target %q not found in lokit.yaml"), target)
+		}
+	}
+
+	return result, nil
+}

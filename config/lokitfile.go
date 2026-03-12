@@ -52,27 +52,17 @@ type ProviderSettings struct {
 	Temperature *float64 `yaml:"temperature,omitempty"`
 }
 
-// ExtractConfig defines structured extraction settings for matrix-like targets.
-type ExtractConfig struct {
-	// Source is the extraction source path or path pattern.
-	Source string `yaml:"source,omitempty"`
-	// IDField is the field name used as stable item identifier.
-	IDField string `yaml:"id_field,omitempty"`
-	// Fields lists translatable fields to extract.
-	Fields []string `yaml:"fields,omitempty"`
-}
-
 // Surface describes one translation surface inside a multi-surface target.
 type Surface struct {
 	Name string `yaml:"name,omitempty"`
 
-	Format     string `yaml:"format,omitempty"`
-	Type       string `yaml:"-"`
-	Root       string `yaml:"root,omitempty"`
-	Dir        string `yaml:"dir,omitempty"`
-	Pattern    string `yaml:"pattern,omitempty"`
-	Source     string `yaml:"source,omitempty"`
-	TargetPath string `yaml:"target,omitempty"`
+	Format     string       `yaml:"format,omitempty"`
+	Type       string       `yaml:"-"`
+	Root       string       `yaml:"root,omitempty"`
+	Dir        string       `yaml:"dir,omitempty"`
+	Pattern    string       `yaml:"pattern,omitempty"`
+	Source     *SourceField `yaml:"source,omitempty"`
+	TargetPath string       `yaml:"target,omitempty"`
 
 	POT      string   `yaml:"pot,omitempty"`
 	Sources  []string `yaml:"sources,omitempty"`
@@ -87,8 +77,6 @@ type Surface struct {
 	LockedKeys     []string `yaml:"locked_keys,omitempty"`
 	IgnoredKeys    []string `yaml:"ignored_keys,omitempty"`
 	LockedPatterns []string `yaml:"locked_patterns,omitempty"`
-
-	Extract *ExtractConfig `yaml:"extract,omitempty"`
 }
 
 // Target describes a single translation unit.
@@ -110,8 +98,9 @@ type Target struct {
 	// - "{lang}/common.json"
 	// - "locale_{lang}.properties"
 	Pattern string `yaml:"pattern,omitempty"`
-	// Source is the source file path template relative to Root.
-	Source string `yaml:"source,omitempty"`
+	// Source is either a source file path template (string) or
+	// an index-source configuration block (object).
+	Source *SourceField `yaml:"source,omitempty"`
 	// TargetPath is the target file path template relative to Root.
 	TargetPath string `yaml:"target,omitempty"`
 
@@ -152,8 +141,6 @@ type Target struct {
 
 	// Surfaces defines multiple translation surfaces under one logical target.
 	Surfaces []Surface `yaml:"surfaces,omitempty"`
-
-	Extract *ExtractConfig `yaml:"extract,omitempty"`
 }
 
 // TargetTypeGettext is used for gettext PO projects (shell, python, C source code).
@@ -261,9 +248,13 @@ var targetFormatRegistry = map[string]targetFormatMeta{
 		detectFunc:        detectLanguagesYAML,
 	},
 	TargetTypeMarkdown: {
-		requiresDir: true,
-		dirExample:  "docs",
-		detectFunc:  detectLanguagesMarkdown,
+		requiresDir:       true,
+		requiresPattern:   true,
+		patternNeedsLang:  true,
+		dirExample:        "docs",
+		patternExample:    "{lang}",
+		detectUsesPattern: true,
+		detectFunc:        detectLanguagesMarkdown,
 	},
 	TargetTypeProperties: {
 		requiresDir:       true,
@@ -336,6 +327,7 @@ func validateNoDeprecatedTargetKeys(data []byte, path string) error {
 			"path_pattern":     "pattern",
 			"pot_file":         "pot",
 			"po4a_config":      "config",
+			"extract":          "source",
 		}
 		for oldKey, replacement := range deprecated {
 			if _, ok := t[oldKey]; !ok {
@@ -487,7 +479,7 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			if t.Format != "" {
 				return nil, fmt.Errorf("%s: target %q uses both target format and surfaces; use one style only", path, t.Name)
 			}
-			if t.Dir != "" || t.Pattern != "" || t.Source != "" || t.TargetPath != "" || t.POT != "" || t.Config != "" {
+			if t.Dir != "" || t.Pattern != "" || sourceConfigured(t.Source) || t.TargetPath != "" || t.POT != "" || t.Config != "" {
 				return nil, fmt.Errorf("%s: target %q uses both top-level format fields and surfaces; use one style only", path, t.Name)
 			}
 			for si := range t.Surfaces {
@@ -500,7 +492,10 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 				if !ok {
 					return nil, fmt.Errorf("%s: target %q surface #%d has unknown type %q (valid: %s)", path, t.Name, si+1, s.Type, validTargetTypes())
 				}
-				if meta.requiresDir && s.Dir == "" && s.Source == "" && s.TargetPath == "" {
+				if s.Type == TargetTypeMarkdown && s.Pattern == "" && !sourceConfigured(s.Source) && s.TargetPath == "" {
+					s.Pattern = "{lang}"
+				}
+				if meta.requiresDir && s.Dir == "" && !sourceConfigured(s.Source) && s.TargetPath == "" {
 					return nil, fmt.Errorf("%s: target %q surface #%d (%s) requires \"dir\" (e.g. dir: %s)", path, t.Name, si+1, s.Type, meta.dirExample)
 				}
 				if meta.requiresPOT && s.POT == "" {
@@ -509,7 +504,7 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 				if meta.requiresConfig && s.Config == "" {
 					return nil, fmt.Errorf("%s: target %q surface #%d (%s) requires \"config\" (e.g. config: %s)", path, t.Name, si+1, s.Type, meta.configExample)
 				}
-				if meta.requiresPattern && s.Source == "" && s.TargetPath == "" {
+				if meta.requiresPattern && !sourceConfigured(s.Source) && s.TargetPath == "" {
 					if s.Pattern == "" {
 						return nil, fmt.Errorf("%s: target %q surface #%d (%s) requires \"pattern\" (e.g. pattern: %s)", path, t.Name, si+1, s.Type, meta.patternExample)
 					}
@@ -519,6 +514,9 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 				}
 				if s.TargetPath != "" && meta.patternNeedsLang && !strings.Contains(s.TargetPath, "{lang}") {
 					return nil, fmt.Errorf("%s: target %q surface #%d (%s) field \"target\" must contain \"{lang}\"", path, t.Name, si+1, s.Type)
+				}
+				if err := validateSourceField(path, t.Name, s.Name, s.Source, s.Pattern, s.TargetPath); err != nil {
+					return nil, err
 				}
 			}
 			continue
@@ -552,7 +550,10 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		if !ok {
 			return nil, fmt.Errorf("%s: target %q has unknown type %q (valid: %s)", path, t.Name, t.Type, validTargetTypes())
 		}
-		if meta.requiresDir && t.Dir == "" && t.TargetPath == "" && t.Source == "" {
+		if t.Type == TargetTypeMarkdown && t.Pattern == "" && !sourceConfigured(t.Source) && t.TargetPath == "" {
+			t.Pattern = "{lang}"
+		}
+		if meta.requiresDir && t.Dir == "" && t.TargetPath == "" && !sourceConfigured(t.Source) {
 			return nil, fmt.Errorf("%s: target %q (%s) requires \"dir\" (e.g. dir: %s)", path, t.Name, t.Type, meta.dirExample)
 		}
 		if meta.requiresPOT && t.POT == "" {
@@ -561,7 +562,7 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		if meta.requiresConfig && t.Config == "" {
 			return nil, fmt.Errorf("%s: target %q (%s) requires \"config\" (e.g. config: %s)", path, t.Name, t.Type, meta.configExample)
 		}
-		if meta.requiresPattern && t.Source == "" && t.TargetPath == "" {
+		if meta.requiresPattern && !sourceConfigured(t.Source) && t.TargetPath == "" {
 			if t.Pattern == "" {
 				return nil, fmt.Errorf("%s: target %q (%s) requires \"pattern\" (e.g. pattern: %s)", path, t.Name, t.Type, meta.patternExample)
 			}
@@ -571,6 +572,9 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		}
 		if t.TargetPath != "" && meta.patternNeedsLang && !strings.Contains(t.TargetPath, "{lang}") {
 			return nil, fmt.Errorf("%s: target %q (%s) field \"target\" must contain \"{lang}\"", path, t.Name, t.Type)
+		}
+		if err := validateSourceField(path, t.Name, "", t.Source, t.Pattern, t.TargetPath); err != nil {
+			return nil, err
 		}
 	}
 
@@ -586,6 +590,7 @@ type ResolvedTarget struct {
 	Target    Target
 	AbsRoot   string
 	Languages []string
+	IndexItem *IndexItem
 }
 
 // Resolve converts a LokitFile into a list of ResolvedTargets with absolute paths.
@@ -600,7 +605,10 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 	for _, t := range lf.Targets {
 		if len(t.Surfaces) == 0 {
 			absRoot := filepath.Join(absProjectRoot, t.Root)
-			expanded := expandTargetIDs(t, absRoot)
+			expanded, err := expandTargetIDs(t, absRoot)
+			if err != nil {
+				return nil, err
+			}
 			for _, et := range expanded {
 				langs := et.Languages
 				if len(langs) == 0 {
@@ -619,7 +627,7 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 				Root:           coalesceString(s.Root, t.Root),
 				Dir:            s.Dir,
 				Pattern:        s.Pattern,
-				Source:         s.Source,
+				Source:         firstSource(s.Source, t.Source),
 				TargetPath:     s.TargetPath,
 				POT:            s.POT,
 				Sources:        s.Sources,
@@ -631,7 +639,6 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 				LockedKeys:     mergeStringSlices(t.LockedKeys, s.LockedKeys),
 				IgnoredKeys:    mergeStringSlices(t.IgnoredKeys, s.IgnoredKeys),
 				LockedPatterns: mergeStringSlices(t.LockedPatterns, s.LockedPatterns),
-				Extract:        firstExtract(s.Extract, t.Extract),
 			}
 			if st.Type == "" {
 				st.Type = st.Format
@@ -653,7 +660,10 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 			}
 
 			absRoot := filepath.Join(absProjectRoot, st.Root)
-			expanded := expandTargetIDs(st, absRoot)
+			expanded, err := expandTargetIDs(st, absRoot)
+			if err != nil {
+				return nil, err
+			}
 			for _, et := range expanded {
 				langs := et.Languages
 				if len(langs) == 0 {
@@ -684,27 +694,39 @@ func mergeStringSlices(a, b []string) []string {
 	return out
 }
 
-func firstExtract(a, b *ExtractConfig) *ExtractConfig {
+func firstSource(a, b *SourceField) *SourceField {
 	if a != nil {
-		return a
+		cp := *a
+		if len(a.Fields) > 0 {
+			cp.Fields = append([]string{}, a.Fields...)
+		}
+		return &cp
 	}
-	return b
+	if b == nil {
+		return nil
+	}
+	cp := *b
+	if len(b.Fields) > 0 {
+		cp.Fields = append([]string{}, b.Fields...)
+	}
+	return &cp
 }
 
-func expandTargetIDs(t Target, absRoot string) []Target {
-	if !strings.Contains(t.Source, "{id}") && !strings.Contains(t.TargetPath, "{id}") && !strings.Contains(t.Pattern, "{id}") {
-		return []Target{t}
+func expandTargetIDs(t Target, absRoot string) ([]Target, error) {
+	if t.Source != nil && t.Source.IsIndex() {
+		return expandIndexSourceTargets(t, absRoot)
 	}
 
-	sourcePattern := t.Source
-	if t.Extract != nil && t.Extract.Source != "" {
-		sourcePattern = t.Extract.Source
+	if !strings.Contains(sourcePathPattern(t.Source), "{id}") && !strings.Contains(t.TargetPath, "{id}") && !strings.Contains(t.Pattern, "{id}") {
+		return []Target{t}, nil
 	}
+
+	sourcePattern := sourcePathPattern(t.Source)
 	if sourcePattern == "" {
 		sourcePattern = t.Pattern
 	}
 	if sourcePattern == "" || !strings.Contains(sourcePattern, "{id}") {
-		return []Target{t}
+		return []Target{t}, nil
 	}
 
 	globPattern := sourcePattern
@@ -715,7 +737,7 @@ func expandTargetIDs(t Target, absRoot string) []Target {
 	absGlob := filepath.Join(absRoot, filepath.FromSlash(globPattern))
 	paths, err := filepath.Glob(absGlob)
 	if err != nil || len(paths) == 0 {
-		return []Target{t}
+		return []Target{t}, nil
 	}
 
 	reStr := regexp.QuoteMeta(filepath.ToSlash(sourcePattern))
@@ -745,26 +767,25 @@ func expandTargetIDs(t Target, absRoot string) []Target {
 	}
 
 	if len(ids) == 0 {
-		return []Target{t}
+		return []Target{t}, nil
 	}
 	sort.Strings(ids)
 
 	out := make([]Target, 0, len(ids))
 	for _, id := range ids {
 		cp := t
-		cp.Source = strings.ReplaceAll(cp.Source, "{id}", id)
+		if cp.Source != nil && cp.Source.Path != "" {
+			s := *cp.Source
+			s.Path = strings.ReplaceAll(s.Path, "{id}", id)
+			cp.Source = &s
+		}
 		cp.TargetPath = strings.ReplaceAll(cp.TargetPath, "{id}", id)
 		cp.Pattern = strings.ReplaceAll(cp.Pattern, "{id}", id)
-		if cp.Extract != nil {
-			e := *cp.Extract
-			e.Source = strings.ReplaceAll(e.Source, "{id}", id)
-			cp.Extract = &e
-		}
 		cp.Name = fmt.Sprintf("%s/%s", t.Name, id)
 		out = append(out, cp)
 	}
 
-	return out
+	return out, nil
 }
 
 // detectTargetLanguages auto-detects languages from existing translation files.
@@ -903,7 +924,7 @@ func detectLanguagesYAML(dir string) []string {
 }
 
 // detectLanguagesMarkdown finds language codes from Markdown subdirectories.
-// It looks for subdirectories named with language codes (e.g. "ru/", "de/").
+// It is used when explicit language pattern detection is unavailable.
 func detectLanguagesMarkdown(dir string) []string {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -1001,7 +1022,7 @@ func (rt *ResolvedTarget) AbsPo4aConfig() string {
 
 // AbsTranslationsDir returns the absolute translations directory for file-based targets.
 func (rt *ResolvedTarget) AbsTranslationsDir() string {
-	if rt.Target.TargetPath != "" || rt.Target.Source != "" {
+	if rt.Target.TargetPath != "" || sourcePathPattern(rt.Target.Source) != "" {
 		return rt.AbsRoot
 	}
 	return filepath.Join(rt.AbsRoot, rt.Target.Dir)
@@ -1058,9 +1079,9 @@ func (rt *ResolvedTarget) ExistingTranslationPath(lang string) string {
 
 // SourcePathCandidates returns source-language path candidates.
 func (rt *ResolvedTarget) SourcePathCandidates() []string {
-	if rt.Target.Source != "" {
+	if sourcePathPattern(rt.Target.Source) != "" {
 		base := rt.AbsTranslationsDir()
-		p := applyLangPattern(rt.Target.Source, rt.Target.SourceLang)
+		p := applyLangPattern(sourcePathPattern(rt.Target.Source), rt.Target.SourceLang)
 		return []string{filepath.Join(base, filepath.FromSlash(p))}
 	}
 	return rt.TranslationPathCandidates(rt.Target.SourceLang)
@@ -1077,7 +1098,61 @@ func (rt *ResolvedTarget) SourcePath() string {
 
 // ExistingSourcePath returns the first existing source-language path.
 func (rt *ResolvedTarget) ExistingSourcePath() string {
-	return rt.ExistingTranslationPath(rt.Target.SourceLang)
+	for _, p := range rt.SourcePathCandidates() {
+		if _, err := os.Stat(p); err == nil {
+			return p
+		}
+	}
+	return ""
+}
+
+func sourceConfigured(source *SourceField) bool {
+	return source != nil && (source.Path != "" || source.Index != "")
+}
+
+func sourcePathPattern(source *SourceField) string {
+	if source == nil {
+		return ""
+	}
+	return source.Path
+}
+
+func validateSourceField(path, targetName, surfaceName string, source *SourceField, pattern, targetPath string) error {
+	if source == nil {
+		return nil
+	}
+
+	scope := fmt.Sprintf("target %q", targetName)
+	if surfaceName != "" {
+		scope = fmt.Sprintf("target %q surface %q", targetName, surfaceName)
+	}
+
+	if source.IsPath() && source.IsIndex() {
+		return fmt.Errorf("%s: %s source cannot define both path and index config", path, scope)
+	}
+	if source.IsPath() {
+		return nil
+	}
+	if !source.IsIndex() {
+		return fmt.Errorf("%s: %s source object must define \"index\"", path, scope)
+	}
+	if source.KeyField == "" {
+		return fmt.Errorf("%s: %s source.index mode requires \"key_field\"", path, scope)
+	}
+	if len(source.Fields) == 0 {
+		return fmt.Errorf("%s: %s source.index mode requires non-empty \"fields\"", path, scope)
+	}
+	if source.RecordsPath == "" {
+		source.RecordsPath = "$"
+	}
+	pathTemplate := targetPath
+	if pathTemplate == "" {
+		pathTemplate = pattern
+	}
+	if !strings.Contains(pathTemplate, "{id}") {
+		return fmt.Errorf("%s: %s source.index mode requires \"pattern\" or \"target\" containing \"{id}\"", path, scope)
+	}
+	return nil
 }
 
 // AbsResDir returns the absolute Android res/ directory for android targets.

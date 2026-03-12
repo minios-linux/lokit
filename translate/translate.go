@@ -91,6 +91,7 @@ const DefaultSystemPrompt = `You are a professional translator specializing in s
 CONTEXT AWARENESS:
 - The audience is software users
 - Tone: professional yet approachable, clear and concise
+- Translate from {{sourceLang}} to {{targetLang}}
 - Use IT/software terminology that is standard in {{targetLang}} tech community
 - Adapt to the application's specific domain based on the source text context
 
@@ -118,6 +119,7 @@ CONTEXT AWARENESS:
 - The source text comes from software documentation and man pages
 - The audience is system administrators, developers, and advanced users
 - Tone: formal technical documentation, precise and unambiguous
+- Translate from {{sourceLang}} to {{targetLang}}
 - Use IT/system administration terminology standard in {{targetLang}}
 
 IMPORTANT TRANSLATION PRINCIPLES:
@@ -258,6 +260,10 @@ func DefaultProviders() map[string]Provider {
 type Options struct {
 	// Provider is the AI provider configuration.
 	Provider Provider
+	// SourceLanguage is the source language code (e.g., "en").
+	SourceLanguage string
+	// SourceLanguageName is the human-readable source language name.
+	SourceLanguageName string
 	// Language is the target language code (e.g., "ru", "de").
 	Language string
 	// LanguageName is the human-readable name (e.g., "Russian", "German").
@@ -355,7 +361,21 @@ func (o *Options) effectiveMaxConcurrent() int {
 	return 3
 }
 
-// resolvedPrompt returns the system prompt with {{targetLang}} replaced.
+func (o *Options) resolvedSourceLangName() string {
+	sourceLangName := o.SourceLanguageName
+	if sourceLangName == "" {
+		sourceLangName = po.LangNameNative(o.SourceLanguage)
+	}
+	if sourceLangName == "" {
+		sourceLangName = o.SourceLanguage
+	}
+	if sourceLangName == "" {
+		sourceLangName = "source language"
+	}
+	return sourceLangName
+}
+
+// resolvedPrompt returns the system prompt with language placeholders replaced.
 func (o *Options) resolvedPrompt() string {
 	prompt := o.SystemPrompt
 	if prompt == "" {
@@ -369,7 +389,9 @@ func (o *Options) resolvedPrompt() string {
 	if langName == "" {
 		langName = po.LangNameNative(o.Language)
 	}
-	return strings.ReplaceAll(prompt, "{{targetLang}}", langName)
+	sourceLangName := o.resolvedSourceLangName()
+	prompt = strings.ReplaceAll(prompt, "{{targetLang}}", langName)
+	return strings.ReplaceAll(prompt, "{{sourceLang}}", sourceLangName)
 }
 
 // ---------------------------------------------------------------------------
@@ -1590,7 +1612,11 @@ type pluralTranslation struct {
 // all nplurals forms; singular entries produce a single string as before.
 func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemPrompt string, opts Options, rl *rateLimitState, nplurals int) ([]pluralTranslation, error) {
 	var userMsg strings.Builder
-	userMsg.WriteString("Translate these entries:\n\n")
+	if srcName := opts.resolvedSourceLangName(); srcName != "" {
+		userMsg.WriteString(fmt.Sprintf("Translate these entries from %s to %s:\n\n", srcName, opts.LanguageName))
+	} else {
+		userMsg.WriteString("Translate these entries:\n\n")
+	}
 
 	for i, e := range entries {
 		if e.MsgIDPlural != "" {
@@ -2006,6 +2032,31 @@ func filterExcludedKeys(keys []string, opts Options) []string {
 	return filtered
 }
 
+// filterKeysWithSourceValues removes keys that have no source text.
+// For source-backed formats (vue-i18n, yaml, properties, flutter, js-kv, markdown),
+// sourceValues must contain a non-empty value for each translatable key.
+// Missing/empty source values are skipped to avoid generating translations from key names.
+func filterKeysWithSourceValues(keys []string, sourceValues map[string]string, opts Options) []string {
+	if sourceValues == nil || len(keys) == 0 {
+		return keys
+	}
+
+	filtered := make([]string, 0, len(keys))
+	skipped := 0
+	for _, key := range keys {
+		v, ok := sourceValues[key]
+		if !ok || strings.TrimSpace(v) == "" {
+			skipped++
+			continue
+		}
+		filtered = append(filtered, key)
+	}
+	if skipped > 0 {
+		opts.log("  Skipping %d keys with empty/missing source values", skipped)
+	}
+	return filtered
+}
+
 // updateLockFileForPO updates the lock file with checksums for successfully
 // translated PO entries.
 func updateLockFileForPO(entries []*po.Entry, opts Options) {
@@ -2067,7 +2118,11 @@ func splitEntries(entries []*po.Entry, chunkSize int) [][]*po.Entry {
 func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
 	// Build the user prompt
 	var userMsg strings.Builder
-	userMsg.WriteString("Translate these entries:\n\n")
+	if srcName := opts.resolvedSourceLangName(); srcName != "" {
+		userMsg.WriteString(fmt.Sprintf("Translate these entries from %s to %s:\n\n", srcName, opts.LanguageName))
+	} else {
+		userMsg.WriteString("Translate these entries:\n\n")
+	}
 	for i, e := range entries {
 		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(e.MsgID)))
 		if len(e.References) > 0 {
@@ -2365,7 +2420,7 @@ const I18NextSystemPrompt = `You are a professional translator specializing in s
 CONTEXT AWARENESS:
 - The application is a web application using React and i18next for internationalization
 - The audience is web application users
-- Keys are natural English text; you translate them to {{targetLang}}
+- Keys are natural {{sourceLang}} text; you translate them to {{targetLang}}
 - Tone: professional yet approachable, clear and concise
 - Use IT/software terminology that is standard in {{targetLang}} tech community
 
@@ -2472,6 +2527,7 @@ const AndroidSystemPrompt = `You are a professional translator specializing in m
 CONTEXT AWARENESS:
 - The audience is mobile app users
 - Tone: professional yet approachable, clear and concise
+- Translate from {{sourceLang}} to {{targetLang}}
 - Use mobile app terminology that is standard in {{targetLang}} tech community
 - Adapt to the app's specific domain and target audience based on the source text context
 
