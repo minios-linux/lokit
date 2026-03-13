@@ -12,6 +12,7 @@ import (
 
 	"github.com/minios-linux/lokit/config"
 	. "github.com/minios-linux/lokit/i18n"
+	formatfile "github.com/minios-linux/lokit/internal/format"
 	"github.com/minios-linux/lokit/internal/format/android"
 	arbfile "github.com/minios-linux/lokit/internal/format/arb"
 	"github.com/minios-linux/lokit/internal/format/desktop"
@@ -187,7 +188,16 @@ func runLockInit(target string, force bool) {
 			if force {
 				lf.RemoveTarget(lockTarget)
 			}
-			for key, content := range sourceEntries {
+
+			translatedKeys, err := collectTranslatedKeys(rt, lang)
+			if err != nil {
+				logWarning(T("[%s/%s] %v"), rt.Target.Name, lang, err)
+				hadErrors = true
+				continue
+			}
+
+			filteredEntries := filterSourceEntriesByTranslatedKeys(sourceEntries, translatedKeys)
+			for key, content := range filteredEntries {
 				if !force && lf.Has(lockTarget, key) {
 					skipped++
 					continue
@@ -195,6 +205,7 @@ func runLockInit(target string, force bool) {
 				lf.Update(lockTarget, key, content)
 				added++
 			}
+
 			updatedTargets++
 		}
 	}
@@ -495,6 +506,194 @@ func collectSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
 
 type kvSourceFile interface {
 	SourceValues() map[string]string
+}
+
+func filterSourceEntriesByTranslatedKeys(sourceEntries map[string]string, translatedKeys map[string]struct{}) map[string]string {
+	if len(sourceEntries) == 0 || len(translatedKeys) == 0 {
+		return map[string]string{}
+	}
+	out := make(map[string]string, len(translatedKeys))
+	for key, content := range sourceEntries {
+		if _, ok := translatedKeys[key]; ok {
+			out[key] = content
+		}
+	}
+	return out
+}
+
+func translatedKeysFromKVFile(file formatfile.KVFile) map[string]struct{} {
+	all := file.Keys()
+	untranslated := make(map[string]struct{}, len(all))
+	for _, key := range file.UntranslatedKeys() {
+		untranslated[key] = struct{}{}
+	}
+
+	translated := make(map[string]struct{}, len(all))
+	for _, key := range all {
+		if _, ok := untranslated[key]; ok {
+			continue
+		}
+		translated[key] = struct{}{}
+	}
+	return translated
+}
+
+func collectTranslatedKeys(rt config.ResolvedTarget, lang string) (map[string]struct{}, error) {
+	switch rt.Target.Type {
+	case config.TargetTypeGettext:
+		poPath := rt.POPath(lang)
+		catalog, err := po.ParseFile(poPath)
+		if err != nil {
+			return nil, fmt.Errorf(T("cannot read PO %s: %v"), poPath, err)
+		}
+		keys := make(map[string]struct{})
+		for _, e := range catalog.Entries {
+			if e.MsgID == "" || e.Obsolete || e.IsFuzzy() || !e.IsTranslated() {
+				continue
+			}
+			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
+			keys[key] = struct{}{}
+		}
+		return keys, nil
+
+	case config.TargetTypePo4a:
+		poPath := rt.DocsPOPath(lang)
+		catalog, err := po.ParseFile(poPath)
+		if err != nil {
+			return nil, fmt.Errorf(T("cannot read PO %s: %v"), poPath, err)
+		}
+		keys := make(map[string]struct{})
+		for _, e := range catalog.Entries {
+			if e.MsgID == "" || e.Obsolete || e.IsFuzzy() || !e.IsTranslated() {
+				continue
+			}
+			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
+			keys[key] = struct{}{}
+		}
+		return keys, nil
+
+	case config.TargetTypeI18Next:
+		return collectTranslatedSimpleKV(rt.TranslationPath(lang), func(path string) (formatfile.KVFile, error) {
+			return i18next.ParseFile(path)
+		})
+
+	case config.TargetTypeVueI18n:
+		return collectTranslatedSimpleKV(rt.TranslationPath(lang), func(path string) (formatfile.KVFile, error) {
+			return vuei18n.ParseFile(path)
+		})
+
+	case config.TargetTypeAndroid:
+		path := android.StringsXMLPath(rt.AbsResDir(), lang)
+		f, err := android.ParseFile(path)
+		if err != nil {
+			return nil, err
+		}
+		return collectTranslatedAndroidKeys(f), nil
+
+	case config.TargetTypeYAML:
+		return collectTranslatedSimpleKV(rt.TranslationPath(lang), func(path string) (formatfile.KVFile, error) {
+			return yamlfile.ParseFile(path)
+		})
+
+	case config.TargetTypeMarkdown:
+		return collectTranslatedMarkdownKeys(rt, lang)
+
+	case config.TargetTypeProperties:
+		return collectTranslatedSimpleKV(rt.TranslationPath(lang), func(path string) (formatfile.KVFile, error) {
+			return propfile.ParseFile(path)
+		})
+
+	case config.TargetTypeFlutter:
+		return collectTranslatedSimpleKV(rt.TranslationPath(lang), func(path string) (formatfile.KVFile, error) {
+			return arbfile.ParseFile(path)
+		})
+
+	case config.TargetTypeJSKV:
+		return collectTranslatedSimpleKV(rt.TranslationPath(lang), func(path string) (formatfile.KVFile, error) {
+			return jskv.ParseFile(path)
+		})
+
+	case config.TargetTypeDesktop:
+		path := rt.SourcePath()
+		return collectTranslatedSimpleKV(path, func(p string) (formatfile.KVFile, error) {
+			return desktop.ParseFile(p, lang)
+		})
+
+	case config.TargetTypePolkit:
+		path := rt.SourcePath()
+		return collectTranslatedSimpleKV(path, func(p string) (formatfile.KVFile, error) {
+			return polkit.ParseFile(p, lang)
+		})
+
+	default:
+		return nil, fmt.Errorf(T("unsupported target type %q"), rt.Target.Type)
+	}
+}
+
+func collectTranslatedSimpleKV(path string, parse func(path string) (formatfile.KVFile, error)) (map[string]struct{}, error) {
+	file, err := parse(path)
+	if err != nil {
+		return nil, err
+	}
+	return translatedKeysFromKVFile(file), nil
+}
+
+func collectTranslatedMarkdownKeys(rt config.ResolvedTarget, lang string) (map[string]struct{}, error) {
+	srcDir := markdownSourceDir(rt)
+	srcFiles, err := discoverMarkdownFiles(srcDir)
+	if err != nil {
+		return nil, fmt.Errorf(T("cannot read markdown files in %s: %v"), srcDir, err)
+	}
+
+	translated := make(map[string]struct{})
+	for _, srcPath := range srcFiles {
+		relPath, err := filepath.Rel(srcDir, srcPath)
+		if err != nil {
+			continue
+		}
+		relSlash := filepath.ToSlash(relPath)
+		targetPath := filepath.Join(markdownLangDir(rt, lang), filepath.FromSlash(relSlash))
+		mf, err := mdfile.ParseFile(targetPath)
+		if err != nil {
+			continue
+		}
+		for key := range translatedKeysFromKVFile(mf) {
+			translated[relSlash+":"+key] = struct{}{}
+		}
+	}
+
+	return translated, nil
+}
+
+func collectTranslatedAndroidKeys(f *android.File) map[string]struct{} {
+	translated := make(map[string]struct{})
+	for _, e := range f.Entries {
+		if !e.IsTranslatable() || e.IsComment() {
+			continue
+		}
+		switch e.Kind {
+		case android.KindString:
+			if strings.TrimSpace(e.Value) != "" {
+				translated[e.Name] = struct{}{}
+			}
+		case android.KindStringArray:
+			for idx, v := range e.Items {
+				if strings.TrimSpace(v) == "" {
+					continue
+				}
+				translated[fmt.Sprintf("%s[%d]", e.Name, idx)] = struct{}{}
+			}
+		case android.KindPlurals:
+			for _, q := range e.PluralOrder {
+				v := e.Plurals[q]
+				if strings.TrimSpace(v) == "" {
+					continue
+				}
+				translated[fmt.Sprintf("%s#%s", e.Name, q)] = struct{}{}
+			}
+		}
+	}
+	return translated
 }
 
 func collectSimpleKVSourceEntries(rt config.ResolvedTarget, parse func(path string) (kvSourceFile, error)) (map[string]string, error) {

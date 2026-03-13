@@ -273,9 +273,57 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 
 	hadErrors := false
 
+	indexGroups := make(map[string][]config.ResolvedTarget)
+	for _, rt := range resolved {
+		base, ok := translateIndexGroupKey(rt)
+		if !ok {
+			continue
+		}
+		indexGroups[base] = append(indexGroups[base], rt)
+	}
+	processedGroups := make(map[string]struct{})
+
 	for _, rt := range resolved {
 		if ctx.Err() != nil {
 			break
+		}
+
+		if base, ok := translateIndexGroupKey(rt); ok {
+			group := indexGroups[base]
+			if len(group) > 1 {
+				if _, done := processedGroups[base]; done {
+					continue
+				}
+				processedGroups[base] = struct{}{}
+
+				targetHeader(base, string(rt.Target.Type))
+				for _, grt := range group {
+					if ctx.Err() != nil {
+						break
+					}
+
+					targetLangs := grt.Languages
+					if len(langFilter) > 0 {
+						targetLangs = intersectLanguages(targetLangs, langFilter)
+					}
+					targetLangs = filterOutLang(targetLangs, grt.Target.SourceLang)
+					if len(targetLangs) == 0 {
+						continue
+					}
+
+					if err := translateIndexTarget(ctx, grt, prov, a, targetLangs, true); err != nil {
+						logError(T("[%s] %v"), grt.Target.Name, err)
+						hadErrors = true
+					}
+				}
+
+				if err := a.lockFile.Save(); err != nil {
+					logWarning(T("Could not save lock file after target %s: %v"), base, err)
+				} else if a.verbose {
+					logInfo(T("Lock file saved after target %s/%s"), base, "*")
+				}
+				continue
+			}
 		}
 
 		targetLangs := rt.Languages
@@ -311,7 +359,11 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 		case config.TargetTypeVueI18n:
 			translateFn := translateVueI18nTarget
 			if rt.Target.Source != nil && rt.Target.Source.IsIndex() {
-				translateFn = translateIndexTarget
+				if err := translateIndexTarget(ctx, rt, prov, a, targetLangs, false); err != nil {
+					logError(T("[%s] %v"), rt.Target.Name, err)
+					hadErrors = true
+				}
+				break
 			}
 			if err := translateFn(ctx, rt, prov, a, targetLangs); err != nil {
 				logError(T("[%s] %v"), rt.Target.Name, err)
@@ -377,4 +429,15 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 		os.Exit(1)
 	}
 	logSuccess(T("All targets translated!"))
+}
+
+func translateIndexGroupKey(rt config.ResolvedTarget) (string, bool) {
+	if rt.Target.Source == nil || !rt.Target.Source.IsIndex() {
+		return "", false
+	}
+	base, _, ok := config.SplitExpandedTargetName(rt.Target.Name)
+	if !ok {
+		return "", false
+	}
+	return base, true
 }

@@ -258,7 +258,7 @@ func runInitIndex(rt config.ResolvedTarget, langs []string) {
 	logInfo(T("Index init: %d created, %d updated"), created, updated)
 }
 
-func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
+func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string, quietNoop bool) error {
 	item, err := loadIndexSourceItem(rt)
 	if err != nil {
 		return err
@@ -352,7 +352,9 @@ func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov tr
 	}
 
 	if len(tasks) == 0 {
-		logSuccess(T("[%s] All translations complete!"), rt.Target.Name)
+		if !quietNoop {
+			logSuccess(T("[%s] All translations complete!"), rt.Target.Name)
+		}
 		return nil
 	}
 

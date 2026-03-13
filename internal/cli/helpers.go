@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -29,14 +30,48 @@ func doExtract(proj *config.Project) error {
 
 	logInfo(T("Scanning for source files in: %s"), strings.Join(scanDirs, ", "))
 
-	allFiles, err := extract.FindSources(scanDirs)
-	if err != nil {
-		return fmt.Errorf(T("scanning sources: %w"), err)
+	var explicitFiles []string
+	var scanRoots []string
+	for _, p := range scanDirs {
+		if info, err := os.Stat(p); err == nil && info.Mode().IsRegular() {
+			abs, _ := filepath.Abs(p)
+			explicitFiles = append(explicitFiles, abs)
+			continue
+		}
+		scanRoots = append(scanRoots, p)
+	}
+
+	var allFiles []string
+	if len(scanRoots) > 0 {
+		found, err := extract.FindSources(scanRoots)
+		if err != nil {
+			return fmt.Errorf(T("scanning sources: %w"), err)
+		}
+		allFiles = append(allFiles, found...)
+	}
+	allFiles = append(allFiles, explicitFiles...)
+
+	if len(allFiles) > 1 {
+		sort.Strings(allFiles)
+		uniq := allFiles[:0]
+		for i, f := range allFiles {
+			if i > 0 && allFiles[i-1] == f {
+				continue
+			}
+			uniq = append(uniq, f)
+		}
+		allFiles = uniq
 	}
 
 	if len(allFiles) == 0 {
 		return fmt.Errorf(T("no source files found (supported: %s)"),
 			strings.Join(extract.SupportedExtensionsList(), ", "))
+	}
+
+	for _, f := range explicitFiles {
+		if _, err := os.Stat(f); err != nil {
+			return fmt.Errorf(T("reading explicit source file %s: %w"), f, err)
+		}
 	}
 
 	// Base directory for path normalization and xgettext working directory.
