@@ -1922,7 +1922,7 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 	}
 
 	// Apply lock file filter: skip entries whose source hasn't changed
-	if opts.LockFile != nil && !opts.ForceTranslate && len(toTranslate) > 0 {
+	if opts.LockFile != nil && !opts.ForceTranslate && !opts.RetranslateExisting && len(toTranslate) > 0 {
 		var changed []*po.Entry
 		for _, e := range toTranslate {
 			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
@@ -1948,7 +1948,7 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 // If sourceValues is nil, the key itself is used as the source content
 // (as in i18next where keys are natural English text).
 func filterChangedKeys(keys []string, sourceValues map[string]string, lockKeyPrefix string, opts Options) []string {
-	if opts.LockFile == nil || opts.ForceTranslate || len(keys) == 0 {
+	if opts.LockFile == nil || opts.ForceTranslate || opts.RetranslateExisting || len(keys) == 0 {
 		return keys
 	}
 
@@ -2065,6 +2065,9 @@ func updateLockFileForPO(entries []*po.Entry, opts Options) {
 	}
 	lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 	for _, e := range entries {
+		if e == nil || e.MsgID == "" || !e.IsTranslated() {
+			continue
+		}
 		key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
 		content := lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
 		opts.LockFile.Update(lockTarget, key, content)

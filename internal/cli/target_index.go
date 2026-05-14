@@ -317,6 +317,9 @@ func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov tr
 			logInfo(T("  %s: %d/%d strings"), lang, done, total)
 		},
 		OnLog: func(format string, args ...any) {
+			if quietNoop && strings.HasPrefix(format, "  Lock file: skipping") {
+				return
+			}
 			logInfo(format, args...)
 		},
 		OnError: func(format string, args ...any) {

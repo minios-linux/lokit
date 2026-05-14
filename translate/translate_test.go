@@ -13,6 +13,7 @@ import (
 
 	"github.com/minios-linux/lokit/internal/format/i18next"
 	po "github.com/minios-linux/lokit/internal/format/po"
+	"github.com/minios-linux/lokit/lockfile"
 )
 
 type testKVFile struct {
@@ -793,5 +794,65 @@ func TestCallOpenAI_RejectsNonOAuthModel(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "GPT-5/Codex models") {
 		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestCollectEntries_RetranslateIgnoresLock(t *testing.T) {
+	f := po.NewFile()
+	e := &po.Entry{MsgID: "Hello", MsgStr: "Hallo"}
+	f.Entries = append(f.Entries, e)
+
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+	lockTarget := lockfile.LockTargetKey("ui", "de")
+	lf.Update(lockTarget, lockfile.POEntryKey(e.MsgID, e.MsgCtxt), lockfile.POEntryContent(e.MsgID, e.MsgIDPlural))
+
+	opts := Options{
+		RetranslateExisting: true,
+		LockFile:            lf,
+		LockTarget:          "ui",
+		Language:            "de",
+	}
+
+	entries := collectEntries(f, opts)
+	if len(entries) != 1 {
+		t.Fatalf("collectEntries len=%d, want 1", len(entries))
+	}
+}
+
+func TestFilterChangedKeys_RetranslateIgnoresLock(t *testing.T) {
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf.Update(lockTarget, "title", lockfile.KVEntryContent("title", "Hello"))
+
+	keys := []string{"title"}
+	src := map[string]string{"title": "Hello"}
+	opts := Options{
+		RetranslateExisting: true,
+		LockFile:            lf,
+		LockTarget:          "docs",
+		Language:            "de",
+	}
+
+	got := filterChangedKeys(keys, src, "", opts)
+	if len(got) != 1 || got[0] != "title" {
+		t.Fatalf("filterChangedKeys returned %v, want [title]", got)
+	}
+}
+
+func TestUpdateLockFileForPO_SkipsUntranslatedEntries(t *testing.T) {
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+
+	translated := &po.Entry{MsgID: "A", MsgStr: "AA"}
+	untranslated := &po.Entry{MsgID: "B", MsgStr: ""}
+
+	updateLockFileForPO([]*po.Entry{translated, untranslated}, Options{
+		LockFile:   lf,
+		LockTarget: "pkg",
+		Language:   "fr",
+	})
+
+	lockTarget := lockfile.LockTargetKey("pkg", "fr")
+	if got := lf.TargetKeyCount(lockTarget); got != 1 {
+		t.Fatalf("locked keys=%d, want 1", got)
 	}
 }
