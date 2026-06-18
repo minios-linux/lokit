@@ -134,6 +134,12 @@ func showConfigTargetStats(rt config.ResolvedTarget, langs []string, lockF *lock
 
 	lockKeys := 0
 	for _, lang := range langs {
+		if rt.Target.Type == config.TargetTypePo4a {
+			for _, file := range rt.DocsPOFiles(lang) {
+				lockKeys += lockF.TargetKeyCount(lockfile.LockTargetKey(rt.Target.Name+"/"+file.Master, lang))
+			}
+			continue
+		}
 		lockKeys += lockF.TargetKeyCount(lockfile.LockTargetKey(rt.Target.Name, lang))
 	}
 	keyVal(T("Locked"), fmt.Sprintf(T("%d keys x %d languages"), lockKeys, len(langs)))

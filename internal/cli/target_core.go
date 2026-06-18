@@ -206,14 +206,33 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 
 	if a.dryRun {
 		for _, lang := range langs {
-			poPath := rt.DocsPOPath(lang)
-			if poFile, err := po.ParseFile(poPath); err == nil {
-				untranslated := poFile.UntranslatedEntries()
-				langName := po.LangNameNative(lang)
-				logInfo(T("%s (%s): %d strings to translate"), lang, langName, len(untranslated))
-			} else {
-				logInfo(T("%s: PO file not found at %s"), lang, poPath)
+			files := rt.DocsPOFiles(lang)
+			if len(files) == 0 {
+				logInfo(T("%s: PO files not found"), lang)
+				continue
 			}
+			count := 0
+			for _, file := range files {
+				poFile, err := po.ParseFile(file.Path)
+				if err != nil {
+					logInfo(T("%s: PO file not found at %s"), lang, file.Path)
+					continue
+				}
+				if a.retranslate {
+					for _, e := range poFile.Entries {
+						if e.MsgID != "" && !e.Obsolete {
+							count++
+						}
+					}
+					continue
+				}
+				count += len(poFile.UntranslatedEntries())
+				if a.fuzzy {
+					count += len(poFile.FuzzyEntries())
+				}
+			}
+			langName := po.LangNameNative(lang)
+			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
 		}
 		return nil
 	}
@@ -264,7 +283,7 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	// Auto-init: if any PO files are missing, run po4a to generate them
 	hasMissing := false
 	for _, lang := range langs {
-		if !fileExists(rt.DocsPOPath(lang)) {
+		if len(rt.DocsPOFiles(lang)) == 0 {
 			hasMissing = true
 			break
 		}
@@ -296,31 +315,38 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	// Collect PO files for each language
 	var langTasks []translate.LangTask
 	for _, lang := range langs {
-		poPath := rt.DocsPOPath(lang)
-		poFile, err := po.ParseFile(poPath)
-		if err != nil {
-			if !fileExists(poPath) {
-				logWarning(T("[%s] No PO file for %s at %s, skipping"), rt.Target.Name, lang, poPath)
-				continue
-			}
-			logError(T("Reading %s: %v"), poPath, err)
+		files := rt.DocsPOFiles(lang)
+		if len(files) == 0 {
+			logWarning(T("[%s] No PO files for %s, skipping"), rt.Target.Name, lang)
 			continue
 		}
-
-		// Skip if already fully translated (unless retranslate)
-		if !a.retranslate {
-			untranslated := poFile.UntranslatedEntries()
-			fuzzyEntries := poFile.FuzzyEntries()
-			if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
+		for _, file := range files {
+			poFile, err := po.ParseFile(file.Path)
+			if err != nil {
+				if !fileExists(file.Path) {
+					logWarning(T("[%s] No PO file for %s at %s, skipping"), rt.Target.Name, lang, file.Path)
+					continue
+				}
+				logError(T("Reading %s: %v"), file.Path, err)
 				continue
 			}
-		}
 
-		langTasks = append(langTasks, translate.LangTask{
-			Lang:   lang,
-			POFile: poFile,
-			POPath: poPath,
-		})
+			// Skip if already fully translated (unless retranslate)
+			if !a.retranslate {
+				untranslated := poFile.UntranslatedEntries()
+				fuzzyEntries := poFile.FuzzyEntries()
+				if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
+					continue
+				}
+			}
+
+			langTasks = append(langTasks, translate.LangTask{
+				Lang:       lang,
+				POFile:     poFile,
+				POPath:     file.Path,
+				LockTarget: rt.Target.Name + "/" + file.Master,
+			})
+		}
 	}
 
 	if len(langTasks) == 0 {

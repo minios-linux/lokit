@@ -5,6 +5,7 @@
 package translate
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -550,15 +551,33 @@ func buildAnthropicRequest(model, systemPrompt, userPrompt string) ([]byte, erro
 	return json.Marshal(req)
 }
 
-func buildOpenAIResponsesRequest(model, prompt string) ([]byte, error) {
-	// The responses API takes a single "input" string
-	fullPrompt := prompt
+func buildOpenAIResponsesRequest(model, instructions, input string, stream bool) ([]byte, error) {
+	if strings.TrimSpace(instructions) == "" {
+		instructions = "You are a helpful assistant."
+	}
+	type inputContent struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	}
+	type inputMessage struct {
+		Role    string         `json:"role"`
+		Content []inputContent `json:"content"`
+	}
 	req := struct {
-		Model string `json:"model"`
-		Input string `json:"input"`
+		Model        string         `json:"model"`
+		Instructions string         `json:"instructions"`
+		Input        []inputMessage `json:"input"`
+		Store        bool           `json:"store"`
+		Stream       bool           `json:"stream"`
 	}{
-		Model: model,
-		Input: fullPrompt,
+		Model:        model,
+		Instructions: instructions,
+		Input: []inputMessage{{
+			Role:    "user",
+			Content: []inputContent{{Type: "input_text", Text: input}},
+		}},
+		Store:  false,
+		Stream: stream,
 	}
 	return json.Marshal(req)
 }
@@ -683,6 +702,57 @@ func extractResponseText(body []byte) (string, error) {
 	return "", fmt.Errorf("could not extract text from response: %s", truncate(string(body), 500))
 }
 
+func extractStreamingResponseText(body []byte) (string, error) {
+	scanner := bufio.NewScanner(bytes.NewReader(body))
+	// OpenAI/Codex chunks can be larger than Scanner's default token limit.
+	scanner.Buffer(make([]byte, 0, 64*1024), 10*1024*1024)
+
+	var out strings.Builder
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if !strings.HasPrefix(line, "data:") {
+			continue
+		}
+		data := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+		if data == "" || data == "[DONE]" {
+			continue
+		}
+
+		var raw map[string]any
+		if err := json.Unmarshal([]byte(data), &raw); err != nil {
+			continue
+		}
+		if delta, ok := raw["delta"].(string); ok {
+			out.WriteString(delta)
+			continue
+		}
+		if raw["type"] == "response.output_text.delta" {
+			if delta, ok := raw["delta"].(string); ok {
+				out.WriteString(delta)
+			}
+			continue
+		}
+		if raw["type"] == "response.completed" {
+			if resp, ok := raw["response"]; ok {
+				respBody, err := json.Marshal(resp)
+				if err == nil {
+					text, err := extractResponseText(respBody)
+					if err == nil && text != "" {
+						return text, nil
+					}
+				}
+			}
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return "", fmt.Errorf("reading streaming response: %w", err)
+	}
+	if text := out.String(); text != "" {
+		return text, nil
+	}
+	return "", fmt.Errorf("could not extract text from streaming response: %s", truncate(string(body), 500))
+}
+
 // ---------------------------------------------------------------------------
 // Rate limit: parse 429 response for retry delay
 // ---------------------------------------------------------------------------
@@ -782,8 +852,7 @@ func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 		return "", err
 	}
 
-	fullPrompt := systemPrompt + "\n\n" + userPrompt
-	body, err := buildOpenAIResponsesRequest(prov.Model, fullPrompt)
+	body, err := buildOpenAIResponsesRequest(prov.Model, systemPrompt, userPrompt, true)
 	if err != nil {
 		return "", fmt.Errorf("building request: %w", err)
 	}
@@ -875,7 +944,7 @@ func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 			return "", fmt.Errorf("API returned status %d: %s", resp.StatusCode, truncate(string(respBody), 500))
 		}
 
-		text, err := extractResponseText(respBody)
+		text, err := extractStreamingResponseText(respBody)
 		if err != nil {
 			return "", err
 		}
@@ -1019,8 +1088,7 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 		if prov.APIKey != "" {
 			headers["Authorization"] = "Bearer " + prov.APIKey
 		}
-		fullPrompt := systemPrompt + "\n\n" + userPrompt
-		body, err = buildOpenAIResponsesRequest(prov.Model, fullPrompt)
+		body, err = buildOpenAIResponsesRequest(prov.Model, systemPrompt, userPrompt, false)
 
 	case formatOllamaNative:
 		endpoint = strings.TrimRight(prov.BaseURL, "/") + "/api/chat"
@@ -1792,10 +1860,11 @@ func looksLikeNonTranslationResponse(text string) bool {
 
 // translationTask represents a single chunk of entries to translate for a language.
 type translationTask struct {
-	lang    string
-	entries []*po.Entry
-	poFile  *po.File
-	poPath  string
+	lang       string
+	entries    []*po.Entry
+	poFile     *po.File
+	poPath     string
+	lockTarget string
 }
 
 // Translate translates untranslated entries in a PO file using an AI provider.
@@ -2218,6 +2287,9 @@ func translateSequential(ctx context.Context, tasks []translationTask, opts Opti
 		taskOpts := opts
 		taskOpts.Language = task.lang
 		taskOpts.LanguageName = po.LangNameNative(task.lang)
+		if task.lockTarget != "" {
+			taskOpts.LockTarget = task.lockTarget
+		}
 
 		toTranslate := collectEntries(task.poFile, taskOpts)
 		if len(toTranslate) == 0 {
@@ -2255,6 +2327,7 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		chunk        []*po.Entry
 		poFile       *po.File
 		poPath       string
+		lockTarget   string
 		systemPrompt string
 		total        *int64
 		done         *int64
@@ -2266,6 +2339,9 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		taskOpts := opts
 		taskOpts.Language = task.lang
 		taskOpts.LanguageName = po.LangNameNative(task.lang)
+		if task.lockTarget != "" {
+			taskOpts.LockTarget = task.lockTarget
+		}
 
 		toTranslate := collectEntries(task.poFile, taskOpts)
 		if len(toTranslate) == 0 {
@@ -2288,6 +2364,7 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 				chunk:        chunk,
 				poFile:       task.poFile,
 				poPath:       task.poPath,
+				lockTarget:   taskOpts.LockTarget,
 				systemPrompt: systemPrompt,
 				total:        &total,
 				done:         &done,
@@ -2311,6 +2388,9 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		taskOpts := opts
 		taskOpts.Language = ft.lang
 		taskOpts.LanguageName = po.LangNameNative(ft.lang)
+		if ft.lockTarget != "" {
+			taskOpts.LockTarget = ft.lockTarget
+		}
 
 		translations, err := translateChunk(ctx, ft.chunk, ft.systemPrompt, taskOpts, rl)
 		if err != nil {
@@ -2398,9 +2478,10 @@ func runParallelGeneric[T any](ctx context.Context, tasks []T, maxConcurrent int
 
 // LangTask is a language translation task exposed to main.go.
 type LangTask struct {
-	Lang   string
-	POFile *po.File
-	POPath string
+	Lang       string
+	POFile     *po.File
+	POPath     string
+	LockTarget string
 }
 
 // TranslateAll translates multiple languages according to opts.ParallelMode.
@@ -2408,12 +2489,18 @@ func TranslateAll(ctx context.Context, langTasks []LangTask, opts Options) error
 	tasks := make([]translationTask, len(langTasks))
 	for i, lt := range langTasks {
 		tasks[i] = translationTask{
-			lang:   lt.Lang,
-			poFile: lt.POFile,
-			poPath: lt.POPath,
+			lang:       lt.Lang,
+			poFile:     lt.POFile,
+			poPath:     lt.POPath,
+			lockTarget: lt.LockTarget,
 		}
 
-		entries := collectEntries(lt.POFile, opts)
+		taskOpts := opts
+		taskOpts.Language = lt.Lang
+		if lt.LockTarget != "" {
+			taskOpts.LockTarget = lt.LockTarget
+		}
+		entries := collectEntries(lt.POFile, taskOpts)
 		tasks[i].entries = entries
 	}
 

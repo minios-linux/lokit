@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -145,6 +146,46 @@ func TestResolvedTargetPOPathLocaleVariants(t *testing.T) {
 		rt := &ResolvedTarget{AbsRoot: dir, Target: Target{Config: "manpages/po4a.cfg"}}
 		if got := rt.DocsPOPath("pt-BR"); got != existing {
 			t.Fatalf("ResolvedTarget.DocsPOPath(pt-BR) = %q, want %q", got, existing)
+		}
+	})
+
+	t.Run("po4a docs paths resolve all masters from po4a cfg", func(t *testing.T) {
+		dir := t.TempDir()
+		cfgDir := filepath.Join(dir, "manpages")
+		if err := os.MkdirAll(cfgDir, 0755); err != nil {
+			t.Fatalf("MkdirAll cfgDir: %v", err)
+		}
+		cfg := strings.Join([]string{
+			"[po4a_langs] de pt-BR",
+			"[po4a_paths] pot/$master.pot $lang:po/$lang/$master.po",
+			"[type: man] minios-live.1 $lang:$lang/minios-live.1",
+			"[type: man] minios-cmd.1 $lang:$lang/minios-cmd.1",
+			"[type: man] condinapt.1 $lang:$lang/condinapt.1",
+		}, "\n")
+		if err := os.WriteFile(filepath.Join(cfgDir, "po4a.cfg"), []byte(cfg), 0644); err != nil {
+			t.Fatalf("WriteFile cfg: %v", err)
+		}
+
+		for _, name := range []string{"minios-live.1.po", "minios-cmd.1.po", "condinapt.1.po"} {
+			path := filepath.Join(cfgDir, "po", "pt_BR", name)
+			if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+				t.Fatalf("MkdirAll po dir: %v", err)
+			}
+			if err := os.WriteFile(path, []byte(""), 0644); err != nil {
+				t.Fatalf("WriteFile po: %v", err)
+			}
+		}
+
+		rt := &ResolvedTarget{AbsRoot: dir, Target: Target{Config: "manpages/po4a.cfg"}}
+		files := rt.DocsPOFiles("pt-BR")
+		if len(files) != 3 {
+			t.Fatalf("DocsPOFiles(pt-BR) returned %d files, want 3: %#v", len(files), files)
+		}
+		gotMasters := []string{files[0].Master, files[1].Master, files[2].Master}
+		sort.Strings(gotMasters)
+		wantMasters := []string{"condinapt.1", "minios-cmd.1", "minios-live.1"}
+		if !reflect.DeepEqual(gotMasters, wantMasters) {
+			t.Fatalf("masters = %v, want %v", gotMasters, wantMasters)
 		}
 	})
 }

@@ -411,18 +411,35 @@ func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
 	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 52)+colorReset)
 
 	for _, lang := range langs {
-		poPath := rt.DocsPOPath(lang)
-		catalog, err := po.ParseFile(poPath)
-		if err != nil {
+		poPaths := rt.DocsPOPaths(lang)
+		if len(poPaths) == 0 {
 			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
 				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
 			continue
 		}
 
-		total, translated, fuzzy, _ := catalog.Stats()
+		total, translated, fuzzy := 0, 0, 0
+		missing := false
+		for _, poPath := range poPaths {
+			catalog, err := po.ParseFile(poPath)
+			if err != nil {
+				missing = true
+				continue
+			}
+			fileTotal, fileTranslated, fileFuzzy, _ := catalog.Stats()
+			total += fileTotal
+			translated += fileTranslated
+			fuzzy += fileFuzzy
+		}
 		percent := 0
 		if total > 0 {
 			percent = (translated * 100) / total
+		}
+		if missing {
+			fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d %s%s%s\n",
+				langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, total,
+				colorYellow, T("missing files"), colorReset)
+			continue
 		}
 
 		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d\n",

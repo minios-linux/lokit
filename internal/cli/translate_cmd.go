@@ -428,6 +428,10 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 		logError(T("Translation completed with errors"))
 		os.Exit(1)
 	}
+	if a.dryRun {
+		logSuccess(T("Dry run complete"))
+		return
+	}
 	logSuccess(T("All targets translated!"))
 }
 

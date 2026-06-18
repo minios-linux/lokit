@@ -184,6 +184,31 @@ func runLockInit(target string, force bool) {
 		}
 
 		for _, lang := range langs {
+			if rt.Target.Type == config.TargetTypePo4a {
+				units := collectPo4aLockUnits(rt, lang)
+				if len(units) == 0 {
+					logWarning(T("[%s/%s] cannot read any po4a PO files"), rt.Target.Name, lang)
+					hadErrors = true
+					continue
+				}
+				for _, unit := range units {
+					if force {
+						lf.RemoveTarget(unit.lockTarget)
+					}
+					filteredEntries := filterSourceEntriesByTranslatedKeys(unit.sourceEntries, unit.translatedKeys)
+					for key, content := range filteredEntries {
+						if !force && lf.Has(unit.lockTarget, key) {
+							skipped++
+							continue
+						}
+						lf.Update(unit.lockTarget, key, content)
+						added++
+					}
+					updatedTargets++
+				}
+				continue
+			}
+
 			lockTarget := lockfile.LockTargetKey(rt.Target.Name, lang)
 			if force {
 				lf.RemoveTarget(lockTarget)
@@ -279,8 +304,10 @@ func runLockStatus(target string, verbose bool, jsonOut bool) {
 		}
 
 		for _, lang := range langs {
-			lockTarget := lockfile.LockTargetKey(rt.Target.Name, lang)
-			count := lf.TargetKeyCount(lockTarget)
+			count := 0
+			for _, lockTarget := range lockTargetKeysFor(rt, lang) {
+				count += lf.TargetKeyCount(lockTarget)
+			}
 			ts.Keys += count
 			if ts.PerLanguage != nil {
 				ts.PerLanguage[lang] = count
@@ -359,6 +386,33 @@ func runLockClean(target string, dryRun bool) {
 		keys := mapKeys(sourceEntries)
 		langs := filterOutLang(rt.Languages, rt.Target.SourceLang)
 		for _, lang := range langs {
+			if rt.Target.Type == config.TargetTypePo4a {
+				units := collectPo4aLockUnits(rt, lang)
+				if len(units) == 0 {
+					logWarning(T("[%s/%s] cannot read any po4a PO files"), rt.Target.Name, lang)
+					hadErrors = true
+					continue
+				}
+				for _, unit := range units {
+					unitKeys := mapKeys(unit.sourceEntries)
+					if dryRun {
+						beforeKeys := lf.TargetKeyCount(unit.lockTarget)
+						removed := countStaleKeys(lf.TargetKeys(unit.lockTarget), unitKeys)
+						if removed > 0 || beforeKeys > 0 {
+							logInfo(T("[%s] stale entries: %d (tracked: %d)"), unit.lockTarget, removed, beforeKeys)
+						}
+						totalRemoved += removed
+						continue
+					}
+					removed := lf.Clean(unit.lockTarget, unitKeys)
+					if removed > 0 {
+						logInfo(T("[%s] removed stale entries: %d"), unit.lockTarget, removed)
+					}
+					totalRemoved += removed
+				}
+				continue
+			}
+
 			lockTarget := lockfile.LockTargetKey(rt.Target.Name, lang)
 			if dryRun {
 				beforeKeys := lf.TargetKeyCount(lockTarget)
@@ -630,6 +684,56 @@ func collectTranslatedKeys(rt config.ResolvedTarget, lang string) (map[string]st
 	}
 }
 
+type po4aLockUnit struct {
+	lockTarget     string
+	sourceEntries  map[string]string
+	translatedKeys map[string]struct{}
+}
+
+func collectPo4aLockUnits(rt config.ResolvedTarget, lang string) []po4aLockUnit {
+	files := rt.DocsPOFiles(lang)
+	units := make([]po4aLockUnit, 0, len(files))
+	for _, file := range files {
+		catalog, err := po.ParseFile(file.Path)
+		if err != nil {
+			continue
+		}
+		sourceEntries := make(map[string]string)
+		translatedKeys := make(map[string]struct{})
+		for _, e := range catalog.Entries {
+			if e.MsgID == "" || e.Obsolete {
+				continue
+			}
+			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
+			sourceEntries[key] = lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
+			if !e.IsFuzzy() && e.IsTranslated() {
+				translatedKeys[key] = struct{}{}
+			}
+		}
+		units = append(units, po4aLockUnit{
+			lockTarget:     lockfile.LockTargetKey(rt.Target.Name+"/"+file.Master, lang),
+			sourceEntries:  sourceEntries,
+			translatedKeys: translatedKeys,
+		})
+	}
+	return units
+}
+
+func lockTargetKeysFor(rt config.ResolvedTarget, lang string) []string {
+	if rt.Target.Type != config.TargetTypePo4a {
+		return []string{lockfile.LockTargetKey(rt.Target.Name, lang)}
+	}
+	files := rt.DocsPOFiles(lang)
+	if len(files) == 0 {
+		return []string{lockfile.LockTargetKey(rt.Target.Name, lang)}
+	}
+	keys := make([]string, 0, len(files))
+	for _, file := range files {
+		keys = append(keys, lockfile.LockTargetKey(rt.Target.Name+"/"+file.Master, lang))
+	}
+	return keys
+}
+
 func collectTranslatedSimpleKV(path string, parse func(path string) (formatfile.KVFile, error)) (map[string]struct{}, error) {
 	file, err := parse(path)
 	if err != nil {
@@ -735,18 +839,19 @@ func collectPo4aSourceEntries(rt config.ResolvedTarget) (map[string]string, erro
 	entries := make(map[string]string)
 	parsed := 0
 	for _, lang := range rt.Languages {
-		poPath := rt.DocsPOPath(lang)
-		f, err := po.ParseFile(poPath)
-		if err != nil {
-			continue
-		}
-		parsed++
-		for _, e := range f.Entries {
-			if e.MsgID == "" || e.Obsolete {
+		for _, file := range rt.DocsPOFiles(lang) {
+			f, err := po.ParseFile(file.Path)
+			if err != nil {
 				continue
 			}
-			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
-			entries[key] = lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
+			parsed++
+			for _, e := range f.Entries {
+				if e.MsgID == "" || e.Obsolete {
+					continue
+				}
+				key := file.Master + ":" + lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
+				entries[key] = lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
+			}
 		}
 	}
 
