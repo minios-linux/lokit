@@ -6,6 +6,16 @@ import (
 	po "github.com/minios-linux/lokit/internal/format/po"
 )
 
+// poKey builds a compound map key from msgid and msgctxt so that entries
+// with the same msgid but different contexts are never confused.
+// Format: "msgctxt\x00msgid" when context is present, otherwise just msgid.
+func poKey(msgID, msgCtxt string) string {
+	if msgCtxt != "" {
+		return msgCtxt + "\x00" + msgID
+	}
+	return msgID
+}
+
 // Merge updates a PO file with entries from a POT template.
 // - New entries from the template are added with empty translations.
 // - Existing entries that are still in the template are kept.
@@ -23,12 +33,21 @@ func Merge(poFile, potFile *po.File) *po.File {
 		}
 	}
 
-	// Build a map of existing translations
-	existingByMsgID := make(map[string]*po.Entry)
+	// Build a map of existing translations and obsolete entries to restore.
+	// Keys include MsgCtxt to avoid incorrect matches for context-qualified strings.
+	existingByKey := make(map[string]*po.Entry)
+	obsoleteByKey := make(map[string]*po.Entry)
 	for _, e := range poFile.Entries {
-		if !e.Obsolete {
-			existingByMsgID[e.MsgID] = e
+		k := poKey(e.MsgID, e.MsgCtxt)
+		if e.Obsolete {
+			if e.MsgID != "" {
+				if _, exists := obsoleteByKey[k]; !exists {
+					obsoleteByKey[k] = e
+				}
+			}
+			continue
 		}
+		existingByKey[k] = e
 	}
 
 	// Track which existing entries were matched
@@ -40,7 +59,9 @@ func Merge(poFile, potFile *po.File) *po.File {
 			continue
 		}
 
-		if existing, ok := existingByMsgID[potEntry.MsgID]; ok {
+		k := poKey(potEntry.MsgID, potEntry.MsgCtxt)
+
+		if existing, ok := existingByKey[k]; ok {
 			// Entry exists in both — keep translation, update metadata
 			merged := &po.Entry{
 				TranslatorComments: existing.TranslatorComments,
@@ -54,7 +75,24 @@ func Merge(poFile, potFile *po.File) *po.File {
 				MsgStrPlural:       existing.MsgStrPlural,
 			}
 			result.Entries = append(result.Entries, merged)
-			matched[potEntry.MsgID] = true
+			matched[k] = true
+		} else if obsolete, ok := obsoleteByKey[k]; ok {
+			// Restored entry — reuse translation from a previously obsolete entry.
+			// Use mergeFlags so that a fuzzy flag on the obsolete entry is
+			// preserved (rather than dropped in favour of bare potEntry.Flags).
+			restored := &po.Entry{
+				TranslatorComments: obsolete.TranslatorComments,
+				ExtractedComments:  potEntry.ExtractedComments,
+				References:         potEntry.References,
+				Flags:              mergeFlags(obsolete.Flags, potEntry.Flags),
+				MsgCtxt:            potEntry.MsgCtxt,
+				MsgID:              potEntry.MsgID,
+				MsgIDPlural:        potEntry.MsgIDPlural,
+				MsgStr:             obsolete.MsgStr,
+				MsgStrPlural:       obsolete.MsgStrPlural,
+			}
+			result.Entries = append(result.Entries, restored)
+			matched[k] = true
 		} else {
 			// New entry from template
 			newEntry := &po.Entry{
@@ -76,7 +114,7 @@ func Merge(poFile, potFile *po.File) *po.File {
 		if e.MsgID == "" || e.Obsolete {
 			continue
 		}
-		if !matched[e.MsgID] {
+		if !matched[poKey(e.MsgID, e.MsgCtxt)] {
 			obsolete := *e
 			obsolete.Obsolete = true
 			// Clear references for obsolete entries

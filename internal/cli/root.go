@@ -693,5 +693,5 @@ func showI18NextStats(proj *config.Project) {
 // Shared helpers
 // ---------------------------------------------------------------------------
 
-// doExtract runs xgettext extraction for the project. Returns nil on success.
-// Used by both 'init' and auto-extraction in 'translate'.
+// doExtract runs xgettext extraction for the project. Returns the .desktop /
+// .nemo_action files found during the scan (for seeding) and nil on success.

@@ -480,6 +480,11 @@ func writeEntry(w *bufio.Writer, e *Entry) error {
 
 // writeQuotedField writes a PO field with proper multiline quoting.
 func writeQuotedField(w *bufio.Writer, field, value string) {
+	contPrefix := ""
+	if strings.HasPrefix(field, "#~ ") {
+		contPrefix = "#~ "
+	}
+
 	if !strings.Contains(value, "\n") {
 		fmt.Fprintf(w, "%s %s\n", field, quote(value))
 		return
@@ -490,9 +495,9 @@ func writeQuotedField(w *bufio.Writer, field, value string) {
 	parts := strings.Split(value, "\n")
 	for i, part := range parts {
 		if i < len(parts)-1 {
-			fmt.Fprintf(w, "%s\n", quote(part+"\n"))
+			fmt.Fprintf(w, "%s%s\n", contPrefix, quote(part+"\n"))
 		} else if part != "" {
-			fmt.Fprintf(w, "%s\n", quote(part))
+			fmt.Fprintf(w, "%s%s\n", contPrefix, quote(part))
 		}
 	}
 }

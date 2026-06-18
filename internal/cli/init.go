@@ -11,7 +11,6 @@ import (
 	. "github.com/minios-linux/lokit/i18n"
 	"github.com/minios-linux/lokit/internal/format/i18next"
 	po "github.com/minios-linux/lokit/internal/format/po"
-	"github.com/minios-linux/lokit/merge"
 	"github.com/spf13/cobra"
 )
 
@@ -213,14 +212,12 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string)
 			proj := &config.Project{
 				Root:        rt.AbsRoot,
 				Name:        rt.Target.Name,
-				Version:     "0.0.0",
 				PODir:       rt.AbsPODir(),
 				POTFile:     rt.AbsPOTFile(),
 				POStructure: config.POStructureFlat,
 				Languages:   langs,
 				Keywords:    rt.Target.Keywords,
 				SourceLang:  rt.Target.SourceLang,
-				BugsEmail:   "support@minios.dev",
 			}
 			if len(rt.Target.Sources) > 0 {
 				for _, src := range rt.Target.Sources {
@@ -234,7 +231,6 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string)
 		case config.TargetTypePo4a:
 			proj := &config.Project{
 				Name:        rt.Target.Name,
-				Version:     "0.0.0",
 				POStructure: config.POStructurePo4a,
 				Po4aConfig:  rt.AbsPo4aConfig(),
 				Languages:   langs,
@@ -255,7 +251,6 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string)
 		case config.TargetTypeI18Next:
 			proj := &config.Project{
 				Name:               rt.Target.Name,
-				Version:            "0.0.0",
 				Type:               config.ProjectTypeI18Next,
 				I18NextDir:         rt.AbsTranslationsDir(),
 				I18NextPathPattern: rt.Target.Pattern,
@@ -389,7 +384,7 @@ func generateManpagesFromMarkdown(proj *config.Project) error {
 	manpageDir := filepath.Dir(proj.Po4aConfig)
 
 	// Find all markdown files in docs that look like manpage sources (name.section.md)
-	// Example: minios-live.1.md -> minios-live.1
+	// Example: myapp.1.md -> myapp.1
 	mdFiles, err := filepath.Glob(filepath.Join(proj.DocsDir, "*.*.md"))
 	if err != nil {
 		return fmt.Errorf(T("failed to list markdown files: %w"), err)
@@ -400,7 +395,7 @@ func generateManpagesFromMarkdown(proj *config.Project) error {
 		mdFile := filepath.Base(mdPath)
 
 		// Extract manpage name (remove .md extension)
-		// Example: minios-live.1.md -> minios-live.1
+		// Example: myapp.1.md -> myapp.1
 		if !strings.HasSuffix(mdFile, ".md") {
 			continue
 		}
@@ -527,8 +522,10 @@ func runInitPo4a(proj *config.Project) {
 }
 
 func runInitCode(proj *config.Project) {
-	// Step 1: Extract strings using xgettext
-	if err := doExtract(proj); err != nil {
+	// Step 1: Extract strings; desktop files are a byproduct of the scan —
+	// no second FindSources walk is needed for seeding.
+	desktopFiles, err := doExtract(proj)
+	if err != nil {
 		logError(T("%v"), err)
 		os.Exit(1)
 	}
@@ -541,6 +538,11 @@ func runInitCode(proj *config.Project) {
 	}
 
 	logInfo(T("Updating PO files for: %s"), strings.Join(proj.Languages, ", "))
+
+	root := proj.Root
+	if root == "" {
+		root, _ = os.Getwd()
+	}
 
 	created, updated := 0, 0
 
@@ -571,6 +573,8 @@ func runInitCode(proj *config.Project) {
 				newPO.Entries = append(newPO.Entries, entry)
 			}
 
+			seedDesktopTranslations(newPO, lang, root, desktopFiles)
+
 			if err := newPO.WriteFile(poPath); err != nil {
 				logError(T("Creating %s: %v"), poPath, err)
 				continue
@@ -584,7 +588,7 @@ func runInitCode(proj *config.Project) {
 				continue
 			}
 
-			merged := merge.Merge(existingPO, potPO)
+			merged := mergeAndSeedPO(existingPO, potPO, lang, root, desktopFiles)
 			if err := merged.WriteFile(poPath); err != nil {
 				logError(T("Writing %s: %v"), poPath, err)
 				continue

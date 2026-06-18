@@ -30,6 +30,21 @@ po/
 - `lokit init` runs `xgettext` to extract strings and `msgmerge` to update existing PO files
 - `sources` and `keywords` are optional — needed only if you want `lokit init` to extract strings
 - If your project already manages POT/PO files externally, just set `dir` and `pot`
+- Extraction uses **multiple xgettext passes** so that formats requiring an explicit
+  `--language=` flag are handled correctly:
+  1. Auto-detected languages (Python, C, C++, Shell, JavaScript, etc.)
+  2. Extensionless shell scripts (detected via shebang)
+  3. Glade/GTK Builder UI files (`.glade`, `.ui`) — `--language=Glade`
+  4. Desktop entry files (`.desktop`, `.nemo_action`) — `--language=Desktop`
+  5. Polkit policy files (`.policy`, `.policy.template`) — via ITS rules when available
+- When `.desktop` / `.nemo_action` files are found in `sources`, both `lokit init` and
+  `lokit translate` **seed inline translations** from them into PO files —
+  so existing `Name[de]=`, `Comment[de]=` fields are immediately reflected in PO
+  without a separate AI translation pass. The seeding runs automatically during the
+  pre-extract phase of `lokit translate`, so PO files are always up to date even
+  without an explicit `lokit init`
+- Polkit `.policy.template` files are preferred over generated `.policy` files during
+  extraction (the generated `.policy` already embeds translated strings)
 
 ---
 

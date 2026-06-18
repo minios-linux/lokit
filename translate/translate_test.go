@@ -856,3 +856,41 @@ func TestUpdateLockFileForPO_SkipsUntranslatedEntries(t *testing.T) {
 		t.Fatalf("locked keys=%d, want 1", got)
 	}
 }
+
+// TestCollectEntries_UntranslatedPassesThroughLock verifies that an untranslated
+// entry whose source text is unchanged (i.e. locked) is still collected for
+// translation. This is the regression case from the desktop-seeding workflow:
+// after SeedPO fills in some PO entries and leaves others empty, the lockfile
+// must not block the empty entries from being sent to the AI provider.
+func TestCollectEntries_UntranslatedPassesThroughLock(t *testing.T) {
+	f := po.NewFile()
+	// Translated entry — already in lockfile with matching content.
+	translated := &po.Entry{MsgID: "Hello", MsgStr: "Hallo"}
+	// Untranslated entry — also locked (source unchanged), but has no msgstr.
+	untranslated := &po.Entry{MsgID: "Goodbye", MsgStr: ""}
+	f.Entries = append(f.Entries, translated, untranslated)
+
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+	lockTarget := lockfile.LockTargetKey("ui", "de")
+	// Record both entries as if they were previously translated (same source).
+	lf.Update(lockTarget, lockfile.POEntryKey(translated.MsgID, translated.MsgCtxt),
+		lockfile.POEntryContent(translated.MsgID, translated.MsgIDPlural))
+	lf.Update(lockTarget, lockfile.POEntryKey(untranslated.MsgID, untranslated.MsgCtxt),
+		lockfile.POEntryContent(untranslated.MsgID, untranslated.MsgIDPlural))
+
+	opts := Options{
+		LockFile:   lf,
+		LockTarget: "ui",
+		Language:   "de",
+	}
+
+	entries := collectEntries(f, opts)
+	// Only the untranslated entry should be collected — the translated one is
+	// correctly suppressed by the lockfile.
+	if len(entries) != 1 {
+		t.Fatalf("collectEntries len=%d, want 1 (only untranslated)", len(entries))
+	}
+	if entries[0].MsgID != "Goodbye" {
+		t.Fatalf("collected entry MsgID=%q, want Goodbye", entries[0].MsgID)
+	}
+}

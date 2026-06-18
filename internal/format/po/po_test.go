@@ -126,3 +126,37 @@ func TestPluralFormsAndLangNameHelpers(t *testing.T) {
 		t.Fatalf("LangNameNative(zz-ZZ) = %q, want passthrough", got)
 	}
 }
+
+func TestWriteObsoleteMultilineMsgstr(t *testing.T) {
+	f := NewFile()
+	f.Entries = []*Entry{
+		{
+			Obsolete: true,
+			MsgID:    " is not yet installed.\nDo you like to download and install it now?",
+			MsgStr:   " ещё не установлен.\nХотите скачать и установить его сейчас?",
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := f.Write(&buf); err != nil {
+		t.Fatalf("Write() error = %v", err)
+	}
+
+	out := buf.String()
+	for _, line := range strings.Split(out, "\n") {
+		if strings.HasPrefix(line, "\"") && !strings.HasPrefix(line, "#~ ") {
+			t.Fatalf("continuation line missing #~ prefix: %q", line)
+		}
+	}
+
+	round, err := Parse(strings.NewReader(out))
+	if err != nil {
+		t.Fatalf("Parse(Write()) error = %v", err)
+	}
+	if len(round.Entries) != 1 {
+		t.Fatalf("entries len = %d, want 1", len(round.Entries))
+	}
+	if got := round.Entries[0].MsgStr; got != f.Entries[0].MsgStr {
+		t.Fatalf("msgstr round-trip = %q, want %q", got, f.Entries[0].MsgStr)
+	}
+}

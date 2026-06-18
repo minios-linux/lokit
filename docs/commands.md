@@ -42,12 +42,21 @@ lokit init --lang ru,de
 
 | Format | Action |
 |--------|--------|
-| gettext | Runs `xgettext` to extract strings into POT, `msgmerge` to update PO files |
+| gettext | Runs multi-pass `xgettext` (Python/C/Go/Shell/Glade/Desktop/Polkit) to extract strings into POT, `msgmerge` to update PO files, then seeds inline `.desktop` translations into PO |
 | po4a | Runs `po4a --no-translations` to extract translatable content |
 | i18next, vue-i18n, yaml, properties, flutter, js-kv | Creates empty language files if they don't exist |
 | android | Creates `values-<lang>/strings.xml` directories |
 | markdown | Creates language directories or empty files depending on layout |
 | desktop, polkit | No init needed (translations are inline in source file) |
+
+**Desktop seeding (gettext):** when `.desktop` or `.nemo_action` files are present in
+`sources`, `lokit init` copies existing inline translations (`Name[de]=`, `Comment[de]=`,
+etc.) directly into the PO files. This means strings already translated in the desktop
+file do not require an AI translation pass.
+
+**Note:** the same desktop seeding step also runs automatically at the start of
+`lokit translate` for gettext targets (during the pre-extract phase), so PO files are
+always up to date with the latest inline translations before AI translation begins.
 
 ---
 

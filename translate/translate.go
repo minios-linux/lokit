@@ -1928,7 +1928,14 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 			key := lockfile.POEntryKey(e.MsgID, e.MsgCtxt)
 			content := lockfile.POEntryContent(e.MsgID, e.MsgIDPlural)
 			lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
-			if opts.LockFile.IsChanged(lockTarget, key, content) {
+			// The || !e.IsTranslated() guard is intentional, not redundant.
+			// toTranslate already contains only untranslated/fuzzy entries, so for
+			// most entries it evaluates to true anyway. However, the desktop-seeding
+			// workflow can produce entries that are locked (source unchanged) yet
+			// have no MsgStr — e.g. SeedPO filled some strings but left others empty.
+			// Without this guard the lockfile would suppress those empty entries and
+			// they would never be sent to the AI provider.
+			if opts.LockFile.IsChanged(lockTarget, key, content) || !e.IsTranslated() {
 				changed = append(changed, e)
 			}
 		}

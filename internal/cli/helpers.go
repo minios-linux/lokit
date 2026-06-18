@@ -14,13 +14,19 @@ import (
 	"github.com/minios-linux/lokit/extract"
 	"github.com/minios-linux/lokit/gemini"
 	. "github.com/minios-linux/lokit/i18n"
+	"github.com/minios-linux/lokit/internal/format/desktop"
 	po "github.com/minios-linux/lokit/internal/format/po"
+	"github.com/minios-linux/lokit/merge"
 	"github.com/minios-linux/lokit/openai"
 	"github.com/minios-linux/lokit/settings"
 	"github.com/minios-linux/lokit/translate"
 )
 
-func doExtract(proj *config.Project) error {
+// doExtract runs xgettext/xgotext extraction for the project and returns the
+// list of .desktop / .nemo_action files found during the scan as a byproduct.
+// Callers receive the desktop file list for free, avoiding a second
+// FindSources walk when seeding PO files.
+func doExtract(proj *config.Project) ([]string, error) {
 	// If no source dirs configured, scan the project root
 	scanDirs := proj.SourceDirs
 	if len(scanDirs) == 0 {
@@ -45,7 +51,7 @@ func doExtract(proj *config.Project) error {
 	if len(scanRoots) > 0 {
 		found, err := extract.FindSources(scanRoots)
 		if err != nil {
-			return fmt.Errorf(T("scanning sources: %w"), err)
+			return nil, fmt.Errorf(T("scanning sources: %w"), err)
 		}
 		allFiles = append(allFiles, found...)
 	}
@@ -64,13 +70,23 @@ func doExtract(proj *config.Project) error {
 	}
 
 	if len(allFiles) == 0 {
-		return fmt.Errorf(T("no source files found (supported: %s)"),
+		return nil, fmt.Errorf(T("no source files found (supported: %s)"),
 			strings.Join(extract.SupportedExtensionsList(), ", "))
 	}
 
 	for _, f := range explicitFiles {
 		if _, err := os.Stat(f); err != nil {
-			return fmt.Errorf(T("reading explicit source file %s: %w"), f, err)
+			return nil, fmt.Errorf(T("reading explicit source file %s: %w"), f, err)
+		}
+	}
+
+	// Collect desktop files as a byproduct of the scan so callers can seed
+	// PO translations without a second FindSources walk.
+	var desktopFiles []string
+	for _, f := range allFiles {
+		ext := filepath.Ext(f)
+		if ext == ".desktop" || ext == ".nemo_action" {
+			desktopFiles = append(desktopFiles, f)
 		}
 	}
 
@@ -127,9 +143,11 @@ func doExtract(proj *config.Project) error {
 	case len(otherFiles) > 0 && len(goFiles) > 0:
 		// Both Go and non-Go files: extract separately, then merge
 		logInfo(T("Extracting from %d non-Go files with xgettext..."), len(otherFiles))
-		xgettextResult, err := extract.RunXgettext(otherFilesForXgettext, potFile, proj.Name, proj.Version, proj.BugsEmail, proj.Keywords, baseDir)
+		xgettextResult, err := extract.RunXgettext(otherFilesForXgettext, potFile, "", "", "", proj.Keywords, baseDir)
 		if err != nil {
-			return fmt.Errorf(T("xgettext extraction failed: %w"), err)
+			// Return desktopFiles even on failure: the scan succeeded and callers
+			// can still seed existing PO files from inline .desktop translations.
+			return desktopFiles, fmt.Errorf(T("xgettext extraction failed: %w"), err)
 		}
 
 		// Extract Go files to a temp POT
@@ -148,15 +166,15 @@ func doExtract(proj *config.Project) error {
 		// Merge the two POT files
 		logInfo(T("Merging POT files..."))
 		if err := extract.MergePOTFiles(xgettextResult.POTFile, goPotFile, potFile); err != nil {
-			return fmt.Errorf(T("merging POT files: %w"), err)
+			return desktopFiles, fmt.Errorf(T("merging POT files: %w"), err)
 		}
 		finalPOT = potFile
 
 	case len(otherFiles) > 0:
 		// Only non-Go files
-		result, err := extract.RunXgettext(otherFilesForXgettext, potFile, proj.Name, proj.Version, proj.BugsEmail, proj.Keywords, baseDir)
+		result, err := extract.RunXgettext(otherFilesForXgettext, potFile, "", "", "", proj.Keywords, baseDir)
 		if err != nil {
-			return fmt.Errorf(T("extraction failed: %w"), err)
+			return desktopFiles, fmt.Errorf(T("extraction failed: %w"), err)
 		}
 		finalPOT = result.POTFile
 
@@ -164,7 +182,7 @@ func doExtract(proj *config.Project) error {
 		// Only Go files
 		result, err := extractGo(goFiles, potFile)
 		if err != nil {
-			return fmt.Errorf(T("Go extraction failed: %w"), err)
+			return desktopFiles, fmt.Errorf(T("Go extraction failed: %w"), err)
 		}
 		finalPOT = result.POTFile
 	}
@@ -183,7 +201,7 @@ func doExtract(proj *config.Project) error {
 		logSuccess(T("Extracted strings to %s"), finalPOT)
 	}
 
-	return nil
+	return desktopFiles, nil
 }
 
 // fileExists returns true if the file exists and is not a directory.
@@ -192,16 +210,24 @@ func fileExists(path string) bool {
 	return err == nil && !info.IsDir()
 }
 
-// createPOFromPOT creates a new PO file from the POT template for the given language.
+// createPOFromPOT creates a new PO file from the POT template for the given
+// language. If root and desktopFiles are provided, inline desktop translations
+// are seeded into the PO before it is written to disk — keeping the behaviour
+// consistent with runInitCode and the translate pre-extract merge step.
 // Returns nil if the POT file can't be found or read.
-func createPOFromPOT(proj *config.Project, lang, poPath string) *po.File {
+func createPOFromPOT(proj *config.Project, lang, poPath, root string, desktopFiles []string) *po.File {
 	potPath := proj.POTPathResolved()
 	if potPath == "" || !fileExists(potPath) {
 		// No POT template — try auto-extracting first
 		logInfo(T("No POT template found, running extraction..."))
-		if err := doExtract(proj); err != nil {
+		extracted, err := doExtract(proj)
+		if err != nil {
 			logError(T("Auto-extraction failed: %v"), err)
 			return nil
+		}
+		// Use desktop files from auto-extraction when caller didn't supply any.
+		if len(desktopFiles) == 0 {
+			desktopFiles = extracted
 		}
 		// Re-resolve POT path after extraction
 		proj.POTFile = proj.POTPathResolved()
@@ -210,6 +236,14 @@ func createPOFromPOT(proj *config.Project, lang, poPath string) *po.File {
 			logError(T("Cannot auto-create %s: extraction produced no POT template"), poPath)
 			logInfo(T("Check that source files contain translatable strings (_(), N_(), etc.)"))
 			return nil
+		}
+	}
+
+	// Resolve root for relative path computation in seeding.
+	if root == "" {
+		root = proj.Root
+		if root == "" {
+			root, _ = os.Getwd()
 		}
 	}
 
@@ -237,6 +271,10 @@ func createPOFromPOT(proj *config.Project, lang, poPath string) *po.File {
 		newPO.Entries = append(newPO.Entries, entry)
 	}
 
+	// Seed inline desktop translations before writing so the new PO is as
+	// complete as init-created PO files.
+	seedDesktopTranslations(newPO, lang, root, desktopFiles)
+
 	// Ensure parent directory exists
 	if err := os.MkdirAll(filepath.Dir(poPath), 0755); err != nil {
 		logError(T("Creating directory for %s: %v"), poPath, err)
@@ -263,6 +301,32 @@ func copyFlags(flags []string) []string {
 		}
 	}
 	return result
+}
+
+// mergeAndSeedPO merges potPO into existingPO and seeds desktop translations
+// in one step. This is the canonical post-extract PO update used by both
+// runInitCode and translateGettextTarget, ensuring the two paths stay in sync.
+func mergeAndSeedPO(existingPO, potPO *po.File, lang, root string, desktopFiles []string) *po.File {
+	merged := merge.Merge(existingPO, potPO)
+	seedDesktopTranslations(merged, lang, root, desktopFiles)
+	return merged
+}
+
+// seedDesktopTranslations fills PO entries from inline .desktop translations.
+// desktopFiles must come from the doExtract return value (single scan per run).
+// root is the project root used to compute relative paths.
+func seedDesktopTranslations(poFile *po.File, lang, root string, desktopFiles []string) {
+	if len(desktopFiles) == 0 {
+		return
+	}
+	n, err := desktop.SeedPO(poFile, lang, root, desktopFiles)
+	if err != nil {
+		logWarning(T("Desktop seeding for %s: %v"), lang, err)
+		// Don't return early: n entries may still have been seeded.
+	}
+	if n > 0 {
+		logInfo(T("Seeded %d desktop translations for %s"), n, lang)
+	}
 }
 
 func resolveProvider(name, baseURL, apiKey, model, proxy string, timeout time.Duration) translate.Provider {

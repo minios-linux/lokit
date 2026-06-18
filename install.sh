@@ -12,7 +12,7 @@ NC='\033[0m'
 requested_version="${VERSION:-${LOKIT_VERSION:-}}"
 binary_path=""
 no_modify_path=false
-install_dir="${LOKIT_INSTALL_DIR:-$HOME/.lokit/bin}"
+install_dir="${LOKIT_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}"
 
 usage() {
   cat <<'EOF'
@@ -24,7 +24,7 @@ Options:
   -h, --help              Display this help message
   -v, --version <version> Install a specific version (example: v0.9.3)
   -b, --binary <path>     Install from a local binary instead of downloading
-      --install-dir <dir> Install directory (default: ~/.lokit/bin)
+      --install-dir <dir> Install directory (default: ~/.local/bin or $XDG_BIN_HOME)
       --no-modify-path    Don't modify shell config files
 
 Examples:

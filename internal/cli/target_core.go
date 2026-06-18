@@ -12,7 +12,6 @@ import (
 	"github.com/minios-linux/lokit/internal/format/android"
 	"github.com/minios-linux/lokit/internal/format/i18next"
 	po "github.com/minios-linux/lokit/internal/format/po"
-	"github.com/minios-linux/lokit/merge"
 	"github.com/minios-linux/lokit/translate"
 )
 
@@ -27,14 +26,12 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 	proj := &config.Project{
 		Root:        rt.AbsRoot,
 		Name:        rt.Target.Name,
-		Version:     "0.0.0",
 		PODir:       poDir,
 		POTFile:     potPath,
 		POStructure: config.POStructureFlat,
 		Languages:   langs,
 		Keywords:    rt.Target.Keywords,
 		SourceLang:  rt.Target.SourceLang,
-		BugsEmail:   "support@minios.dev",
 	}
 	if len(rt.Target.Sources) > 0 {
 		for _, src := range rt.Target.Sources {
@@ -44,15 +41,29 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		proj.SourceDirs = []string{rt.AbsRoot}
 	}
 
+	// Compute project root once; used for both the merge+seed loop and any
+	// PO files auto-created from POT below.
+	root := proj.Root
+	if root == "" {
+		root, _ = os.Getwd()
+	}
+
 	// Auto-init: extract strings and update PO files before translating.
-	// This ensures new/changed strings are always picked up without
-	// requiring a separate `lokit init` run.
-	logInfo(T("Extracting strings and updating PO files..."))
-	if err := doExtract(proj); err != nil {
-		logWarning(T("Extraction failed: %v"), err)
-		logInfo(T("Continuing with existing PO files"))
-	} else {
-		// Merge POT into existing PO files
+	// Skipped on --dry-run so that preview mode remains truly read-only.
+	var desktopFiles []string
+	if !a.dryRun {
+		logInfo(T("Extracting strings and updating PO files..."))
+		var extractErr error
+		desktopFiles, extractErr = doExtract(proj)
+		if extractErr != nil {
+			logWarning(T("Extraction failed: %v"), extractErr)
+			logInfo(T("Continuing with existing PO files"))
+		}
+
+		// Merge POT into existing PO files and seed desktop translations in
+		// one pass via mergeAndSeedPO (same logic as runInitCode). If extraction
+		// failed after source scanning, desktopFiles may still be available, and
+		// the last on-disk POT can still drive a useful merge+seed update.
 		potPO, err := po.ParseFile(proj.POTFile)
 		if err == nil {
 			for _, lang := range langs {
@@ -64,11 +75,13 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 				if err != nil {
 					continue
 				}
-				merged := merge.Merge(existingPO, potPO)
+				merged := mergeAndSeedPO(existingPO, potPO, lang, root, desktopFiles)
 				if err := merged.WriteFile(poPath); err != nil {
 					logError(T("Updating %s: %v"), poPath, err)
 				}
 			}
+		} else if extractErr == nil || fileExists(proj.POTFile) {
+			logWarning(T("Cannot read POT template %s: %v"), proj.POTFile, err)
 		}
 	}
 
@@ -144,7 +157,9 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		poFile, err := po.ParseFile(poPath)
 		if err != nil {
 			if !fileExists(poPath) {
-				poFile = createPOFromPOT(proj, lang, poPath)
+				// Pass root and desktopFiles so the new PO is seeded with inline
+				// desktop translations — same as init-created PO files.
+				poFile = createPOFromPOT(proj, lang, poPath, root, desktopFiles)
 				if poFile == nil {
 					continue
 				}
@@ -258,7 +273,6 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		logInfo(T("PO files missing, running po4a initialization..."))
 		proj := &config.Project{
 			Name:        rt.Target.Name,
-			Version:     "0.0.0",
 			POStructure: config.POStructurePo4a,
 			Po4aConfig:  cfgPath,
 			Languages:   langs,

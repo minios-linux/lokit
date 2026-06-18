@@ -49,6 +49,23 @@ var SupportedExtensions = map[string]string{
 	".lua":  "Lua",
 	".vala": "Vala",
 	".go":   "Go",
+	// GUI / desktop formats — require explicit --language= flag in xgettext
+	".glade":       "Glade",
+	".ui":          "Glade",
+	".desktop":     "Desktop",
+	".nemo_action": "Desktop",
+	// "xml/polkit" is an internal file-type label, NOT an xgettext --language=
+	// value.  Polkit policy files are extracted via a dedicated ITS-based pass
+	// in RunXgettext, not through the regular language dispatch.
+	".policy": "xml/polkit",
+}
+
+// polkitExtensions are file types that xgettext handles as XML/ITS-based
+// Polkit policies. We prefer .policy.template files over .policy files when
+// extracting because the generated .policy files already contain translated
+// strings embedded in them, whereas the .policy.template is the clean source.
+var polkitExtensions = map[string]bool{
+	".policy": true,
 }
 
 // shellShebangs are interpreter prefixes that identify a file as a shell script.
@@ -71,6 +88,10 @@ var defaultKeywords = []string{
 }
 
 // skipDirs contains directory names to skip during source file scanning.
+// Note: "build" and "dist" skip ANY directory named "build" or "dist" in the
+// tree, not only Debian build artifacts. Projects that keep translatable sources
+// inside a directory named "build" must list those paths explicitly via
+// lokit.yaml `sources` instead of relying on automatic discovery.
 var skipDirs = map[string]bool{
 	".git":         true,
 	".hg":          true,
@@ -84,6 +105,33 @@ var skipDirs = map[string]bool{
 	"dist":         true,
 	"build":        true,
 	".eggs":        true,
+}
+
+// shouldSkipPath returns true for Debian build artifacts and compiled PO files
+// that should not be scanned for translatable strings.
+func shouldSkipPath(path string) bool {
+	slashPath := filepath.ToSlash(path)
+	parts := strings.Split(slashPath, "/")
+	for i, part := range parts {
+		if skipDirs[part] {
+			return true
+		}
+		if part == "debian" {
+			if i+2 < len(parts) {
+				switch parts[i+2] {
+				case "DEBIAN", "usr":
+					return true
+				}
+			}
+			if i+1 < len(parts) && strings.HasSuffix(parts[i+1], ".debhelper") {
+				return true
+			}
+		}
+		if part == "po" && strings.HasSuffix(slashPath, ".mo") {
+			return true
+		}
+	}
+	return false
 }
 
 // ExtractResult holds the outcome of an extraction.
@@ -140,6 +188,10 @@ func detectShebang(path string) string {
 // Also detects extensionless files by shebang (e.g. bash scripts without .sh).
 // Skips common non-source directories (node_modules, .git, __pycache__, etc.)
 // and nested git repositories (directories containing a .git entry).
+//
+// Special handling for Polkit .policy files: when a sibling .policy.template
+// exists, the template is used instead of the generated .policy file (the
+// generated file already has translated strings embedded in it).
 func FindSources(dirs []string) ([]string, error) {
 	var files []string
 	seen := make(map[string]bool)
@@ -149,6 +201,16 @@ func FindSources(dirs []string) ([]string, error) {
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil // skip unreadable entries
+			}
+			relPath, relErr := filepath.Rel(absDir, path)
+			if relErr != nil {
+				relPath = path
+			}
+			if shouldSkipPath(relPath) {
+				if info.IsDir() {
+					return filepath.SkipDir
+				}
+				return nil
 			}
 			if info.IsDir() {
 				if skipDirs[info.Name()] {
@@ -171,8 +233,27 @@ func FindSources(dirs []string) ([]string, error) {
 			}
 			ext := filepath.Ext(path)
 			if _, ok := SupportedExtensions[ext]; ok {
+				if polkitExtensions[ext] {
+					// Prefer .policy.template over .policy when available.
+					// The .policy file may contain already-translated strings.
+					templatePath := path + ".template"
+					if _, terr := os.Stat(templatePath); terr == nil {
+						// .policy.template exists — it will be picked up with
+						// the ".policy.template" double-extension handling below.
+						// Skip the plain .policy file to avoid duplicates.
+						return nil
+					}
+				}
 				seen[path] = true
 				files = append(files, path)
+				return nil
+			}
+			// Handle .policy.template: treat as Polkit source (clean template).
+			if strings.HasSuffix(path, ".policy.template") {
+				if !seen[path] {
+					seen[path] = true
+					files = append(files, path)
+				}
 				return nil
 			}
 			// No known extension — try shebang detection for regular files
@@ -195,7 +276,11 @@ func FindSources(dirs []string) ([]string, error) {
 
 // FileLanguage returns the programming language for a source file,
 // checking the extension first and falling back to shebang detection.
+// .policy.template files are treated as Polkit XML sources (extracted via ITS).
 func FileLanguage(path string) string {
+	if strings.HasSuffix(path, ".policy.template") {
+		return "xml/polkit"
+	}
 	ext := filepath.Ext(path)
 	if lang, ok := SupportedExtensions[ext]; ok {
 		return lang
@@ -232,8 +317,58 @@ func DetectedLanguages(files []string) []string {
 	return langs
 }
 
+// xgettextPass describes a single xgettext invocation for one language group.
+// language is the explicit --language= value; empty means auto-detection.
+type xgettextPass struct {
+	language string
+	files    []string
+}
+
+type xgettextFileGroups struct {
+	regular []string
+	shell   []string
+	glade   []string
+	desktop []string
+	polkit  []string
+}
+
+// groupFilesForXgettext splits files into the pass groups RunXgettext uses.
+func groupFilesForXgettext(files []string) xgettextFileGroups {
+	var groups xgettextFileGroups
+	for _, f := range files {
+		if strings.HasSuffix(f, ".policy.template") {
+			groups.polkit = append(groups.polkit, f)
+			continue
+		}
+		ext := filepath.Ext(f)
+		switch ext {
+		case ".ui", ".glade":
+			groups.glade = append(groups.glade, f)
+		case ".desktop", ".nemo_action":
+			groups.desktop = append(groups.desktop, f)
+		case ".policy":
+			groups.polkit = append(groups.polkit, f)
+		case "":
+			groups.shell = append(groups.shell, f)
+		default:
+			groups.regular = append(groups.regular, f)
+		}
+	}
+	return groups
+}
+
 // RunXgettext runs xgettext on the given source files and produces a .pot file.
-// It auto-detects languages from file extensions (xgettext does this natively).
+// Files are grouped by their detected xgettext language and processed in
+// separate passes, each joined with --join-existing. This is required because
+// some formats (Glade, Desktop, Polkit) need an explicit --language= flag that
+// cannot be mixed with auto-detected languages in a single invocation.
+//
+// Pass order:
+//  1. Auto-detected languages (Python, C, C++, Shell, etc.) — no --language flag
+//  2. Shell scripts without extension (detected via shebang) — --language=Shell
+//  3. Glade .ui / .glade — --language=Glade
+//  4. Desktop .desktop / .nemo_action — --language=Desktop
+//  5. Polkit .policy / .policy.template — best-effort via ITS if available
 //
 // Parameters:
 //   - files: source files to extract from (must NOT contain .go files)
@@ -261,8 +396,9 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 	if err := os.MkdirAll(filepath.Dir(potFile), 0755); err != nil {
 		return nil, fmt.Errorf("creating output directory: %w", err)
 	}
+
 	// Start from a clean POT file to avoid stale source references accumulating
-	// across runs when using --join-existing in the shell pass.
+	// across runs when using --join-existing in subsequent passes.
 	_ = os.Remove(potFile)
 
 	// Use custom keywords or defaults
@@ -271,66 +407,49 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 		kws = keywords
 	}
 
-	// Build xgettext arguments
-	args := []string{
-		"--output=" + potFile,
-		"--from-code=UTF-8",
-		"--add-comments=TRANSLATORS:",
-	}
-	for _, kw := range kws {
-		args = append(args, "--keyword="+kw)
-	}
+	groups := groupFilesForXgettext(files)
 
-	if pkgName != "" {
-		args = append(args, "--package-name="+pkgName)
-	}
-	if pkgVersion != "" {
-		args = append(args, "--package-version="+pkgVersion)
-	}
-	if bugsEmail != "" {
-		args = append(args, "--msgid-bugs-address="+bugsEmail)
-	}
+	potCreated := false
 
-	// For extensionless files detected via shebang, we need to tell xgettext
-	// the language explicitly. Create a temp file list, and for extensionless
-	// files prepend with --language on the command line.
-	var shellFiles []string
-	var regularFiles []string
-	for _, f := range files {
-		ext := filepath.Ext(f)
-		if ext == "" {
-			shellFiles = append(shellFiles, f)
-		} else {
-			regularFiles = append(regularFiles, f)
+	// baseArgs builds the shared xgettext flags (without --language).
+	baseArgs := func(joinExisting bool) []string {
+		args := []string{
+			"--output=" + potFile,
+			"--from-code=UTF-8",
+			"--add-comments=TRANSLATORS:",
 		}
+		if joinExisting && potCreated {
+			args = append(args, "--join-existing")
+		}
+		for _, kw := range kws {
+			args = append(args, "--keyword="+kw)
+		}
+		if pkgName != "" {
+			args = append(args, "--package-name="+pkgName)
+		}
+		if pkgVersion != "" {
+			args = append(args, "--package-version="+pkgVersion)
+		}
+		if bugsEmail != "" {
+			args = append(args, "--msgid-bugs-address="+bugsEmail)
+		}
+		return args
 	}
 
-	// Write regular files to a temp file
-	tmpFile, err := os.CreateTemp("", "lokit-files-*.txt")
-	if err != nil {
-		return nil, fmt.Errorf("creating temp file: %w", err)
-	}
-	tmpPath := tmpFile.Name()
-	defer os.Remove(tmpPath)
+	// runPass executes one xgettext pass and marks potCreated on success.
+	runPass := func(args []string, passFiles []string) error {
+		tmpFile, err := os.CreateTemp("", "lokit-files-*.txt")
+		if err != nil {
+			return fmt.Errorf("creating temp file: %w", err)
+		}
+		tmpPath := tmpFile.Name()
+		defer os.Remove(tmpPath)
+		for _, f := range passFiles {
+			fmt.Fprintln(tmpFile, f)
+		}
+		tmpFile.Close()
 
-	for _, f := range regularFiles {
-		fmt.Fprintln(tmpFile, f)
-	}
-	// For extensionless (shebang-detected) files, add them with explicit language flag
-	// xgettext supports --language in the files-from, but it's simpler to handle
-	// them in a separate pass. Instead, we add them to the file list and use
-	// --language=Shell for the extensionless pass.
-	tmpFile.Close()
-
-	if len(regularFiles) > 0 {
 		args = append(args, "--files-from="+tmpPath)
-	}
-
-	// If we have extensionless shell files, we need a second pass or add them
-	// directly on the command line with --language override.
-	// Approach: run xgettext on regular files first, then on shell files with
-	// --language=Shell --join-existing to merge into the same POT.
-	if len(regularFiles) > 0 {
 		cmd := exec.Command(xgettextPath, args...)
 		if workDir != "" {
 			cmd.Dir = workDir
@@ -341,43 +460,97 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 			if stderrBuf.Len() > 0 {
 				fmt.Fprint(os.Stderr, stderrBuf.String())
 			}
-			return nil, fmt.Errorf("xgettext failed: %w", err)
+			return fmt.Errorf("xgettext failed: %w", err)
+		}
+		if _, err := os.Stat(potFile); err == nil {
+			potCreated = true
+		}
+		return nil
+	}
+
+	// Passes 1–4: standard language groups processed with a unified loop.
+	// potCreated is false initially, so the first non-empty pass will not
+	// receive --join-existing even though we always pass joinExisting=true to
+	// baseArgs — that flag is gated on potCreated inside baseArgs.
+	for _, p := range []xgettextPass{
+		{language: "", files: groups.regular},        // Pass 1: auto-detected
+		{language: "Shell", files: groups.shell},     // Pass 2: extensionless scripts
+		{language: "Glade", files: groups.glade},     // Pass 3: Glade / GTK Builder
+		{language: "Desktop", files: groups.desktop}, // Pass 4: desktop entries
+	} {
+		if len(p.files) == 0 {
+			continue
+		}
+		args := baseArgs(true)
+		if p.language != "" {
+			args = append(args, "--language="+p.language)
+		}
+		if err := runPass(args, p.files); err != nil {
+			return nil, err
 		}
 	}
 
-	if len(shellFiles) > 0 {
-		shellArgs := []string{
-			"--output=" + potFile,
-			"--from-code=UTF-8",
-			"--add-comments=TRANSLATORS:",
-			"--language=Shell",
-		}
-		if len(regularFiles) > 0 {
-			// Use --join-existing only when the first pass actually produced a POT.
-			// xgettext may skip creating the file when no strings are found.
-			if _, err := os.Stat(potFile); err == nil {
-				shellArgs = append(shellArgs, "--join-existing")
+	// Pass 5: Polkit policy files.
+	// xgettext supports polkit XML via ITS (Internationalization Tag Set) rules
+	// shipped with polkit or gettext >= 0.19.8. Without ITS rules we cannot
+	// produce meaningful output — running --language=C on XML would be noise —
+	// so we skip the pass entirely and emit a single warning.
+	//
+	// .policy.template files are preferred over .policy files and are copied
+	// to a temp dir as plain .policy files so xgettext can recognise them
+	// (xgettext determines the ITS handler from the .policy extension).
+	if len(groups.polkit) > 0 {
+		itsFile := findPolkitITS()
+		if itsFile == "" {
+			fmt.Fprintf(os.Stderr,
+				"warning: polkit ITS rules not found; polkit strings skipped"+
+					" (install polkit or gettext >= 0.19.8)\n")
+		} else {
+			tmpDir, err := os.MkdirTemp("", "lokit-polkit-*")
+			if err != nil {
+				return nil, fmt.Errorf("creating temp dir for polkit: %w", err)
 			}
-		}
-		for _, kw := range kws {
-			shellArgs = append(shellArgs, "--keyword="+kw)
-		}
-		shellArgs = append(shellArgs, shellFiles...)
-		cmd := exec.Command(xgettextPath, shellArgs...)
-		if workDir != "" {
-			cmd.Dir = workDir
-		}
-		var stderrBuf strings.Builder
-		cmd.Stderr = &stderrBuf
-		if err := cmd.Run(); err != nil {
-			if stderrBuf.Len() > 0 {
-				fmt.Fprint(os.Stderr, stderrBuf.String())
+			defer os.RemoveAll(tmpDir)
+
+			var resolvedPolkit []string
+			for i, f := range groups.polkit {
+				if strings.HasSuffix(f, ".policy.template") {
+					// Resolve relative paths against workDir so os.ReadFile works
+					// regardless of the process working directory.
+					absF := f
+					if !filepath.IsAbs(f) && workDir != "" {
+						absF = filepath.Join(workDir, f)
+					}
+					// Copy to temp dir as a plain .policy file.
+					// Prefix with the loop index to prevent silent overwrites when
+					// two .policy.template files share the same basename in different
+					// source directories (e.g. share/polkit/org.foo.policy.template
+					// and data/org.foo.policy.template both → org.foo.policy).
+					base := filepath.Base(strings.TrimSuffix(f, ".template"))
+					dst := filepath.Join(tmpDir, fmt.Sprintf("%d_%s", i, base))
+					data, err := os.ReadFile(absF)
+					if err != nil {
+						return nil, fmt.Errorf("reading %s: %w", absF, err)
+					}
+					if err := os.WriteFile(dst, data, 0644); err != nil {
+						return nil, fmt.Errorf("writing temp polkit file: %w", err)
+					}
+					resolvedPolkit = append(resolvedPolkit, dst)
+				} else {
+					resolvedPolkit = append(resolvedPolkit, f)
+				}
 			}
-			return nil, fmt.Errorf("xgettext (shell scripts) failed: %w", err)
+
+			args := baseArgs(true)
+			args = append(args, "--its="+itsFile)
+			if err := runPass(args, resolvedPolkit); err != nil {
+				// Non-fatal: polkit extraction is best-effort.
+				fmt.Fprintf(os.Stderr, "warning: polkit extraction failed (continuing): %v\n", err)
+			}
 		}
 	}
 
-	// xgettext may not create the file if no strings were found
+	// xgettext may not create the file if no strings were found in any pass
 	if _, err := os.Stat(potFile); os.IsNotExist(err) {
 		// Create an empty POT file so downstream tools don't error
 		if err := os.WriteFile(potFile, []byte(""), 0644); err != nil {
@@ -559,6 +732,41 @@ func MergePOTFiles(file1, file2, outFile string) error {
 // FindSourcesIn is a convenience function that scans a single directory.
 func FindSourcesIn(dir string) ([]string, error) {
 	return FindSources([]string{dir})
+}
+
+// findPolkitITS looks for an ITS rule file that can handle polkit .policy XML
+// files. Such files are typically shipped by polkit or gettext on some distros.
+// Returns an empty string if no suitable ITS file is found.
+func findPolkitITS() string {
+	// Only *.its files are valid ITS rule descriptors for xgettext --its=.
+	// policyconfig-1.dtd is a schema file, not an ITS file; passing it to
+	// xgettext produces silent failures or garbage extraction.
+	candidates := []string{
+		"/usr/share/polkit-1/its/polkit.its",
+		"/usr/share/gettext/its/polkit.its",
+	}
+	// Honour XDG_DATA_DIRS so non-standard prefixes (NixOS, custom installs)
+	// are searched before falling back to the hard-coded system paths.
+	if xdgDirs := os.Getenv("XDG_DATA_DIRS"); xdgDirs != "" {
+		var extra []string
+		for _, dir := range strings.Split(xdgDirs, ":") {
+			if dir == "" {
+				continue
+			}
+			extra = append(extra,
+				filepath.Join(dir, "polkit-1", "its", "polkit.its"),
+				filepath.Join(dir, "gettext", "its", "polkit.its"),
+			)
+		}
+		// Prepend so XDG paths are checked first.
+		candidates = append(extra, candidates...)
+	}
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c
+		}
+	}
+	return ""
 }
 
 // SupportedExtensionsList returns a sorted list of supported file extensions.

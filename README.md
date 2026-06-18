@@ -266,7 +266,7 @@ For catalog-style projects (one source index file + many per-record translation 
 - `source.key_field` provides values for `{id}` in `pattern` / `target`
 - `source.fields` lists translatable fields copied from each record
 
-Example (`minios-store` style):
+Example (catalog index mode):
 
 ```yaml
 targets:
