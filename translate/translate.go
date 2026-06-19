@@ -827,7 +827,7 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 func callOpenAI(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
 	if prov.APIKey == "" {
 		if !openai.IsOAuthModel(prov.Model) {
-			return "", fmt.Errorf("OpenAI OAuth/device auth supports GPT-5/Codex models; use an API key for %s", prov.Model)
+			return "", fmt.Errorf("OpenAI OAuth/device auth does not support model %q in this mode; choose an OAuth-compatible OpenAI model or use an API key", prov.Model)
 		}
 		return callOpenAIOAuth(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
 	}
@@ -1362,7 +1362,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 					"  - Try another provider:\n" +
 					"      lokit auth login --provider gemini\n" +
 					"      lokit auth login --provider google\n" +
-					"      lokit translate --provider ollama --model llama3.2")
+					"      lokit translate --provider ollama --model MODEL_NAME")
 			}
 
 			return "", fmt.Errorf("Copilot API returned status %d: %s", resp.StatusCode, truncate(string(respBody), 500))

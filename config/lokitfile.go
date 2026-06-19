@@ -1189,6 +1189,16 @@ type Po4aPOFile struct {
 	Path   string
 }
 
+// DocsPOMasters returns master document names configured for a po4a target.
+func (rt *ResolvedTarget) DocsPOMasters() ([]string, error) {
+	cfg, err := parsePo4aConfig(rt.AbsPo4aConfig())
+	if err != nil {
+		return nil, err
+	}
+	masters := append([]string(nil), cfg.Masters...)
+	return masters, nil
+}
+
 // DocsPOFiles returns all .po files for a language in a po4a target.
 func (rt *ResolvedTarget) DocsPOFiles(lang string) []Po4aPOFile {
 	cfgPath := rt.AbsPo4aConfig()
@@ -1368,11 +1378,15 @@ func parsePo4aConfig(cfgPath string) (po4aConfig, error) {
 			continue
 		}
 		if strings.HasPrefix(line, "[type:") {
-			fields := strings.Fields(line)
+			end := strings.Index(line, "]")
+			if end < 0 {
+				continue
+			}
+			fields := strings.Fields(strings.TrimSpace(line[end+1:]))
 			if len(fields) < 2 {
 				continue
 			}
-			master := fields[1]
+			master := fields[0]
 			if _, ok := seenMasters[master]; ok {
 				continue
 			}

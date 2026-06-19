@@ -376,26 +376,26 @@ func resolveProvider(name, baseURL, apiKey, model, proxy string, timeout time.Du
 func validateProvider(prov translate.Provider, apiKey string) error {
 	// Check if model is specified
 	if prov.Model == "" {
-		modelExamples := map[string]string{
-			translate.ProviderGoogle:       "gemini-2.5-flash, gemini-2.0-flash-exp, gemini-1.5-pro",
-			translate.ProviderGemini:       "gemini-2.5-flash, gemini-2.0-flash-exp, gemini-1.5-pro",
-			translate.ProviderGroq:         "llama-3.3-70b-versatile, mixtral-8x7b-32768",
-			translate.ProviderOpenCode:     "big-pickle, gemini-2.5-flash, claude-sonnet-4.5, gpt-4o",
-			translate.ProviderCopilot:      "gpt-4o, gpt-5, claude-sonnet-4, gemini-2.5-pro",
-			translate.ProviderOpenAI:       "gpt-4o, gpt-4.1, gpt-5, gpt-5-mini",
-			translate.ProviderOllama:       "llama3.2, qwen2.5, mistral",
-			translate.ProviderCustomOpenAI: "gpt-4o, gpt-4o-mini (depends on your endpoint)",
+		modelGuidance := map[string]string{
+			translate.ProviderGoogle:       T("choose a model available through Google AI Studio"),
+			translate.ProviderGemini:       T("choose a model available through Gemini CLI OAuth"),
+			translate.ProviderGroq:         T("choose a model available in your Groq account"),
+			translate.ProviderOpenCode:     T("choose a model available through OpenCode Zen"),
+			translate.ProviderCopilot:      T("choose a model available in your GitHub Copilot plan"),
+			translate.ProviderOpenAI:       T("choose a model available through your OpenAI authentication method"),
+			translate.ProviderOllama:       T("choose a model installed on your Ollama server"),
+			translate.ProviderCustomOpenAI: T("choose a model supported by your endpoint"),
 		}
 
-		examples := modelExamples[prov.ID]
-		if examples == "" {
-			examples = T("check provider documentation")
+		guidance := modelGuidance[prov.ID]
+		if guidance == "" {
+			guidance = T("check provider documentation")
 		}
 
 		return fmt.Errorf(T("--model is required for provider '%s'\n\n"+
-			"Example models for %s:\n  %s\n\n"+
+			"Model guidance for %s:\n  %s\n\n"+
 			"Usage: --provider %s --model MODEL_NAME"),
-			prov.ID, prov.Name, examples, prov.ID)
+			prov.ID, prov.Name, guidance, prov.ID)
 	}
 
 	switch prov.ID {
@@ -457,12 +457,10 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 		}
 		if apiKey == "" && openai.LoadToken() != nil &&
 			!openai.IsOAuthModel(prov.Model) {
-			return fmt.Errorf(T("provider 'openai' via OAuth/device auth supports GPT-5/Codex models\n\n" +
-				"Use one of these models:\n" +
-				"  gpt-5\n" +
-				"  gpt-5-mini\n" +
-				"  gpt-5.3-codex\n\n" +
-				"For gpt-4o or gpt-4.1, use an OpenAI API key instead."))
+			return fmt.Errorf(T("provider 'openai' via OAuth/device auth only supports OpenAI models available through the OAuth Responses API\n\n" +
+				"How to fix:\n" +
+				"  - Choose a model supported by your OpenAI OAuth session, or\n" +
+				"  - Use an OpenAI API key for models that are not available via OAuth."))
 		}
 
 	case translate.ProviderOpenCode:
@@ -473,7 +471,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 			return fmt.Errorf(T("provider 'copilot' requires GitHub Copilot authentication\n\n" +
 				"Login with your GitHub account:\n" +
 				"  lokit auth login --provider copilot\n\n" +
-				"This uses GitHub Copilot (requires active Copilot subscription)."))
+				"This uses GitHub Copilot. Available models depend on your Copilot plan."))
 		}
 
 	case translate.ProviderCustomOpenAI:

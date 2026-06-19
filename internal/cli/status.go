@@ -19,14 +19,14 @@ func newStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
 		Short: T("Show project info and translation statistics"),
-		Long: T(`Show auto-detected project structure and translation statistics.
+		Long: T(`Show configured project targets and translation statistics.
 
-Displays target format, file structure, detected languages, and per-language
+Displays target format, file structure, configured or detected languages, and per-language
 translation progress for gettext, po4a, i18next, vue-i18n, android,
 yaml, markdown, properties, flutter, js-kv, desktop, and polkit projects. For projects
 configured via lokit.yaml, shows each target separately.
 
-		Does not modify any files.`),
+Does not modify any files.`),
 		Run: func(cmd *cobra.Command, args []string) {
 			runStatus(targets)
 		},
@@ -134,13 +134,9 @@ func showConfigTargetStats(rt config.ResolvedTarget, langs []string, lockF *lock
 
 	lockKeys := 0
 	for _, lang := range langs {
-		if rt.Target.Type == config.TargetTypePo4a {
-			for _, file := range rt.DocsPOFiles(lang) {
-				lockKeys += lockF.TargetKeyCount(lockfile.LockTargetKey(rt.Target.Name+"/"+file.Master, lang))
-			}
-			continue
+		for _, lockTarget := range lockTargetKeysFor(rt, lang) {
+			lockKeys += lockF.TargetKeyCount(lockTarget)
 		}
-		lockKeys += lockF.TargetKeyCount(lockfile.LockTargetKey(rt.Target.Name, lang))
 	}
 	keyVal(T("Locked"), fmt.Sprintf(T("%d keys x %d languages"), lockKeys, len(langs)))
 

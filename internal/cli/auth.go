@@ -169,7 +169,7 @@ API key providers:
 				authLoginCustomOpenAI(apiKey, baseURL)
 			case "ollama":
 				logInfo(T("No authentication is required for Ollama."))
-				logInfo(T("You can now use: lokit translate --provider ollama --model llama3.2"))
+				logInfo(T("You can now use: lokit translate --provider ollama --model MODEL_NAME"))
 				fmt.Fprintln(os.Stderr)
 			default:
 				logError(T("Unknown provider '%s'. Run 'lokit auth login' for options."), provider)
@@ -241,7 +241,7 @@ func authLoginCopilot(ctx context.Context) {
 	}
 
 	logSuccess(T("Copilot authentication successful!"))
-	logInfo(T("You can now use: lokit translate --provider copilot --model gpt-4o"))
+	logInfo(T("You can now use: lokit translate --provider copilot --model MODEL_NAME"))
 	fmt.Fprintln(os.Stderr)
 }
 
@@ -310,7 +310,7 @@ func authLoginGemini(ctx context.Context) {
 	}
 
 	fmt.Fprintln(os.Stderr)
-	logInfo(T("You can now use: lokit translate --provider gemini --model gemini-2.5-flash"))
+	logInfo(T("You can now use: lokit translate --provider gemini --model MODEL_NAME"))
 	logInfo(T("(no API key needed when authenticated via OAuth)"))
 	fmt.Fprintln(os.Stderr)
 }
@@ -368,7 +368,7 @@ func authLoginOpenAI(method, providedKey string) {
 			}
 
 			logSuccess(T("OpenAI authentication successful!"))
-			logInfo(T("You can now use: lokit translate --provider openai --model gpt-5"))
+			logInfo(T("You can now use: lokit translate --provider openai --model MODEL_NAME"))
 			fmt.Fprintln(os.Stderr)
 		})
 	case "device":
@@ -391,7 +391,7 @@ func authLoginOpenAI(method, providedKey string) {
 			}
 
 			logSuccess(T("OpenAI authentication successful!"))
-			logInfo(T("You can now use: lokit translate --provider openai --model gpt-5"))
+			logInfo(T("You can now use: lokit translate --provider openai --model MODEL_NAME"))
 			fmt.Fprintln(os.Stderr)
 		})
 	case "api", "api-key":
@@ -411,22 +411,22 @@ func authLoginAPIKey(providerID, providedKey string) {
 		"google": {
 			name:    "Google AI Studio",
 			helpURL: "https://aistudio.google.com/apikey",
-			example: "lokit translate --provider google --model gemini-2.5-flash",
+			example: "lokit translate --provider google --model MODEL_NAME",
 		},
 		"groq": {
 			name:    "Groq Cloud",
 			helpURL: "https://console.groq.com/keys",
-			example: "lokit translate --provider groq --model llama-3.3-70b-versatile",
+			example: "lokit translate --provider groq --model MODEL_NAME",
 		},
 		"opencode": {
 			name:    "OpenCode",
 			helpURL: "",
-			example: "lokit translate --provider opencode --model gemini-2.5-flash",
+			example: "lokit translate --provider opencode --model MODEL_NAME",
 		},
 		"openai": {
 			name:    "OpenAI",
 			helpURL: "https://platform.openai.com/api-keys",
-			example: "lokit translate --provider openai --model gpt-4o",
+			example: "lokit translate --provider openai --model MODEL_NAME",
 		},
 	}
 

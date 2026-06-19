@@ -27,7 +27,7 @@ lokit lock status
 # Initialize lock from existing translations (useful when adopting lokit)
 lokit lock init
 
-# Remove stale entries (source strings that no longer exist)
+# Remove stale entries and orphan lock targets
 lokit lock clean --dry-run
 lokit lock clean
 
@@ -35,11 +35,13 @@ lokit lock clean
 lokit lock reset --target app --lang ru
 ```
 
+`lokit lock clean` removes stale source-string checksums and lock target namespaces that are no longer present in the current `lokit.yaml`. With `--target`, orphan cleanup is limited to that target namespace. If a target was removed from `lokit.yaml` entirely, run `lokit lock clean` without `--target` to remove its old lock data.
+
 ### Force full re-translation
 
 ```bash
 # Ignores lock AND locked keys
-lokit translate --provider copilot --model gpt-4.1 --force
+lokit translate --provider copilot --model MODEL_NAME --force
 ```
 
 ---
@@ -126,7 +128,7 @@ targets:
 ### Per run (command-line flag)
 
 ```bash
-lokit translate --provider copilot --model gpt-4.1 \
+lokit translate --provider copilot --model MODEL_NAME \
   --prompt "Translate to {{targetLang}}. Use informal register."
 ```
 
@@ -148,10 +150,10 @@ Send translation requests concurrently to speed up large projects.
 
 ```bash
 # Enable with default 3 workers
-lokit translate --provider copilot --model gpt-4.1 --parallel
+lokit translate --provider copilot --model MODEL_NAME --parallel
 
 # Specify worker count
-lokit translate --provider copilot --model gpt-4.1 --parallel=10
+lokit translate --provider copilot --model MODEL_NAME --parallel=10
 ```
 
 ### Chunking
@@ -160,7 +162,7 @@ Control how many entries are sent per API request:
 
 ```bash
 # Send 50 entries per request, 10 requests in parallel
-lokit translate --provider copilot --model gpt-4.1 --parallel=10 --chunk 50
+lokit translate --provider copilot --model MODEL_NAME --parallel=10 --chunk 50
 ```
 
 When `--chunk` is 0 (default), all entries for a language are sent in a single request. For large files, setting a chunk size can improve reliability and allow better parallelism.
@@ -170,7 +172,7 @@ When `--chunk` is 0 (default), all entries for a language are sent in a single r
 If you hit rate limits, add a delay between requests:
 
 ```bash
-lokit translate --provider copilot --model gpt-4.1 --parallel=5 --delay 500ms
+lokit translate --provider copilot --model MODEL_NAME --parallel=5 --delay 500ms
 ```
 
 ---
@@ -180,7 +182,7 @@ lokit translate --provider copilot --model gpt-4.1 --parallel=5 --delay 500ms
 Route API requests through an HTTP/HTTPS proxy:
 
 ```bash
-lokit translate --provider copilot --model gpt-4.1 --proxy "http://proxy.example.com:8080"
+lokit translate --provider copilot --model MODEL_NAME --proxy "http://proxy.example.com:8080"
 ```
 
 ---
@@ -224,7 +226,7 @@ Each target operates independently within its `root` directory. All targets are 
 
 ```bash
 # Only Russian and German
-lokit translate --provider copilot --model gpt-4.1 --lang ru,de
+lokit translate --provider copilot --model MODEL_NAME --lang ru,de
 ```
 
 ---
@@ -234,7 +236,7 @@ lokit translate --provider copilot --model gpt-4.1 --lang ru,de
 Preview what would be translated without making any changes:
 
 ```bash
-lokit translate --provider copilot --model gpt-4.1 --dry-run
+lokit translate --provider copilot --model MODEL_NAME --dry-run
 ```
 
 Shows the number of strings that would be sent to the AI provider, per target and language.
@@ -246,13 +248,13 @@ Shows the number of strings that would be sent to the AI provider, per target an
 By default, lokit only translates untranslated strings. To re-translate everything (but still respect locked keys):
 
 ```bash
-lokit translate --provider copilot --model gpt-4.1 --all
+lokit translate --provider copilot --model MODEL_NAME --all
 ```
 
 To re-translate everything including locked keys:
 
 ```bash
-lokit translate --provider copilot --model gpt-4.1 --force
+lokit translate --provider copilot --model MODEL_NAME --force
 ```
 
 ---

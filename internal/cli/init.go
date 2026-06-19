@@ -36,7 +36,7 @@ files with empty translations.
 For index-source targets (source object with index, records_path, key_field,
 fields): creates per-record translation files from the index file.
 
-For android/markdown/desktop/polkit projects: no init step needed — use 'lokit translate'
+For android/desktop/polkit projects: no init step needed — use 'lokit translate'
 directly.
 
 This command is idempotent — safe to run multiple times. Existing

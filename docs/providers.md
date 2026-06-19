@@ -6,7 +6,7 @@ lokit supports 8 AI providers for translation. This page covers authentication, 
 
 | Provider | Auth method | Notes | Best for |
 |----------|------------|-------|----------|
-| GitHub Copilot | OAuth (device code) | Free tier for eligible accounts; otherwise paid | Getting started, general use |
+| GitHub Copilot | OAuth (device code) | Model availability depends on account, plan, and current GitHub rollout | Getting started, general use |
 | Gemini CLI (OAuth) | OAuth (browser) | Requires a GCP project ID; quotas depend on plan | OAuth setup; good default |
 | Google AI (Gemini) | API key | Paid API (limited free quota may apply) | API-based access to Gemini models |
 | Groq | API key | Paid API (free plan limits may apply) | Fast inference |
@@ -43,7 +43,7 @@ Credentials are stored in `~/.local/share/lokit/auth.json` (permissions: `0600`)
 
 ## GitHub Copilot
 
-Uses OAuth device-code flow. Availability depends on your Copilot plan and eligibility.
+Uses OAuth device-code flow. Availability and model names depend on your Copilot plan, account eligibility, and GitHub's current rollout.
 
 **Auth:**
 ```bash
@@ -54,16 +54,16 @@ This prints a code and opens your browser. Confirm the code on github.com to com
 
 **Usage:**
 ```bash
-lokit translate --provider copilot --model gpt-4.1
+lokit translate --provider copilot --model MODEL_NAME
 ```
 
-**Pricing:** See GitHub Copilot plans (Copilot Free is only available for eligible accounts).
+**Pricing/models:** See GitHub Copilot plans and model comparison. GitHub can change which models are available for a given plan.
 
 **Config shortcut:**
 ```yaml
 provider:
   id: copilot
-  model: gpt-4.1
+  model: MODEL_NAME
 ```
 
 ---
@@ -82,7 +82,7 @@ Opens your browser for Google OAuth consent.
 
 **Usage:**
 ```bash
-lokit translate --provider gemini --model gemini-2.5-pro
+lokit translate --provider gemini --model MODEL_NAME
 ```
 
 **Pricing/quotas:** See Gemini Code Assist pricing and quotas.
@@ -104,7 +104,7 @@ lokit auth login --provider google
 
 **Usage:**
 ```bash
-lokit translate --provider google --model gemini-2.5-flash
+lokit translate --provider google --model MODEL_NAME
 ```
 
 **Pricing:** Paid API; see Gemini API pricing (Google AI Studio).
@@ -128,7 +128,7 @@ lokit auth login --provider groq
 
 **Usage:**
 ```bash
-lokit translate --provider groq --model llama-3.3-70b-versatile
+lokit translate --provider groq --model MODEL_NAME
 ```
 
 **Pricing/limits:** See Groq pricing and rate limits.
@@ -192,10 +192,10 @@ lokit auth login --provider openai --auth-method api-key
 
 **Usage:**
 ```bash
-lokit translate --provider openai --model gpt-5
+lokit translate --provider openai --model MODEL_NAME
 ```
 
-OAuth/device auth uses the ChatGPT Codex endpoint, so use GPT-5/Codex models there. For `gpt-4o` or `gpt-4.1`, use an API key. The `openai` provider always uses the fixed OpenAI API endpoint; for custom endpoints use `custom-openai`.
+OAuth/device auth uses the ChatGPT Codex endpoint, so choose a model supported by your OpenAI OAuth session. Use an API key for models that are not available via OAuth. The `openai` provider always uses the fixed OpenAI API endpoint; for custom endpoints use `custom-openai`.
 
 **Config:**
 ```yaml
@@ -217,21 +217,21 @@ Runs models locally. No API key needed. Requires [Ollama](https://ollama.com/) i
 **Usage:**
 ```bash
 # Make sure Ollama is running with a model pulled
-ollama pull llama3
+ollama pull MODEL_NAME
 
-lokit translate --provider ollama --model llama3
+lokit translate --provider ollama --model MODEL_NAME
 ```
 
 **Custom endpoint:**
 ```bash
-lokit translate --provider ollama --model llama3 --base-url http://192.168.1.100:11434
+lokit translate --provider ollama --model MODEL_NAME --base-url http://192.168.1.100:11434
 ```
 
 **Config:**
 ```yaml
 provider:
   id: ollama
-  model: llama3
+  model: MODEL_NAME
   base_url: http://localhost:11434   # default, can be omitted
 ```
 

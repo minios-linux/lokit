@@ -187,6 +187,15 @@ func TestResolvedTargetPOPathLocaleVariants(t *testing.T) {
 		if !reflect.DeepEqual(gotMasters, wantMasters) {
 			t.Fatalf("masters = %v, want %v", gotMasters, wantMasters)
 		}
+
+		configuredMasters, err := rt.DocsPOMasters()
+		if err != nil {
+			t.Fatalf("DocsPOMasters error: %v", err)
+		}
+		sort.Strings(configuredMasters)
+		if !reflect.DeepEqual(configuredMasters, wantMasters) {
+			t.Fatalf("configured masters = %v, want %v", configuredMasters, wantMasters)
+		}
 	})
 }
 

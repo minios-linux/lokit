@@ -88,17 +88,17 @@ targets:
 ```
 
 ```bash
-# Check project structure
+# Check configured targets and translation status
 lokit status
 
-# Extract strings and create PO files
+# Create or update translation files for configured targets
 lokit init
 
 # Authenticate
 lokit auth login --provider copilot
 
 # Translate all languages
-lokit translate --provider copilot --model gpt-4.1
+lokit translate --provider copilot --model MODEL_NAME
 ```
 
 ### Multi-target project (`lokit.yaml`)
@@ -134,7 +134,7 @@ Then:
 
 ```bash
 lokit status        # Shows all targets with stats
-lokit translate --provider copilot --model gpt-4o  # Translates everything
+lokit translate --provider copilot --model MODEL_NAME  # Translates everything
 ```
 
 ## Configuration File (`lokit.yaml`)
@@ -162,7 +162,7 @@ source_lang: en
 # Optional default provider for `lokit translate`
 provider:
   id: copilot
-  model: gpt-4o
+  model: MODEL_NAME
   # base_url is supported for custom-openai and ollama only
   # base_url: http://localhost:11434
   # prompt: "Translate to {{targetLang}} with concise style."
@@ -323,7 +323,7 @@ lokit init --lang ru,de        # Specific languages
 Translates using AI:
 
 ```bash
-lokit translate --provider copilot --model gpt-4o
+lokit translate --provider copilot --model MODEL_NAME
 
 # All flags:
   --provider string         AI provider (or set provider.id in lokit.yaml)
@@ -395,7 +395,7 @@ targets:
 ```
 
 ```bash
-lokit translate --provider copilot --model gpt-4o --parallel=10
+lokit translate --provider copilot --model MODEL_NAME --parallel=10
 ```
 
 ### Flutter application
@@ -413,7 +413,7 @@ targets:
 
 ```bash
 lokit init
-lokit translate --provider copilot --model gpt-4o
+lokit translate --provider copilot --model MODEL_NAME
 ```
 
 ### Java application with .properties
@@ -433,7 +433,7 @@ targets:
 
 ```bash
 lokit translate \
-  --provider copilot --model gpt-4.1 \
+  --provider copilot --model MODEL_NAME \
   --parallel=10 --chunk 50 \
   --proxy "http://proxy:8080"
 ```
@@ -441,13 +441,13 @@ lokit translate \
 ### Translate specific languages
 
 ```bash
-lokit translate --provider copilot --model gpt-4o --lang ru,de
+lokit translate --provider copilot --model MODEL_NAME --lang ru,de
 ```
 
 ### Use local Ollama
 
 ```bash
-lokit translate --provider ollama --model llama3
+lokit translate --provider ollama --model MODEL_NAME
 ```
 
 ### OpenAI
@@ -458,10 +458,10 @@ lokit auth login --provider openai --headless
 lokit auth login --provider openai --auth-method oauth
 lokit auth login --provider openai --auth-method device
 lokit auth login --provider openai --auth-method api-key
-lokit translate --provider openai --model gpt-5
+lokit translate --provider openai --model MODEL_NAME
 ```
 
-OAuth/device auth uses ChatGPT Codex endpoint and supports GPT-5/Codex models. For `gpt-4o`/`gpt-4.1` or custom OpenAI-compatible endpoints, use API key auth (or `custom-openai`).
+OAuth/device auth uses the ChatGPT Codex endpoint, so choose a model supported by your OpenAI OAuth session. Use API key auth for models that are not available via OAuth, or `custom-openai` for custom OpenAI-compatible endpoints.
 
 ### Custom OpenAI endpoint
 
@@ -475,7 +475,7 @@ lokit translate --provider custom-openai --model my-model
 ### Dry run
 
 ```bash
-lokit translate --provider copilot --model gpt-4o --dry-run
+lokit translate --provider copilot --model MODEL_NAME --dry-run
 ```
 
 ## User Data Storage
@@ -512,10 +512,11 @@ lokit tracks MD5 checksums of source strings in a `lokit.lock` file (stored next
   lokit lock clean --dry-run
   lokit lock reset --target ui --lang ru
   ```
+  `lokit lock clean` removes stale source-string checksums and orphan target namespaces that no longer exist in `lokit.yaml`. With `--target`, cleanup is limited to that target namespace.
 - **Per-target tracking** — checksums are stored per target and language, so changes in one target don't trigger re-translation of others.
 - **Force re-translation** — use `--force` to ignore the lock file and re-translate all entries:
   ```bash
-  lokit translate --provider copilot --model gpt-4o --force
+  lokit translate --provider copilot --model MODEL_NAME --force
   ```
 - **Safe to delete** — removing `lokit.lock` simply causes a full translation on the next run.
 - **Commit to VCS** — it's recommended to commit `lokit.lock` to version control so that CI and teammates benefit from incremental translation.

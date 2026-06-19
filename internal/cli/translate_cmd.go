@@ -47,8 +47,7 @@ func newTranslateCmd() *cobra.Command {
 
 Supports gettext PO, po4a, i18next, vue-i18n, Android strings.xml,
 YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop, and polkit formats.
-Project format is auto-detected or configured via lokit.yaml.
-No --format flag is required.
+Target formats are configured in lokit.yaml.
 
 For gettext/po4a projects, automatically initializes if needed (extracts
 strings, creates PO files).
@@ -71,26 +70,26 @@ Use {{targetLang}} and {{sourceLang}} as placeholders for language names.
 
 Examples:
   # Basic translation run
-  lokit translate --provider copilot --model gpt-4o
+  lokit translate --provider copilot --model MODEL_NAME
 
   # Translate specific languages in parallel
-  lokit translate --provider copilot --model gpt-4o --lang ru,de --parallel
+  lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
 
   # Translate only selected targets
-  lokit translate --provider copilot --model gpt-4o --target website --target blog
+  lokit translate --provider copilot --model MODEL_NAME --target website --target blog
 
   # Use a custom prompt
-  lokit translate --provider copilot --model gpt-4o \
+  lokit translate --provider copilot --model MODEL_NAME \
     --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
   # Use local Ollama
-  lokit translate --provider ollama --model llama3.2
+  lokit translate --provider ollama --model MODEL_NAME
 
   # Force full re-translation (ignore lock file)
-  lokit translate --provider copilot --model gpt-4o --force
+  lokit translate --provider copilot --model MODEL_NAME --force
 
   # Dry run (show what would be translated)
-  lokit translate --provider copilot --model gpt-4o --dry-run`),
+  lokit translate --provider copilot --model MODEL_NAME --dry-run`),
 		Run: func(cmd *cobra.Command, args []string) {
 			runTranslate(translateArgs{
 				langs:    langs,
@@ -120,7 +119,7 @@ Examples:
 	cmd.Flags().StringVar(&prompt, "prompt", "", T("Custom system prompt (use {{targetLang}}/{{sourceLang}} placeholders)"))
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, T("Enable detailed logging"))
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, T("Show what would be translated without calling AI"))
-	cmd.Flags().BoolVarP(&force, "force", "f", false, T("Ignore lock file and re-translate all changed entries"))
+	cmd.Flags().BoolVarP(&force, "force", "f", false, T("Ignore lock file and locked keys; re-translate all non-ignored entries"))
 
 	cmd.Flags().IntVar(&parallel, "parallel", 0, T("Enable parallel translation with optional worker count (e.g. --parallel or --parallel=8)"))
 	cmd.Flags().DurationVar(&requestDelay, "delay", 0, T("Delay between translation requests"))
@@ -146,17 +145,17 @@ Examples:
 		p, _ := cmd.Flags().GetString("provider")
 		switch p {
 		case "google", "gemini":
-			return []string{"gemini-2.5-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro"}, cobra.ShellCompDirectiveNoFileComp
+			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "groq":
-			return []string{"llama-3.3-70b-versatile", "mixtral-8x7b-32768"}, cobra.ShellCompDirectiveNoFileComp
+			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "opencode":
-			return []string{"big-pickle", "gemini-2.5-flash", "claude-sonnet-4.5", "gpt-4o"}, cobra.ShellCompDirectiveNoFileComp
+			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "copilot":
-			return []string{"gpt-4o", "gpt-5", "gpt-5-mini", "claude-sonnet-4", "gemini-2.5-pro"}, cobra.ShellCompDirectiveNoFileComp
+			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "openai":
-			return []string{"gpt-5", "gpt-5-mini", "gpt-5.3-codex", "gpt-4.1", "gpt-4o"}, cobra.ShellCompDirectiveNoFileComp
+			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "ollama":
-			return []string{"llama3.2", "qwen2.5", "mistral", "phi3"}, cobra.ShellCompDirectiveNoFileComp
+			return nil, cobra.ShellCompDirectiveNoFileComp
 		default:
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -219,7 +218,7 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 
 	if providerName == "" {
 		logError(T("No provider specified. Use --provider to choose an AI translation service.\n\n") +
-			"Example: lokit translate --provider copilot --model gpt-4o")
+			"Example: lokit translate --provider copilot --model MODEL_NAME")
 		os.Exit(1)
 	}
 

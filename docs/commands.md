@@ -7,6 +7,7 @@ Shows project info and translation statistics for all targets defined in `lokit.
 ```bash
 lokit status
 lokit status --root ./my-project
+lokit status --target app
 ```
 
 **Flags:**
@@ -14,6 +15,7 @@ lokit status --root ./my-project
 | Flag | Description |
 |------|-------------|
 | `--root string` | Project root directory (default: `.`) |
+| `--target string` | Target name from `lokit.yaml` (repeatable or comma-separated; default: all targets) |
 
 **Output includes:**
 - Target name and format
@@ -29,6 +31,7 @@ Extracts translatable strings and creates or updates translation files. Idempote
 
 ```bash
 lokit init
+lokit init --target app
 lokit init --lang ru,de
 ```
 
@@ -36,6 +39,7 @@ lokit init --lang ru,de
 
 | Flag | Description |
 |------|-------------|
+| `--target string` | Target name from `lokit.yaml` (repeatable or comma-separated; default: all targets) |
 | `--lang, -l string` | Comma-separated languages to initialize (default: all) |
 
 **What it does per format:**
@@ -45,7 +49,7 @@ lokit init --lang ru,de
 | gettext | Runs multi-pass `xgettext` (Python/C/Go/Shell/Glade/Desktop/Polkit) to extract strings into POT, `msgmerge` to update PO files, then seeds inline `.desktop` translations into PO |
 | po4a | Runs `po4a --no-translations` to extract translatable content |
 | i18next, vue-i18n, yaml, properties, flutter, js-kv | Creates empty language files if they don't exist |
-| android | Creates `values-<lang>/strings.xml` directories |
+| android | No init needed (use `lokit translate` directly) |
 | markdown | Creates language directories or empty files depending on layout |
 | desktop, polkit | No init needed (translations are inline in source file) |
 
@@ -66,19 +70,22 @@ Translates files using an AI provider. Only sends untranslated or changed string
 
 ```bash
 # Basic usage
-lokit translate --provider copilot --model gpt-4.1
+lokit translate --provider copilot --model MODEL_NAME
 
 # Translate specific languages
-lokit translate --provider copilot --model gpt-4.1 --lang ru,de
+lokit translate --provider copilot --model MODEL_NAME --lang ru,de
 
 # Parallel with 10 workers
-lokit translate --provider copilot --model gpt-4.1 --parallel=10
+lokit translate --provider copilot --model MODEL_NAME --parallel=10
+
+# Translate selected targets
+lokit translate --target app --provider copilot --model MODEL_NAME
 
 # Preview what would be translated
-lokit translate --provider copilot --model gpt-4.1 --dry-run
+lokit translate --provider copilot --model MODEL_NAME --dry-run
 
 # Re-translate everything (ignore lock and locked keys)
-lokit translate --provider copilot --model gpt-4.1 --force
+lokit translate --provider copilot --model MODEL_NAME --force
 ```
 
 **Flags:**
@@ -87,14 +94,15 @@ lokit translate --provider copilot --model gpt-4.1 --force
 |------|---------|-------------|
 | `--provider string` | from config | AI provider ID |
 | `--model string` | from config | Model name |
+| `--target string` | all | Target name from `lokit.yaml` (repeatable or comma-separated) |
 | `--lang, -l string` | all | Comma-separated target languages |
 | `--parallel[=N]` | off (N=3) | Enable parallel translation with N workers |
 | `--chunk int` | 0 (all) | Entries per API request (0 = send all at once) |
 | `--all, -a` | false | Translate all entries, including already translated |
 | `--fuzzy` | true | Translate fuzzy entries (gettext/po4a) |
 | `--dry-run` | false | Show what would be translated without making changes |
-| `--force, -f` | false | Ignore lock file and locked keys, re-translate everything |
-| `--prompt string` | — | Custom system prompt (`{{targetLang}}` placeholder available) |
+| `--force, -f` | false | Ignore lock file and locked keys; re-translate all non-ignored entries |
+| `--prompt string` | — | Custom system prompt (`{{targetLang}}` and `{{sourceLang}}` placeholders available) |
 | `--proxy string` | — | HTTP/HTTPS proxy URL |
 | `--api-key string` | — | API key (overrides stored credentials) |
 | `--base-url string` | — | Custom API endpoint (`custom-openai` or `ollama`) |
@@ -184,7 +192,7 @@ lokit lock status --json
 | Flag | Description |
 |------|-------------|
 | `--target string` | Show status for specific target only |
-| `--verbose, -v` | Show per-key details |
+| `--verbose, -v` | Show per-language lock breakdown |
 | `--json` | Output as JSON |
 
 ### `lokit lock init`
@@ -205,19 +213,24 @@ lokit lock init --target app
 
 ### `lokit lock clean`
 
-Remove stale lock entries that no longer exist in source files.
+Remove stale lock entries that no longer exist in source files and orphan lock targets that no longer exist in the current `lokit.yaml` configuration.
+
+When `--target` is used, stale entries are checked only for the selected target, and orphan lock targets are removed only within that target namespace. For example, `--target app` can clean `app/old/de`, but it will not touch `app-extra/de`.
+
+If a target was removed from `lokit.yaml` entirely, run `lokit lock clean` without `--target` to remove its old lock namespace.
 
 ```bash
-lokit lock clean --dry-run   # Preview what would be removed
-lokit lock clean              # Remove stale entries
+lokit lock clean --dry-run       # Preview what would be removed
+lokit lock clean                 # Remove stale and orphan entries
+lokit lock clean --target app    # Clean only the app target namespace
 ```
 
 **Flags:**
 
 | Flag | Description |
 |------|-------------|
-| `--target string` | Clean specific target only |
-| `--dry-run` | Preview without making changes |
+| `--target string` | Clean only a specific target namespace |
+| `--dry-run` | Preview stale and orphan entries without making changes |
 
 ### `lokit lock reset`
 

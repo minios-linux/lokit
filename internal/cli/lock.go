@@ -37,7 +37,7 @@ func newLockCmd() *cobra.Command {
 Subcommands:
   init    Initialize lock entries from source strings without AI calls
   status  Show lock statistics
-  clean   Remove stale lock entries not present in source
+  clean   Remove stale entries and orphan lock targets
   reset   Remove all or part of lock data`),
 	}
 
@@ -109,8 +109,9 @@ func newLockCleanCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "clean",
-		Short: T("Remove stale lock entries"),
-		Long: T(`Remove lock entries that no longer exist in source files.
+		Short: T("Remove stale and orphan lock entries"),
+		Long: T(`Remove lock entries that no longer exist in source files and lock targets
+that no longer exist in the current lokit.yaml configuration.
 
 Examples:
   lokit lock clean
@@ -122,7 +123,7 @@ Examples:
 	}
 
 	cmd.Flags().StringVar(&target, "target", "", T("Target name from lokit.yaml (default: all targets)"))
-	cmd.Flags().BoolVar(&dryRun, "dry-run", false, T("Show stale entries without modifying lokit.lock"))
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, T("Show stale and orphan entries without modifying lokit.lock"))
 	return cmd
 }
 
@@ -360,11 +361,21 @@ func runLockStatus(target string, verbose bool, jsonOut bool) {
 }
 
 func runLockClean(target string, dryRun bool) {
-	resolved, err := loadResolvedTargets(target)
+	allResolved, err := loadResolvedTargets("")
 	if err != nil {
 		logError(T("%v"), err)
 		os.Exit(1)
 	}
+
+	resolved := allResolved
+	if target != "" {
+		resolved, err = filterResolvedTargetsByNames(allResolved, []string{target})
+		if err != nil {
+			logError(T("%v"), err)
+			os.Exit(1)
+		}
+	}
+	orphanScopes := orphanCleanupScopes(allResolved, resolved, target)
 
 	lf, err := lockfile.Load(rootDir)
 	if err != nil {
@@ -374,12 +385,14 @@ func runLockClean(target string, dryRun bool) {
 
 	totalRemoved := 0
 	hadErrors := false
+	expectedTargets, blockedOrphanScopes := expectedLockTargets(allResolved)
 
 	for _, rt := range resolved {
 		sourceEntries, err := collectSourceEntries(rt)
 		if err != nil {
 			logWarning(T("[%s] %v"), rt.Target.Name, err)
 			hadErrors = true
+			blockedOrphanScopes[rt.Target.Name] = struct{}{}
 			continue
 		}
 
@@ -391,6 +404,7 @@ func runLockClean(target string, dryRun bool) {
 				if len(units) == 0 {
 					logWarning(T("[%s/%s] cannot read any po4a PO files"), rt.Target.Name, lang)
 					hadErrors = true
+					blockedOrphanScopes[lockfile.LockTargetKey(rt.Target.Name, lang)] = struct{}{}
 					continue
 				}
 				for _, unit := range units {
@@ -432,8 +446,24 @@ func runLockClean(target string, dryRun bool) {
 		}
 	}
 
+	if len(blockedOrphanScopes) > 0 {
+		logWarning(T("Skipping orphan lock target cleanup for scopes with unresolved sources"))
+	}
+	for _, orphan := range orphanLockTargets(lf, expectedTargets, orphanScopes, blockedOrphanScopes) {
+		tracked := lf.TargetKeyCount(orphan)
+		if dryRun {
+			logInfo(T("[%s] orphan lock target: %d tracked"), orphan, tracked)
+			totalRemoved += tracked
+			continue
+		}
+
+		lf.RemoveTarget(orphan)
+		logInfo(T("[%s] removed orphan lock target: %d"), orphan, tracked)
+		totalRemoved += tracked
+	}
+
 	if dryRun {
-		logInfo(T("Dry run: total stale entries: %d"), totalRemoved)
+		logInfo(T("Dry run: total stale/orphan entries: %d"), totalRemoved)
 		if hadErrors {
 			os.Exit(1)
 		}
@@ -444,7 +474,7 @@ func runLockClean(target string, dryRun bool) {
 		logError(T("Could not save lock file: %v"), err)
 		os.Exit(1)
 	}
-	logSuccess(T("Removed stale entries: %d"), totalRemoved)
+	logSuccess(T("Removed stale/orphan entries: %d"), totalRemoved)
 
 	if hadErrors {
 		os.Exit(1)
@@ -720,16 +750,9 @@ func collectPo4aLockUnits(rt config.ResolvedTarget, lang string) []po4aLockUnit 
 }
 
 func lockTargetKeysFor(rt config.ResolvedTarget, lang string) []string {
-	if rt.Target.Type != config.TargetTypePo4a {
+	keys, ok := po4aAwareLockTargetKeysFor(rt, lang)
+	if !ok {
 		return []string{lockfile.LockTargetKey(rt.Target.Name, lang)}
-	}
-	files := rt.DocsPOFiles(lang)
-	if len(files) == 0 {
-		return []string{lockfile.LockTargetKey(rt.Target.Name, lang)}
-	}
-	keys := make([]string, 0, len(files))
-	for _, file := range files {
-		keys = append(keys, lockfile.LockTargetKey(rt.Target.Name+"/"+file.Master, lang))
 	}
 	return keys
 }
@@ -1036,6 +1059,181 @@ func countStaleKeys(tracked []string, current []string) int {
 		}
 	}
 	return stale
+}
+
+func expectedLockTargets(resolved []config.ResolvedTarget) (map[string]struct{}, map[string]struct{}) {
+	expected := make(map[string]struct{})
+	blockedScopes := make(map[string]struct{})
+	for _, rt := range resolved {
+		langs := filterOutLang(rt.Languages, rt.Target.SourceLang)
+		for _, lang := range langs {
+			keys, ok := po4aAwareLockTargetKeysFor(rt, lang)
+			if !ok {
+				blockedScopes[lockfile.LockTargetKey(rt.Target.Name, lang)] = struct{}{}
+				continue
+			}
+			for _, key := range keys {
+				expected[key] = struct{}{}
+			}
+		}
+	}
+	return expected, blockedScopes
+}
+
+func po4aAwareLockTargetKeysFor(rt config.ResolvedTarget, lang string) ([]string, bool) {
+	if rt.Target.Type != config.TargetTypePo4a {
+		return []string{lockfile.LockTargetKey(rt.Target.Name, lang)}, true
+	}
+
+	masters, err := rt.DocsPOMasters()
+	if err == nil && len(masters) > 0 {
+		keys := make([]string, 0, len(masters))
+		for _, master := range masters {
+			keys = append(keys, lockfile.LockTargetKey(rt.Target.Name+"/"+master, lang))
+		}
+		return keys, true
+	}
+
+	files := rt.DocsPOFiles(lang)
+	if len(files) == 0 {
+		return nil, false
+	}
+
+	keys := make([]string, 0, len(files))
+	for _, file := range files {
+		keys = append(keys, lockfile.LockTargetKey(rt.Target.Name+"/"+file.Master, lang))
+	}
+	return keys, true
+}
+
+type orphanScope struct {
+	name       string
+	targetType string
+	langs      map[string]struct{}
+	prefix     bool
+}
+
+func orphanCleanupScopes(allResolved, selected []config.ResolvedTarget, targetFilter string) []orphanScope {
+	if targetFilter == "" {
+		return nil
+	}
+
+	selectedByName := make(map[string]config.ResolvedTarget, len(selected))
+	for _, rt := range selected {
+		selectedByName[rt.Target.Name] = rt
+	}
+
+	var scopes []orphanScope
+	seen := make(map[string]struct{})
+	for _, raw := range strings.Split(targetFilter, ",") {
+		name := strings.TrimSpace(raw)
+		if name == "" {
+			continue
+		}
+		if rt, ok := selectedByName[name]; ok {
+			if _, exists := seen["exact:"+name]; exists {
+				continue
+			}
+			scopes = append(scopes, orphanScopeForTarget(rt))
+			seen["exact:"+name] = struct{}{}
+			continue
+		}
+
+		matchedPrefix := false
+		for _, rt := range allResolved {
+			if strings.HasPrefix(rt.Target.Name, name+"/") {
+				matchedPrefix = true
+				break
+			}
+		}
+		if matchedPrefix {
+			if _, exists := seen["prefix:"+name]; exists {
+				continue
+			}
+			scopes = append(scopes, orphanScope{name: name, prefix: true})
+			seen["prefix:"+name] = struct{}{}
+		}
+	}
+	return scopes
+}
+
+func orphanScopeForTarget(rt config.ResolvedTarget) orphanScope {
+	langs := filterOutLang(rt.Languages, rt.Target.SourceLang)
+	langSet := make(map[string]struct{}, len(langs))
+	for _, lang := range langs {
+		langSet[lang] = struct{}{}
+	}
+	return orphanScope{name: rt.Target.Name, targetType: rt.Target.Type, langs: langSet}
+}
+
+func orphanLockTargets(lf *lockfile.LockFile, expected map[string]struct{}, scopes []orphanScope, blockedScopes map[string]struct{}) []string {
+	var orphans []string
+	for _, target := range lf.Targets() {
+		if _, ok := expected[target]; ok {
+			continue
+		}
+		if !lockTargetInOrphanScopes(target, scopes) {
+			continue
+		}
+		if lockTargetBlocked(target, blockedScopes) {
+			continue
+		}
+		orphans = append(orphans, target)
+	}
+	return orphans
+}
+
+func lockTargetInOrphanScopes(lockTarget string, scopes []orphanScope) bool {
+	if len(scopes) == 0 {
+		return true
+	}
+	for _, scope := range scopes {
+		if scope.prefix {
+			if lockTargetInScope(lockTarget, scope.name) {
+				return true
+			}
+			continue
+		}
+		if lockTargetInExactTargetScope(lockTarget, scope) {
+			return true
+		}
+	}
+	return false
+}
+
+func lockTargetInExactTargetScope(lockTarget string, scope orphanScope) bool {
+	for lang := range scope.langs {
+		if lockTarget == lockfile.LockTargetKey(scope.name, lang) {
+			return true
+		}
+		if scope.targetType == config.TargetTypePo4a && lockTargetMatchesLanguageScope(lockTarget, lockfile.LockTargetKey(scope.name, lang)) {
+			return true
+		}
+	}
+	return false
+}
+
+func lockTargetBlocked(lockTarget string, blockedScopes map[string]struct{}) bool {
+	for scope := range blockedScopes {
+		if lockTargetInScope(lockTarget, scope) || lockTargetMatchesLanguageScope(lockTarget, scope) {
+			return true
+		}
+	}
+	return false
+}
+
+func lockTargetMatchesLanguageScope(lockTarget, scope string) bool {
+	parts := strings.Split(scope, "/")
+	if len(parts) < 2 {
+		return false
+	}
+	targetName := strings.Join(parts[:len(parts)-1], "/")
+	lang := parts[len(parts)-1]
+	return strings.HasPrefix(lockTarget, targetName+"/") && strings.HasSuffix(lockTarget, "/"+lang)
+}
+
+func lockTargetInScope(lockTarget, targetFilter string) bool {
+	return lockTarget == targetFilter || strings.HasPrefix(lockTarget, targetFilter+"/")
 }
 
 func confirmAction(prompt string) bool {

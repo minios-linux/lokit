@@ -792,7 +792,7 @@ func TestCallOpenAI_RejectsNonOAuthModel(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error for non-OAuth model without API key")
 	}
-	if !strings.Contains(err.Error(), "GPT-5/Codex models") {
+	if !strings.Contains(err.Error(), "OAuth-compatible OpenAI model") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }

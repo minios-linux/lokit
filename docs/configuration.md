@@ -39,7 +39,7 @@ provider:
   id: copilot                # Required: copilot | gemini | google | groq | opencode | openai | ollama | custom-openai
   model: gpt-4.1             # Required: model name
   # base_url: http://...     # custom-openai/ollama only
-  # prompt: "Custom prompt"  # Global prompt override (supports {{targetLang}})
+  # prompt: "Custom prompt"  # Global prompt override (supports {{targetLang}} and {{sourceLang}})
   # settings:
   #   temperature: 0.3       # 0.0–2.0
 

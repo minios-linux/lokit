@@ -182,7 +182,7 @@ func newRootCmd() *cobra.Command {
 		Short: T("Localization Kit: AI-powered translation for multiple formats"),
 		Long: T(`lokit — Localization Kit: AI-powered translation for multiple formats.
 
-Supported project formats (auto-detected or configured via lokit.yaml):
+Supported target formats configured via lokit.yaml:
   gettext     Flat (po/*.po) and nested (po/lang/*.po) PO files
   po4a        Documentation translation (man pages, groff/roff markup)
   i18next     Flat JSON translation files (key-value map)

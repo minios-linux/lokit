@@ -177,7 +177,7 @@ app/src/main/res/
 **Notes:**
 - Android uses a fixed directory convention (`values-<lang>/strings.xml`)
 - No `pattern` needed — the directory layout is determined by the Android resource system
-- `lokit init` creates missing `values-<lang>/` directories with empty `strings.xml`
+- `lokit init` is not required for Android targets; use `lokit translate` directly
 
 ---
 

@@ -1,7 +1,14 @@
 package cli
 
 import (
+	"os"
+	"path/filepath"
+	"reflect"
+	"sort"
 	"testing"
+
+	"github.com/minios-linux/lokit/config"
+	"github.com/minios-linux/lokit/lockfile"
 )
 
 func TestNewLockCmdSubcommands(t *testing.T) {
@@ -37,6 +44,194 @@ func TestCountStaleKeys(t *testing.T) {
 
 	if got := countStaleKeys(nil, current); got != 0 {
 		t.Fatalf("countStaleKeys(nil) = %d, want 0", got)
+	}
+}
+
+func TestOrphanLockTargetsPrefixScope(t *testing.T) {
+	lf := &lockfile.LockFile{
+		Checksums: map[string]map[string]string{
+			"app/de":       {"hello": "hash"},
+			"app/es":       {"hello": "hash"},
+			"app/old/de":   {"stale": "hash"},
+			"app/ui/de":    {"keep": "hash"},
+			"app-extra/de": {"keep": "hash"},
+		},
+	}
+	expected := map[string]struct{}{
+		"app/de":       {},
+		"app/ui/de":    {},
+		"app-extra/de": {},
+	}
+	scopes := []orphanScope{{name: "app", prefix: true}}
+
+	got := orphanLockTargets(lf, expected, scopes, nil)
+	want := []string{"app/es", "app/old/de"}
+	sort.Strings(got)
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("orphanLockTargets = %v, want %v", got, want)
+	}
+}
+
+func TestOrphanLockTargetsExactScopeDoesNotCleanNestedTarget(t *testing.T) {
+	lf := &lockfile.LockFile{
+		Checksums: map[string]map[string]string{
+			"app/de":    {"hello": "hash"},
+			"app/es":    {"hello": "hash"},
+			"app/ui/de": {"keep": "hash"},
+		},
+	}
+	expected := map[string]struct{}{
+		"app/de": {},
+	}
+	scopes := []orphanScope{{name: "app", targetType: config.TargetTypeYAML, langs: map[string]struct{}{"de": {}, "es": {}}}}
+
+	got := orphanLockTargets(lf, expected, scopes, nil)
+	if len(got) != 1 || got[0] != "app/es" {
+		t.Fatalf("orphanLockTargets = %v, want [app/es]", got)
+	}
+}
+
+func TestOrphanCleanupScopesExactBeatsPrefix(t *testing.T) {
+	allResolved := []config.ResolvedTarget{
+		{Target: config.Target{Name: "app", Type: config.TargetTypeYAML, Languages: []string{"de"}}, Languages: []string{"de"}},
+		{Target: config.Target{Name: "app/ui", Type: config.TargetTypeYAML, Languages: []string{"de"}}, Languages: []string{"de"}},
+	}
+	selected := []config.ResolvedTarget{allResolved[0]}
+
+	scopes := orphanCleanupScopes(allResolved, selected, "app")
+	if len(scopes) != 1 {
+		t.Fatalf("len(scopes) = %d, want 1", len(scopes))
+	}
+	if scopes[0].prefix {
+		t.Fatalf("expected exact scope, got prefix scope: %+v", scopes[0])
+	}
+	if scopes[0].name != "app" {
+		t.Fatalf("scope name = %q, want app", scopes[0].name)
+	}
+}
+
+func TestOrphanLockTargetsAllTargets(t *testing.T) {
+	lf := &lockfile.LockFile{
+		Checksums: map[string]map[string]string{
+			"app/de":   {"hello": "hash"},
+			"old/de":   {"stale": "hash"},
+			"other/de": {"keep": "hash"},
+		},
+	}
+	expected := map[string]struct{}{
+		"app/de":   {},
+		"other/de": {},
+	}
+
+	got := orphanLockTargets(lf, expected, nil, nil)
+	if len(got) != 1 || got[0] != "old/de" {
+		t.Fatalf("orphanLockTargets = %v, want [old/de]", got)
+	}
+}
+
+func TestExpectedLockTargetsPo4aFromConfiguredMasters(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "po4a.cfg"), []byte(`[po4a_langs] de
+[po4a_paths] pot/$master.pot $lang:po/$lang/$master.po
+[type: man] chapter1.1 $lang:translated/$lang/chapter1.1
+[type: man] chapter2.1 $lang:translated/$lang/chapter2.1
+`), 0o644); err != nil {
+		t.Fatalf("write po4a.cfg: %v", err)
+	}
+
+	resolved := []config.ResolvedTarget{
+		{
+			Target: config.Target{
+				Name:      "docs",
+				Type:      config.TargetTypePo4a,
+				Config:    "po4a.cfg",
+				Languages: []string{"de"},
+			},
+			AbsRoot:   dir,
+			Languages: []string{"de"},
+		},
+	}
+
+	got, blocked := expectedLockTargets(resolved)
+	if len(blocked) != 0 {
+		t.Fatalf("blocked scopes = %v, want none", blocked)
+	}
+	for _, key := range []string{"docs/chapter1.1/de", "docs/chapter2.1/de"} {
+		if _, ok := got[key]; !ok {
+			t.Fatalf("missing expected lock target %q in %v", key, got)
+		}
+	}
+
+	statusKeys := lockTargetKeysFor(resolved[0], "de")
+	if len(statusKeys) != 2 || statusKeys[0] != "docs/chapter1.1/de" || statusKeys[1] != "docs/chapter2.1/de" {
+		t.Fatalf("lockTargetKeysFor = %v, want configured po4a masters", statusKeys)
+	}
+}
+
+func TestExpectedLockTargetsPo4aBlocksUnresolvedConfig(t *testing.T) {
+	resolved := []config.ResolvedTarget{
+		{
+			Target: config.Target{
+				Name:      "docs",
+				Type:      config.TargetTypePo4a,
+				Config:    "po4a.cfg",
+				Languages: []string{"de"},
+			},
+			AbsRoot:   t.TempDir(),
+			Languages: []string{"de"},
+		},
+	}
+
+	got, blocked := expectedLockTargets(resolved)
+	if len(got) != 0 {
+		t.Fatalf("len(expectedLockTargets) = %d, want 0", len(got))
+	}
+	if _, ok := blocked["docs/de"]; !ok {
+		t.Fatalf("blocked scopes = %v, want docs/de", blocked)
+	}
+}
+
+func TestLockTargetInScope(t *testing.T) {
+	tests := []struct {
+		lockTarget   string
+		targetFilter string
+		want         bool
+	}{
+		{lockTarget: "app/de", targetFilter: "app", want: true},
+		{lockTarget: "app/master/de", targetFilter: "app", want: true},
+		{lockTarget: "app", targetFilter: "app", want: true},
+		{lockTarget: "app-extra/de", targetFilter: "app", want: false},
+	}
+
+	for _, tt := range tests {
+		tc := tt
+		t.Run(tc.lockTarget, func(t *testing.T) {
+			if got := lockTargetInScope(tc.lockTarget, tc.targetFilter); got != tc.want {
+				t.Fatalf("lockTargetInScope(%q, %q) = %v, want %v", tc.lockTarget, tc.targetFilter, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestLockTargetBlockedLanguageScope(t *testing.T) {
+	blocked := map[string]struct{}{"docs/de": {}}
+
+	if !lockTargetBlocked("docs/chapter1.1/de", blocked) {
+		t.Fatal("expected docs/chapter1.1/de to be blocked by docs/de")
+	}
+	if lockTargetBlocked("docs/chapter1.1/fr", blocked) {
+		t.Fatal("did not expect docs/chapter1.1/fr to be blocked by docs/de")
+	}
+	if lockTargetBlocked("docs-extra/chapter1.1/de", blocked) {
+		t.Fatal("did not expect docs-extra/chapter1.1/de to be blocked by docs/de")
+	}
+
+	blocked = map[string]struct{}{"app/ui/de": {}}
+	if !lockTargetBlocked("app/ui/page/de", blocked) {
+		t.Fatal("expected slash-named target language scope to block matching lock target")
+	}
+	if lockTargetBlocked("app/ui/page/fr", blocked) {
+		t.Fatal("did not expect slash-named target language scope to block another language")
 	}
 }
 
