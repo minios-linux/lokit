@@ -104,7 +104,7 @@ Examples:
 }
 
 func newLockCleanCmd() *cobra.Command {
-	var target string
+	var targets []string
 	var dryRun bool
 
 	cmd := &cobra.Command{
@@ -118,11 +118,11 @@ Examples:
   lokit lock clean --target ui
   lokit lock clean --dry-run`),
 		Run: func(cmd *cobra.Command, args []string) {
-			runLockClean(target, dryRun)
+			runLockClean(targets, dryRun)
 		},
 	}
 
-	cmd.Flags().StringVar(&target, "target", "", T("Target name from lokit.yaml (default: all targets)"))
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, T("Show stale and orphan entries without modifying lokit.lock"))
 	return cmd
 }
@@ -360,7 +360,7 @@ func runLockStatus(target string, verbose bool, jsonOut bool) {
 	}
 }
 
-func runLockClean(target string, dryRun bool) {
+func runLockClean(targets []string, dryRun bool) {
 	allResolved, err := loadResolvedTargets("")
 	if err != nil {
 		logError(T("%v"), err)
@@ -368,14 +368,14 @@ func runLockClean(target string, dryRun bool) {
 	}
 
 	resolved := allResolved
-	if target != "" {
-		resolved, err = filterResolvedTargetsByNames(allResolved, []string{target})
+	if len(targets) > 0 {
+		resolved, err = filterResolvedTargetsByNames(allResolved, targets)
 		if err != nil {
 			logError(T("%v"), err)
 			os.Exit(1)
 		}
 	}
-	orphanScopes := orphanCleanupScopes(allResolved, resolved, target)
+	orphanScopes := orphanCleanupScopes(allResolved, resolved, targets)
 
 	lf, err := lockfile.Load(rootDir)
 	if err != nil {
@@ -1113,8 +1113,8 @@ type orphanScope struct {
 	prefix     bool
 }
 
-func orphanCleanupScopes(allResolved, selected []config.ResolvedTarget, targetFilter string) []orphanScope {
-	if targetFilter == "" {
+func orphanCleanupScopes(allResolved, selected []config.ResolvedTarget, targets []string) []orphanScope {
+	if len(targets) == 0 {
 		return nil
 	}
 
@@ -1125,33 +1125,35 @@ func orphanCleanupScopes(allResolved, selected []config.ResolvedTarget, targetFi
 
 	var scopes []orphanScope
 	seen := make(map[string]struct{})
-	for _, raw := range strings.Split(targetFilter, ",") {
-		name := strings.TrimSpace(raw)
-		if name == "" {
-			continue
-		}
-		if rt, ok := selectedByName[name]; ok {
-			if _, exists := seen["exact:"+name]; exists {
+	for _, raw := range targets {
+		for _, part := range strings.Split(raw, ",") {
+			name := strings.TrimSpace(part)
+			if name == "" {
 				continue
 			}
-			scopes = append(scopes, orphanScopeForTarget(rt))
-			seen["exact:"+name] = struct{}{}
-			continue
-		}
+			if rt, ok := selectedByName[name]; ok {
+				if _, exists := seen["exact:"+name]; exists {
+					continue
+				}
+				scopes = append(scopes, orphanScopeForTarget(rt))
+				seen["exact:"+name] = struct{}{}
+				continue
+			}
 
-		matchedPrefix := false
-		for _, rt := range allResolved {
-			if strings.HasPrefix(rt.Target.Name, name+"/") {
-				matchedPrefix = true
-				break
+			matchedPrefix := false
+			for _, rt := range allResolved {
+				if strings.HasPrefix(rt.Target.Name, name+"/") {
+					matchedPrefix = true
+					break
+				}
 			}
-		}
-		if matchedPrefix {
-			if _, exists := seen["prefix:"+name]; exists {
-				continue
+			if matchedPrefix {
+				if _, exists := seen["prefix:"+name]; exists {
+					continue
+				}
+				scopes = append(scopes, orphanScope{name: name, prefix: true})
+				seen["prefix:"+name] = struct{}{}
 			}
-			scopes = append(scopes, orphanScope{name: name, prefix: true})
-			seen["prefix:"+name] = struct{}{}
 		}
 	}
 	return scopes

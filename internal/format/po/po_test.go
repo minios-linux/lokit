@@ -160,3 +160,24 @@ func TestWriteObsoleteMultilineMsgstr(t *testing.T) {
 		t.Fatalf("msgstr round-trip = %q, want %q", got, f.Entries[0].MsgStr)
 	}
 }
+
+func TestWriteEmptyTranslatorCommentWithoutTrailingSpace(t *testing.T) {
+	f := NewFile()
+	f.Entries = []*Entry{{
+		TranslatorComments: []string{""},
+		MsgID:              "hello",
+		MsgStr:             "hallo",
+	}}
+
+	var buf bytes.Buffer
+	if err := f.Write(&buf); err != nil {
+		t.Fatalf("Write() error = %v", err)
+	}
+
+	if strings.Contains(buf.String(), "# \n") {
+		t.Fatalf("empty translator comment has trailing space: %q", buf.String())
+	}
+	if !strings.Contains(buf.String(), "#\n") {
+		t.Fatalf("empty translator comment missing: %q", buf.String())
+	}
+}

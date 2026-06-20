@@ -272,7 +272,7 @@ func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov tr
 		for _, lang := range langs {
 			langName := i18next.ResolveMeta(lang).Name
 			count := len(sourceValues)
-			if !a.retranslate {
+			if !a.retranslate && !a.force {
 				if f, err := parseIndexJSONFile(rt.TranslationPath(lang)); err == nil {
 					for k := range sourceValues {
 						if _, ok := f.translations[k]; !ok {
@@ -341,7 +341,7 @@ func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov tr
 				f.translations[key] = ""
 			}
 		}
-		if !a.retranslate && len(f.UntranslatedKeys()) == 0 {
+		if !a.retranslate && !a.force && len(f.UntranslatedKeys()) == 0 {
 			continue
 		}
 

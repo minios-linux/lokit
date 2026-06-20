@@ -78,7 +78,7 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
 
 		var keysToTranslate []string
-		if opts.RetranslateExisting {
+		if opts.RetranslateExisting || opts.ForceTranslate {
 			keysToTranslate = task.File.Keys()
 		} else {
 			keysToTranslate = task.File.UntranslatedKeys()
@@ -137,7 +137,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
 
 		var keys []string
-		if opts.RetranslateExisting {
+		if opts.RetranslateExisting || opts.ForceTranslate {
 			keys = lt.File.Keys()
 		} else {
 			keys = lt.File.UntranslatedKeys()

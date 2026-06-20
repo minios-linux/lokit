@@ -424,7 +424,11 @@ func writeEntry(w *bufio.Writer, e *Entry) error {
 
 	// Translator comments
 	for _, c := range e.TranslatorComments {
-		fmt.Fprintf(w, "# %s\n", c)
+		if c == "" {
+			fmt.Fprintln(w, "#")
+		} else {
+			fmt.Fprintf(w, "# %s\n", c)
+		}
 	}
 
 	// Extracted comments

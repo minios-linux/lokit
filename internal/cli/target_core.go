@@ -169,8 +169,8 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			}
 		}
 
-		// Skip if already fully translated (unless retranslate)
-		if !a.retranslate {
+		// Skip if already fully translated unless a full re-run was requested.
+		if !a.retranslate && !a.force {
 			untranslated := poFile.UntranslatedEntries()
 			fuzzyEntries := poFile.FuzzyEntries()
 			if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
@@ -218,7 +218,7 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 					logInfo(T("%s: PO file not found at %s"), lang, file.Path)
 					continue
 				}
-				if a.retranslate {
+				if a.retranslate || a.force {
 					for _, e := range poFile.Entries {
 						if e.MsgID != "" && !e.Obsolete {
 							count++
@@ -331,8 +331,8 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 				continue
 			}
 
-			// Skip if already fully translated (unless retranslate)
-			if !a.retranslate {
+			// Skip if already fully translated unless a full re-run was requested.
+			if !a.retranslate && !a.force {
 				untranslated := poFile.UntranslatedEntries()
 				fuzzyEntries := poFile.FuzzyEntries()
 				if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
@@ -387,7 +387,7 @@ func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov
 				continue
 			}
 			count := len(file.UntranslatedKeys())
-			if a.retranslate {
+			if a.retranslate || a.force {
 				count = len(file.Keys())
 			}
 			langName := i18next.ResolveMeta(lang).Name
@@ -448,7 +448,7 @@ func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov
 			logInfo(T("Auto-creating %s with %d keys"), filePath, len(srcKeys))
 		}
 
-		if !a.retranslate && len(file.UntranslatedKeys()) == 0 {
+		if !a.retranslate && !a.force && len(file.UntranslatedKeys()) == 0 {
 			continue
 		}
 
@@ -503,7 +503,7 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			}
 			untranslated := file.UntranslatedKeys()
 			count := len(untranslated)
-			if a.retranslate {
+			if a.retranslate || a.force {
 				_, count, _ = file.Stats()
 				count = srcTotal // retranslate all
 			}
@@ -571,8 +571,8 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			}
 		}
 
-		// Skip if already fully translated (unless retranslate)
-		if !a.retranslate {
+		// Skip if already fully translated unless a full re-run was requested.
+		if !a.retranslate && !a.force {
 			untranslated := file.UntranslatedKeys()
 			if len(untranslated) == 0 {
 				continue

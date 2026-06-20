@@ -315,6 +315,132 @@ func TestApplyPluralTranslations_PreservesFuzzyWhenNotClearing(t *testing.T) {
 	}
 }
 
+func TestApplyTranslationsPreservesSourceTrailingNewline(t *testing.T) {
+	entries := []*po.Entry{{MsgID: "nginx +st=server\n"}}
+
+	applyTranslations(entries, []string{`nginx +st=server\n`}, true)
+
+	if got, want := entries[0].MsgStr, "nginx +st=server\n"; got != want {
+		t.Fatalf("MsgStr = %q, want %q", got, want)
+	}
+}
+
+func TestApplyTranslationsRemovesUnexpectedTrailingNewline(t *testing.T) {
+	entries := []*po.Entry{{MsgID: "Single Filters"}}
+
+	applyTranslations(entries, []string{"Einzelfilter\n"}, true)
+
+	if got, want := entries[0].MsgStr, "Einzelfilter"; got != want {
+		t.Fatalf("MsgStr = %q, want %q", got, want)
+	}
+}
+
+func TestApplyTranslationsRemovesUnexpectedLeadingNewline(t *testing.T) {
+	entries := []*po.Entry{{MsgID: "These options must be provided:"}}
+
+	applyTranslations(entries, []string{"\nEstas opções devem ser fornecidas:"}, true)
+
+	if got, want := entries[0].MsgStr, "Estas opções devem ser fornecidas:"; got != want {
+		t.Fatalf("MsgStr = %q, want %q", got, want)
+	}
+}
+
+func TestApplyTranslationsPreservesSourceLeadingNewline(t *testing.T) {
+	entries := []*po.Entry{{MsgID: "\nIndented block"}}
+
+	applyTranslations(entries, []string{`\nBloco indentado`}, true)
+
+	if got, want := entries[0].MsgStr, "\nBloco indentado"; got != want {
+		t.Fatalf("MsgStr = %q, want %q", got, want)
+	}
+}
+
+func TestApplyTranslationsRestoresInternalEscapedNewlines(t *testing.T) {
+	entries := []*po.Entry{{MsgID: "\\f[C]\nminios-live -\\fR\n\n"}}
+
+	applyTranslations(entries, []string{`\f[C]\nminios-live -\fR\n` + "\n"}, true)
+
+	want := "\\f[C]\nminios-live -\\fR\n\n"
+	if got := entries[0].MsgStr; got != want {
+		t.Fatalf("MsgStr = %q, want %q", got, want)
+	}
+	if strings.Contains(entries[0].MsgStr, `\n`) {
+		t.Fatalf("MsgStr = %q, contains literal newline escape", entries[0].MsgStr)
+	}
+}
+
+func TestApplyTranslationsPreservesSingleUppercaseGroffToken(t *testing.T) {
+	tests := []struct {
+		name        string
+		source      string
+		translation string
+	}{
+		{
+			name:        "bold token with underscore",
+			source:      `\f[B]SOURCE_IDENTIFIER\fR`,
+			translation: `\f[B]IDENTIFICADOR_FUENTE\fR`,
+		},
+		{
+			name:        "bold token without underscore",
+			source:      `\f[B]FEATURE\fR`,
+			translation: `\f[B]FUNCAO\fR`,
+		},
+		{
+			name:        "code token",
+			source:      `\f[C]SOURCE_IDENTIFIER\fR`,
+			translation: `\f[C]IDENTIFICADOR_FUENTE\fR`,
+		},
+		{
+			name:        "snake case token",
+			source:      `\f[B]source_identifier\fR`,
+			translation: `\f[B]identificador_fuente\fR`,
+		},
+		{
+			name:        "mixed snake case token",
+			source:      `\f[B]source_ID\fR`,
+			translation: `\f[B]identificador_ID\fR`,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			entries := []*po.Entry{{MsgID: tc.source}}
+
+			applyTranslations(entries, []string{tc.translation}, true)
+
+			if got, want := entries[0].MsgStr, entries[0].MsgID; got != want {
+				t.Fatalf("MsgStr = %q, want %q", got, want)
+			}
+		})
+	}
+}
+
+func TestApplyTranslationsTranslatesSingleLowercaseGroffWord(t *testing.T) {
+	entries := []*po.Entry{{MsgID: `\f[B]feature\fR`}}
+
+	applyTranslations(entries, []string{`\f[B]funcion\fR`}, true)
+
+	if got, want := entries[0].MsgStr, `\f[B]funcion\fR`; got != want {
+		t.Fatalf("MsgStr = %q, want %q", got, want)
+	}
+}
+
+func TestApplyPluralTranslationsPreservesPluralSourceTrailingNewline(t *testing.T) {
+	entries := []*po.Entry{{MsgID: "%d file", MsgIDPlural: "%d files\n"}}
+	translations := []pluralTranslation{{plural: []string{`%d файл\n`, `%d файла\n`, `%d файлов\n`}}}
+
+	applyPluralTranslations(entries, translations, true)
+
+	for idx, got := range entries[0].MsgStrPlural {
+		if !strings.HasSuffix(got, "\n") {
+			t.Fatalf("MsgStrPlural[%d] = %q, want trailing newline", idx, got)
+		}
+		if strings.HasSuffix(got, `\n`) {
+			t.Fatalf("MsgStrPlural[%d] = %q, contains literal newline escape", idx, got)
+		}
+	}
+}
+
 // ---------------------------------------------------------------------------
 // hasPluralEntries
 // ---------------------------------------------------------------------------
@@ -480,6 +606,27 @@ func TestParseTranslations_SingleItemAcceptsJSONString(t *testing.T) {
 	}
 	if len(translations) != 1 || translations[0] != "Privet" {
 		t.Fatalf("unexpected parsed translations: %#v", translations)
+	}
+}
+
+func TestParseTranslations_PreservesGroffFontEscapes(t *testing.T) {
+	content := `["\f[B]MENU_LANG\f[R]: \\[lq]multilang\\[rq]\fR"]`
+	translations, err := parseTranslations(content, 1)
+	if err != nil {
+		t.Fatalf("parseTranslations returned error: %v", err)
+	}
+	want := `\f[B]MENU_LANG\f[R]: \[lq]multilang\[rq]\fR`
+	if len(translations) != 1 || translations[0] != want {
+		t.Fatalf("unexpected parsed translations: %#v, want %q", translations, want)
+	}
+}
+
+func TestNormalizePOTranslationNewlines_RestoresGroffFontEscapes(t *testing.T) {
+	source := `\f[B]MENU_LANG\f[R]: \[lq]multilang\[rq]\fR`
+	translation := "\f[B]MENU_LANG\f[R]: \\[lq]multilang\\[rq]\fR"
+	want := source
+	if got := normalizePOTranslationNewlines(source, translation); got != want {
+		t.Fatalf("normalizePOTranslationNewlines() = %q, want %q", got, want)
 	}
 }
 
@@ -819,6 +966,39 @@ func TestCollectEntries_RetranslateIgnoresLock(t *testing.T) {
 	}
 }
 
+func TestCollectEntries_ForceSelectsTranslatedEntries(t *testing.T) {
+	f := po.NewFile()
+	e := &po.Entry{MsgID: "Hello", MsgStr: "Hallo"}
+	f.Entries = append(f.Entries, e)
+
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+	lockTarget := lockfile.LockTargetKey("ui", "de")
+	lf.Update(lockTarget, lockfile.POEntryKey(e.MsgID, e.MsgCtxt), lockfile.POEntryContent(e.MsgID, e.MsgIDPlural))
+
+	entries := collectEntries(f, Options{
+		ForceTranslate: true,
+		LockFile:       lf,
+		LockTarget:     "ui",
+		Language:       "de",
+	})
+	if len(entries) != 1 {
+		t.Fatalf("collectEntries len=%d, want 1", len(entries))
+	}
+}
+
+func TestCollectEntries_ForceOverridesLockedKeys(t *testing.T) {
+	f := po.NewFile()
+	f.Entries = append(f.Entries, &po.Entry{MsgID: "Hello", MsgStr: "Hallo"})
+
+	entries := collectEntries(f, Options{
+		ForceTranslate: true,
+		LockedKeys:     []string{"Hello"},
+	})
+	if len(entries) != 1 {
+		t.Fatalf("collectEntries len=%d, want 1", len(entries))
+	}
+}
+
 func TestFilterChangedKeys_RetranslateIgnoresLock(t *testing.T) {
 	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
 	lockTarget := lockfile.LockTargetKey("docs", "de")
@@ -834,6 +1014,24 @@ func TestFilterChangedKeys_RetranslateIgnoresLock(t *testing.T) {
 	}
 
 	got := filterChangedKeys(keys, src, "", opts)
+	if len(got) != 1 || got[0] != "title" {
+		t.Fatalf("filterChangedKeys returned %v, want [title]", got)
+	}
+}
+
+func TestFilterChangedKeys_ForceIgnoresLock(t *testing.T) {
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf.Update(lockTarget, "title", lockfile.KVEntryContent("title", "Hello"))
+
+	keys := []string{"title"}
+	src := map[string]string{"title": "Hello"}
+	got := filterChangedKeys(keys, src, "", Options{
+		ForceTranslate: true,
+		LockFile:       lf,
+		LockTarget:     "docs",
+		Language:       "de",
+	})
 	if len(got) != 1 || got[0] != "title" {
 		t.Fatalf("filterChangedKeys returned %v, want [title]", got)
 	}

@@ -98,7 +98,7 @@ func TestOrphanCleanupScopesExactBeatsPrefix(t *testing.T) {
 	}
 	selected := []config.ResolvedTarget{allResolved[0]}
 
-	scopes := orphanCleanupScopes(allResolved, selected, "app")
+	scopes := orphanCleanupScopes(allResolved, selected, []string{"app"})
 	if len(scopes) != 1 {
 		t.Fatalf("len(scopes) = %d, want 1", len(scopes))
 	}
@@ -107,6 +107,29 @@ func TestOrphanCleanupScopesExactBeatsPrefix(t *testing.T) {
 	}
 	if scopes[0].name != "app" {
 		t.Fatalf("scope name = %q, want app", scopes[0].name)
+	}
+}
+
+func TestOrphanCleanupScopesMultipleTargets(t *testing.T) {
+	allResolved := []config.ResolvedTarget{
+		{Target: config.Target{Name: "app", Type: config.TargetTypeYAML, Languages: []string{"de"}}, Languages: []string{"de"}},
+		{Target: config.Target{Name: "docs", Type: config.TargetTypePo4a, Languages: []string{"de"}}, Languages: []string{"de"}},
+		{Target: config.Target{Name: "matrix/a", Type: config.TargetTypeYAML, Languages: []string{"de"}}, Languages: []string{"de"}},
+	}
+	selected := []config.ResolvedTarget{allResolved[0], allResolved[1], allResolved[2]}
+
+	scopes := orphanCleanupScopes(allResolved, selected, []string{"app,docs", "matrix"})
+	if len(scopes) != 3 {
+		t.Fatalf("len(scopes) = %d, want 3", len(scopes))
+	}
+	if scopes[0].name != "app" || scopes[0].prefix {
+		t.Fatalf("scope[0] = %+v, want exact app", scopes[0])
+	}
+	if scopes[1].name != "docs" || scopes[1].prefix {
+		t.Fatalf("scope[1] = %+v, want exact docs", scopes[1])
+	}
+	if scopes[2].name != "matrix" || !scopes[2].prefix {
+		t.Fatalf("scope[2] = %+v, want prefix matrix", scopes[2])
 	}
 }
 

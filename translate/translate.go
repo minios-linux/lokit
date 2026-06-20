@@ -132,7 +132,7 @@ IMPORTANT TRANSLATION PRINCIPLES:
 
 CRITICAL MARKUP PRESERVATION RULES:
 - Preserve ALL groff/roff inline markup exactly as-is:
-  - B<...> (bold) — translate content inside, keep B<> wrapper
+  - B<...> (bold) — translate content inside, keep B<> wrapper, except technical identifiers
   - I<...> (italic) — translate content inside, keep I<> wrapper
   - C<...> (code/constant) — do NOT translate content inside
   - L<...> (link) — do NOT translate
@@ -145,6 +145,7 @@ CRITICAL MARKUP PRESERVATION RULES:
   - Environment variable names
   - Package names, program names
   - Configuration directive names
+  - Technical identifiers written as ALL_CAPS, ALL_CAPS_WITH_UNDERSCORES, or snake_case
   - Code examples and command invocations
 - DO translate:
   - Descriptive text and explanations
@@ -156,7 +157,7 @@ TECHNICAL REQUIREMENTS:
 - Preserve all format specifiers exactly as-is (%s, %d, etc.).
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
 - Keep brand names and proper nouns unchanged.
-- CRITICAL: Properly escape ALL backslashes in JSON strings. Groff sequences like \[dq] MUST be escaped as \\[dq] in JSON.
+- CRITICAL: Properly escape ALL backslashes in JSON strings. Groff sequences like \[dq], \f[B], and \fR MUST be escaped as \\[dq], \\f[B], and \\fR in JSON.
 - Return ONLY the JSON array, no explanations or markdown code blocks.`
 
 // ---------------------------------------------------------------------------
@@ -1620,6 +1621,11 @@ func fixGroffEscapesInJSON(jsonContent string) string {
 			// Check if next character forms a valid JSON escape sequence
 			if i+1 < len(jsonContent) {
 				next := jsonContent[i+1]
+				if next == 'f' && isGroffFontEscape(jsonContent, i) {
+					fixed.WriteString("\\\\")
+					escaped = false
+					continue
+				}
 				// Valid JSON escapes: \" \\ \/ \b \f \n \r \t \uXXXX
 				if next == '"' || next == '\\' || next == '/' ||
 					next == 'b' || next == 'f' || next == 'n' ||
@@ -1646,6 +1652,17 @@ func fixGroffEscapesInJSON(jsonContent string) string {
 	}
 
 	return fixed.String()
+}
+
+func isGroffFontEscape(s string, slashIdx int) bool {
+	if slashIdx+1 >= len(s) || s[slashIdx+1] != 'f' {
+		return false
+	}
+	if slashIdx+2 >= len(s) {
+		return false
+	}
+	next := s[slashIdx+2]
+	return next == '[' || next == '(' || next == 'B' || next == 'I' || next == 'R' || next == 'P' || next == 'C'
 }
 
 // npluralsFromFile returns the number of plural forms for a PO file by reading
@@ -1702,12 +1719,26 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d elements. ", len(entries)))
 	userMsg.WriteString("For singular entries return a string. For plural entries (marked with 'singular: ... | plural: ...') return an array of strings (one per plural form).")
 
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
+	maxRetries := opts.effectiveMaxRetries()
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, maxRetries, opts.Verbose)
+		if err != nil {
+			return nil, err
+		}
+		translations, err := parsePluralTranslations(text, entries, nplurals)
+		if err == nil {
+			return translations, nil
+		}
+		lastErr = err
+		if attempt < maxRetries {
+			opts.log("  Invalid translation response, retrying (%d/%d): %v", attempt+1, maxRetries, err)
+			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
+				return nil, err
+			}
+		}
 	}
-
-	return parsePluralTranslations(text, entries, nplurals)
+	return nil, lastErr
 }
 
 // parsePluralTranslations parses the AI response into a slice of pluralTranslation.
@@ -1956,7 +1987,7 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 		if e.MsgID == "" || e.Obsolete {
 			continue
 		}
-		if opts.RetranslateExisting {
+		if opts.RetranslateExisting || opts.ForceTranslate {
 			toTranslate = append(toTranslate, e)
 		} else if opts.TranslateFuzzy && e.IsFuzzy() {
 			toTranslate = append(toTranslate, e)
@@ -2210,12 +2241,36 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 	}
 	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(entries)))
 
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
+	maxRetries := opts.effectiveMaxRetries()
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, maxRetries, opts.Verbose)
+		if err != nil {
+			return nil, err
+		}
+		translations, err := parseTranslations(text, len(entries))
+		if err == nil {
+			return translations, nil
+		}
+		lastErr = err
+		if attempt < maxRetries {
+			opts.log("  Invalid translation response, retrying (%d/%d): %v", attempt+1, maxRetries, err)
+			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
+				return nil, err
+			}
+		}
 	}
+	return nil, lastErr
+}
 
-	return parseTranslations(text, len(entries))
+func waitBeforeParseRetry(ctx context.Context, attempt int) error {
+	wait := time.Duration(attempt+1) * time.Second
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(wait):
+		return nil
+	}
 }
 
 // hasPluralEntries reports whether any entry in the slice has a MsgIDPlural.
@@ -2232,7 +2287,7 @@ func hasPluralEntries(entries []*po.Entry) bool {
 func applyTranslations(entries []*po.Entry, translations []string, clearFuzzy bool) {
 	for i, entry := range entries {
 		if i < len(translations) && translations[i] != "" {
-			entry.MsgStr = translations[i]
+			entry.MsgStr = normalizePOTranslationNewlines(entry.MsgID, translations[i])
 			if entry.IsFuzzy() && clearFuzzy {
 				entry.SetFuzzy(false)
 			}
@@ -2255,19 +2310,144 @@ func applyPluralTranslations(entries []*po.Entry, translations []pluralTranslati
 			}
 			for j, form := range t.plural {
 				if form != "" {
-					entry.MsgStrPlural[j] = form
+					entry.MsgStrPlural[j] = normalizePOTranslationNewlines(entry.MsgIDPlural, form)
 				}
 			}
 			if entry.IsFuzzy() && clearFuzzy {
 				entry.SetFuzzy(false)
 			}
 		} else if entry.MsgIDPlural == "" && t.singular != "" {
-			entry.MsgStr = t.singular
+			entry.MsgStr = normalizePOTranslationNewlines(entry.MsgID, t.singular)
 			if entry.IsFuzzy() && clearFuzzy {
 				entry.SetFuzzy(false)
 			}
 		}
 	}
+}
+
+func normalizePOTranslationNewlines(source, translation string) string {
+	translation = normalizePOTranslationGroffEscapes(source, translation)
+	translation = normalizePOTranslationEscapedNewlines(source, translation)
+	translation = normalizePOTranslationProtectedTechnicalToken(source, translation)
+
+	sourceLeadingNewlines := leadingNewlineCount(source)
+	translationLeadingNewlines := leadingNewlineCount(translation)
+
+	for translationLeadingNewlines < sourceLeadingNewlines && strings.HasPrefix(translation, `\n`) {
+		translation = "\n" + strings.TrimPrefix(translation, `\n`)
+		translationLeadingNewlines++
+	}
+	for translationLeadingNewlines < sourceLeadingNewlines {
+		translation = "\n" + translation
+		translationLeadingNewlines++
+	}
+	for translationLeadingNewlines > sourceLeadingNewlines {
+		translation = strings.TrimPrefix(translation, "\n")
+		translationLeadingNewlines--
+	}
+
+	sourceNewlines := trailingNewlineCount(source)
+	translationNewlines := trailingNewlineCount(translation)
+
+	for translationNewlines < sourceNewlines && strings.HasSuffix(translation, `\n`) {
+		translation = strings.TrimSuffix(translation, `\n`) + "\n"
+		translationNewlines++
+	}
+	for translationNewlines < sourceNewlines {
+		translation += "\n"
+		translationNewlines++
+	}
+	for translationNewlines > sourceNewlines {
+		translation = strings.TrimSuffix(translation, "\n")
+		translationNewlines--
+	}
+
+	return translation
+}
+
+func normalizePOTranslationGroffEscapes(source, translation string) string {
+	if !strings.Contains(source, `\f`) || !strings.ContainsRune(translation, '\f') {
+		return translation
+	}
+	return strings.ReplaceAll(translation, "\f", `\f`)
+}
+
+func normalizePOTranslationEscapedNewlines(source, translation string) string {
+	if !strings.Contains(source, "\n") || !strings.Contains(translation, `\n`) {
+		return translation
+	}
+	if strings.Count(translation, "\n") >= strings.Count(source, "\n") {
+		return translation
+	}
+	return strings.ReplaceAll(translation, `\n`, "\n")
+}
+
+func normalizePOTranslationProtectedTechnicalToken(source, translation string) string {
+	if !isSingleTechnicalToken(source) || !hasSameGroffFontWrapper(source, translation) {
+		return translation
+	}
+	return source
+}
+
+func isSingleTechnicalToken(s string) bool {
+	s = strings.TrimSpace(s)
+	if !(strings.HasPrefix(s, `\f[B]`) || strings.HasPrefix(s, `\f[C]`)) {
+		return false
+	}
+	s = strings.TrimPrefix(s, `\f[B]`)
+	s = strings.TrimPrefix(s, `\f[C]`)
+	if strings.HasSuffix(s, `\fR`) {
+		s = strings.TrimSuffix(s, `\fR`)
+	} else if strings.HasSuffix(s, `\f[R]`) {
+		s = strings.TrimSuffix(s, `\f[R]`)
+	} else {
+		return false
+	}
+	if s == "" {
+		return false
+	}
+	hasUnderscore := false
+	hasLower := false
+	for _, r := range s {
+		if r >= 'a' && r <= 'z' {
+			hasLower = true
+			continue
+		}
+		if r == '_' {
+			hasUnderscore = true
+			continue
+		}
+		if (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
+			continue
+		}
+		return false
+	}
+	return !hasLower || hasUnderscore
+}
+
+func hasSameGroffFontWrapper(source, translation string) bool {
+	for _, prefix := range []string{`\f[B]`, `\f[C]`} {
+		if strings.HasPrefix(source, prefix) {
+			return strings.HasPrefix(translation, prefix) && (strings.HasSuffix(translation, `\fR`) || strings.HasSuffix(translation, `\f[R]`))
+		}
+	}
+	return true
+}
+
+func leadingNewlineCount(s string) int {
+	count := 0
+	for count < len(s) && s[count] == '\n' {
+		count++
+	}
+	return count
+}
+
+func trailingNewlineCount(s string) int {
+	count := 0
+	for i := len(s) - 1; i >= 0 && s[i] == '\n'; i-- {
+		count++
+	}
+	return count
 }
 
 // ---------------------------------------------------------------------------

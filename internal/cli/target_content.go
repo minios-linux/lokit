@@ -225,7 +225,7 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 			}
 
 			count := len(file.UntranslatedKeys())
-			if a.retranslate {
+			if a.retranslate || a.force {
 				count = srcTotal
 			}
 			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
@@ -484,7 +484,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 				if err != nil {
 					continue
 				}
-				if a.retranslate {
+				if a.retranslate || a.force {
 					count += len(srcFile.Keys())
 					continue
 				}
@@ -734,7 +734,7 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 			langName := i18next.ResolveMeta(lang).Name
 			targetPath := rt.TranslationPath(lang)
 			count := srcTotal
-			if !a.retranslate {
+			if !a.retranslate && !a.force {
 				if _, err := os.Stat(targetPath); err == nil {
 					if tf, err := propfile.ParseFile(targetPath); err == nil {
 						count = len(tf.UntranslatedKeys())
@@ -955,7 +955,7 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			langName := i18next.ResolveMeta(lang).Name
 			targetPath := rt.TranslationPath(lang)
 			count := srcTotal
-			if !a.retranslate {
+			if !a.retranslate && !a.force {
 				if _, err := os.Stat(targetPath); err == nil {
 					if tf, err := arbfile.ParseFile(targetPath); err == nil {
 						count = len(tf.UntranslatedKeys())
@@ -1163,7 +1163,7 @@ func translateVueI18nTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			langName := i18next.ResolveMeta(lang).Name
 			targetPath := rt.TranslationPath(lang)
 			count := srcTotal
-			if !a.retranslate {
+			if !a.retranslate && !a.force {
 				if tf, err := vuei18n.ParseFile(targetPath); err == nil {
 					count = len(tf.UntranslatedKeys())
 				}
