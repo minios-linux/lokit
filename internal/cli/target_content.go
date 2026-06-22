@@ -1242,19 +1242,69 @@ func translateVueI18nTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 }
 
 func showConfigJSKVStats(rt config.ResolvedTarget, langs []string) {
-	srcPath := rt.SourcePath()
+	srcPath := rt.ExistingSourcePath()
+	if srcPath == "" {
+		srcPath = rt.SourcePath()
+	}
 	srcFile, err := jskv.ParseFile(srcPath)
 	if err != nil {
-		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcPath+")")
+		label := T("not found")
+		if _, statErr := os.Stat(srcPath); statErr == nil {
+			label = T("parse error") + ": " + err.Error()
+		}
+		keyVal(T("Source"), colorYellow+label+colorReset+" ("+srcPath+")")
 		return
 	}
 	srcTotal, _, _ := srcFile.Stats()
+	transDir := rt.AbsTranslationsDir()
+	keyVal(T("Translations"), transDir)
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, rt.Target.SourceLang))
-	showI18NextStats(&config.Project{Name: rt.Target.Name, I18NextDir: rt.AbsTranslationsDir(), I18NextPathPattern: rt.Target.Pattern, SourceLang: rt.Target.SourceLang, Languages: langs})
+	langWidth := langColumnWidth(langs)
+
+	sectionHeader(T("UI Translation Statistics"))
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
+	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+
+	for _, lang := range langs {
+		filePath := rt.ExistingTranslationPath(lang)
+		exists := filePath != ""
+		if filePath == "" {
+			filePath = rt.TranslationPath(lang)
+		}
+
+		file, err := jskv.ParseFile(filePath)
+		if err != nil {
+			label := T("missing")
+			if exists {
+				label = T("parse error")
+			}
+			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
+				langCell(lang, langWidth), progressBar(0, 16), colorYellow, label, colorReset)
+			continue
+		}
+		jskv.SyncKeys(srcFile, file)
+
+		_, translated, _ := file.Stats()
+		untranslated := len(file.UntranslatedKeys())
+		percent := 0
+		if srcTotal > 0 {
+			percent = translated * 100 / srcTotal
+		}
+
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+	}
+
+	fmt.Fprintln(os.Stderr)
 }
 
 func runInitJSKV(rt config.ResolvedTarget, langs []string) {
-	srcPath := rt.SourcePath()
+	srcPath := rt.ExistingSourcePath()
+	if srcPath == "" {
+		srcPath = rt.SourcePath()
+	}
 	srcFile, err := jskv.ParseFile(srcPath)
 	if err != nil {
 		logError(T("Cannot read source JS file %s: %v"), srcPath, err)
@@ -1265,22 +1315,60 @@ func runInitJSKV(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 		targetPath := rt.TranslationPath(lang)
-		if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+		existingPath := rt.ExistingTranslationPath(lang)
+		if existingPath == "" {
 			f := jskv.NewTranslationFile(srcFile)
 			if err := f.WriteFile(targetPath); err != nil {
 				logError(T("Creating %s: %v"), targetPath, err)
 				continue
 			}
 			logSuccess(T("Created: %s"), targetPath)
+			continue
 		}
+
+		f, err := jskv.ParseFile(existingPath)
+		if err != nil {
+			logError(T("Cannot read JS file %s: %v"), existingPath, err)
+			continue
+		}
+		jskv.SyncKeys(srcFile, f)
+		if err := f.WriteFile(existingPath); err != nil {
+			logError(T("Writing %s: %v"), existingPath, err)
+			continue
+		}
+		logSuccess(T("Updated: %s"), existingPath)
 	}
 }
 
 func translateJSKVTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
-	srcPath := rt.SourcePath()
+	srcPath := rt.ExistingSourcePath()
+	if srcPath == "" {
+		srcPath = rt.SourcePath()
+	}
 	srcFile, err := jskv.ParseFile(srcPath)
 	if err != nil {
 		return fmt.Errorf(T("cannot read source JS file %s: %w"), srcPath, err)
+	}
+	srcTotal, _, _ := srcFile.Stats()
+
+	if a.dryRun {
+		for _, lang := range langs {
+			langName := i18next.ResolveMeta(lang).Name
+			count := srcTotal
+			if !a.retranslate && !a.force {
+				filePath := rt.ExistingTranslationPath(lang)
+				if filePath == "" {
+					logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, count)
+					continue
+				}
+				if file, err := jskv.ParseFile(filePath); err == nil {
+					jskv.SyncKeys(srcFile, file)
+					count = len(file.UntranslatedKeys())
+				}
+			}
+			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)
+		}
+		return nil
 	}
 
 	parallelMode := translate.ParallelSequential
@@ -1310,12 +1398,17 @@ func translateJSKVTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 
 	var tasks []translate.KVLangTask
 	for _, lang := range langs {
-		targetPath := rt.TranslationPath(lang)
-		file, err := jskv.ParseFile(targetPath)
+		filePath := rt.ExistingTranslationPath(lang)
+		if filePath == "" {
+			filePath = rt.TranslationPath(lang)
+		}
+		file, err := jskv.ParseFile(filePath)
 		if err != nil {
 			file = jskv.NewTranslationFile(srcFile)
+		} else {
+			jskv.SyncKeys(srcFile, file)
 		}
-		tasks = append(tasks, translate.KVLangTask{Lang: lang, LangName: i18next.ResolveMeta(lang).Name, FilePath: targetPath, File: file, SourceValues: srcFile.SourceValues()})
+		tasks = append(tasks, translate.KVLangTask{Lang: lang, LangName: i18next.ResolveMeta(lang).Name, FilePath: filePath, File: file, SourceValues: srcFile.SourceValues()})
 	}
 	if len(tasks) == 0 {
 		return nil

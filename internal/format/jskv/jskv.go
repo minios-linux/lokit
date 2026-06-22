@@ -184,3 +184,17 @@ func NewTranslationFile(src *File) *File {
 	}
 	return &File{prefix: src.prefix, keys: keys, translations: translations}
 }
+
+func SyncKeys(src, target *File) {
+	if src == nil || target == nil {
+		return
+	}
+
+	translations := make(map[string]string, len(src.keys))
+	for _, key := range src.keys {
+		translations[key] = target.translations[key]
+	}
+	target.prefix = src.prefix
+	target.keys = append(target.keys[:0], src.keys...)
+	target.translations = translations
+}
