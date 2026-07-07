@@ -21,8 +21,8 @@ languages: [ru, de]
 targets:
   - name: app
     format: i18next
-    dir: locales
-    pattern: "{lang}.json"
+    from: [locales/en.json]
+    to: locales/{lang}.json
 ```
 
 ## Full reference
@@ -50,20 +50,25 @@ targets:
 
     # --- Path resolution ---
     root: .                    # Working directory, relative to lokit.yaml (default: ".")
-    dir: locales               # Directory for translation files, relative to root
-    pattern: "{lang}.json"     # File pattern with {lang} placeholder
+    from: [locales/en.json]    # Source files/globs, relative to root
+    except: [dist/**]          # Optional exclude globs for source discovery
+    to: locales/{lang}.json    # Output path template, relative to root
 
     # --- Gettext-specific ---
-    pot: messages.pot           # POT filename in dir
-    sources: [src/**/*.py]      # Source globs for xgettext
-    keywords: [_, N_]           # xgettext keyword list
+    # For gettext, use source globs plus a POT template and PO output path:
+    # from: [src/**/*.py]
+    # template: po/messages.pot
+    # to: po/{lang}.po
+    # keywords: [_, N_]         # xgettext keyword list
 
     # --- po4a-specific ---
-    config: po4a.cfg            # po4a config path relative to root
+    # For po4a, point from at the po4a config file:
+    # from: [po4a.cfg]
 
     # --- Markdown-specific ---
-    source: README.md           # Source file (for filename-suffix mode)
-    # pattern: "README.{lang}.md"  # Output pattern (for filename-suffix mode)
+    # For Markdown, from can be a file or glob and to controls the output layout:
+    # from: [README.md]
+    # to: README.{lang}.md
 
     # --- Overrides (optional) ---
     source_lang: en             # Override source language for this target
@@ -117,8 +122,10 @@ Array of translation targets. At least one required. Each target defines a set o
 | `name` | string | — | Display name (required, must be unique) |
 | `format` | string | — | Translation format (required) |
 | `root` | string | `"."` | Base directory relative to `lokit.yaml` |
-| `dir` | string | — | Translation file directory relative to `root` |
-| `pattern` | string | — | File pattern with `{lang}` placeholder |
+| `from` | array/object | — | Source files/globs, or indexed record source |
+| `except` | array | — | Source file globs excluded from `from` discovery |
+| `to` | string | — | Output path template with placeholders |
+| `template` | string | — | Optional generated template/catalog path, e.g. gettext POT |
 | `source_lang` | string | inherited | Override source language |
 | `languages` | array | inherited | Override target languages |
 | `prompt` | string | — | Custom system prompt for AI |
@@ -130,32 +137,32 @@ Array of translation targets. At least one required. Each target defines a set o
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `pot` | string | POT template filename (relative to `dir`) |
-| `sources` | array | Source file globs for `xgettext` |
+| `template` | string | POT template path relative to `root` |
+| `from` | array | Source file globs for `xgettext` |
+| `to` | string | PO output path template, usually `po/{lang}.po` |
 | `keywords` | array | `xgettext` keywords (e.g., `["_", "N_:1,2"]`) |
 
 ### po4a fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `config` | string | Path to `po4a.cfg` (relative to `root`) |
+| `from` | array | Path to `po4a.cfg` relative to `root`, e.g. `[po4a.cfg]` |
 
 ### Markdown fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `source` | string | Source file path (for filename-suffix layout) |
-| `pattern` | string | Output file pattern with `{lang}` (for filename-suffix layout) |
+| `from` | array | Source Markdown files/globs |
+| `to` | string | Output path template with `{lang}`, `{path}`, or `{id}` |
 
 ## Path resolution
 
 Paths are resolved in this order:
 
 1. `root` is relative to the directory containing `lokit.yaml`
-2. `dir` is relative to `root`
-3. `pattern` is relative to `dir`
-4. `source` is relative to `root`
-5. `config` (po4a) is relative to `root`
+2. `from`, `except`, `to`, and `template` are relative to `root`
+3. `to` is expanded per target language
+4. `from` globs are expanded before `except` filters are applied
 
 Example: if `lokit.yaml` is at `/project/lokit.yaml`:
 
@@ -164,26 +171,28 @@ targets:
   - name: app
     format: i18next
     root: frontend          # → /project/frontend
-    dir: src/i18n            # → /project/frontend/src/i18n
-    pattern: "{lang}.json"   # → /project/frontend/src/i18n/ru.json
+    from: [src/i18n/en.json] # → /project/frontend/src/i18n/en.json
+    to: src/i18n/{lang}.json # → /project/frontend/src/i18n/ru.json
 ```
 
-## The `pattern` field
+## The `to` field
 
-For file-per-language formats (i18next, vue-i18n, yaml, properties, flutter, js-kv, markdown), `pattern` defines how files are named:
+For file-per-language formats (i18next, vue-i18n, yaml, properties, flutter, js-kv, markdown), `to` defines how translated files are named:
 
 - Must include `{lang}` — replaced with the language code at runtime
-- Relative to `dir`
+- Relative to `root`
+- May also use `{source_lang}`, `{path}`, `{folder}`, `{name}`, `{ext}`, and `{id}` where supported
 
 Examples:
 
-| Pattern | Result for `ru` |
-|---------|----------------|
-| `{lang}.json` | `ru.json` |
-| `{lang}/common.json` | `ru/common.json` |
-| `messages_{lang}.properties` | `messages_ru.properties` |
-| `app_{lang}.arb` | `app_ru.arb` |
+| Template | Result for `ru` |
+|----------|-----------------|
+| `locales/{lang}.json` | `locales/ru.json` |
+| `locales/{lang}/common.json` | `locales/ru/common.json` |
+| `i18n/messages_{lang}.properties` | `i18n/messages_ru.properties` |
+| `lib/l10n/app_{lang}.arb` | `lib/l10n/app_ru.arb` |
 | `README.{lang}.md` | `README.ru.md` |
+| `translations/{lang}/{path}` | `translations/ru/guide/intro.md` |
 
 ## Per-target overrides
 
@@ -195,13 +204,14 @@ languages: [ru, de, fr]  # global default
 targets:
   - name: app
     format: i18next
-    dir: locales
-    pattern: "{lang}.json"
+    from: [locales/en.json]
+    to: locales/{lang}.json
     # uses global languages: ru, de, fr
 
   - name: docs
     format: markdown
-    dir: docs
+    from: [docs/**/*.md]
+    to: translations/{lang}/{path}
     languages: [ru, de]    # only ru and de for this target
 ```
 
@@ -216,31 +226,31 @@ source_lang: en
 targets:
   - name: cli
     format: gettext
-    dir: po
-    pot: messages.pot
+    from: [src/**/*.sh]
+    template: po/messages.pot
+    to: po/{lang}.po
 
   - name: docs
     format: po4a
     root: manpages
-    config: po4a.cfg
+    from: [po4a.cfg]
 
   - name: web
     format: i18next
     root: frontend
-    dir: locales
-    pattern: "{lang}.json"
+    from: [locales/en.json]
+    to: locales/{lang}.json
     languages: [de, es, fr, pt-BR, ru]
 
   - name: mobile
     format: flutter
-    dir: lib/l10n
-    pattern: "app_{lang}.arb"
+    from: [lib/l10n/app_en.arb]
+    to: lib/l10n/app_{lang}.arb
 
   - name: readme
     format: markdown
-    source: README.md
-    dir: .
-    pattern: "README.{lang}.md"
+    from: [README.md]
+    to: README.{lang}.md
 ```
 
 All targets are processed together by `lokit status`, `lokit init`, and `lokit translate`.

@@ -116,6 +116,60 @@
           "default": ".",
           "description": "Base directory for all target paths, relative to lokit.yaml."
         },
+        "from": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Source file/glob patterns relative to root."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["index", "key", "fields"],
+              "properties": {
+                "index": {
+                  "type": "string",
+                  "description": "Path to an index file relative to root."
+                },
+                "records": {
+                  "type": "string",
+                  "default": "$",
+                  "description": "Record array selector. Supported: '$' or '$.field'."
+                },
+                "key": {
+                  "type": "string",
+                  "description": "Record field used to fill {id} in output paths."
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1,
+                  "description": "Translatable fields extracted from each record."
+                }
+              }
+            }
+          ]
+        },
+        "except": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Path globs excluded from source discovery, relative to root."
+        },
+        "to": {
+          "type": "string",
+          "description": "Translation output path template relative to root."
+        },
+        "template": {
+          "type": "string",
+          "description": "Optional template/catalog output path relative to root."
+        },
         "dir": {
           "type": "string",
           "description": "Directory containing translation files (relative to root)."
@@ -179,6 +233,13 @@
             "type": "string"
           },
           "description": "Source directories/files to scan (gettext only)."
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Path globs to exclude while discovering source files."
         },
         "keywords": {
           "type": "array",

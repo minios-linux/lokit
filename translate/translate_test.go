@@ -621,6 +621,17 @@ func TestParseTranslations_PreservesGroffFontEscapes(t *testing.T) {
 	}
 }
 
+func TestParseTranslations_UsesFirstCompleteJSONArray(t *testing.T) {
+	content := `["# CondinAPT\n\nText with [brackets] and \\\"quotes\\\""] CondinAPT trailing text`
+	translations, err := parseTranslations(content, 1)
+	if err != nil {
+		t.Fatalf("parseTranslations returned error: %v", err)
+	}
+	if len(translations) != 1 || !strings.Contains(translations[0], "CondinAPT") {
+		t.Fatalf("unexpected parsed translations: %#v", translations)
+	}
+}
+
 func TestNormalizePOTranslationNewlines_RestoresGroffFontEscapes(t *testing.T) {
 	source := `\f[B]MENU_LANG\f[R]: \[lq]multilang\[rq]\fR`
 	translation := "\f[B]MENU_LANG\f[R]: \\[lq]multilang\\[rq]\fR"

@@ -72,42 +72,21 @@ jobs:
             CHANGELOG="Initial release of lokit - Localization Kit with AI translation support"
           else
             echo "Generating changelog from $PREV_TAG to ${{ steps.version.outputs.TAG_NAME }}"
-            CHANGELOG=$(git log --pretty=format:"- %s" ${PREV_TAG}..${{ steps.version.outputs.TAG_NAME }})
+            CHANGELOG=$(git log --pretty=format:"%B" ${PREV_TAG}..${{ steps.version.outputs.TAG_NAME }})
           fi
           
           # Save to file for release notes
           cat > release_notes.md << EOF
-          ## What's New
-          
+          ## Changes
+
           $CHANGELOG
-          
-          ## Installation
-          
-          Download the appropriate binary for your platform from the assets below.
-          
-          ### Linux/macOS
-          \`\`\`bash
-          # Download and extract
-          tar -xzf lokit-${{ steps.version.outputs.VERSION }}-linux-amd64.tar.gz
-          
-          # Move to PATH
-          sudo mv lokit-${{ steps.version.outputs.VERSION }}-linux-amd64 /usr/local/bin/lokit
-          
-          # Verify
-          lokit version
-          \`\`\`
-          
-          ## Supported Platforms
-          
-          - Linux (amd64, arm64)
-          - macOS (amd64/Intel, arm64/Apple Silicon)
           EOF
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.TAG_NAME }}
-          name: Release ${{ steps.version.outputs.VERSION }}
+          name: ${{ steps.version.outputs.VERSION }}
           body_path: release_notes.md
           draft: false
           prerelease: false

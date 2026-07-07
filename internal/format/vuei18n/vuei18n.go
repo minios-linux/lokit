@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 type nodeKind int
@@ -339,8 +340,7 @@ func writeNode(b *bytes.Buffer, n *node, indent int) error {
 		b.WriteByte('\n')
 		for i, fld := range n.obj {
 			writeIndent(b, indent+2)
-			k, _ := json.Marshal(fld.key)
-			b.Write(k)
+			b.WriteString(strconv.Quote(fld.key))
 			b.WriteString(": ")
 			if err := writeNode(b, fld.value, indent+2); err != nil {
 				return err
@@ -376,8 +376,7 @@ func writeNode(b *bytes.Buffer, n *node, indent int) error {
 		return nil
 
 	case nodeString:
-		s, _ := json.Marshal(n.str)
-		b.Write(s)
+		b.WriteString(strconv.Quote(n.str))
 		return nil
 
 	case nodeOther:

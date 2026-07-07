@@ -1823,11 +1823,10 @@ func parseTranslations(content string, expected int) ([]string, error) {
 		content = m[1]
 	}
 
-	// Try to find a JSON array in the response
-	startIdx := strings.Index(content, "[")
-	endIdx := strings.LastIndex(content, "]")
-	if startIdx >= 0 && endIdx > startIdx {
-		content = content[startIdx : endIdx+1]
+	// Try to find the first complete JSON array in the response. Some models
+	// append extra text or a second malformed array after a valid answer.
+	if arr, ok := firstJSONArray(content); ok {
+		content = arr
 	}
 
 	// Fix common groff/man escape sequences that break JSON parsing
@@ -1851,6 +1850,45 @@ func parseTranslations(content string, expected int) ([]string, error) {
 	}
 
 	return translations, nil
+}
+
+func firstJSONArray(content string) (string, bool) {
+	start := strings.Index(content, "[")
+	if start < 0 {
+		return "", false
+	}
+	inString := false
+	escaped := false
+	depth := 0
+	for i := start; i < len(content); i++ {
+		ch := content[i]
+		if inString {
+			if escaped {
+				escaped = false
+				continue
+			}
+			if ch == '\\' {
+				escaped = true
+				continue
+			}
+			if ch == '"' {
+				inString = false
+			}
+			continue
+		}
+		switch ch {
+		case '"':
+			inString = true
+		case '[':
+			depth++
+		case ']':
+			depth--
+			if depth == 0 {
+				return content[start : i+1], true
+			}
+		}
+	}
+	return "", false
 }
 
 func looksLikeNonTranslationResponse(text string) bool {

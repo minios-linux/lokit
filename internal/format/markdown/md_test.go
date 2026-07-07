@@ -122,8 +122,15 @@ func TestParse_CodeBlockNotSplit(t *testing.T) {
 		t.Fatalf("expected 1 section (code block not split), got %d: %v", len(keys), keys)
 	}
 	sec0, _ := f.Get("sec:0")
-	if !strings.Contains(sec0, "```bash") {
-		t.Errorf("sec:0 should contain the code block, got: %q", sec0)
+	if strings.Contains(sec0, "```bash") || !strings.Contains(sec0, "lokit:code-block") {
+		t.Errorf("sec:0 should contain a code block placeholder, got: %q", sec0)
+	}
+	out, err := f.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(out), "```bash\n# this is a comment\necho hello\n```") {
+		t.Errorf("marshal should restore the code block, got: %q", string(out))
 	}
 }
 

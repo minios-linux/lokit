@@ -83,8 +83,8 @@ languages: [ru, de]
 targets:
   - name: app
     format: i18next
-    dir: public/translations
-    pattern: "{lang}.json"
+    from: [public/translations/en.json]
+    to: public/translations/{lang}.json
 ```
 
 ```bash
@@ -112,22 +112,26 @@ source_lang: en
 targets:
   - name: app
     format: gettext
-    dir: po
+    from: [src/**/*.sh]
+    template: po/messages.pot
+    to: po/{lang}.po
 
   - name: docs
     format: po4a
     root: manpages
-    config: po4a.cfg
+    from: [po4a.cfg]
 
   - name: website
     format: i18next
     root: submodules/site
-    dir: public/translations
+    from: [public/translations/en.json]
+    to: public/translations/{lang}.json
     languages: [de, es, fr, pt-BR, ru]
 
   - name: mobile
     format: flutter
-    dir: lib/l10n
+    from: [lib/l10n/app_en.arb]
+    to: lib/l10n/app_{lang}.arb
 ```
 
 Then:
@@ -176,27 +180,30 @@ targets:
     root: .                    # Working directory relative to config (default: .)
 
     # --- gettext options ---
-    dir: po                    # Base directory for this target (required)
-    pot: messages.pot          # POT template filename in dir (required)
-    sources: [src/**/*.sh]     # Source globs for xgettext
-    keywords: [_, N_, gettext] # xgettext keywords
+    # For gettext, use source globs plus a POT template and PO output path:
+    # from: [src/**/*.sh]
+    # template: po/messages.pot
+    # to: po/{lang}.po
+    # keywords: [_, N_, gettext] # xgettext keywords
 
     # --- po4a options ---
-    config: po4a.cfg           # po4a config path relative to root
+    # For po4a, point from at the po4a config file:
+    # from: [po4a.cfg]
 
     # --- i18next / vue-i18n options ---
-    dir: public/translations      # JSON directory
-    pattern: "{lang}/common.json" # Required per-language file layout
+    from: [public/translations/en/common.json]
+    to: public/translations/{lang}/common.json
 
     # --- android options ---
-    dir: app/src/main/res      # Android res/ directory
+    # to: app/src/main/res     # Android res/ directory
 
     # --- yaml / properties / flutter / js-kv options ---
-    dir: translations              # Files directory
-    pattern: "locale_{lang}.yaml" # Required for yaml/properties/flutter/js-kv
+    # from: [translations/locale_en.yaml]
+    # to: translations/locale_{lang}.yaml
 
     # --- markdown options ---
-    dir: docs/translations         # Files stored under dir/LANG/
+    # from: [docs/**/*.md]
+    # to: translations/{lang}/{path}
 
     # --- overrides ---
     languages: [de, es, fr]    # Override global language list
@@ -220,51 +227,52 @@ values are skipped (for example optional fields like `longDescription` that are 
 
 **android** — For Android applications. Translates `strings.xml` resource files.
 
-**yaml** — For YAML key-value translation files. Define `pattern` (example: `{lang}.yaml`).
+**yaml** — For YAML key-value translation files. Define `from` and `to` (example: `to: translations/{lang}.yaml`).
 
-**markdown** — For Markdown document translation. Files organized as `dir/LANG/file.md`.
+**markdown** — For Markdown document translation. Supports source globs with `to: translations/{lang}/{path}` and filename-suffix layouts such as `to: README.{lang}.md`.
 
-**properties** — For Java `.properties` files. Define `pattern` (example: `messages_{lang}.properties`).
+**properties** — For Java `.properties` files. Define `from` and `to` (example: `to: messages_{lang}.properties`).
 
-**flutter** — For Flutter ARB files. Define `pattern` (example: `app_{lang}.arb`).
+**flutter** — For Flutter ARB files. Define `from` and `to` (example: `to: app_{lang}.arb`).
 
-**js-kv** — JavaScript key/value files (for example `window.i18n = { ... }`). Define `pattern` (example: `{lang}.js`).
+**js-kv** — JavaScript key/value files (for example `window.i18n = { ... }`). Define `from` and `to` (example: `to: {lang}.js`).
 
 **desktop** — freedesktop `.desktop` files with per-language fields in one file.
 
 **polkit** — PolicyKit `.policy` XML files with per-language localized tags in one file.
 
-### Custom file layouts with `pattern`
+### Custom file layouts with `to`
 
 For file-per-language targets (`i18next`, `vue-i18n`, `yaml`, `properties`, `flutter`, `js-kv`),
-you must define `pattern`.
+you normally define a source file in `from` and an output template in `to`.
 
-- `pattern` is relative to `dir`
-- it must contain `{lang}`
-- examples: `{lang}.json`, `{lang}/common.json`, `locale_{lang}.properties`, `app_{lang}.arb`
+- `from` is relative to `root` and points to the source-language file
+- `to` is relative to `root`
+- `to` must contain `{lang}`
+- examples: `locales/{lang}.json`, `locales/{lang}/common.json`, `locale_{lang}.properties`, `app_{lang}.arb`
 
 ```yaml
 targets:
   - name: frontend
     format: i18next
-    dir: frontend/src/i18n
-    pattern: "{lang}/common.json"
+    from: [frontend/src/i18n/en/common.json]
+    to: frontend/src/i18n/{lang}/common.json
 
   - name: java
     format: properties
-    dir: src/main/resources/i18n
-    pattern: "messages_{lang}.properties"
+    from: [src/main/resources/i18n/messages_en.properties]
+    to: src/main/resources/i18n/messages_{lang}.properties
 ```
 
-### Index source mode (`source` object)
+### Index source mode (`from` object)
 
 For catalog-style projects (one source index file + many per-record translation files),
-`source` can be an object instead of a string.
+`from` can be an object instead of a file list.
 
-- `source.index` points to the source index file
-- `source.records_path` selects the records array (`$` or `$.field`)
-- `source.key_field` provides values for `{id}` in `pattern` / `target`
-- `source.fields` lists translatable fields copied from each record
+- `from.index` points to the source index file
+- `from.records` selects the records array (`$` or `$.field`)
+- `from.key` provides values for `{id}` in `to`
+- `from.fields` lists translatable fields copied from each record
 
 Example (catalog index mode):
 
@@ -273,13 +281,12 @@ targets:
   - name: recipes
     format: vue-i18n
     root: web/public/data
-    dir: recipe-translations
-    pattern: "{lang}/{id}.json"
+    to: recipe-translations/{lang}/{id}.json
     languages: [de, es, fr]
-    source:
+    from:
       index: recipes.json
-      records_path: "$"
-      key_field: id
+      records: "$"
+      key: id
       fields: [name, description, longDescription]
 ```
 
@@ -288,7 +295,7 @@ or empty source fields.
 
 Notes:
 
-- `pattern` or `target` must include `{id}` in index mode.
+- `to` must include `{id}` in index mode.
 - `--target recipes` selects all expanded records like `recipes/<id>`.
 - You can still target a single record with `--target recipes/<id>`.
 
@@ -315,7 +322,7 @@ lokit init --lang ru,de        # Specific languages
 - Runs `xgettext` for gettext projects
 - Runs `po4a --no-translations` for po4a projects
 - Creates missing language files for i18next, vue-i18n, yaml, properties, flutter, js-kv
-- In index mode, creates per-record files from `source.index` for each target language
+- In index mode, creates per-record files from `from.index` for each target language
 - Idempotent — safe to run repeatedly
 
 ### `lokit translate`
@@ -379,19 +386,21 @@ languages: [de, es, fr, id, it, pt, pt-BR, ru]
 targets:
   - name: scripts
     format: gettext
-    dir: po
-    pot: messages.pot
+    from: [scripts/**/*.sh]
+    template: po/messages.pot
+    to: po/{lang}.po
 
   - name: manpages
     format: po4a
     root: manpages
-    config: po4a.cfg
+    from: [po4a.cfg]
 
   - name: cli-tool
     format: gettext
     root: submodules/my-tool
-    dir: po
-    pot: messages.pot
+    from: [src/**/*.py]
+    template: po/messages.pot
+    to: po/{lang}.po
 ```
 
 ```bash
@@ -407,8 +416,8 @@ source_lang: en
 targets:
   - name: app
     format: flutter
-    dir: lib/l10n
-    pattern: app_{lang}.arb
+    from: [lib/l10n/app_en.arb]
+    to: lib/l10n/app_{lang}.arb
 ```
 
 ```bash
@@ -425,8 +434,8 @@ source_lang: en
 targets:
   - name: app
     format: properties
-    dir: src/main/resources
-    pattern: messages_{lang}.properties
+    from: [src/main/resources/messages_en.properties]
+    to: src/main/resources/messages_{lang}.properties
 ```
 
 ### Parallel translation with proxy
@@ -529,8 +538,8 @@ You can control which keys are translated per target in `lokit.yaml`:
 targets:
   - name: ui
     format: i18next
-    dir: translations
-    pattern: "{lang}.json"
+    from: [translations/en.json]
+    to: translations/{lang}.json
     source_lang: en
     languages: [ru, de, fr]
 

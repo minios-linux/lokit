@@ -477,6 +477,66 @@ func TestResolveWithPatternAndHelpers(t *testing.T) {
 	}
 }
 
+func TestLoadLokitFileFromToSchema(t *testing.T) {
+	t.Run("single file target", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "targets:\n" +
+			"  - name: ui\n" +
+			"    format: vue-i18n\n" +
+			"    root: app\n" +
+			"    from:\n" +
+			"      - i18n/en.json\n" +
+			"    to: i18n/{lang}.json\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		lf, err := LoadLokitFile(dir)
+		if err != nil {
+			t.Fatalf("LoadLokitFile error: %v", err)
+		}
+		got := lf.Targets[0]
+		if got.Source == nil || got.Source.Path != "i18n/en.json" {
+			t.Fatalf("Source.Path = %#v, want i18n/en.json", got.Source)
+		}
+		if got.TargetPath != "i18n/{lang}.json" {
+			t.Fatalf("TargetPath = %q", got.TargetPath)
+		}
+	})
+
+	t.Run("markdown tree target", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "targets:\n" +
+			"  - name: docs\n" +
+			"    format: markdown\n" +
+			"    root: docs\n" +
+			"    from:\n" +
+			"      - index.md\n" +
+			"      - about/**/*.md\n" +
+			"    except:\n" +
+			"      - draft/**\n" +
+			"    to: translations/{lang}/{path}\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		lf, err := LoadLokitFile(dir)
+		if err != nil {
+			t.Fatalf("LoadLokitFile error: %v", err)
+		}
+		got := lf.Targets[0]
+		if !reflect.DeepEqual(got.Sources, []string{"index.md", "about/**/*.md"}) {
+			t.Fatalf("Sources = %v", got.Sources)
+		}
+		if !reflect.DeepEqual(got.Exclude, []string{"draft/**"}) {
+			t.Fatalf("Exclude = %v", got.Exclude)
+		}
+		if got.TargetPath != "translations/{lang}/{path}" {
+			t.Fatalf("TargetPath = %q", got.TargetPath)
+		}
+	})
+}
+
 func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 	t.Run("accepts provider object with base_url for ollama", func(t *testing.T) {
 		dir := t.TempDir()

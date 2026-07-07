@@ -54,7 +54,7 @@ lokit init --lang ru,de
 | desktop, polkit | No init needed (translations are inline in source file) |
 
 **Desktop seeding (gettext):** when `.desktop` or `.nemo_action` files are present in
-`sources`, `lokit init` copies existing inline translations (`Name[de]=`, `Comment[de]=`,
+`from`, `lokit init` copies existing inline translations (`Name[de]=`, `Comment[de]=`,
 etc.) directly into the PO files. This means strings already translated in the desktop
 file do not require an AI translation pass.
 

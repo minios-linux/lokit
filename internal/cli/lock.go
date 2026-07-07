@@ -767,7 +767,7 @@ func collectTranslatedSimpleKV(path string, parse func(path string) (formatfile.
 
 func collectTranslatedMarkdownKeys(rt config.ResolvedTarget, lang string) (map[string]struct{}, error) {
 	srcDir := markdownSourceDir(rt)
-	srcFiles, err := discoverMarkdownFiles(srcDir)
+	srcFiles, err := discoverMarkdownSourceFiles(rt)
 	if err != nil {
 		return nil, fmt.Errorf(T("cannot read markdown files in %s: %v"), srcDir, err)
 	}
@@ -953,7 +953,7 @@ func collectYAMLSourceEntries(rt config.ResolvedTarget) (map[string]string, erro
 
 func collectMarkdownSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
 	srcDir := markdownSourceDir(rt)
-	srcFiles, err := discoverMarkdownFiles(srcDir)
+	srcFiles, err := discoverMarkdownSourceFiles(rt)
 	if err != nil {
 		return nil, fmt.Errorf(T("cannot read markdown files in %s: %v"), srcDir, err)
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	pathpkg "path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -23,7 +24,10 @@ import (
 	"github.com/minios-linux/lokit/translate"
 )
 
-func discoverMarkdownFiles(dir string) ([]string, error) {
+func discoverMarkdownFiles(dir, matchRoot string, excludes []string) ([]string, error) {
+	if matchRoot == "" {
+		matchRoot = dir
+	}
 	var files []string
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -31,6 +35,9 @@ func discoverMarkdownFiles(dir string) ([]string, error) {
 		}
 		if d.IsDir() {
 			if path != dir && strings.HasPrefix(d.Name(), ".") {
+				return filepath.SkipDir
+			}
+			if shouldExcludeMarkdownPath(matchRoot, path, excludes) {
 				return filepath.SkipDir
 			}
 			return nil
@@ -47,7 +54,62 @@ func discoverMarkdownFiles(dir string) ([]string, error) {
 	return files, nil
 }
 
+func shouldExcludeMarkdownPath(root, filePath string, excludes []string) bool {
+	if len(excludes) == 0 {
+		return false
+	}
+	rel, err := filepath.Rel(root, filePath)
+	if err != nil || strings.HasPrefix(rel, "..") {
+		return false
+	}
+	rel = filepath.ToSlash(rel)
+	for _, pattern := range excludes {
+		pattern = strings.Trim(strings.TrimSpace(filepath.ToSlash(pattern)), "/")
+		if pattern == "" {
+			continue
+		}
+		if strings.HasSuffix(pattern, "/**") {
+			base := strings.TrimSuffix(pattern, "/**")
+			if rel == base || strings.HasPrefix(rel, base+"/") {
+				return true
+			}
+			continue
+		}
+		if ok, _ := pathpkg.Match(pattern, rel); ok || rel == pattern || strings.HasPrefix(rel, pattern+"/") {
+			return true
+		}
+	}
+	return false
+}
+
+func markdownSourceExcludes(rt config.ResolvedTarget) []string {
+	excludes := append([]string{}, rt.Target.Exclude...)
+	for _, lang := range rt.Languages {
+		if lang == rt.Target.SourceLang {
+			continue
+		}
+		for _, targetPath := range rt.TranslationPathCandidates(lang) {
+			rel, err := filepath.Rel(rt.AbsRoot, targetPath)
+			if err != nil || strings.HasPrefix(rel, "..") {
+				continue
+			}
+			rel = filepath.ToSlash(rel)
+			excludes = append(excludes, rel, rel+"/**")
+		}
+	}
+	return excludes
+}
+
 func markdownLangDir(rt config.ResolvedTarget, lang string) string {
+	if rt.Target.TargetPath != "" && strings.Contains(rt.Target.TargetPath, "{path}") {
+		prefix := strings.Split(rt.Target.TargetPath, "{path}")[0]
+		prefix = strings.ReplaceAll(prefix, "{lang}", lang)
+		prefix = strings.TrimSuffix(prefix, "/")
+		return filepath.Join(rt.AbsRoot, filepath.FromSlash(prefix))
+	}
+	if markdownTargetIsFile(rt) {
+		return filepath.Dir(rt.TranslationPath(lang))
+	}
 	if rt.Target.Pattern == "" {
 		return filepath.Join(rt.AbsTranslationsDir(), lang)
 	}
@@ -58,14 +120,102 @@ func markdownLangDir(rt config.ResolvedTarget, lang string) string {
 	return path
 }
 
+func markdownTargetPath(rt config.ResolvedTarget, lang, relPath string) string {
+	if markdownTargetIsFile(rt) {
+		return rt.TranslationPath(lang)
+	}
+	if rt.Target.TargetPath != "" && strings.Contains(rt.Target.TargetPath, "{path}") {
+		out := strings.ReplaceAll(rt.Target.TargetPath, "{lang}", lang)
+		out = strings.ReplaceAll(out, "{path}", filepath.ToSlash(relPath))
+		return filepath.Join(rt.AbsRoot, filepath.FromSlash(out))
+	}
+	return filepath.Join(markdownLangDir(rt, lang), relPath)
+}
+
+func markdownTargetIsFile(rt config.ResolvedTarget) bool {
+	return rt.Target.TargetPath != "" && !strings.Contains(rt.Target.TargetPath, "{path}") && strings.EqualFold(filepath.Ext(rt.Target.TargetPath), ".md")
+}
+
 func markdownSourceDir(rt config.ResolvedTarget) string {
+	if len(rt.Target.Sources) > 0 {
+		return rt.AbsRoot
+	}
 	if p := rt.ExistingSourcePath(); p != "" {
+		if info, err := os.Stat(p); err == nil && !info.IsDir() {
+			return filepath.Dir(p)
+		}
 		return p
 	}
 	if p := rt.SourcePath(); p != "" {
+		if strings.EqualFold(filepath.Ext(p), ".md") {
+			return filepath.Dir(p)
+		}
 		return p
 	}
 	return markdownLangDir(rt, rt.Target.SourceLang)
+}
+
+func discoverMarkdownSourceFiles(rt config.ResolvedTarget) ([]string, error) {
+	if len(rt.Target.Sources) == 0 {
+		if p := rt.ExistingSourcePath(); p != "" {
+			if info, err := os.Stat(p); err == nil && !info.IsDir() && strings.EqualFold(filepath.Ext(p), ".md") {
+				return []string{p}, nil
+			}
+		}
+		srcDir := markdownSourceDir(rt)
+		return discoverMarkdownFiles(srcDir, rt.AbsRoot, markdownSourceExcludes(rt))
+	}
+
+	all, err := discoverMarkdownFiles(rt.AbsRoot, rt.AbsRoot, markdownSourceExcludes(rt))
+	if err != nil {
+		return nil, err
+	}
+	var files []string
+	for _, p := range all {
+		rel, err := filepath.Rel(rt.AbsRoot, p)
+		if err != nil {
+			continue
+		}
+		if matchAnyPathPattern(filepath.ToSlash(rel), rt.Target.Sources) {
+			files = append(files, p)
+		}
+	}
+	sort.Strings(files)
+	return files, nil
+}
+
+func matchAnyPathPattern(rel string, patterns []string) bool {
+	for _, pattern := range patterns {
+		pattern = strings.Trim(strings.TrimSpace(filepath.ToSlash(pattern)), "/")
+		if pattern == "" {
+			continue
+		}
+		if strings.HasSuffix(pattern, "/**") {
+			base := strings.TrimSuffix(pattern, "/**")
+			if rel == base || strings.HasPrefix(rel, base+"/") {
+				return true
+			}
+		}
+		if strings.Contains(pattern, "**/") {
+			prefix := strings.Split(pattern, "**/")[0]
+			suffix := strings.Split(pattern, "**/")[1]
+			if strings.HasPrefix(rel, prefix) {
+				if ok, _ := pathpkg.Match(suffix, strings.TrimPrefix(rel, prefix)); ok {
+					return true
+				}
+				parts := strings.Split(strings.TrimPrefix(rel, prefix), "/")
+				for i := range parts {
+					if ok, _ := pathpkg.Match(suffix, strings.Join(parts[i:], "/")); ok {
+						return true
+					}
+				}
+			}
+		}
+		if ok, _ := pathpkg.Match(pattern, rel); ok || rel == pattern || strings.HasPrefix(rel, pattern+"/") {
+			return true
+		}
+	}
+	return false
 }
 
 func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
@@ -310,7 +460,7 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 
 	srcLang := rt.Target.SourceLang
 	srcDir := markdownSourceDir(rt)
-	srcFiles, _ := discoverMarkdownFiles(srcDir)
+	srcFiles, _ := discoverMarkdownSourceFiles(rt)
 	if len(srcFiles) == 0 {
 		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcDir+")")
 		return
@@ -339,7 +489,7 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 
 	for _, lang := range langs {
 		langDir := markdownLangDir(rt, lang)
-		files, _ := discoverMarkdownFiles(langDir)
+		files, _ := discoverMarkdownTargetFiles(rt, lang)
 		if len(files) == 0 {
 			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n",
 				langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("missing"), colorReset)
@@ -353,7 +503,7 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 				continue
 			}
 			relPath, relErr := filepath.Rel(langDir, p)
-			if relErr == nil {
+			if relErr == nil && !markdownTargetIsFile(rt) {
 				if srcFile, ok := srcByRelPath[filepath.ToSlash(relPath)]; ok {
 					mdfile.SyncKeys(srcFile, f)
 				}
@@ -372,11 +522,23 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 	}
 }
 
+func discoverMarkdownTargetFiles(rt config.ResolvedTarget, lang string) ([]string, error) {
+	if markdownTargetIsFile(rt) {
+		path := rt.TranslationPath(lang)
+		if _, err := os.Stat(path); err == nil {
+			return []string{path}, nil
+		}
+		return nil, nil
+	}
+	langDir := markdownLangDir(rt, lang)
+	return discoverMarkdownFiles(langDir, langDir, nil)
+}
+
 func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 	srcLang := rt.Target.SourceLang
 	srcDir := markdownSourceDir(rt)
 
-	srcFiles, _ := discoverMarkdownFiles(srcDir)
+	srcFiles, _ := discoverMarkdownSourceFiles(rt)
 	if len(srcFiles) == 0 {
 		logError(T("Cannot find source Markdown files in %s"), srcDir)
 		logInfo(T("Expected markdown files under: %s"), srcDir)
@@ -404,7 +566,7 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 				logError(T("Computing relative path for %s: %v"), srcPath, err)
 				continue
 			}
-			targetPath := filepath.Join(langDir, relPath)
+			targetPath := markdownTargetPath(rt, lang, relPath)
 
 			srcFile, err := mdfile.ParseFile(srcPath)
 			if err != nil {
@@ -454,7 +616,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	logInfo(T("Translating: %s"), strings.Join(langs, ", "))
 
 	srcDir := markdownSourceDir(rt)
-	srcFiles, _ := discoverMarkdownFiles(srcDir)
+	srcFiles, _ := discoverMarkdownSourceFiles(rt)
 	if len(srcFiles) == 0 {
 		return fmt.Errorf(T("cannot find source Markdown files in %s"), srcDir)
 	}
@@ -471,7 +633,6 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	if a.dryRun {
 		for _, lang := range langs {
 			langName := i18next.ResolveMeta(lang).Name
-			langDir := markdownLangDir(rt, lang)
 			count := 0
 			for _, srcPath := range srcFiles {
 				relPath, err := filepath.Rel(srcDir, srcPath)
@@ -479,7 +640,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 					logError(T("Computing relative path for %s: %v"), srcPath, err)
 					continue
 				}
-				targetPath := filepath.Join(langDir, relPath)
+				targetPath := markdownTargetPath(rt, lang, relPath)
 				srcFile, err := mdfile.ParseFile(srcPath)
 				if err != nil {
 					continue
@@ -520,7 +681,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 				logError(T("Computing relative path for %s: %v"), srcPath, err)
 				continue
 			}
-			targetPath := filepath.Join(langDir, relPath)
+			targetPath := markdownTargetPath(rt, lang, relPath)
 
 			srcFile, err := mdfile.ParseFile(srcPath)
 			if err != nil {

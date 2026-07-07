@@ -94,8 +94,8 @@ locked_patterns:
 targets:
   - name: ui
     format: i18next
-    dir: locales
-    pattern: "{lang}.json"
+    from: [locales/en.json]
+    to: locales/{lang}.json
     ignored_keys:
       - debug_label
     locked_keys:
@@ -120,8 +120,8 @@ Each format has a built-in system prompt optimized for its structure. You can ov
 targets:
   - name: app
     format: i18next
-    dir: locales
-    pattern: "{lang}.json"
+    from: [locales/en.json]
+    to: locales/{lang}.json
     prompt: "Translate to {{targetLang}}. Use formal register. Keep technical terms in English."
 ```
 
@@ -197,25 +197,26 @@ languages: [de, es, fr, ru]
 targets:
   - name: main-app
     format: gettext
-    dir: po
-    pot: messages.pot
+    from: [src/**/*.py]
+    template: po/messages.pot
+    to: po/{lang}.po
 
   - name: docs
     format: po4a
     root: documentation
-    config: po4a.cfg
+    from: [po4a.cfg]
 
   - name: web-frontend
     format: i18next
     root: packages/web
-    dir: src/i18n
-    pattern: "{lang}.json"
+    from: [src/i18n/en.json]
+    to: src/i18n/{lang}.json
 
   - name: mobile-app
     format: flutter
     root: packages/mobile
-    dir: lib/l10n
-    pattern: "app_{lang}.arb"
+    from: [lib/l10n/app_en.arb]
+    to: lib/l10n/app_{lang}.arb
 ```
 
 Each target operates independently within its `root` directory. All targets are processed together by `lokit status`, `lokit init`, and `lokit translate`.

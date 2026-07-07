@@ -59,6 +59,10 @@ type Surface struct {
 	Format     string       `yaml:"format,omitempty"`
 	Type       string       `yaml:"-"`
 	Root       string       `yaml:"root,omitempty"`
+	From       *FromField   `yaml:"from,omitempty"`
+	Except     []string     `yaml:"except,omitempty"`
+	To         string       `yaml:"to,omitempty"`
+	Template   string       `yaml:"template,omitempty"`
 	Dir        string       `yaml:"dir,omitempty"`
 	Pattern    string       `yaml:"pattern,omitempty"`
 	Source     *SourceField `yaml:"source,omitempty"`
@@ -66,6 +70,7 @@ type Surface struct {
 
 	POT      string   `yaml:"pot,omitempty"`
 	Sources  []string `yaml:"sources,omitempty"`
+	Exclude  []string `yaml:"exclude,omitempty"`
 	Keywords []string `yaml:"keywords,omitempty"`
 
 	Config string `yaml:"config,omitempty"`
@@ -90,6 +95,14 @@ type Target struct {
 	Type string `yaml:"-"`
 	// Root is the working directory relative to lokit.yaml (default ".").
 	Root string `yaml:"root,omitempty"`
+	// From describes source files/records relative to Root.
+	From *FromField `yaml:"from,omitempty"`
+	// Except lists path globs excluded from From discovery.
+	Except []string `yaml:"except,omitempty"`
+	// To is the translation output path template relative to Root.
+	To string `yaml:"to,omitempty"`
+	// Template is an optional template/catalog output path relative to Root.
+	Template string `yaml:"template,omitempty"`
 	// Dir is the unified directory option for targets that need a base directory.
 	Dir string `yaml:"dir,omitempty"`
 	// Pattern is an optional file path template (relative to Dir) for
@@ -110,6 +123,8 @@ type Target struct {
 	POT string `yaml:"pot,omitempty"`
 	// Sources are source files/globs to scan for translatable strings.
 	Sources []string `yaml:"sources,omitempty"`
+	// Exclude lists path globs to skip while discovering source files.
+	Exclude []string `yaml:"exclude,omitempty"`
 	// Keywords are xgettext keyword options (default "_,N_,gettext,eval_gettext").
 	Keywords []string `yaml:"keywords,omitempty"`
 	// SourceLang overrides the source language for xgettext.
@@ -476,6 +491,7 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		}
 		targetNames[t.Name] = struct{}{}
 		if len(t.Surfaces) > 0 {
+			normalizeTargetSchema(t)
 			if t.Format != "" {
 				return nil, fmt.Errorf("%s: target %q uses both target format and surfaces; use one style only", path, t.Name)
 			}
@@ -484,6 +500,7 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			}
 			for si := range t.Surfaces {
 				s := &t.Surfaces[si]
+				normalizeSurfaceSchema(s)
 				if s.Format == "" {
 					return nil, fmt.Errorf("%s: target %q surface #%d has no format", path, t.Name, si+1)
 				}
@@ -525,6 +542,7 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 		if t.Format == "" {
 			return nil, fmt.Errorf("%s: target %q has no format", path, t.Name)
 		}
+		normalizeTargetSchema(t)
 		t.Type = t.Format
 
 		// Default root
@@ -631,6 +649,7 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 				TargetPath:     s.TargetPath,
 				POT:            s.POT,
 				Sources:        s.Sources,
+				Exclude:        mergeStringSlices(t.Exclude, s.Exclude),
 				Keywords:       s.Keywords,
 				SourceLang:     coalesceString(s.SourceLang, t.SourceLang),
 				Config:         s.Config,
@@ -658,6 +677,9 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 			if len(st.Sources) == 0 {
 				st.Sources = t.Sources
 			}
+			if len(st.Exclude) == 0 {
+				st.Exclude = t.Exclude
+			}
 
 			absRoot := filepath.Join(absProjectRoot, st.Root)
 			expanded, err := expandTargetIDs(st, absRoot)
@@ -682,6 +704,77 @@ func coalesceString(v, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func normalizeSurfaceSchema(s *Surface) {
+	format := s.Format
+	if s.Type != "" {
+		format = s.Type
+	}
+	normalizeSchemaFields(format, s.From, s.Except, s.To, s.Template, &s.Dir, &s.Pattern, &s.Source, &s.TargetPath, &s.POT, &s.Sources, &s.Exclude, &s.Config)
+}
+
+func normalizeTargetSchema(t *Target) {
+	format := t.Format
+	if t.Type != "" {
+		format = t.Type
+	}
+	normalizeSchemaFields(format, t.From, t.Except, t.To, t.Template, &t.Dir, &t.Pattern, &t.Source, &t.TargetPath, &t.POT, &t.Sources, &t.Exclude, &t.Config)
+}
+
+func normalizeSchemaFields(format string, from *FromField, except []string, to, template string, dir *string, pattern *string, source **SourceField, targetPath *string, pot *string, sources *[]string, exclude *[]string, config *string) {
+	if len(except) > 0 {
+		*exclude = mergeStringSlices(*exclude, except)
+	}
+
+	if from != nil {
+		if from.IsIndex() && *source == nil {
+			*source = &SourceField{
+				Index:       from.Index,
+				RecordsPath: from.RecordsPath,
+				KeyField:    from.KeyField,
+				Fields:      append([]string{}, from.Fields...),
+			}
+		}
+		if len(from.Paths) > 0 {
+			isIDSource := len(from.Paths) == 1 && strings.Contains(from.Paths[0], "{id}")
+			if len(*sources) == 0 && !isIDSource {
+				*sources = append([]string{}, from.Paths...)
+			}
+			if len(from.Paths) == 1 && *source == nil && format != TargetTypeGettext && (format != TargetTypeMarkdown || isIDSource) {
+				*source = &SourceField{Path: from.Paths[0]}
+			}
+		}
+	}
+	if format == TargetTypePo4a && len(*sources) == 1 && *config == "" {
+		*config = (*sources)[0]
+	}
+
+	if to != "" && *targetPath == "" {
+		*targetPath = to
+	}
+
+	if template != "" && *pot == "" {
+		if format == TargetTypeGettext {
+			*dir = filepath.ToSlash(filepath.Dir(template))
+			if *dir == "." {
+				*dir = ""
+			}
+			*pot = filepath.Base(template)
+		}
+	}
+
+	if format == TargetTypeGettext && to != "" && *dir == "" {
+		*dir = filepath.ToSlash(filepath.Dir(to))
+		if *dir == "." {
+			*dir = ""
+		}
+	}
+	if to != "" && *pattern == "" && *dir != "" {
+		if rel, err := filepath.Rel(filepath.FromSlash(*dir), filepath.FromSlash(to)); err == nil && !strings.HasPrefix(rel, "..") {
+			*pattern = filepath.ToSlash(rel)
+		}
+	}
 }
 
 func mergeStringSlices(a, b []string) []string {

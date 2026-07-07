@@ -10,8 +10,8 @@
 //     rules (---, ***, ___) into sections, stored as segments with keys
 //     like "sec:0", "sec:1", ...
 //
-//   - Code blocks (``` ... ```) and HTML blocks are NOT split on and are
-//     included verbatim in the section that contains them.
+//   - Code blocks (``` ... ```) are preserved with placeholders so their
+//     contents are not sent for translation.
 //
 // The round-trip serialization reconstructs the original file structure.
 package markdown
@@ -51,6 +51,8 @@ type File struct {
 	fmKeys []string
 	// fmNode is the raw YAML node for front matter round-trip.
 	fmNode *yaml.Node
+	// codeBlocks maps internal placeholders to original fenced code blocks.
+	codeBlocks map[string]string
 }
 
 // ---------------------------------------------------------------------------
@@ -80,7 +82,8 @@ func ParseFile(path string) (*File, error) {
 func Parse(data []byte) (*File, error) {
 	text := string(data)
 	f := &File{
-		index: make(map[string]int),
+		index:      make(map[string]int),
+		codeBlocks: make(map[string]string),
 	}
 
 	// --- Extract front matter ---
@@ -100,6 +103,7 @@ func Parse(data []byte) (*File, error) {
 	}
 
 	// --- Split body into sections ---
+	text = f.maskCodeBlocks(text)
 	// Find code block ranges to exclude from delimiter search.
 	codeRanges := codeBlockFence.FindAllStringIndex(text, -1)
 
@@ -277,7 +281,7 @@ func (f *File) Marshal() ([]byte, error) {
 		if seg.Value == "" {
 			continue
 		}
-		buf.WriteString(strings.TrimSpace(seg.Value))
+		buf.WriteString(strings.TrimSpace(f.restoreCodeBlocks(seg.Value)))
 		buf.WriteString("\n\n")
 	}
 
@@ -312,6 +316,7 @@ func NewTranslationFile(src *File, _ string) *File {
 		index:          make(map[string]int),
 		hasFrontmatter: src.hasFrontmatter,
 		fmKeys:         append([]string{}, src.fmKeys...),
+		codeBlocks:     copyStringMap(src.codeBlocks),
 	}
 
 	// Deep-copy fmNode.
@@ -357,7 +362,34 @@ func SyncKeys(src, target *File) {
 	target.index = rebuilt.index
 	target.fmKeys = rebuilt.fmKeys
 	target.fmNode = rebuilt.fmNode
+	target.codeBlocks = rebuilt.codeBlocks
 	target.hasFrontmatter = rebuilt.hasFrontmatter
+}
+
+func (f *File) maskCodeBlocks(text string) string {
+	return codeBlockFence.ReplaceAllStringFunc(text, func(block string) string {
+		key := fmt.Sprintf("<!-- lokit:code-block:%d -->", len(f.codeBlocks))
+		f.codeBlocks[key] = block
+		return key
+	})
+}
+
+func (f *File) restoreCodeBlocks(text string) string {
+	for placeholder, block := range f.codeBlocks {
+		text = strings.ReplaceAll(text, placeholder, block)
+	}
+	return text
+}
+
+func copyStringMap(src map[string]string) map[string]string {
+	if len(src) == 0 {
+		return nil
+	}
+	cp := make(map[string]string, len(src))
+	for k, v := range src {
+		cp[k] = v
+	}
+	return cp
 }
 
 // insideRanges returns true if pos falls within any of the given [start,end) ranges.

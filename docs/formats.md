@@ -6,7 +6,7 @@ lokit supports 12 translation formats. This page explains the required configura
 
 PO/POT files used by GNU gettext. Common in C, Python, Go, and shell projects.
 
-**Required fields:** `format`, `dir`, `pot`
+**Required fields:** `format`, `template`, `to`
 
 **File layout:**
 ```
@@ -20,16 +20,16 @@ po/
 ```yaml
 - name: app
   format: gettext
-  dir: po
-  pot: messages.pot
-  sources: [src]           # directories to scan with xgettext
+  from: [src]              # directories/files to scan with xgettext
+  template: po/messages.pot
+  to: po/{lang}.po
   keywords: [_, "N_:1,2"]  # xgettext keyword definitions
 ```
 
 **Notes:**
 - `lokit init` runs `xgettext` to extract strings and `msgmerge` to update existing PO files
-- `sources` and `keywords` are optional — needed only if you want `lokit init` to extract strings
-- If your project already manages POT/PO files externally, just set `dir` and `pot`
+- `from` and `keywords` are optional for extraction only if your project already manages POT/PO files externally
+- If your project already manages POT/PO files externally, set `template` and `to`
 - Extraction uses **multiple xgettext passes** so that formats requiring an explicit
   `--language=` flag are handled correctly:
   1. Auto-detected languages (Python, C, C++, Shell, JavaScript, etc.)
@@ -37,7 +37,7 @@ po/
   3. Glade/GTK Builder UI files (`.glade`, `.ui`) — `--language=Glade`
   4. Desktop entry files (`.desktop`, `.nemo_action`) — `--language=Desktop`
   5. Polkit policy files (`.policy`, `.policy.template`) — via ITS rules when available
-- When `.desktop` / `.nemo_action` files are found in `sources`, both `lokit init` and
+- When `.desktop` / `.nemo_action` files are found in `from`, both `lokit init` and
   `lokit translate` **seed inline translations** from them into PO files —
   so existing `Name[de]=`, `Comment[de]=` fields are immediately reflected in PO
   without a separate AI translation pass. The seeding runs automatically during the
@@ -52,7 +52,7 @@ po/
 
 PO files managed by [po4a](https://po4a.org/) for translating documentation and manpages.
 
-**Required fields:** `format`, `config`
+**Required fields:** `format`, `from`
 
 **File layout:**
 ```
@@ -68,13 +68,13 @@ po/
 - name: docs
   format: po4a
   root: docs
-  config: po4a.cfg
+  from: [po4a.cfg]
 ```
 
 **Notes:**
 - `lokit init` runs `po4a --no-translations` to extract strings
 - `lokit translate` translates the PO files, then you run `po4a` to generate translated documents
-- `config` is the path to your existing `po4a.cfg`, relative to `root`
+- `from` points to your existing `po4a.cfg`, relative to `root`
 
 ---
 
@@ -82,7 +82,7 @@ po/
 
 JSON files used by the [i18next](https://www.i18next.com/) framework. Flat or nested key structure.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `from`, `to`
 
 **File layout:**
 ```
@@ -105,18 +105,18 @@ locales/
 ```yaml
 - name: frontend
   format: i18next
-  dir: locales
-  pattern: "{lang}.json"
+  from: [locales/en.json]
+  to: locales/{lang}.json
 
 # Or with subdirectories:
 - name: frontend
   format: i18next
-  dir: locales
-  pattern: "{lang}/common.json"
+  from: [locales/en/common.json]
+  to: locales/{lang}/common.json
 ```
 
 **Notes:**
-- `pattern` must contain `{lang}` — lokit replaces it with each target language code
+- `to` must contain `{lang}` — lokit replaces it with each target language code
 - `lokit init` creates empty JSON files for missing languages
 - Nested keys are preserved as-is
 
@@ -126,7 +126,7 @@ locales/
 
 JSON files used by [Vue I18n](https://vue-i18n.intlify.dev/). Similar to i18next but designed for Vue.js projects with deeply nested locale structures.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `from`, `to`
 
 **File layout:**
 ```
@@ -140,8 +140,8 @@ src/locales/
 ```yaml
 - name: vue
   format: vue-i18n
-  dir: src/locales
-  pattern: "{lang}.json"
+  from: [src/locales/en.json]
+  to: src/locales/{lang}.json
 ```
 
 **Notes:**
@@ -154,7 +154,7 @@ src/locales/
 
 Android string resource XML files (`strings.xml`).
 
-**Required fields:** `format`, `dir`
+**Required fields:** `format`, `to`
 
 **File layout:**
 ```
@@ -171,12 +171,12 @@ app/src/main/res/
 ```yaml
 - name: android
   format: android
-  dir: app/src/main/res
+  to: app/src/main/res
 ```
 
 **Notes:**
 - Android uses a fixed directory convention (`values-<lang>/strings.xml`)
-- No `pattern` needed — the directory layout is determined by the Android resource system
+- No per-language template needed — the directory layout is determined by the Android resource system
 - `lokit init` is not required for Android targets; use `lokit translate` directly
 
 ---
@@ -185,7 +185,7 @@ app/src/main/res/
 
 YAML key-value translation files.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `from`, `to`
 
 **File layout:**
 ```
@@ -199,13 +199,13 @@ i18n/
 ```yaml
 - name: translations
   format: yaml
-  dir: i18n
-  pattern: "{lang}.yaml"
+  from: [i18n/en.yaml]
+  to: i18n/{lang}.yaml
 ```
 
 **Notes:**
 - Flat and nested key structures are both supported
-- `pattern` must contain `{lang}`
+- `to` must contain `{lang}`
 
 ---
 
@@ -213,29 +213,34 @@ i18n/
 
 Markdown document translation with optional YAML frontmatter support.
 
-**Required fields:** `format`, `dir`
+**Required fields:** `format`, `from`, `to`
 
 lokit supports two markdown layouts:
 
 ### Directory layout
 
-Source and translated files live in language-named subdirectories:
+Source files can be mirrored into language-named translation directories:
 
 ```
 docs/
-  en/
-    guide.md
-    api.md
-  ru/
-    guide.md
-    api.md
+  guide.md
+  api.md
+  translations/
+    ru/
+      guide.md
+      api.md
+    de/
+      guide.md
+      api.md
 ```
 
 ```yaml
 - name: docs
   format: markdown
-  dir: docs
-  source_lang: en
+  root: docs
+  from: ["**/*.md"]
+  except: [translations/**]
+  to: translations/{lang}/{path}
 ```
 
 ### Filename-suffix layout
@@ -251,14 +256,13 @@ README.de.md           ← German
 ```yaml
 - name: readme
   format: markdown
-  dir: .
-  source: README.md
-  pattern: "README.{lang}.md"
+  from: [README.md]
+  to: README.{lang}.md
 ```
 
 **Notes:**
 - YAML frontmatter is extracted and translated separately from the body
-- Nested directories are supported in directory layout (e.g., `en/guide/intro.md` -> `ru/guide/intro.md`)
+- Nested directories are supported with `{path}` (e.g., `guide/intro.md` -> `translations/ru/guide/intro.md`)
 - Code blocks are preserved and not sent to translation
 
 ---
@@ -267,7 +271,7 @@ README.de.md           ← German
 
 Java `.properties` files.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `from`, `to`
 
 **File layout:**
 ```
@@ -281,14 +285,14 @@ src/main/resources/i18n/
 ```yaml
 - name: java
   format: properties
-  dir: src/main/resources/i18n
-  pattern: "messages_{lang}.properties"
+  from: [src/main/resources/i18n/messages_en.properties]
+  to: src/main/resources/i18n/messages_{lang}.properties
 ```
 
 **Notes:**
 - Standard Java properties format (`key=value`)
 - Comments are preserved
-- `pattern` must contain `{lang}`
+- `to` must contain `{lang}`
 
 ---
 
@@ -296,7 +300,7 @@ src/main/resources/i18n/
 
 Flutter Application Resource Bundle (`.arb`) files.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `from`, `to`
 
 **File layout:**
 ```
@@ -310,14 +314,14 @@ lib/l10n/
 ```yaml
 - name: flutter
   format: flutter
-  dir: lib/l10n
-  pattern: "app_{lang}.arb"
+  from: [lib/l10n/app_en.arb]
+  to: lib/l10n/app_{lang}.arb
 ```
 
 **Notes:**
 - ARB is a JSON-based format used by Flutter's `intl` package
 - Metadata keys (starting with `@`) are preserved but not translated
-- `pattern` must contain `{lang}`
+- `to` must contain `{lang}`
 
 ---
 
@@ -325,7 +329,7 @@ lib/l10n/
 
 JavaScript key-value files with `export default` or `module.exports` assignments.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `from`, `to`
 
 **File layout:**
 ```
@@ -339,13 +343,13 @@ translations/
 ```yaml
 - name: legacy
   format: js-kv
-  dir: translations
-  pattern: "{lang}.js"
+  from: [translations/en.js]
+  to: translations/{lang}.js
 ```
 
 **Notes:**
 - Supports `export default { key: "value" }` and `module.exports = { key: "value" }`
-- `pattern` must contain `{lang}`
+- `to` must contain `{lang}`
 
 ---
 
@@ -353,7 +357,7 @@ translations/
 
 [freedesktop.org desktop entry](https://specifications.freedesktop.org/desktop-entry-spec/latest/) files. Translations are stored inline in the same file.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `to`
 
 **File layout:**
 ```
@@ -364,14 +368,13 @@ myapp.desktop          ← single file with all languages
 ```yaml
 - name: desktop
   format: desktop
-  dir: .
-  pattern: "myapp.desktop"
+  to: myapp.desktop
 ```
 
 **Notes:**
 - Translatable fields: `Name`, `GenericName`, `Comment`, `Keywords`
 - Translations are written as `Name[ru]=...` inline in the same `.desktop` file
-- `pattern` points to the specific file (no `{lang}` needed in the pattern for single-file formats, though `{lang}` is still accepted)
+- `to` points to the specific file (no `{lang}` needed for single-file formats)
 
 ---
 
@@ -379,7 +382,7 @@ myapp.desktop          ← single file with all languages
 
 [PolicyKit](https://www.freedesktop.org/software/polkit/docs/latest/) XML policy files. Translations are stored inline.
 
-**Required fields:** `format`, `dir`, `pattern`
+**Required fields:** `format`, `to`
 
 **File layout:**
 ```
@@ -390,8 +393,7 @@ org.example.policy     ← single file with all languages
 ```yaml
 - name: polkit
   format: polkit
-  dir: .
-  pattern: "org.example.policy"
+  to: org.example.policy
 ```
 
 **Notes:**
