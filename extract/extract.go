@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	po "github.com/minios-linux/lokit/internal/format/po"
 )
 
 // SupportedExtensions maps file extensions to xgettext language names.
@@ -551,10 +553,19 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 	}
 
 	// xgettext may not create the file if no strings were found in any pass
-	if _, err := os.Stat(potFile); os.IsNotExist(err) {
+	if info, err := os.Stat(potFile); os.IsNotExist(err) {
 		// Create an empty POT file so downstream tools don't error
 		if err := os.WriteFile(potFile, []byte(""), 0644); err != nil {
 			return nil, fmt.Errorf("creating empty POT: %w", err)
+		}
+	} else if err == nil && info.Size() > 0 {
+		potPO, err := po.ParseFile(potFile)
+		if err != nil {
+			return nil, fmt.Errorf("reading generated POT: %w", err)
+		}
+		potPO.ClearTranslationsForPOT()
+		if err := potPO.WriteFile(potFile); err != nil {
+			return nil, fmt.Errorf("normalizing generated POT: %w", err)
 		}
 	}
 

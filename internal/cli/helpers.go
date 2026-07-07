@@ -187,6 +187,15 @@ func doExtract(proj *config.Project) ([]string, error) {
 		finalPOT = result.POTFile
 	}
 
+	if finalPOT != "" {
+		if potPO, err := po.ParseFile(finalPOT); err == nil {
+			potPO.ClearTranslationsForPOT()
+			if err := potPO.WriteFile(finalPOT); err != nil {
+				return desktopFiles, fmt.Errorf(T("normalizing POT template %s: %w"), finalPOT, err)
+			}
+		}
+	}
+
 	// Count extracted strings
 	potPO, err := po.ParseFile(finalPOT)
 	if err == nil {

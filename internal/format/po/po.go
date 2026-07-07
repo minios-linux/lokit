@@ -96,6 +96,20 @@ func (e *Entry) HasFlag(flag string) bool {
 	return false
 }
 
+// ClearTranslationsForPOT empties msgstr fields for non-header entries so the
+// file can be written as a gettext POT template (msgid only, empty msgstr).
+func (f *File) ClearTranslationsForPOT() {
+	for _, e := range f.Entries {
+		if e.MsgID == "" {
+			continue
+		}
+		e.MsgStr = ""
+		if len(e.MsgStrPlural) > 0 {
+			e.MsgStrPlural = make(map[int]string)
+		}
+	}
+}
+
 // File represents a parsed PO/POT file.
 type File struct {
 	// Header is the metadata entry (msgid "").

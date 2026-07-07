@@ -2,6 +2,7 @@ package extract
 
 import (
 	"go/parser"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -155,6 +156,41 @@ func TestGroupFilesForXgettext(t *testing.T) {
 	}
 	if !reflect.DeepEqual(groups.polkit, wantPolkit) {
 		t.Fatalf("polkit = %#v, want %#v", groups.polkit, wantPolkit)
+	}
+}
+
+func TestRunXgettextClearsTranslationsFromPOSource(t *testing.T) {
+	if _, err := exec.LookPath("xgettext"); err != nil {
+		t.Skip("xgettext not installed")
+	}
+
+	tmp := t.TempDir()
+	src := filepath.Join(tmp, "en_US.po")
+	pot := filepath.Join(tmp, "messages.pot")
+	content := `msgid ""
+msgstr ""
+"Language: en_US\n"
+
+msgid "Resume previous session"
+msgstr "Resume previous session"
+`
+	if err := os.WriteFile(src, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := RunXgettext([]string{src}, pot, "", "", "", nil, tmp); err != nil {
+		t.Fatalf("RunXgettext: %v", err)
+	}
+	data, err := os.ReadFile(pot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := string(data)
+	if strings.Contains(out, `msgstr "Resume previous session"`) {
+		t.Fatalf("POT contains copied translation: %s", out)
+	}
+	if !strings.Contains(out, `msgid "Resume previous session"`) || !strings.Contains(out, `msgstr ""`) {
+		t.Fatalf("POT does not contain expected empty translation: %s", out)
 	}
 }
 

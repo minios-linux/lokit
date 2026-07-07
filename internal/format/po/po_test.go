@@ -7,6 +7,32 @@ import (
 	"testing"
 )
 
+func TestClearTranslationsForPOT(t *testing.T) {
+	input := `msgid ""
+msgstr ""
+"Language: en\n"
+
+msgid "hello"
+msgstr "translated"
+`
+	f, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	f.ClearTranslationsForPOT()
+	var buf bytes.Buffer
+	if err := f.Write(&buf); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+	out := buf.String()
+	if strings.Contains(out, `msgstr "translated"`) {
+		t.Fatalf("POT still has translation: %s", out)
+	}
+	if !strings.Contains(out, `msgstr ""`) {
+		t.Fatalf("expected empty msgstr for entry: %s", out)
+	}
+}
+
 func TestParseWriteRoundTripAndHeaderFields(t *testing.T) {
 	input := `msgid ""
 msgstr ""
