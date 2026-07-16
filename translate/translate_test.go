@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -29,6 +31,20 @@ func newTestKVFile(keys []string, values map[string]string) *testKVFile {
 		copyVals[k] = v
 	}
 	return &testKVFile{keys: append([]string(nil), keys...), values: copyVals}
+}
+
+func identifiedKVProviderResponse(keys, translations []string) string {
+	ids := kvTranslationIDs(keys)
+	items := make([]identifiedTranslation, len(keys))
+	for i := range keys {
+		value, _ := json.Marshal(translations[i])
+		items[i] = identifiedTranslation{ID: ids[i], Translation: value}
+	}
+	content, _ := json.Marshal(items)
+	response, _ := json.Marshal(map[string]any{
+		"choices": []any{map[string]any{"message": map[string]string{"content": string(content)}}},
+	})
+	return string(response)
 }
 
 func (f *testKVFile) Keys() []string {
@@ -549,10 +565,10 @@ func TestBuildKVUserPrompt_UsesSourceValuesAndFallbackToKey(t *testing.T) {
 	if !strings.Contains(prompt, "Translate these strings from English to Russian") {
 		t.Fatalf("prompt missing language header: %q", prompt)
 	}
-	if !strings.Contains(prompt, `1. "Home"`) {
+	if !strings.Contains(prompt, `ID `+kvTranslationIDs(keys)[0]+`: "Home"`) {
 		t.Fatalf("prompt missing source value: %q", prompt)
 	}
-	if !strings.Contains(prompt, `2. "menu.help"`) {
+	if !strings.Contains(prompt, `ID `+kvTranslationIDs(keys)[1]+`: "menu.help"`) {
 		t.Fatalf("prompt missing fallback key: %q", prompt)
 	}
 }
@@ -564,7 +580,8 @@ func TestBuildI18NextUserPrompt_UsesKeysAsSource(t *testing.T) {
 	if !strings.Contains(prompt, "Translate these UI strings from English to German") {
 		t.Fatalf("prompt missing language header: %q", prompt)
 	}
-	if !strings.Contains(prompt, `1. "Save"`) || !strings.Contains(prompt, `2. "Cancel"`) {
+	ids := kvTranslationIDs(keys)
+	if !strings.Contains(prompt, `ID `+ids[0]+`: "Save"`) || !strings.Contains(prompt, `ID `+ids[1]+`: "Cancel"`) {
 		t.Fatalf("prompt missing key list: %q", prompt)
 	}
 }
@@ -577,7 +594,7 @@ func TestBuildMarkdownUserPrompt_IncludesMarkdownRules(t *testing.T) {
 	if !strings.Contains(prompt, "preserve all formatting") {
 		t.Fatalf("markdown rules missing from prompt: %q", prompt)
 	}
-	if !strings.Contains(prompt, `1. "# Welcome\nText"`) {
+	if !strings.Contains(prompt, `ID `+kvTranslationIDs(keys)[0]+`: "# Welcome\nText"`) {
 		t.Fatalf("prompt missing escaped markdown source: %q", prompt)
 	}
 }
@@ -629,6 +646,119 @@ func TestParseTranslations_UsesFirstCompleteJSONArray(t *testing.T) {
 	}
 	if len(translations) != 1 || !strings.Contains(translations[0], "CondinAPT") {
 		t.Fatalf("unexpected parsed translations: %#v", translations)
+	}
+}
+
+func TestParseTranslationsRejectsWrongItemCount(t *testing.T) {
+	if _, err := parseTranslations(`["one"]`, 2); err == nil {
+		t.Fatal("expected short positional response to be rejected")
+	}
+	if _, err := parseTranslations(`["one","two","three"]`, 2); err == nil {
+		t.Fatal("expected long positional response to be rejected")
+	}
+}
+
+func TestParseIdentifiedStringTranslationsMapsReorderedResponse(t *testing.T) {
+	ids := []string{"msg-first", "msg-second", "msg-third"}
+	content := `[
+		{"id":"msg-third","translation":"three"},
+		{"id":"msg-first","translation":"one"},
+		{"id":"msg-second","translation":"two"}
+	]`
+
+	translations, err := parseIdentifiedStringTranslations(content, ids)
+	if err != nil {
+		t.Fatalf("parseIdentifiedStringTranslations returned error: %v", err)
+	}
+	want := []string{"one", "two", "three"}
+	for i := range want {
+		if translations[i] != want[i] {
+			t.Fatalf("translation[%d] = %q, want %q", i, translations[i], want[i])
+		}
+	}
+}
+
+func TestParseIdentifiedTranslationsRejectsMissingItem(t *testing.T) {
+	content := `[{"id":"msg-first","translation":"one"}]`
+	if _, err := parseIdentifiedStringTranslations(content, []string{"msg-first", "msg-second"}); err == nil {
+		t.Fatal("expected missing identified translation to be rejected")
+	}
+}
+
+func TestParseIdentifiedTranslationsRejectsDuplicateID(t *testing.T) {
+	content := `[
+		{"id":"msg-first","translation":"one"},
+		{"id":"msg-first","translation":"two"}
+	]`
+	if _, err := parseIdentifiedStringTranslations(content, []string{"msg-first", "msg-second"}); err == nil {
+		t.Fatal("expected duplicate identified translation to be rejected")
+	}
+}
+
+func TestParseIdentifiedTranslationsRejectsUnknownID(t *testing.T) {
+	content := `[
+		{"id":"msg-first","translation":"one"},
+		{"id":"msg-unknown","translation":"two"}
+	]`
+	if _, err := parseIdentifiedStringTranslations(content, []string{"msg-first", "msg-second"}); err == nil {
+		t.Fatal("expected unknown identified translation to be rejected")
+	}
+}
+
+func TestValidatePOTranslationsRejectsMissingPythonBracePlaceholder(t *testing.T) {
+	entries := []*po.Entry{{
+		MsgID: "{operation} data flow direction",
+		Flags: []string{"python-brace-format"},
+	}}
+	if err := validatePOTranslations(entries, []string{"Direction du flux de données"}); err == nil {
+		t.Fatal("expected missing Python brace placeholder to be rejected")
+	}
+}
+
+func TestValidatePOTranslationsRejectsChangedPrintfPlaceholder(t *testing.T) {
+	entries := []*po.Entry{{
+		MsgID: "%s copied: %d files",
+		Flags: []string{"c-format"},
+	}}
+	if err := validatePOTranslations(entries, []string{"%s kopiert: Dateien"}); err == nil {
+		t.Fatal("expected missing printf placeholder to be rejected")
+	}
+}
+
+func TestValidatePOTranslationsAcceptsPreservedPlaceholders(t *testing.T) {
+	entries := []*po.Entry{
+		{MsgID: "{operation} data flow direction", Flags: []string{"python-brace-format"}},
+		{MsgID: "%s copied: %d files", Flags: []string{"c-format"}},
+	}
+	translations := []string{
+		"Direction du flux de données {operation}",
+		"%s kopiert: %d Dateien",
+	}
+	if err := validatePOTranslations(entries, translations); err != nil {
+		t.Fatalf("preserved placeholders rejected: %v", err)
+	}
+}
+
+func TestValidateKVTranslationsRejectsMissingPlaceholders(t *testing.T) {
+	keys := []string{"welcome", "progress"}
+	sources := map[string]string{
+		"welcome":  "Welcome, {{name}}",
+		"progress": "%1$d of %2$d files",
+	}
+	if err := validateKVTranslations(keys, sources, []string{"Willkommen", "%1$d Dateien"}); err == nil {
+		t.Fatal("expected missing KV placeholders to be rejected")
+	}
+}
+
+func TestValidateKVTranslationsAcceptsReorderedTextWithPlaceholders(t *testing.T) {
+	keys := []string{"welcome", "progress"}
+	sources := map[string]string{
+		"welcome":  "Welcome, {{name}}",
+		"progress": "%1$d of %2$d files",
+	}
+	translations := []string{"Willkommen, {{name}}", "%1$d von %2$d Dateien"}
+	if err := validateKVTranslations(keys, sources, translations); err != nil {
+		t.Fatalf("preserved KV placeholders rejected: %v", err)
 	}
 }
 
@@ -703,7 +833,7 @@ func TestTranslateMarkdownSingleRetry_RestoresMaskedCodeBlocks(t *testing.T) {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"Perevod __LOKIT_CODE_BLOCK_0__ gotov\"]"}}]}`))
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"sec:0"}, []string{"Perevod __LOKIT_CODE_BLOCK_0__ gotov"})))
 	}))
 	defer ts.Close()
 
@@ -739,7 +869,7 @@ func TestTranslateMarkdownSingleRetry_RestoresMaskedCodeBlocks(t *testing.T) {
 	}
 }
 
-func TestTranslateMarkdownSingleRetry_AcceptsRawFallbackForMarkdown(t *testing.T) {
+func TestTranslateMarkdownSingleRetry_RejectsRawResponseWithoutID(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/chat/completions" {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
@@ -761,7 +891,7 @@ func TestTranslateMarkdownSingleRetry_AcceptsRawFallbackForMarkdown(t *testing.T
 	}
 
 	src := "### H\n\n```python\nx = \"`hello`\"\n```\n\nText"
-	translations, err := translateMarkdownSingleRetry(
+	_, err := translateMarkdownSingleRetry(
 		context.Background(),
 		"sec:0",
 		map[string]string{"sec:0": src},
@@ -769,17 +899,8 @@ func TestTranslateMarkdownSingleRetry_AcceptsRawFallbackForMarkdown(t *testing.T
 		opts,
 		&rateLimitState{},
 	)
-	if err != nil {
-		t.Fatalf("translateMarkdownSingleRetry error: %v", err)
-	}
-	if len(translations) != 1 {
-		t.Fatalf("expected 1 translation, got %d", len(translations))
-	}
-	if strings.Contains(translations[0], "__LOKIT_CODE_BLOCK_0__") {
-		t.Fatalf("placeholder was not restored: %q", translations[0])
-	}
-	if !strings.Contains(translations[0], "```python") || !strings.Contains(translations[0], "`hello`") {
-		t.Fatalf("expected restored fenced code block in translation, got %q", translations[0])
+	if err == nil {
+		t.Fatal("expected raw Markdown response without an ID to be rejected")
 	}
 }
 
@@ -820,7 +941,7 @@ func TestTranslateAllKVSequential_TranslatesAndSaves(t *testing.T) {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"Привет\",\"Пока\"]"}}]}`))
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"a", "b"}, []string{"Привет", "Пока"})))
 	}))
 	defer ts.Close()
 
@@ -857,12 +978,53 @@ func TestTranslateAllKVSequential_TranslatesAndSaves(t *testing.T) {
 	}
 }
 
+func TestTranslateAllKVSequentialMapsReorderedResponseByID(t *testing.T) {
+	keys := []string{"first", "second", "third"}
+	ids := kvTranslationIDs(keys)
+	items := []identifiedTranslation{
+		{ID: ids[2], Translation: json.RawMessage(`"three"`)},
+		{ID: ids[0], Translation: json.RawMessage(`"one"`)},
+		{ID: ids[1], Translation: json.RawMessage(`"two"`)},
+	}
+	content, _ := json.Marshal(items)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		_, _ = io.Copy(io.Discard, r.Body)
+		response := map[string]any{"choices": []any{map[string]any{"message": map[string]string{"content": string(content)}}}}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(response)
+	}))
+	defer ts.Close()
+
+	file := newTestKVFile(keys, map[string]string{"first": "", "second": "", "third": ""})
+	tasks := []KVLangTask{{
+		Lang:         "de",
+		LangName:     "German",
+		FilePath:     "de.json",
+		File:         file,
+		SourceValues: map[string]string{"first": "First", "second": "Second", "third": "Third"},
+	}}
+	opts := Options{
+		Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test-model"},
+		ParallelMode: ParallelSequential,
+	}
+
+	if err := TranslateAllKV(context.Background(), tasks, opts, DefaultKVChunkTranslator()); err != nil {
+		t.Fatalf("TranslateAllKV error: %v", err)
+	}
+	for key, want := range map[string]string{"first": "one", "second": "two", "third": "three"} {
+		if got := file.Value(key); got != want {
+			t.Fatalf("value[%s] = %q, want %q", key, got, want)
+		}
+	}
+}
+
 func TestTranslateAllKVSequential_SkipsMissingOrEmptySourceValues(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"Привет\"]"}}]}`))
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"name"}, []string{"Привет"})))
 	}))
 	defer ts.Close()
 
@@ -901,10 +1063,22 @@ func TestTranslateAllKVSequential_SkipsMissingOrEmptySourceValues(t *testing.T) 
 
 func TestTranslateAllKVFullParallel_TranslatesAllTasks(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.Copy(io.Discard, r.Body)
-		_ = r.Body.Close()
+		defer r.Body.Close()
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"[\"OK\"]"}}]}`))
+		var request struct {
+			Messages []struct {
+				Content string `json:"content"`
+			} `json:"messages"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			t.Fatalf("decode request: %v", err)
+		}
+		prompt := request.Messages[len(request.Messages)-1].Content
+		key := "k1"
+		if strings.Contains(prompt, `"Two"`) {
+			key = "k2"
+		}
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{key}, []string{"OK"})))
 	}))
 	defer ts.Close()
 
@@ -937,6 +1111,68 @@ func TestTranslateAllKVFullParallel_TranslatesAllTasks(t *testing.T) {
 	}
 	if f1.writtenTo != "fr.yaml" || f2.writtenTo != "de.yaml" {
 		t.Fatalf("files not saved: fr=%q de=%q", f1.writtenTo, f2.writtenTo)
+	}
+}
+
+func TestTranslateFullParallelMapsReorderedResponsesByID(t *testing.T) {
+	idPattern := regexp.MustCompile(`ID (msg-[^:]+):`)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		var request struct {
+			Messages []struct {
+				Content string `json:"content"`
+			} `json:"messages"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			t.Errorf("decode request: %v", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		userPrompt := request.Messages[len(request.Messages)-1].Content
+		matches := idPattern.FindAllStringSubmatch(userPrompt, -1)
+		items := make([]map[string]string, 0, len(matches))
+		for i := len(matches) - 1; i >= 0; i-- {
+			id := matches[i][1]
+			items = append(items, map[string]string{"id": id, "translation": "translated-" + id})
+		}
+		content, _ := json.Marshal(items)
+		response := map[string]any{"choices": []any{map[string]any{"message": map[string]string{"content": string(content)}}}}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(response)
+	}))
+	defer ts.Close()
+
+	makePO := func(msgids ...string) *po.File {
+		file := po.NewFile()
+		for _, msgid := range msgids {
+			file.Entries = append(file.Entries, &po.Entry{MsgID: msgid})
+		}
+		return file
+	}
+	fr := makePO("Choose source", "Browse images", "PLAN", "Backup plan")
+	ru := makePO("Restore plan", "Source partition", "Partition layout", "Choose disk")
+	tmp := t.TempDir()
+	tasks := []translationTask{
+		{lang: "fr", poFile: fr, poPath: filepath.Join(tmp, "fr.po")},
+		{lang: "ru", poFile: ru, poPath: filepath.Join(tmp, "ru.po")},
+	}
+	opts := Options{
+		Provider:      Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test-model"},
+		ParallelMode:  ParallelFullParallel,
+		MaxConcurrent: 4,
+		ChunkSize:     2,
+	}
+
+	if err := TranslateMulti(context.Background(), tasks, opts); err != nil {
+		t.Fatalf("TranslateMulti returned error: %v", err)
+	}
+	for _, file := range []*po.File{fr, ru} {
+		for _, entry := range file.Entries {
+			id := entryTranslationIDs([]*po.Entry{entry})[0]
+			if want := "translated-" + id; entry.MsgStr != want {
+				t.Fatalf("MsgStr for %q = %q, want %q", entry.MsgID, entry.MsgStr, want)
+			}
+		}
 	}
 }
 

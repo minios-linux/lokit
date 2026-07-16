@@ -2,8 +2,10 @@ package translate
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -55,6 +57,26 @@ func DefaultKVChunkTranslator() KVChunkTranslator { return defaultKVChunkTransla
 func I18NextChunkTranslator() KVChunkTranslator { return i18nextChunkTranslator{} }
 
 func MarkdownKVChunkTranslator() KVChunkTranslator { return markdownChunkTranslator{} }
+
+func kvTranslationIDs(keys []string) []string {
+	ids := make([]string, len(keys))
+	for i, key := range keys {
+		sum := sha256.Sum256([]byte(key))
+		ids[i] = fmt.Sprintf("kv-%x", sum[:8])
+	}
+	return ids
+}
+
+func identifiedKVSystemPrompt(base string) string {
+	return base + `
+
+KEY-VALUE RESPONSE CONTRACT:
+- The user message assigns an opaque ID to every source value.
+- Return ONLY a JSON array of objects with exactly two fields: "id" and "translation".
+- Copy every ID exactly. Do not omit, duplicate, rename, or invent IDs.
+- "translation" must be a non-empty string.
+- This contract replaces any earlier instruction to return a bare array of strings.`
+}
 
 func TranslateAllKV(ctx context.Context, langTasks []KVLangTask, opts Options, translator KVChunkTranslator) error {
 	if opts.ParallelMode == ParallelFullParallel {
@@ -298,21 +320,42 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 	}
 
 	userPrompt := translator.BuildUserPrompt(keys, promptVals, opts)
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userPrompt, rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
+	ids := kvTranslationIDs(keys)
+	systemPrompt = identifiedKVSystemPrompt(systemPrompt)
+	validationVals := promptVals
+	if _, ok := translator.(i18nextChunkTranslator); ok {
+		validationVals = nil
 	}
-	translations, err := parseTranslations(text, len(keys))
-	if err != nil {
-		if isMarkdownTranslator(translator) && len(keys) == 1 {
-			fallback, ok := parseMarkdownSingleRawFallback(text)
-			if !ok {
-				return nil, err
-			}
-			translations = []string{fallback}
-		} else {
+	maxRetries := opts.effectiveMaxRetries()
+	var translations []string
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		prompt := userPrompt
+		if lastErr != nil {
+			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
+		}
+		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
+		if err != nil {
 			return nil, err
 		}
+		translations, err = parseIdentifiedStringTranslations(text, ids)
+		if err == nil {
+			err = validateKVTranslations(keys, validationVals, translations)
+		}
+		if err == nil {
+			lastErr = nil
+			break
+		}
+		lastErr = err
+		if attempt < maxRetries {
+			opts.log("  Invalid translation response, retrying (%d/%d): %v", attempt+1, maxRetries, err)
+			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if lastErr != nil {
+		return nil, lastErr
 	}
 	if isMarkdownTranslator(translator) {
 		for i, key := range keys {
@@ -323,6 +366,28 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		}
 	}
 	return translations, nil
+}
+
+var kvBracePlaceholder = regexp.MustCompile(`\{\{[A-Za-z_][A-Za-z0-9_]*\}\}|\{[A-Za-z_][A-Za-z0-9_]*(?:![rsa])?(?::[^{}]*)?\}`)
+
+func validateKVTranslations(keys []string, srcVals map[string]string, translations []string) error {
+	if len(translations) != len(keys) {
+		return fmt.Errorf("got %d translations, expected %d", len(translations), len(keys))
+	}
+	for i, key := range keys {
+		source := key
+		if value := srcVals[key]; value != "" {
+			source = value
+		}
+		sourcePlaceholders := append(printfPlaceholder.FindAllString(source, -1), kvBracePlaceholder.FindAllString(source, -1)...)
+		translatedPlaceholders := append(printfPlaceholder.FindAllString(translations[i], -1), kvBracePlaceholder.FindAllString(translations[i], -1)...)
+		sort.Strings(sourcePlaceholders)
+		sort.Strings(translatedPlaceholders)
+		if !slicesEqual(sourcePlaceholders, translatedPlaceholders) {
+			return fmt.Errorf("key %q placeholders changed: expected %v, got %v", key, sourcePlaceholders, translatedPlaceholders)
+		}
+	}
+	return nil
 }
 
 func saveKVFile(file formatfile.KVFile, path string, opts Options) {
@@ -336,6 +401,7 @@ func saveKVFile(file formatfile.KVFile, path string, opts Options) {
 
 func buildKVUserPrompt(keys []string, srcVals map[string]string, sourceLangName, langName string) string {
 	var userMsg strings.Builder
+	ids := kvTranslationIDs(keys)
 	if sourceLangName != "" {
 		userMsg.WriteString(fmt.Sprintf("Translate these strings from %s to %s:\n\n", sourceLangName, langName))
 	} else {
@@ -348,28 +414,32 @@ func buildKVUserPrompt(keys []string, srcVals map[string]string, sourceLangName,
 				src = v
 			}
 		}
-		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(src)))
+		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(src)))
 	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects in this form: ", len(keys)))
+	userMsg.WriteString(`{"id":"kv-...","translation":"..."}. Preserve every input ID exactly; the objects may be returned in any order.`)
 	return userMsg.String()
 }
 
 func buildI18NextUserPrompt(keys []string, sourceLangName, langName string) string {
 	var userMsg strings.Builder
+	ids := kvTranslationIDs(keys)
 	if sourceLangName != "" {
 		userMsg.WriteString(fmt.Sprintf("Translate these UI strings from %s to %s:\n\n", sourceLangName, langName))
 	} else {
 		userMsg.WriteString(fmt.Sprintf("Translate these UI strings to %s:\n\n", langName))
 	}
 	for i, key := range keys {
-		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(key)))
+		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(key)))
 	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects in this form: ", len(keys)))
+	userMsg.WriteString(`{"id":"kv-...","translation":"..."}. Preserve every input ID exactly; the objects may be returned in any order.`)
 	return userMsg.String()
 }
 
 func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, sourceLangName, langName string) string {
 	var userMsg strings.Builder
+	ids := kvTranslationIDs(keys)
 	if sourceLangName != "" {
 		userMsg.WriteString(fmt.Sprintf("Translate these text segments from %s to %s.\n", sourceLangName, langName))
 	} else {
@@ -377,7 +447,7 @@ func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, sourceLan
 	}
 	userMsg.WriteString("For Markdown segments, preserve all formatting, headings, code blocks, and inline markup.\n")
 	userMsg.WriteString("Do not omit content, do not summarize, and keep the same heading levels (#, ##, ###) and fenced code blocks.\n")
-	userMsg.WriteString("Return a JSON array with exactly the same number of translated strings.\n\n")
+	userMsg.WriteString("Return one identified JSON object for every segment.\n\n")
 	for i, key := range keys {
 		src := key
 		if srcVals != nil {
@@ -385,9 +455,10 @@ func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, sourceLan
 				src = v
 			}
 		}
-		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(src)))
+		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(src)))
 	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(keys)))
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects in this form: ", len(keys)))
+	userMsg.WriteString(`{"id":"kv-...","translation":"..."}. Preserve every input ID exactly; the objects may be returned in any order.`)
 	return userMsg.String()
 }
 
@@ -502,6 +573,8 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	}
 
 	maskedSrc, blocks := maskMarkdownCodeBlocks(src)
+	id := kvTranslationIDs([]string{key})[0]
+	systemPrompt = identifiedKVSystemPrompt(systemPrompt)
 
 	var userMsg strings.Builder
 	if opts.SourceLanguageName != "" {
@@ -514,36 +587,21 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	userMsg.WriteString("- Keep the full segment content (do not summarize or drop lines)\n")
 	userMsg.WriteString("- Keep heading markers and heading level exactly\n")
 	userMsg.WriteString("- Preserve fenced code blocks exactly as Markdown code blocks\n")
-	userMsg.WriteString("- Return ONLY a JSON array with exactly 1 translated string\n\n")
-	userMsg.WriteString("Segment:\n")
+	userMsg.WriteString("- Return ONLY one identified JSON object inside a JSON array\n\n")
+	userMsg.WriteString(fmt.Sprintf("ID %s: ", id))
 	userMsg.WriteString(escapeForPrompt(maskedSrc))
-	userMsg.WriteString("\n\nReturn a JSON array with exactly 1 translated string.")
+	userMsg.WriteString(`\n\nReturn [{"id":"` + id + `","translation":"..."}].`)
 
 	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
 	if err != nil {
 		return nil, err
 	}
-	translations, err := parseTranslations(text, 1)
+	translations, err := parseIdentifiedStringTranslations(text, []string{id})
 	if err != nil {
-		fallback, ok := parseMarkdownSingleRawFallback(text)
-		if !ok {
-			return nil, err
-		}
-		translations = []string{fallback}
+		return nil, err
 	}
 	if len(translations) > 0 {
 		translations[0] = restoreMarkdownCodeBlocks(translations[0], blocks)
 	}
 	return translations, nil
-}
-
-func parseMarkdownSingleRawFallback(raw string) (string, bool) {
-	single := strings.TrimSpace(raw)
-	if m := markdownCodeBlock.FindStringSubmatch(single); len(m) > 1 {
-		single = strings.TrimSpace(m[1])
-	}
-	if single == "" || looksLikeNonTranslationResponse(single) {
-		return "", false
-	}
-	return single, true
 }

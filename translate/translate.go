@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -16,6 +17,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -1692,11 +1694,90 @@ type pluralTranslation struct {
 	plural   []string // non-nil only for entries with MsgIDPlural
 }
 
+type identifiedTranslation struct {
+	ID          string          `json:"id"`
+	Translation json.RawMessage `json:"translation"`
+}
+
+func identifiedPOSystemPrompt(base string) string {
+	return base + `
+
+GETTEXT RESPONSE CONTRACT:
+- For this gettext request, the user message assigns an opaque ID to every source entry.
+- Return ONLY a JSON array of objects with exactly two fields: "id" and "translation".
+- Copy every ID exactly. Do not omit, duplicate, rename, or invent IDs.
+- "translation" must be a string, or an array of strings when plural forms are requested.
+- This contract replaces any earlier instruction to return a bare array of strings.`
+}
+
+func entryTranslationIDs(entries []*po.Entry) []string {
+	ids := make([]string, len(entries))
+	seen := make(map[string]int, len(entries))
+	for i, entry := range entries {
+		sum := sha256.Sum256([]byte(entry.MsgCtxt + "\x00" + entry.MsgID + "\x00" + entry.MsgIDPlural))
+		base := fmt.Sprintf("msg-%x", sum[:8])
+		seen[base]++
+		ids[i] = base
+		if seen[base] > 1 {
+			ids[i] = fmt.Sprintf("%s-%d", base, seen[base])
+		}
+	}
+	return ids
+}
+
+func parseIdentifiedTranslations(content string, ids []string) ([]json.RawMessage, error) {
+	content = strings.TrimSpace(content)
+	if m := markdownCodeBlock.FindStringSubmatch(content); len(m) > 1 {
+		content = m[1]
+	}
+	if arr, ok := firstJSONArray(content); ok {
+		content = arr
+	}
+	content = fixGroffEscapesInJSON(content)
+
+	var raw []identifiedTranslation
+	if err := json.Unmarshal([]byte(content), &raw); err != nil {
+		return nil, fmt.Errorf("failed to parse identified translation response: %w\nResponse: %s", err, truncate(content, 300))
+	}
+	if len(raw) != len(ids) {
+		return nil, fmt.Errorf("got %d identified translations, expected %d", len(raw), len(ids))
+	}
+
+	expected := make(map[string]int, len(ids))
+	for i, id := range ids {
+		expected[id] = i
+	}
+	result := make([]json.RawMessage, len(ids))
+	seen := make(map[string]bool, len(ids))
+	for _, item := range raw {
+		idx, ok := expected[item.ID]
+		if !ok {
+			return nil, fmt.Errorf("translation response contains unknown id %q", item.ID)
+		}
+		if seen[item.ID] {
+			return nil, fmt.Errorf("translation response contains duplicate id %q", item.ID)
+		}
+		if len(item.Translation) == 0 || string(item.Translation) == "null" {
+			return nil, fmt.Errorf("translation response has no translation for id %q", item.ID)
+		}
+		seen[item.ID] = true
+		result[idx] = item.Translation
+	}
+	for _, id := range ids {
+		if !seen[id] {
+			return nil, fmt.Errorf("translation response is missing id %q", id)
+		}
+	}
+	return result, nil
+}
+
 // translateChunkWithPlurals translates a chunk of entries, correctly handling
 // plural forms. For entries that have a MsgIDPlural the AI is asked to return
 // all nplurals forms; singular entries produce a single string as before.
 func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemPrompt string, opts Options, rl *rateLimitState, nplurals int) ([]pluralTranslation, error) {
 	var userMsg strings.Builder
+	ids := entryTranslationIDs(entries)
+	systemPrompt = identifiedPOSystemPrompt(systemPrompt)
 	if srcName := opts.resolvedSourceLangName(); srcName != "" {
 		userMsg.WriteString(fmt.Sprintf("Translate these entries from %s to %s:\n\n", srcName, opts.LanguageName))
 	} else {
@@ -1705,28 +1786,35 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 
 	for i, e := range entries {
 		if e.MsgIDPlural != "" {
-			userMsg.WriteString(fmt.Sprintf("%d. singular: %s | plural: %s\n",
-				i+1, escapeForPrompt(e.MsgID), escapeForPrompt(e.MsgIDPlural)))
+			userMsg.WriteString(fmt.Sprintf("ID %s: singular: %s | plural: %s\n",
+				ids[i], escapeForPrompt(e.MsgID), escapeForPrompt(e.MsgIDPlural)))
 			userMsg.WriteString(fmt.Sprintf("   (return an array of exactly %d plural forms for the target language)\n", nplurals))
 		} else {
-			userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(e.MsgID)))
+			userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(e.MsgID)))
 		}
 		if len(e.References) > 0 {
 			userMsg.WriteString(fmt.Sprintf("   (context: %s)\n", strings.Join(e.References, ", ")))
 		}
 	}
 
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d elements. ", len(entries)))
-	userMsg.WriteString("For singular entries return a string. For plural entries (marked with 'singular: ... | plural: ...') return an array of strings (one per plural form).")
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects. Each object must contain the exact input ID and a translation field. ", len(entries)))
+	userMsg.WriteString(`Use {"id":"msg-...","translation":"..."} for singular entries and {"id":"msg-...","translation":["...","..."]} for plural entries. Preserve every ID exactly; do not omit, duplicate, or invent IDs.`)
 
 	maxRetries := opts.effectiveMaxRetries()
 	var lastErr error
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, maxRetries, opts.Verbose)
+		prompt := userMsg.String()
+		if lastErr != nil {
+			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
+		}
+		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
-		translations, err := parsePluralTranslations(text, entries, nplurals)
+		translations, err := parseIdentifiedPluralTranslations(text, entries, ids, nplurals)
+		if err == nil {
+			err = validatePOPluralTranslations(entries, translations)
+		}
 		if err == nil {
 			return translations, nil
 		}
@@ -1739,6 +1827,14 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		}
 	}
 	return nil, lastErr
+}
+
+func parseIdentifiedPluralTranslations(content string, entries []*po.Entry, ids []string, nplurals int) ([]pluralTranslation, error) {
+	raw, err := parseIdentifiedTranslations(content, ids)
+	if err != nil {
+		return nil, err
+	}
+	return parsePluralTranslationValues(raw, entries, nplurals)
 }
 
 // parsePluralTranslations parses the AI response into a slice of pluralTranslation.
@@ -1769,11 +1865,15 @@ func parsePluralTranslations(content string, entries []*po.Entry, nplurals int) 
 		return nil, fmt.Errorf("got 0 translations, expected %d", len(entries))
 	}
 
+	if len(raw) != len(entries) {
+		return nil, fmt.Errorf("got %d translations, expected %d", len(raw), len(entries))
+	}
+	return parsePluralTranslationValues(raw, entries, nplurals)
+}
+
+func parsePluralTranslationValues(raw []json.RawMessage, entries []*po.Entry, nplurals int) ([]pluralTranslation, error) {
 	result := make([]pluralTranslation, len(entries))
 	for i, entry := range entries {
-		if i >= len(raw) {
-			break
-		}
 		elem := raw[i]
 
 		if entry.MsgIDPlural != "" {
@@ -1788,6 +1888,9 @@ func parsePluralTranslations(content string, entries []*po.Entry, nplurals int) 
 						forms[j] = s
 					}
 				}
+			}
+			if len(forms) == 0 {
+				return nil, fmt.Errorf("translation %d has no plural forms", i+1)
 			}
 			// Ensure exactly nplurals forms (pad with last form if short)
 			for len(forms) < nplurals {
@@ -1806,6 +1909,9 @@ func parsePluralTranslations(content string, entries []*po.Entry, nplurals int) 
 				if err2 := json.Unmarshal(elem, &arr); err2 == nil && len(arr) > 0 {
 					s = arr[0]
 				}
+			}
+			if strings.TrimSpace(s) == "" {
+				return nil, fmt.Errorf("translation %d is empty or invalid", i+1)
 			}
 			result[i] = pluralTranslation{singular: s}
 		}
@@ -1845,8 +1951,8 @@ func parseTranslations(content string, expected int) ([]string, error) {
 		return nil, fmt.Errorf("failed to parse translation response as JSON array: %w\nResponse: %s", err, truncate(content, 300))
 	}
 
-	if len(translations) == 0 {
-		return nil, fmt.Errorf("got 0 translations, expected %d", expected)
+	if len(translations) != expected {
+		return nil, fmt.Errorf("got %d translations, expected %d", len(translations), expected)
 	}
 
 	return translations, nil
@@ -2266,27 +2372,37 @@ func splitEntries(entries []*po.Entry, chunkSize int) [][]*po.Entry {
 func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
 	// Build the user prompt
 	var userMsg strings.Builder
+	ids := entryTranslationIDs(entries)
+	systemPrompt = identifiedPOSystemPrompt(systemPrompt)
 	if srcName := opts.resolvedSourceLangName(); srcName != "" {
 		userMsg.WriteString(fmt.Sprintf("Translate these entries from %s to %s:\n\n", srcName, opts.LanguageName))
 	} else {
 		userMsg.WriteString("Translate these entries:\n\n")
 	}
 	for i, e := range entries {
-		userMsg.WriteString(fmt.Sprintf("%d. %s\n", i+1, escapeForPrompt(e.MsgID)))
+		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(e.MsgID)))
 		if len(e.References) > 0 {
 			userMsg.WriteString(fmt.Sprintf("   (context: %s)\n", strings.Join(e.References, ", ")))
 		}
 	}
-	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d translated strings.", len(entries)))
+	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects in this form: ", len(entries)))
+	userMsg.WriteString(`{"id":"msg-...","translation":"..."}. Preserve every input ID exactly; do not omit, duplicate, or invent IDs. The objects may be returned in any order.`)
 
 	maxRetries := opts.effectiveMaxRetries()
 	var lastErr error
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, maxRetries, opts.Verbose)
+		prompt := userMsg.String()
+		if lastErr != nil {
+			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
+		}
+		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
-		translations, err := parseTranslations(text, len(entries))
+		translations, err := parseIdentifiedStringTranslations(text, ids)
+		if err == nil {
+			err = validatePOTranslations(entries, translations)
+		}
 		if err == nil {
 			return translations, nil
 		}
@@ -2299,6 +2415,104 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		}
 	}
 	return nil, lastErr
+}
+
+func parseIdentifiedStringTranslations(content string, ids []string) ([]string, error) {
+	raw, err := parseIdentifiedTranslations(content, ids)
+	if err != nil {
+		return nil, err
+	}
+	translations := make([]string, len(raw))
+	for i, value := range raw {
+		if err := json.Unmarshal(value, &translations[i]); err != nil {
+			return nil, fmt.Errorf("translation for id %q is not a string", ids[i])
+		}
+		if strings.TrimSpace(translations[i]) == "" {
+			return nil, fmt.Errorf("translation for id %q is empty", ids[i])
+		}
+	}
+	return translations, nil
+}
+
+var (
+	pythonBracePlaceholder = regexp.MustCompile(`\{[A-Za-z_][A-Za-z0-9_]*(?:![rsa])?(?::[^{}]*)?\}`)
+	printfPlaceholder      = regexp.MustCompile(`%(?:\([^)]+\))?(?:[1-9][0-9]*\$)?[#0\- +'I]*\*?(?:\.\*?|\.[0-9]+)?[hlLjztq]*[diouxXeEfFgGaAcrspn]`)
+	qtPlaceholder          = regexp.MustCompile(`%(?:[1-9][0-9]*|n)`)
+)
+
+func validatePOTranslations(entries []*po.Entry, translations []string) error {
+	if len(translations) != len(entries) {
+		return fmt.Errorf("got %d translations, expected %d", len(translations), len(entries))
+	}
+	for i, entry := range entries {
+		if err := validatePOPlaceholders(entry, entry.MsgID, translations[i]); err != nil {
+			return fmt.Errorf("entry %q: %w", entry.MsgID, err)
+		}
+	}
+	return nil
+}
+
+func validatePOPluralTranslations(entries []*po.Entry, translations []pluralTranslation) error {
+	if len(translations) != len(entries) {
+		return fmt.Errorf("got %d translations, expected %d", len(translations), len(entries))
+	}
+	for i, entry := range entries {
+		translation := translations[i]
+		if entry.MsgIDPlural == "" {
+			if err := validatePOPlaceholders(entry, entry.MsgID, translation.singular); err != nil {
+				return fmt.Errorf("entry %q: %w", entry.MsgID, err)
+			}
+			continue
+		}
+		for form, value := range translation.plural {
+			source := entry.MsgIDPlural
+			if form == 0 {
+				source = entry.MsgID
+			}
+			if err := validatePOPlaceholders(entry, source, value); err != nil {
+				return fmt.Errorf("entry %q plural form %d: %w", entry.MsgID, form, err)
+			}
+		}
+	}
+	return nil
+}
+
+func validatePOPlaceholders(entry *po.Entry, source, translation string) error {
+	for _, flag := range entry.Flags {
+		var sourcePlaceholders, translatedPlaceholders []string
+		switch flag {
+		case "python-brace-format":
+			sourcePlaceholders = pythonBracePlaceholder.FindAllString(source, -1)
+			translatedPlaceholders = pythonBracePlaceholder.FindAllString(translation, -1)
+		case "qt-format", "qt-plural-format":
+			sourcePlaceholders = qtPlaceholder.FindAllString(source, -1)
+			translatedPlaceholders = qtPlaceholder.FindAllString(translation, -1)
+		default:
+			if !strings.HasSuffix(flag, "-format") {
+				continue
+			}
+			sourcePlaceholders = printfPlaceholder.FindAllString(source, -1)
+			translatedPlaceholders = printfPlaceholder.FindAllString(translation, -1)
+		}
+		sort.Strings(sourcePlaceholders)
+		sort.Strings(translatedPlaceholders)
+		if !slicesEqual(sourcePlaceholders, translatedPlaceholders) {
+			return fmt.Errorf("%s placeholders changed: expected %v, got %v", flag, sourcePlaceholders, translatedPlaceholders)
+		}
+	}
+	return nil
+}
+
+func slicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func waitBeforeParseRetry(ctx context.Context, attempt int) error {
@@ -2547,6 +2761,7 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		poPath       string
 		lockTarget   string
 		systemPrompt string
+		nplurals     int
 		total        *int64
 		done         *int64
 	}
@@ -2575,6 +2790,7 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		total := int64(len(toTranslate))
 		done := int64(0)
 		systemPrompt := taskOpts.resolvedPrompt()
+		nplurals := npluralsFromFile(task.poFile, task.lang)
 
 		for _, chunk := range chunks {
 			flatTasks = append(flatTasks, flatTask{
@@ -2584,6 +2800,7 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 				poPath:       task.poPath,
 				lockTarget:   taskOpts.LockTarget,
 				systemPrompt: systemPrompt,
+				nplurals:     nplurals,
 				total:        &total,
 				done:         &done,
 			})
@@ -2610,16 +2827,26 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 			taskOpts.LockTarget = ft.lockTarget
 		}
 
-		translations, err := translateChunk(ctx, ft.chunk, ft.systemPrompt, taskOpts, rl)
-		if err != nil {
-			return err
-		}
-
 		mu := fileMu[ft.poPath]
-		mu.Lock()
-		applyTranslations(ft.chunk, translations, opts.TranslateFuzzy)
-		updateLockFileForPO(ft.chunk, taskOpts)
-		mu.Unlock()
+		if hasPluralEntries(ft.chunk) {
+			translations, err := translateChunkWithPlurals(ctx, ft.chunk, ft.systemPrompt, taskOpts, rl, ft.nplurals)
+			if err != nil {
+				return err
+			}
+			mu.Lock()
+			applyPluralTranslations(ft.chunk, translations, opts.TranslateFuzzy)
+			updateLockFileForPO(ft.chunk, taskOpts)
+			mu.Unlock()
+		} else {
+			translations, err := translateChunk(ctx, ft.chunk, ft.systemPrompt, taskOpts, rl)
+			if err != nil {
+				return err
+			}
+			mu.Lock()
+			applyTranslations(ft.chunk, translations, opts.TranslateFuzzy)
+			updateLockFileForPO(ft.chunk, taskOpts)
+			mu.Unlock()
+		}
 
 		newDone := atomic.AddInt64(ft.done, int64(len(ft.chunk)))
 		if opts.OnProgress != nil {
