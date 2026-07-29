@@ -478,6 +478,46 @@ func TestResolveWithPatternAndHelpers(t *testing.T) {
 }
 
 func TestLoadLokitFileFromToSchema(t *testing.T) {
+	t.Run("android target uses to as resource directory", func(t *testing.T) {
+		dir := t.TempDir()
+		resDir := filepath.Join(dir, "android", "app", "src", "main", "res")
+		for _, valuesDir := range []string{"values", "values-de", "values-pt-rBR"} {
+			valuesPath := filepath.Join(resDir, valuesDir)
+			if err := os.MkdirAll(valuesPath, 0o755); err != nil {
+				t.Fatalf("MkdirAll: %v", err)
+			}
+			if err := os.WriteFile(filepath.Join(valuesPath, "strings.xml"), []byte("<resources/>\n"), 0o644); err != nil {
+				t.Fatalf("WriteFile strings.xml: %v", err)
+			}
+		}
+		yaml := "targets:\n" +
+			"  - name: android\n" +
+			"    format: android\n" +
+			"    root: android\n" +
+			"    to: app/src/main/res\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0o644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		lf, err := LoadLokitFile(dir)
+		if err != nil {
+			t.Fatalf("LoadLokitFile error: %v", err)
+		}
+		resolved, err := lf.Resolve(dir)
+		if err != nil {
+			t.Fatalf("Resolve error: %v", err)
+		}
+		if len(resolved) != 1 {
+			t.Fatalf("resolved targets = %d, want 1", len(resolved))
+		}
+		if got := resolved[0].AbsResDir(); got != resDir {
+			t.Fatalf("AbsResDir = %q, want %q", got, resDir)
+		}
+		if want := []string{"de", "pt-BR"}; !reflect.DeepEqual(resolved[0].Languages, want) {
+			t.Fatalf("Languages = %v, want %v", resolved[0].Languages, want)
+		}
+	})
+
 	t.Run("single file target", func(t *testing.T) {
 		dir := t.TempDir()
 		yaml := "targets:\n" +

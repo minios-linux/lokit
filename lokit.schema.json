@@ -170,87 +170,12 @@
           "type": "string",
           "description": "Optional template/catalog output path relative to root."
         },
-        "dir": {
-          "type": "string",
-          "description": "Directory containing translation files (relative to root)."
-        },
-        "pattern": {
-          "type": "string",
-          "description": "File pattern relative to dir for language-based files. Must contain {lang}."
-        },
-        "source": {
-          "oneOf": [
-            {
-              "type": "string",
-              "description": "Source file path pattern relative to root."
-            },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "index",
-                "key_field",
-                "fields"
-              ],
-              "properties": {
-                "index": {
-                  "type": "string",
-                  "description": "Path to index file relative to root."
-                },
-                "records_path": {
-                  "type": "string",
-                  "default": "$",
-                  "description": "Record array selector. Supported: '$' or '$.field'."
-                },
-                "key_field": {
-                  "type": "string",
-                  "description": "Record field used to fill {id} in target paths."
-                },
-                "fields": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "minItems": 1,
-                  "description": "Translatable fields extracted from each record."
-                }
-              },
-              "description": "Index source configuration for one-file source catalogs."
-            }
-          ]
-        },
-        "target": {
-          "type": "string",
-          "description": "Target file path pattern relative to root."
-        },
-        "pot": {
-          "type": "string",
-          "description": "POT file name relative to dir (gettext only)."
-        },
-        "sources": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Source directories/files to scan (gettext only)."
-        },
-        "exclude": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Path globs to exclude while discovering source files."
-        },
         "keywords": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "description": "xgettext keywords (gettext only)."
-        },
-        "config": {
-          "type": "string",
-          "description": "Path to po4a.cfg relative to root (po4a only)."
         },
         "source_lang": {
           "type": "string",

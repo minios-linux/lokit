@@ -890,6 +890,9 @@ func detectTargetLanguages(t Target, absRoot string) []string {
 	if t.TargetPath != "" && strings.Contains(t.TargetPath, "{lang}") {
 		return detectLanguagesByPattern(absRoot, t.TargetPath)
 	}
+	if t.Type == TargetTypeAndroid && t.TargetPath != "" {
+		return detectLanguagesAndroid(filepath.Join(absRoot, filepath.FromSlash(t.TargetPath)))
+	}
 	if meta.detectCustomLanguages != nil {
 		return meta.detectCustomLanguages(t, absRoot)
 	}
@@ -1250,6 +1253,9 @@ func validateSourceField(path, targetName, surfaceName string, source *SourceFie
 
 // AbsResDir returns the absolute Android res/ directory for android targets.
 func (rt *ResolvedTarget) AbsResDir() string {
+	if rt.Target.TargetPath != "" {
+		return filepath.Join(rt.AbsRoot, filepath.FromSlash(rt.Target.TargetPath))
+	}
 	return filepath.Join(rt.AbsRoot, rt.Target.Dir)
 }
 
