@@ -32,6 +32,7 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		Languages:   langs,
 		Keywords:    rt.Target.Keywords,
 		SourceLang:  rt.Target.SourceLang,
+		Exclude:     rt.Target.Exclude,
 	}
 	if len(rt.Target.Sources) > 0 {
 		for _, src := range rt.Target.Sources {

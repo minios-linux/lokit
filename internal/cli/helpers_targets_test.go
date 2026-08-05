@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/minios-linux/lokit/config"
@@ -42,4 +44,28 @@ func TestFilterResolvedTargetsByNames(t *testing.T) {
 			t.Fatal("expected error for unknown target")
 		}
 	})
+}
+
+func TestFilterSourcePaths(t *testing.T) {
+	root := filepath.Join(string(filepath.Separator), "project")
+	files := []string{
+		filepath.Join(root, "cli", "bin", "minios-image-compose"),
+		filepath.Join(root, "cli", "helper.py"),
+		filepath.Join(root, "src", "main.go"),
+		filepath.Join(root, "src", "nested", "main.go"),
+		filepath.Join(string(filepath.Separator), "external", "input.py"),
+	}
+
+	got := filterSourcePaths(files, root, []string{"cli/**/*", "src/*.go"})
+	want := []string{
+		filepath.Join(root, "src", "nested", "main.go"),
+		filepath.Join(string(filepath.Separator), "external", "input.py"),
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("filterSourcePaths() = %q, want %q", got, want)
+	}
+
+	if unchanged := filterSourcePaths(files, root, nil); !reflect.DeepEqual(unchanged, files) {
+		t.Fatalf("empty exclusions changed files: %q", unchanged)
+	}
 }

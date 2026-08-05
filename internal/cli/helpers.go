@@ -57,6 +57,15 @@ func doExtract(proj *config.Project) ([]string, error) {
 	}
 	allFiles = append(allFiles, explicitFiles...)
 
+	baseDir := proj.Root
+	if baseDir == "" {
+		baseDir, _ = os.Getwd()
+	}
+	if absBase, err := filepath.Abs(baseDir); err == nil {
+		baseDir = absBase
+	}
+	allFiles = filterSourcePaths(allFiles, baseDir, proj.Exclude)
+
 	if len(allFiles) > 1 {
 		sort.Strings(allFiles)
 		uniq := allFiles[:0]
@@ -88,15 +97,6 @@ func doExtract(proj *config.Project) ([]string, error) {
 		if ext == ".desktop" || ext == ".nemo_action" {
 			desktopFiles = append(desktopFiles, f)
 		}
-	}
-
-	// Base directory for path normalization and xgettext working directory.
-	baseDir := proj.Root
-	if baseDir == "" {
-		baseDir, _ = os.Getwd()
-	}
-	if absBase, err := filepath.Abs(baseDir); err == nil {
-		baseDir = absBase
 	}
 
 	logInfo(T("Found %d source files (%s)"), len(allFiles), extract.DescribeFiles(allFiles))
@@ -211,6 +211,21 @@ func doExtract(proj *config.Project) ([]string, error) {
 	}
 
 	return desktopFiles, nil
+}
+
+func filterSourcePaths(files []string, root string, patterns []string) []string {
+	if len(patterns) == 0 {
+		return files
+	}
+	filtered := make([]string, 0, len(files))
+	for _, file := range files {
+		rel, err := filepath.Rel(root, file)
+		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) ||
+			!matchAnyPathPattern(filepath.ToSlash(rel), patterns) {
+			filtered = append(filtered, file)
+		}
+	}
+	return filtered
 }
 
 // fileExists returns true if the file exists and is not a directory.

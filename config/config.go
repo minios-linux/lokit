@@ -46,6 +46,8 @@ type Project struct {
 	POTFile string
 	// SourceDirs are directories to scan for translatable source files.
 	SourceDirs []string
+	// Exclude contains root-relative patterns removed after source discovery.
+	Exclude []string
 	// Keywords are xgettext keyword functions (e.g. "_", "N_", "gettext").
 	// If empty, default keywords are used.
 	Keywords []string
