@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/terminology.schema.json",
+  "title": "lokit terminology",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "exact": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/exact"
+      }
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/term"
+      }
+    }
+  },
+  "$defs": {
+    "selectorValue": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "when": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/selectorValue"
+        },
+        "format": {
+          "$ref": "#/$defs/selectorValue"
+        },
+        "path": {
+          "$ref": "#/$defs/selectorValue"
+        },
+        "key": {
+          "$ref": "#/$defs/selectorValue"
+        },
+        "context": {
+          "$ref": "#/$defs/selectorValue"
+        }
+      }
+    },
+    "stringOrList": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "exact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source",
+        "translations"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_plural": {
+          "type": "string",
+          "minLength": 1
+        },
+        "when": {
+          "$ref": "#/$defs/when"
+        },
+        "translations": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/stringOrList"
+          }
+        }
+      }
+    },
+    "termTranslation": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "preferred"
+          ],
+          "properties": {
+            "preferred": {
+              "type": "string",
+              "minLength": 1
+            },
+            "accepted": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "match": {
+          "type": "string",
+          "enum": [
+            "word",
+            "substring"
+          ],
+          "default": "word"
+        },
+        "case_sensitive": {
+          "type": "boolean",
+          "default": false
+        },
+        "when": {
+          "$ref": "#/$defs/when"
+        },
+        "preserve": {
+          "const": true
+        },
+        "translations": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/termTranslation"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "preserve"
+          ],
+          "not": {
+            "required": [
+              "translations"
+            ]
+          }
+        },
+        {
+          "required": [
+            "translations"
+          ],
+          "not": {
+            "required": [
+              "preserve"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

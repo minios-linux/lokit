@@ -509,6 +509,20 @@ Each target format has a built-in system prompt optimized for its structure (get
 
 The `--prompt` flag takes priority over the `lokit.yaml` target prompt, which takes priority over the built-in default. Use `{{targetLang}}` as a placeholder for the target language name.
 
+## Terminology
+
+Use project-owned terminology catalogs to keep exact labels, brands, and embedded terms consistent across every target format:
+
+```yaml
+terminology:
+  from:
+    - l10n/terminology.yaml
+```
+
+Exact source phrases are applied locally without an AI request. Embedded term constraints are scoped to response IDs and validated before output or lock updates. Existing terminology violations are corrected by an ordinary `lokit translate` run without `--force`, and `lokit status` reports them in a `Terms` column.
+
+See the [Terminology Guide](docs/terminology.md) for the file format, selectors, locale fallback, plural rules, and validation behavior.
+
 ## Incremental Translation (lokit.lock)
 
 lokit tracks MD5 checksums of source strings in a `lokit.lock` file (stored next to `lokit.yaml`). On subsequent runs, only new or changed strings are sent to the AI provider, saving tokens and time.

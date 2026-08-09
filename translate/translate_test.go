@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"github.com/minios-linux/lokit/internal/format/i18next"
 	po "github.com/minios-linux/lokit/internal/format/po"
 	"github.com/minios-linux/lokit/lockfile"
+	"github.com/minios-linux/lokit/terminology"
 )
 
 type testKVFile struct {
@@ -47,6 +49,215 @@ func identifiedKVProviderResponse(keys, translations []string) string {
 	return string(response)
 }
 
+func loadTestTerminology(t *testing.T, content string) *terminology.Catalog {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "terminology.yaml")
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	catalog, err := terminology.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return catalog
+}
+
+func TestTranslateAppliesExactTerminologyWithoutProvider(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+exact:
+  - id: action.save
+    source: Save
+    translations:
+      de: Speichern
+`)
+	file := po.NewFile()
+	entry := &po.Entry{MsgID: "Save"}
+	file.Entries = append(file.Entries, entry)
+
+	err := Translate(context.Background(), file, Options{
+		Language:    "de",
+		TargetName:  "app",
+		Format:      "gettext",
+		Terminology: catalog,
+	})
+	if err != nil {
+		t.Fatalf("Translate returned error: %v", err)
+	}
+	if entry.MsgStr != "Speichern" {
+		t.Fatalf("MsgStr = %q, want exact terminology translation", entry.MsgStr)
+	}
+}
+
+func TestTranslateTerminologyConflictDoesNotPartiallyMutatePO(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+exact:
+  - id: action.open
+    source: Open
+    translations: {de: Öffnen}
+  - id: action.save.first
+    source: Save
+    translations: {de: Speichern}
+  - id: action.save.second
+    source: Save
+    translations: {de: Sichern}
+`)
+	file := po.NewFile()
+	open := &po.Entry{MsgID: "Open"}
+	save := &po.Entry{MsgID: "Save"}
+	file.Entries = append(file.Entries, open, save)
+	err := Translate(context.Background(), file, Options{Language: "de", Terminology: catalog})
+	if err == nil {
+		t.Fatal("expected terminology conflict")
+	}
+	if open.MsgStr != "" || save.MsgStr != "" {
+		t.Fatalf("PO was partially mutated: Open=%q Save=%q", open.MsgStr, save.MsgStr)
+	}
+}
+
+func TestTranslateAllKVPromotesExistingTerminologyViolation(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+`)
+	requests := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		defer r.Body.Close()
+		_, _ = io.Copy(io.Discard, r.Body)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"title"}, []string{"MiniOS-Einstellungen"})))
+	}))
+	defer ts.Close()
+
+	file := newTestKVFile([]string{"title"}, map[string]string{"title": "Einstellungen"})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang:         "de",
+		LangName:     "German",
+		FilePath:     filepath.Join(t.TempDir(), "de.json"),
+		File:         file,
+		SourceValues: map[string]string{"title": "MiniOS Settings"},
+	}}, Options{
+		Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
+		TargetName:   "ui",
+		Format:       "vue-i18n",
+		Terminology:  catalog,
+		ParallelMode: ParallelSequential,
+	}, DefaultKVChunkTranslator())
+	if err != nil {
+		t.Fatalf("TranslateAllKV returned error: %v", err)
+	}
+	if requests != 1 {
+		t.Fatalf("provider requests = %d, want 1", requests)
+	}
+	if got := file.Value("title"); got != "MiniOS-Einstellungen" {
+		t.Fatalf("translated value = %q", got)
+	}
+}
+
+func TestTranslateAllKVSkipsTerminologyCompliantExistingValue(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+`)
+	file := newTestKVFile([]string{"title"}, map[string]string{"title": "MiniOS-Einstellungen"})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang:         "de",
+		LangName:     "German",
+		FilePath:     filepath.Join(t.TempDir(), "de.json"),
+		File:         file,
+		SourceValues: map[string]string{"title": "MiniOS Settings"},
+	}}, Options{TargetName: "ui", Format: "vue-i18n", Terminology: catalog}, DefaultKVChunkTranslator())
+	if err != nil {
+		t.Fatalf("TranslateAllKV returned error: %v", err)
+	}
+}
+
+func TestTranslateAllKVAppliesPathScopedExactRule(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+exact:
+  - id: docs.open
+    source: Open
+    when:
+      path: docs/guide.md
+    translations: {de: Öffnen}
+`)
+	file := newTestKVFile([]string{"title"}, map[string]string{"title": ""})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang:         "de",
+		FilePath:     filepath.Join(t.TempDir(), "de.json"),
+		File:         file,
+		SourceValues: map[string]string{"title": "Open"},
+		SourcePath:   "docs/guide.md",
+	}}, Options{TargetName: "docs", Format: "markdown", Terminology: catalog}, MarkdownKVChunkTranslator())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := file.Value("title"); got != "Öffnen" {
+		t.Fatalf("path-scoped exact translation = %q", got)
+	}
+}
+
+func TestTranslateAllKVRetainsOptionsSourcePath(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+exact:
+  - id: ui.open
+    source: Open
+    when:
+      path: src/i18n/en.json
+    translations: {de: Öffnen}
+`)
+	for _, mode := range []string{ParallelSequential, ParallelFullParallel} {
+		t.Run(mode, func(t *testing.T) {
+			file := newTestKVFile([]string{"title"}, map[string]string{"title": ""})
+			task := KVLangTask{Lang: "de", FilePath: filepath.Join(t.TempDir(), "de.json"), File: file, SourceValues: map[string]string{"title": "Open"}}
+			opts := Options{TargetName: "ui", Format: "vue-i18n", SourcePath: "src/i18n/en.json", Terminology: catalog, ParallelMode: mode}
+			if err := TranslateAllKV(context.Background(), []KVLangTask{task}, opts, DefaultKVChunkTranslator()); err != nil {
+				t.Fatal(err)
+			}
+			if got := file.Value("title"); got != "Öffnen" {
+				t.Fatalf("translation = %q", got)
+			}
+		})
+	}
+}
+
+func TestMarkdownValidationPreservesParserCodePlaceholders(t *testing.T) {
+	source := "Text\n\n<!-- lokit:code-block:0 -->\n"
+	if isMarkdownTranslationLikelyValid(source, "Text") {
+		t.Fatal("missing parser code placeholder was accepted")
+	}
+	if !isMarkdownTranslationLikelyValid(source, "Übersetzung\n\n<!-- lokit:code-block:0 -->\n") {
+		t.Fatal("preserved parser code placeholder was rejected")
+	}
+}
+
+func TestMarkdownParserCodePlaceholderMaskRoundTrip(t *testing.T) {
+	source := "Before\n\n<!-- lokit:code-block:12 -->\n\nAfter"
+	masked, placeholders := maskMarkdownParserPlaceholders(source)
+	if !strings.Contains(masked, "__LOKIT_PARSER_CODE_BLOCK_12__") {
+		t.Fatalf("placeholder was not masked: %q", masked)
+	}
+	if restored := restoreMarkdownParserPlaceholders(masked, placeholders); restored != source {
+		t.Fatalf("round trip = %q", restored)
+	}
+}
+
+func TestMarkdownInlineCodeMaskRoundTrip(t *testing.T) {
+	source := "Run `lokit status` and keep ``literal`` unchanged."
+	masked, values := maskMarkdownInlineCode(source)
+	if !strings.Contains(masked, "__LOKIT_INLINE_CODE_0__") || !strings.Contains(masked, "__LOKIT_INLINE_CODE_1__") {
+		t.Fatalf("inline code was not masked: %q", masked)
+	}
+	if restored := restoreMarkdownInlineCode(masked, values); restored != source {
+		t.Fatalf("round trip = %q", restored)
+	}
+}
+
 func (f *testKVFile) Keys() []string {
 	return append([]string(nil), f.keys...)
 }
@@ -61,6 +272,13 @@ func (f *testKVFile) UntranslatedKeys() []string {
 		}
 	}
 	return out
+}
+
+func (f *testKVFile) Get(key string) (string, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	value, ok := f.values[key]
+	return value, ok
 }
 
 func (f *testKVFile) Set(key, value string) bool {
@@ -833,7 +1051,7 @@ func TestTranslateMarkdownSingleRetry_RestoresMaskedCodeBlocks(t *testing.T) {
 		_, _ = io.Copy(io.Discard, r.Body)
 		_ = r.Body.Close()
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"sec:0"}, []string{"Perevod __LOKIT_CODE_BLOCK_0__ gotov"})))
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"sec:0"}, []string{"### H\n\n__LOKIT_CODE_BLOCK_0__\n\nPerevod gotov"})))
 	}))
 	defer ts.Close()
 
@@ -866,6 +1084,42 @@ func TestTranslateMarkdownSingleRetry_RestoresMaskedCodeBlocks(t *testing.T) {
 	}
 	if !strings.Contains(translations[0], "```python") || !strings.Contains(translations[0], "`hello`") {
 		t.Fatalf("expected restored fenced code block in translation, got %q", translations[0])
+	}
+}
+
+func TestTranslateMarkdownSingleRetryRejectsTerminologyViolation(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+`)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		_, _ = io.Copy(io.Discard, r.Body)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"sec:0"}, []string{"### Einstellungen"})))
+	}))
+	defer ts.Close()
+
+	opts := Options{
+		Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
+		Language:     "de",
+		LanguageName: "German",
+		TargetName:   "docs",
+		Format:       "markdown",
+		Terminology:  catalog,
+	}
+	_, err := translateMarkdownSingleRetry(
+		context.Background(),
+		"sec:0",
+		map[string]string{"sec:0": "### MiniOS Settings"},
+		opts.resolvedPrompt(),
+		opts,
+		&rateLimitState{},
+	)
+	if err == nil {
+		t.Fatal("expected Markdown retry terminology violation")
 	}
 }
 

@@ -159,6 +159,12 @@ func (f *File) UntranslatedKeys() []string {
 	return result
 }
 
+// Get returns the translation value for key and whether it exists.
+func (f *File) Get(key string) (string, bool) {
+	value, ok := f.Translations[key]
+	return value, ok
+}
+
 // Set updates an existing translation value.
 func (f *File) Set(key, value string) bool {
 	if _, ok := f.Translations[key]; !ok {

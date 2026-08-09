@@ -19,6 +19,7 @@ type KVLangTask struct {
 	File          formatfile.KVFile
 	SourceValues  map[string]string
 	LockKeyPrefix string
+	SourcePath    string
 }
 
 type KVChunkTranslator interface {
@@ -45,6 +46,8 @@ func (i18nextChunkTranslator) DefaultChunkSize() int { return 0 }
 type markdownChunkTranslator struct{}
 
 var markdownFencedCode = regexp.MustCompile("(?ms)^```[^\n]*\n.*?^```[ \t]*$|^~~~[^\n]*\n.*?^~~~[ \t]*$")
+var markdownInlineCode = regexp.MustCompile("`+[^`\n]+`+")
+var markdownCodePlaceholder = regexp.MustCompile(`<!-- lokit:code-block:[0-9]+ -->`)
 
 func (markdownChunkTranslator) BuildUserPrompt(keys []string, srcVals map[string]string, opts Options) string {
 	return buildMarkdownUserPrompt(keys, srcVals, opts.SourceLanguageName, opts.LanguageName)
@@ -79,10 +82,29 @@ KEY-VALUE RESPONSE CONTRACT:
 }
 
 func TranslateAllKV(ctx context.Context, langTasks []KVLangTask, opts Options, translator KVChunkTranslator) error {
+	if err := PreflightKVTerminology(langTasks, opts, translator); err != nil {
+		return err
+	}
 	if opts.ParallelMode == ParallelFullParallel {
 		return translateKVFullParallel(ctx, langTasks, opts, translator)
 	}
 	return translateKVSequential(ctx, langTasks, opts, translator)
+}
+
+// PreflightKVTerminology resolves and validates deterministic terminology
+// rules for every language before any file is mutated.
+func PreflightKVTerminology(langTasks []KVLangTask, opts Options, translator KVChunkTranslator) error {
+	for _, task := range langTasks {
+		taskOpts := opts
+		taskOpts.Language = task.Lang
+		if task.SourcePath != "" {
+			taskOpts.SourcePath = task.SourcePath
+		}
+		if _, _, err := prepareKVWork(task.File, task.SourceValues, task.LockKeyPrefix, taskOpts, translator, false); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Options, translator KVChunkTranslator) error {
@@ -98,19 +120,28 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 		taskOpts.Language = task.Lang
 		taskOpts.LanguageName = task.LangName
 		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
-
-		var keysToTranslate []string
-		if opts.RetranslateExisting || opts.ForceTranslate {
-			keysToTranslate = task.File.Keys()
-		} else {
-			keysToTranslate = task.File.UntranslatedKeys()
+		if task.SourcePath != "" {
+			taskOpts.SourcePath = task.SourcePath
 		}
 
-		keysToTranslate = filterExcludedKeys(keysToTranslate, taskOpts)
-		keysToTranslate = filterKeysWithSourceValues(keysToTranslate, task.SourceValues, taskOpts)
-		keysToTranslate = filterChangedKeys(keysToTranslate, task.SourceValues, task.LockKeyPrefix, taskOpts)
+		keysToTranslate, direct, err := prepareKVWork(task.File, task.SourceValues, task.LockKeyPrefix, taskOpts, translator, true)
+		if err != nil {
+			opts.logError("Error applying terminology for %s: %v", task.Lang, err)
+			failedLangs = append(failedLangs, task.Lang)
+			continue
+		}
+		if len(direct) > 0 {
+			opts.log("  Applied %d exact terminology translations", len(direct))
+		}
 
 		if len(keysToTranslate) == 0 {
+			if len(direct) > 0 {
+				if err := saveKVFile(task.File, task.FilePath, opts); err != nil {
+					failedLangs = append(failedLangs, task.Lang)
+					continue
+				}
+				updateLockFileForKV(direct, task.SourceValues, task.LockKeyPrefix, taskOpts)
+			}
 			continue
 		}
 
@@ -119,17 +150,24 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 		translatedKeys, err := translateKVFile(ctx, task.File, task.SourceValues, keysToTranslate, taskOpts, translator)
 		if err != nil {
 			if ctx.Err() != nil {
-				saveKVFile(task.File, task.FilePath, opts)
+				if saveKVFile(task.File, task.FilePath, opts) == nil {
+					updateLockFileForKV(append(direct, translatedKeys...), task.SourceValues, task.LockKeyPrefix, taskOpts)
+				}
 				return ctx.Err()
 			}
-			saveKVFile(task.File, task.FilePath, opts)
+			if saveKVFile(task.File, task.FilePath, opts) == nil {
+				updateLockFileForKV(append(direct, translatedKeys...), task.SourceValues, task.LockKeyPrefix, taskOpts)
+			}
 			opts.logError("Error translating %s: %v", task.Lang, err)
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
 
-		updateLockFileForKV(translatedKeys, task.SourceValues, task.LockKeyPrefix, taskOpts)
-		saveKVFile(task.File, task.FilePath, opts)
+		if err := saveKVFile(task.File, task.FilePath, opts); err != nil {
+			failedLangs = append(failedLangs, task.Lang)
+			continue
+		}
+		updateLockFileForKV(append(direct, translatedKeys...), task.SourceValues, task.LockKeyPrefix, taskOpts)
 	}
 
 	if len(failedLangs) > 0 {
@@ -149,6 +187,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 		file          formatfile.KVFile
 		sourceValues  map[string]string
 		lockKeyPrefix string
+		sourcePath    string
 	}
 
 	var tasks []flatTask
@@ -157,17 +196,20 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 		taskOpts.Language = lt.Lang
 		taskOpts.LanguageName = lt.LangName
 		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
-
-		var keys []string
-		if opts.RetranslateExisting || opts.ForceTranslate {
-			keys = lt.File.Keys()
-		} else {
-			keys = lt.File.UntranslatedKeys()
+		if lt.SourcePath != "" {
+			taskOpts.SourcePath = lt.SourcePath
 		}
 
-		keys = filterExcludedKeys(keys, taskOpts)
-		keys = filterKeysWithSourceValues(keys, lt.SourceValues, taskOpts)
-		keys = filterChangedKeys(keys, lt.SourceValues, lt.LockKeyPrefix, taskOpts)
+		keys, direct, err := prepareKVWork(lt.File, lt.SourceValues, lt.LockKeyPrefix, taskOpts, translator, true)
+		if err != nil {
+			return err
+		}
+		if len(direct) > 0 {
+			if err := saveKVFile(lt.File, lt.FilePath, opts); err != nil {
+				return err
+			}
+			updateLockFileForKV(direct, lt.SourceValues, lt.LockKeyPrefix, taskOpts)
+		}
 
 		if len(keys) == 0 {
 			continue
@@ -181,6 +223,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 			file:          lt.File,
 			sourceValues:  lt.SourceValues,
 			lockKeyPrefix: lt.LockKeyPrefix,
+			sourcePath:    lt.SourcePath,
 		})
 	}
 
@@ -193,18 +236,25 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 		taskOpts.Language = t.lang
 		taskOpts.LanguageName = t.langName
 		taskOpts.SourceLanguageName = taskOpts.resolvedSourceLangName()
+		if t.sourcePath != "" {
+			taskOpts.SourcePath = t.sourcePath
+		}
 
 		opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(t.keys))
 		translatedKeys, err := translateKVFileWithRL(ctx, t.file, t.sourceValues, t.keys, taskOpts, translator, rl)
 		if err != nil {
 			if ctx.Err() == nil {
-				saveKVFile(t.file, t.filePath, opts)
+				if saveKVFile(t.file, t.filePath, opts) == nil {
+					updateLockFileForKV(translatedKeys, t.sourceValues, t.lockKeyPrefix, taskOpts)
+				}
 			}
 			return err
 		}
 
+		if err := saveKVFile(t.file, t.filePath, opts); err != nil {
+			return err
+		}
 		updateLockFileForKV(translatedKeys, t.sourceValues, t.lockKeyPrefix, taskOpts)
-		saveKVFile(t.file, t.filePath, opts)
 		return nil
 	})
 	if err != nil {
@@ -302,9 +352,13 @@ func translateKVFileWithRL(ctx context.Context, file formatfile.KVFile, srcVals 
 func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]string, systemPrompt string, opts Options, translator KVChunkTranslator, rl *rateLimitState) ([]string, error) {
 	promptVals := srcVals
 	codeBlocksByKey := map[string][]string(nil)
+	parserPlaceholdersByKey := map[string]map[string]string(nil)
+	inlineCodeByKey := map[string]map[string]string(nil)
 	if isMarkdownTranslator(translator) {
 		masked := make(map[string]string, len(keys))
 		codeBlocksByKey = make(map[string][]string, len(keys))
+		parserPlaceholdersByKey = make(map[string]map[string]string, len(keys))
+		inlineCodeByKey = make(map[string]map[string]string, len(keys))
 		for _, key := range keys {
 			src := key
 			if srcVals != nil {
@@ -312,9 +366,13 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 					src = v
 				}
 			}
-			maskedText, blocks := maskMarkdownCodeBlocks(src)
+			maskedText, placeholders := maskMarkdownParserPlaceholders(src)
+			maskedText, inlineCode := maskMarkdownInlineCode(maskedText)
+			maskedText, blocks := maskMarkdownCodeBlocks(maskedText)
 			masked[key] = maskedText
 			codeBlocksByKey[key] = blocks
+			parserPlaceholdersByKey[key] = placeholders
+			inlineCodeByKey[key] = inlineCode
 		}
 		promptVals = masked
 	}
@@ -326,6 +384,14 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 	if _, ok := translator.(i18nextChunkTranslator); ok {
 		validationVals = nil
 	}
+	rulesByKey, terminologyPrompt, err := kvChunkTerminology(keys, validationVals, ids, opts)
+	if err != nil {
+		return nil, err
+	}
+	if opts.Terminology != nil {
+		systemPrompt = terminologySystemPrompt(systemPrompt)
+	}
+	userPrompt = appendTerminologyPrompt(userPrompt, terminologyPrompt)
 	maxRetries := opts.effectiveMaxRetries()
 	var translations []string
 	var lastErr error
@@ -341,6 +407,9 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		translations, err = parseIdentifiedStringTranslations(text, ids)
 		if err == nil {
 			err = validateKVTranslations(keys, validationVals, translations)
+		}
+		if err == nil {
+			err = validateKVChunkTerminology(keys, validationVals, translations, rulesByKey)
 		}
 		if err == nil {
 			lastErr = nil
@@ -363,6 +432,8 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 				break
 			}
 			translations[i] = restoreMarkdownCodeBlocks(translations[i], codeBlocksByKey[key])
+			translations[i] = restoreMarkdownInlineCode(translations[i], inlineCodeByKey[key])
+			translations[i] = restoreMarkdownParserPlaceholders(translations[i], parserPlaceholdersByKey[key])
 		}
 	}
 	return translations, nil
@@ -390,13 +461,14 @@ func validateKVTranslations(keys []string, srcVals map[string]string, translatio
 	return nil
 }
 
-func saveKVFile(file formatfile.KVFile, path string, opts Options) {
+func saveKVFile(file formatfile.KVFile, path string, opts Options) error {
 	if err := file.WriteFile(path); err != nil {
 		opts.logError("Error saving %s: %v", path, err)
-		return
+		return err
 	}
 	total, translated, _ := file.Stats()
 	opts.log("Saved %s (%d/%d translated)", path, translated, total)
+	return nil
 }
 
 func buildKVUserPrompt(keys []string, srcVals map[string]string, sourceLangName, langName string) string {
@@ -446,6 +518,7 @@ func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, sourceLan
 		userMsg.WriteString(fmt.Sprintf("Translate these text segments to %s.\n", langName))
 	}
 	userMsg.WriteString("For Markdown segments, preserve all formatting, headings, code blocks, and inline markup.\n")
+	userMsg.WriteString("Preserve every __LOKIT_INLINE_CODE_N__ and __LOKIT_PARSER_CODE_BLOCK_N__ placeholder exactly, in the same order.\n")
 	userMsg.WriteString("Do not omit content, do not summarize, and keep the same heading levels (#, ##, ###) and fenced code blocks.\n")
 	userMsg.WriteString("Return one identified JSON object for every segment.\n\n")
 	for i, key := range keys {
@@ -481,12 +554,20 @@ func isMarkdownTranslationLikelyValid(src, dst string) bool {
 		}
 	}
 
-	sCode := markdownFencedCode.FindAllStringIndex(s, -1)
-	if len(sCode) > 0 {
-		dCode := markdownFencedCode.FindAllStringIndex(d, -1)
-		if len(dCode) == 0 {
-			return false
-		}
+	sCode := markdownFencedCode.FindAllString(s, -1)
+	dCode := markdownFencedCode.FindAllString(d, -1)
+	if !slicesEqual(sCode, dCode) {
+		return false
+	}
+	sInline := markdownInlineCode.FindAllString(s, -1)
+	dInline := markdownInlineCode.FindAllString(d, -1)
+	if !slicesEqual(sInline, dInline) {
+		return false
+	}
+	sPlaceholders := markdownCodePlaceholder.FindAllString(s, -1)
+	dPlaceholders := markdownCodePlaceholder.FindAllString(d, -1)
+	if !slicesEqual(sPlaceholders, dPlaceholders) {
+		return false
 	}
 
 	if strings.Contains(s, "\n") && !strings.Contains(d, "\n") && len(s) > 120 {
@@ -564,6 +645,47 @@ func restoreMarkdownCodeBlocks(text string, blocks []string) string {
 	return out
 }
 
+func maskMarkdownParserPlaceholders(text string) (string, map[string]string) {
+	placeholders := make(map[string]string)
+	masked := markdownCodePlaceholder.ReplaceAllStringFunc(text, func(value string) string {
+		match := markdownCodePlaceholder.FindStringSubmatch(value)
+		index := strings.TrimSuffix(strings.TrimPrefix(value, "<!-- lokit:code-block:"), " -->")
+		if len(match) > 1 {
+			index = match[1]
+		}
+		token := "__LOKIT_PARSER_CODE_BLOCK_" + index + "__"
+		placeholders[token] = value
+		return token
+	})
+	return masked, placeholders
+}
+
+func restoreMarkdownParserPlaceholders(text string, placeholders map[string]string) string {
+	for token, value := range placeholders {
+		text = strings.ReplaceAll(text, token, value)
+	}
+	return text
+}
+
+func maskMarkdownInlineCode(text string) (string, map[string]string) {
+	values := make(map[string]string)
+	index := 0
+	masked := markdownInlineCode.ReplaceAllStringFunc(text, func(value string) string {
+		token := fmt.Sprintf("__LOKIT_INLINE_CODE_%d__", index)
+		index++
+		values[token] = value
+		return token
+	})
+	return masked, values
+}
+
+func restoreMarkdownInlineCode(text string, values map[string]string) string {
+	for token, value := range values {
+		text = strings.ReplaceAll(text, token, value)
+	}
+	return text
+}
+
 func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[string]string, systemPrompt string, opts Options, rl *rateLimitState) ([]string, error) {
 	src := key
 	if srcVals != nil {
@@ -572,9 +694,18 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 		}
 	}
 
-	maskedSrc, blocks := maskMarkdownCodeBlocks(src)
+	maskedSrc, parserPlaceholders := maskMarkdownParserPlaceholders(src)
+	maskedSrc, inlineCode := maskMarkdownInlineCode(maskedSrc)
+	maskedSrc, blocks := maskMarkdownCodeBlocks(maskedSrc)
 	id := kvTranslationIDs([]string{key})[0]
 	systemPrompt = identifiedKVSystemPrompt(systemPrompt)
+	rulesByKey, terminologyPrompt, err := kvChunkTerminology([]string{key}, map[string]string{key: maskedSrc}, []string{id}, opts)
+	if err != nil {
+		return nil, err
+	}
+	if opts.Terminology != nil {
+		systemPrompt = terminologySystemPrompt(systemPrompt)
+	}
 
 	var userMsg strings.Builder
 	if opts.SourceLanguageName != "" {
@@ -587,12 +718,14 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	userMsg.WriteString("- Keep the full segment content (do not summarize or drop lines)\n")
 	userMsg.WriteString("- Keep heading markers and heading level exactly\n")
 	userMsg.WriteString("- Preserve fenced code blocks exactly as Markdown code blocks\n")
+	userMsg.WriteString("- Preserve every __LOKIT_INLINE_CODE_N__ and __LOKIT_PARSER_CODE_BLOCK_N__ placeholder exactly, in the same order\n")
 	userMsg.WriteString("- Return ONLY one identified JSON object inside a JSON array\n\n")
 	userMsg.WriteString(fmt.Sprintf("ID %s: ", id))
 	userMsg.WriteString(escapeForPrompt(maskedSrc))
 	userMsg.WriteString(`\n\nReturn [{"id":"` + id + `","translation":"..."}].`)
 
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, userMsg.String(), rl, opts.effectiveMaxRetries(), opts.Verbose)
+	prompt := appendTerminologyPrompt(userMsg.String(), terminologyPrompt)
+	text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, opts.effectiveMaxRetries(), opts.Verbose)
 	if err != nil {
 		return nil, err
 	}
@@ -602,6 +735,14 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	}
 	if len(translations) > 0 {
 		translations[0] = restoreMarkdownCodeBlocks(translations[0], blocks)
+		translations[0] = restoreMarkdownInlineCode(translations[0], inlineCode)
+		translations[0] = restoreMarkdownParserPlaceholders(translations[0], parserPlaceholders)
+	}
+	if _, bad := firstInvalidMarkdownTranslation([]string{key}, translations, map[string]string{key: src}); bad {
+		return nil, fmt.Errorf("invalid markdown translation for key %q: structure or code changed", key)
+	}
+	if err := validateKVChunkTerminology([]string{key}, map[string]string{key: src}, translations, rulesByKey); err != nil {
+		return nil, err
 	}
 	return translations, nil
 }

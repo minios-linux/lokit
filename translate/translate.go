@@ -36,6 +36,7 @@ import (
 	yamlfile "github.com/minios-linux/lokit/internal/format/yaml"
 	"github.com/minios-linux/lokit/lockfile"
 	"github.com/minios-linux/lokit/openai"
+	"github.com/minios-linux/lokit/terminology"
 )
 
 // ---------------------------------------------------------------------------
@@ -318,6 +319,13 @@ type Options struct {
 	IgnoredKeys []string
 	// LockedPatterns lists regex patterns; matching keys are treated as locked.
 	LockedPatterns []*regexp.Regexp
+	// Terminology contains organization/project terminology rules.
+	Terminology *terminology.Catalog
+	// TargetName and Format scope terminology selectors.
+	TargetName string
+	Format     string
+	// SourcePath is relative to the target root when available.
+	SourcePath string
 }
 
 func (o *Options) log(format string, args ...any) {
@@ -1778,6 +1786,13 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 	var userMsg strings.Builder
 	ids := entryTranslationIDs(entries)
 	systemPrompt = identifiedPOSystemPrompt(systemPrompt)
+	rulesByEntry, terminologyPrompt, err := poChunkTerminology(entries, ids, opts)
+	if err != nil {
+		return nil, err
+	}
+	if opts.Terminology != nil {
+		systemPrompt = terminologySystemPrompt(systemPrompt)
+	}
 	if srcName := opts.resolvedSourceLangName(); srcName != "" {
 		userMsg.WriteString(fmt.Sprintf("Translate these entries from %s to %s:\n\n", srcName, opts.LanguageName))
 	} else {
@@ -1799,11 +1814,12 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 
 	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects. Each object must contain the exact input ID and a translation field. ", len(entries)))
 	userMsg.WriteString(`Use {"id":"msg-...","translation":"..."} for singular entries and {"id":"msg-...","translation":["...","..."]} for plural entries. Preserve every ID exactly; do not omit, duplicate, or invent IDs.`)
+	basePrompt := appendTerminologyPrompt(userMsg.String(), terminologyPrompt)
 
 	maxRetries := opts.effectiveMaxRetries()
 	var lastErr error
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		prompt := userMsg.String()
+		prompt := basePrompt
 		if lastErr != nil {
 			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
 		}
@@ -1814,6 +1830,9 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		translations, err := parseIdentifiedPluralTranslations(text, entries, ids, nplurals)
 		if err == nil {
 			err = validatePOPluralTranslations(entries, translations)
+		}
+		if err == nil {
+			err = validatePOPluralChunkTerminology(entries, translations, rulesByEntry)
 		}
 		if err == nil {
 			return translations, nil
@@ -2046,8 +2065,19 @@ type translationTask struct {
 // This is the single-language entry point used by the sequential path and by
 // parallel workers.
 func Translate(ctx context.Context, poFile *po.File, opts Options) error {
-	// Collect entries to translate
-	toTranslate := collectEntries(poFile, opts)
+	nplurals := npluralsFromFile(poFile, opts.Language)
+	direct, err := applyExactPO(poFile, opts, nplurals)
+	if err != nil {
+		return err
+	}
+	if len(direct) > 0 {
+		updateLockFileForPO(direct, opts)
+		opts.log("  Applied %d exact terminology translations", len(direct))
+	}
+	toTranslate, err := collectEntriesWithTerminology(poFile, opts)
+	if err != nil {
+		return err
+	}
 	if len(toTranslate) == 0 {
 		return nil
 	}
@@ -2065,9 +2095,6 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 
 	systemPrompt := opts.resolvedPrompt()
 	done := 0
-
-	// Determine number of plural forms for this language once
-	nplurals := npluralsFromFile(poFile, opts.Language)
 
 	for i, chunk := range chunks {
 		select {
@@ -2118,6 +2145,16 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 
 // TranslateMulti translates multiple PO files: sequential or full-parallel.
 func TranslateMulti(ctx context.Context, tasks []translationTask, opts Options) error {
+	for _, task := range tasks {
+		taskOpts := opts
+		taskOpts.Language = task.lang
+		if task.lockTarget != "" {
+			taskOpts.LockTarget = task.lockTarget
+		}
+		if err := preflightPOTerminology(task.poFile, taskOpts, npluralsFromFile(task.poFile, task.lang)); err != nil {
+			return err
+		}
+	}
 	if opts.ParallelMode == ParallelFullParallel {
 		return translateFullParallel(ctx, tasks, opts)
 	}
@@ -2374,6 +2411,13 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 	var userMsg strings.Builder
 	ids := entryTranslationIDs(entries)
 	systemPrompt = identifiedPOSystemPrompt(systemPrompt)
+	rulesByEntry, terminologyPrompt, err := poChunkTerminology(entries, ids, opts)
+	if err != nil {
+		return nil, err
+	}
+	if opts.Terminology != nil {
+		systemPrompt = terminologySystemPrompt(systemPrompt)
+	}
 	if srcName := opts.resolvedSourceLangName(); srcName != "" {
 		userMsg.WriteString(fmt.Sprintf("Translate these entries from %s to %s:\n\n", srcName, opts.LanguageName))
 	} else {
@@ -2387,11 +2431,12 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 	}
 	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects in this form: ", len(entries)))
 	userMsg.WriteString(`{"id":"msg-...","translation":"..."}. Preserve every input ID exactly; do not omit, duplicate, or invent IDs. The objects may be returned in any order.`)
+	basePrompt := appendTerminologyPrompt(userMsg.String(), terminologyPrompt)
 
 	maxRetries := opts.effectiveMaxRetries()
 	var lastErr error
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		prompt := userMsg.String()
+		prompt := basePrompt
 		if lastErr != nil {
 			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
 		}
@@ -2402,6 +2447,9 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		translations, err := parseIdentifiedStringTranslations(text, ids)
 		if err == nil {
 			err = validatePOTranslations(entries, translations)
+		}
+		if err == nil {
+			err = validatePOChunkTerminology(entries, translations, rulesByEntry)
 		}
 		if err == nil {
 			return translations, nil
@@ -2723,13 +2771,6 @@ func translateSequential(ctx context.Context, tasks []translationTask, opts Opti
 			taskOpts.LockTarget = task.lockTarget
 		}
 
-		toTranslate := collectEntries(task.poFile, taskOpts)
-		if len(toTranslate) == 0 {
-			continue
-		}
-
-		opts.log("Translating %s (%s) — %d entries...", task.lang, taskOpts.LanguageName, len(toTranslate))
-
 		if err := Translate(ctx, task.poFile, taskOpts); err != nil {
 			if ctx.Err() != nil {
 				savePOFile(task.poFile, task.poPath, opts)
@@ -2776,7 +2817,19 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 			taskOpts.LockTarget = task.lockTarget
 		}
 
-		toTranslate := collectEntries(task.poFile, taskOpts)
+		nplurals := npluralsFromFile(task.poFile, task.lang)
+		direct, err := applyExactPO(task.poFile, taskOpts, nplurals)
+		if err != nil {
+			return err
+		}
+		if len(direct) > 0 {
+			updateLockFileForPO(direct, taskOpts)
+			savePOFile(task.poFile, task.poPath, opts)
+		}
+		toTranslate, err := collectEntriesWithTerminology(task.poFile, taskOpts)
+		if err != nil {
+			return err
+		}
 		if len(toTranslate) == 0 {
 			continue
 		}
@@ -2790,8 +2843,6 @@ func translateFullParallel(ctx context.Context, tasks []translationTask, opts Op
 		total := int64(len(toTranslate))
 		done := int64(0)
 		systemPrompt := taskOpts.resolvedPrompt()
-		nplurals := npluralsFromFile(task.poFile, task.lang)
-
 		for _, chunk := range chunks {
 			flatTasks = append(flatTasks, flatTask{
 				lang:         task.lang,
@@ -2940,13 +2991,6 @@ func TranslateAll(ctx context.Context, langTasks []LangTask, opts Options) error
 			lockTarget: lt.LockTarget,
 		}
 
-		taskOpts := opts
-		taskOpts.Language = lt.Lang
-		if lt.LockTarget != "" {
-			taskOpts.LockTarget = lt.LockTarget
-		}
-		entries := collectEntries(lt.POFile, taskOpts)
-		tasks[i].entries = entries
 	}
 
 	return TranslateMulti(ctx, tasks, opts)
@@ -3166,6 +3210,8 @@ type MarkdownLangTask struct {
 	SourceFile *mdfile.File
 	// LockKeyPrefix scopes lock keys per file to avoid collisions.
 	LockKeyPrefix string
+	// SourcePath is the source document path relative to target root.
+	SourcePath string
 }
 
 // TranslateAllMarkdown translates Markdown files for all language tasks.
@@ -3179,6 +3225,7 @@ func TranslateAllMarkdown(ctx context.Context, langTasks []MarkdownLangTask, opt
 			File:          task.File,
 			SourceValues:  task.SourceFile.SourceValues(),
 			LockKeyPrefix: task.LockKeyPrefix,
+			SourcePath:    task.SourcePath,
 		})
 	}
 	return TranslateAllKV(ctx, tasks, opts, MarkdownKVChunkTranslator())

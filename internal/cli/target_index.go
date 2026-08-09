@@ -67,8 +67,9 @@ func (f *indexJSONFile) UntranslatedKeys() []string {
 	return keys
 }
 
-func (f *indexJSONFile) Get(key string) string {
-	return f.translations[key]
+func (f *indexJSONFile) Get(key string) (string, bool) {
+	value, ok := f.translations[key]
+	return value, ok
 }
 
 func (f *indexJSONFile) Set(key, value string) bool {
@@ -165,12 +166,8 @@ func showConfigIndexStats(rt config.ResolvedTarget, langs []string) {
 	keyVal(T("Source index"), rt.Target.Source.Index)
 	keyVal(T("Record ID"), item.ID)
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", len(item.Fields), rt.Target.SourceLang))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
+	sourceValues := buildIndexSourceValues(item)
 
 	for _, lang := range langs {
 		filePath := rt.TranslationPath(lang)
@@ -186,21 +183,9 @@ func showConfigIndexStats(rt config.ResolvedTarget, langs []string) {
 				f.translations[k] = ""
 			}
 		}
-		total, translated, _ := f.Stats()
-		if total > len(item.Fields) {
-			total = len(item.Fields)
-		}
-		if translated > total {
-			translated = total
-		}
-		untranslated := total - translated
-
-		percent := 0
-		if total > 0 {
-			percent = translated * 100 / total
-		}
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		translated := translatedSourceKeys(f, sourceValues)
+		termViolations := countKVTerminologyViolations(rt, lang, f, sourceValues, "")
+		showKVStatsRow(lang, langWidth, len(sourceValues), translated, termViolations)
 	}
 }
 
@@ -327,7 +312,7 @@ func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov tr
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	var tasks []translate.KVLangTask
 	for _, lang := range langs {
@@ -341,10 +326,6 @@ func translateIndexTarget(ctx context.Context, rt config.ResolvedTarget, prov tr
 				f.translations[key] = ""
 			}
 		}
-		if !a.retranslate && !a.force && len(f.UntranslatedKeys()) == 0 {
-			continue
-		}
-
 		tasks = append(tasks, translate.KVLangTask{
 			Lang:         lang,
 			LangName:     i18next.ResolveMeta(lang).Name,

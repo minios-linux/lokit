@@ -4,6 +4,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode/utf8"
@@ -70,12 +71,28 @@ func compileLockedPatterns(patterns []string) []*regexp.Regexp {
 	return compiled
 }
 
-// setExclusionOpts populates the locked/ignored key fields on translate.Options
-// from the given target configuration.
-func setExclusionOpts(opts *translate.Options, t *config.Target) {
-	opts.LockedKeys = t.LockedKeys
-	opts.IgnoredKeys = t.IgnoredKeys
-	opts.LockedPatterns = compileLockedPatterns(t.LockedPatterns)
+// setTargetOpts populates target-scoped translation behavior.
+func setTargetOpts(opts *translate.Options, rt *config.ResolvedTarget) {
+	opts.LockedKeys = rt.Target.LockedKeys
+	opts.IgnoredKeys = rt.Target.IgnoredKeys
+	opts.LockedPatterns = compileLockedPatterns(rt.Target.LockedPatterns)
+	opts.Terminology = rt.Terminology
+	opts.TargetName = rt.Target.Name
+	if base, _, ok := config.SplitExpandedTargetName(rt.Target.Name); ok {
+		opts.TargetName = base
+	}
+	opts.Format = rt.Target.Type
+	if rt.Target.Source != nil && rt.Target.Source.IsIndex() {
+		opts.SourcePath = filepath.ToSlash(rt.Target.Source.Index)
+		return
+	}
+	sourcePath := rt.ExistingSourcePath()
+	if sourcePath == "" {
+		sourcePath = rt.SourcePath()
+	}
+	if opts.SourcePath == "" {
+		opts.SourcePath = relativeSourcePath(*rt, sourcePath)
+	}
 }
 
 // progressBar renders a text progress bar: [████████░░░░] 75%
@@ -376,9 +393,9 @@ func showConfigGettextStats(rt config.ResolvedTarget, langs []string) {
 	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 52)+colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Terms"), T("Left"), colorReset)
+	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 58)+colorReset)
 
 	for _, lang := range langs {
 		poPath := rt.POPath(lang)
@@ -389,13 +406,20 @@ func showConfigGettextStats(rt config.ResolvedTarget, langs []string) {
 		}
 
 		_, translated, fuzzy, untranslated := poFile.Stats()
+		termOpts := translate.Options{Language: lang}
+		setTargetOpts(&termOpts, &rt)
+		termViolations, termErr := translate.CountPOTerminologyViolations(poFile, termOpts)
+		if termErr != nil {
+			logWarning(T("[%s] Terminology check failed for %s: %v"), rt.Target.Name, lang, termErr)
+			termViolations = translated
+		}
 		percent := 0
 		if potTotal > 0 {
-			percent = translated * 100 / potTotal
+			percent = (translated - termViolations) * 100 / potTotal
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, untranslated)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, termViolations, untranslated)
 	}
 }
 
@@ -406,9 +430,9 @@ func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
 	langWidth := langColumnWidth(langs)
 
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Total"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 52)+colorReset)
+	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s %5s %5s%s\n",
+		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Fuzzy"), T("Terms"), T("Total"), colorReset)
+	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 58)+colorReset)
 
 	for _, lang := range langs {
 		poPaths := rt.DocsPOPaths(lang)
@@ -418,7 +442,7 @@ func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		total, translated, fuzzy := 0, 0, 0
+		total, translated, fuzzy, termViolations := 0, 0, 0, 0
 		missing := false
 		for _, poPath := range poPaths {
 			catalog, err := po.ParseFile(poPath)
@@ -430,20 +454,29 @@ func showConfigPo4aStats(rt config.ResolvedTarget, langs []string) {
 			total += fileTotal
 			translated += fileTranslated
 			fuzzy += fileFuzzy
+			termOpts := translate.Options{Language: lang}
+			setTargetOpts(&termOpts, &rt)
+			count, termErr := translate.CountPOTerminologyViolations(catalog, termOpts)
+			if termErr != nil {
+				logWarning(T("[%s] Terminology check failed for %s: %v"), rt.Target.Name, lang, termErr)
+				termViolations += fileTranslated
+			} else {
+				termViolations += count
+			}
 		}
 		percent := 0
 		if total > 0 {
-			percent = (translated * 100) / total
+			percent = ((translated - termViolations) * 100) / total
 		}
 		if missing {
-			fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d %s%s%s\n",
-				langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, total,
+			fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d %5d %s%s%s\n",
+				langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, termViolations, total,
 				colorYellow, T("missing files"), colorReset)
 			continue
 		}
 
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, total)
+		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d %5d %5d\n",
+			langCell(lang, langWidth), progressBar(percent, 16), translated, fuzzy, termViolations, total)
 	}
 }
 
@@ -463,12 +496,8 @@ func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcKeys := len(srcFile.Translations)
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcKeys, rt.Target.SourceLang))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
+	sourceValues := srcFile.SourceValues()
 
 	for _, lang := range langs {
 		filePath := rt.ExistingTranslationPath(lang)
@@ -483,17 +512,8 @@ func showConfigI18NextStats(rt config.ResolvedTarget, langs []string) {
 		}
 
 		_, translated, _ := file.Stats()
-		untranslated := srcKeys - translated
-		if untranslated < 0 {
-			untranslated = 0
-		}
-		percent := 0
-		if srcKeys > 0 {
-			percent = translated * 100 / srcKeys
-		}
-
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		termViolations := countKVTerminologyViolations(rt, lang, file, sourceValues, "")
+		showKVStatsRow(lang, langWidth, srcKeys, translated, termViolations)
 	}
 
 }
@@ -509,14 +529,11 @@ func showConfigAndroidStats(rt config.ResolvedTarget, langs []string) {
 		keyVal(T("Source"), colorYellow+T("not found")+colorReset+" ("+srcPath+")")
 		return
 	}
-	srcTotal, _, _ := srcFile.Stats()
+	sourceFile := newAndroidStatusFile(srcFile, srcFile)
+	srcTotal, _, _ := sourceFile.Stats()
 	keyVal(T("Source strings"), fmt.Sprintf("%d (%s)", srcTotal, rt.Target.SourceLang))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
+	sourceValues := sourceFile.SourceValues()
 
 	for _, lang := range langs {
 		filePath := android.StringsXMLPath(resDir, lang)
@@ -527,18 +544,10 @@ func showConfigAndroidStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		_, translated, _ := file.Stats()
-		untranslated := srcTotal - translated
-		if untranslated < 0 {
-			untranslated = 0
-		}
-		percent := 0
-		if srcTotal > 0 {
-			percent = translated * 100 / srcTotal
-		}
-
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		statusFile := newAndroidStatusFile(file, srcFile)
+		_, translated, _ := statusFile.Stats()
+		termViolations := countKVTerminologyViolations(rt, lang, statusFile, sourceValues, "")
+		showKVStatsRow(lang, langWidth, srcTotal, translated, termViolations)
 	}
 }
 

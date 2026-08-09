@@ -255,15 +255,12 @@ func showConfigIndexGroupStats(baseName string, group []config.ResolvedTarget, l
 	keyVal(T("Records"), fmt.Sprintf("%d", len(ids)))
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", sourceKeysTotal, baseRT.Target.SourceLang))
 
-	langWidth := langColumnWidth(langs)
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
 
 	for _, lang := range langs {
 		total := 0
 		translated := 0
+		termViolations := 0
 
 		for _, id := range ids {
 			item, ok := itemsByID[id]
@@ -278,19 +275,11 @@ func showConfigIndexGroupStats(baseName string, group []config.ResolvedTarget, l
 			if err != nil {
 				continue
 			}
-			for key := range item.Fields {
-				if strings.TrimSpace(f.Get(key)) != "" {
-					translated++
-				}
-			}
+			sourceValues := buildIndexSourceValues(&item)
+			translated += translatedSourceKeys(f, sourceValues)
+			termViolations += countKVTerminologyViolations(rt, lang, f, sourceValues, "")
 		}
 
-		untranslated := total - translated
-		percent := 0
-		if total > 0 {
-			percent = translated * 100 / total
-		}
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		showKVStatsRow(lang, langWidth, total, translated, termViolations)
 	}
 }

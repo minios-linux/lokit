@@ -107,6 +107,11 @@ func (f *File) UntranslatedKeys() []string {
 	return out
 }
 
+func (f *File) Get(key string) (string, bool) {
+	value, ok := f.translations[key]
+	return value, ok
+}
+
 func (f *File) Set(key, value string) bool {
 	if _, ok := f.translations[key]; !ok {
 		return false

@@ -44,6 +44,23 @@ func TestInvalidFormat(t *testing.T) {
 	}
 }
 
+func TestGetDistinguishesEmptyAndMissingValues(t *testing.T) {
+	f, err := Parse([]byte(`window.translations = {"translated":"value","empty":""};`))
+	if err != nil {
+		t.Fatalf("Parse() error = %v", err)
+	}
+
+	if got, ok := f.Get("translated"); !ok || got != "value" {
+		t.Fatalf("Get(translated) = %q, %v", got, ok)
+	}
+	if got, ok := f.Get("empty"); !ok || got != "" {
+		t.Fatalf("Get(empty) = %q, %v", got, ok)
+	}
+	if got, ok := f.Get("missing"); ok || got != "" {
+		t.Fatalf("Get(missing) = %q, %v", got, ok)
+	}
+}
+
 func TestSyncKeys(t *testing.T) {
 	src, err := Parse([]byte(`window.i18n = {
     "Hello": "Hello",

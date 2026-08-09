@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/minios-linux/lokit/terminology"
 	"gopkg.in/yaml.v3"
 )
 
@@ -28,6 +29,8 @@ type LokitFile struct {
 	SourceLang string `yaml:"source_lang,omitempty"`
 	// Provider configures default AI provider/model for translate command.
 	Provider *ProviderConfig `yaml:"provider,omitempty"`
+	// Terminology is the immutable catalog loaded from terminology.from files.
+	Terminology *terminology.Catalog `yaml:"-"`
 	// Targets is the list of translation targets.
 	Targets []Target `yaml:"targets"`
 }
@@ -461,6 +464,10 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 	if err := yaml.Unmarshal(data, &lf); err != nil {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
 	}
+	lf.Terminology, err = loadTerminology(data, path, rootDir)
+	if err != nil {
+		return nil, err
+	}
 
 	// Defaults
 	if lf.SourceLang == "" {
@@ -605,10 +612,11 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 
 // ResolvedTarget holds a fully resolved target with absolute paths.
 type ResolvedTarget struct {
-	Target    Target
-	AbsRoot   string
-	Languages []string
-	IndexItem *IndexItem
+	Target      Target
+	AbsRoot     string
+	Languages   []string
+	IndexItem   *IndexItem
+	Terminology *terminology.Catalog
 }
 
 // Resolve converts a LokitFile into a list of ResolvedTargets with absolute paths.
@@ -632,7 +640,7 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 				if len(langs) == 0 {
 					langs = detectTargetLanguages(et, absRoot)
 				}
-				resolved = append(resolved, ResolvedTarget{Target: et, AbsRoot: absRoot, Languages: langs})
+				resolved = append(resolved, ResolvedTarget{Target: et, AbsRoot: absRoot, Languages: langs, Terminology: lf.Terminology})
 			}
 			continue
 		}
@@ -691,7 +699,7 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 				if len(langs) == 0 {
 					langs = detectTargetLanguages(et, absRoot)
 				}
-				resolved = append(resolved, ResolvedTarget{Target: et, AbsRoot: absRoot, Languages: langs})
+				resolved = append(resolved, ResolvedTarget{Target: et, AbsRoot: absRoot, Languages: langs, Terminology: lf.Terminology})
 			}
 		}
 	}

@@ -124,6 +124,13 @@ func (f *File) UntranslatedKeys() []string {
 	return out
 }
 
+func (f *File) Get(key string) (string, bool) {
+	if _, ok := f.base[key]; !ok {
+		return "", false
+	}
+	return f.localized[key], true
+}
+
 func (f *File) Set(key, value string) bool {
 	if _, ok := f.base[key]; !ok {
 		return false

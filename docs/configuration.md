@@ -43,6 +43,11 @@ provider:
   # settings:
   #   temperature: 0.3       # 0.0–2.0
 
+# Optional project-owned terminology catalogs
+terminology:
+  from:
+    - l10n/terminology.yaml
+
 # Translation targets (at least one required)
 targets:
   - name: my-target           # Display name (required, must be unique)
@@ -108,6 +113,18 @@ Default AI provider settings. When set, you can run `lokit translate` without `-
 | `settings.temperature` | number | no | Temperature (0.0–2.0) |
 
 Valid provider IDs: `copilot`, `gemini`, `google`, `groq`, `opencode`, `openai`, `ollama`, `custom-openai`.
+
+### `terminology`
+
+Loads project-owned terminology files relative to `lokit.yaml`:
+
+```yaml
+terminology:
+  from:
+    - l10n/terminology.yaml
+```
+
+Exact phrases are applied without a provider. Embedded term rules are included in provider requests and validated before translation files and lock checksums are updated. See the [Terminology Guide](terminology.md).
 
 ### `targets`
 

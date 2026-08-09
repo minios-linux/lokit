@@ -1,6 +1,8 @@
 package polkit
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -56,7 +58,7 @@ func collectTag(f *File, actionID, body, tag string, re *regexp.Regexp) {
 	baseKey := actionID + "." + tag
 	for _, m := range re.FindAllStringSubmatch(body, -1) {
 		lang := m[1]
-		text := strings.TrimSpace(m[2])
+		text := decodeXMLText(strings.TrimSpace(m[2]))
 		if lang == "" {
 			if _, ok := f.sourceValues[baseKey]; !ok {
 				f.keys = append(f.keys, baseKey)
@@ -68,6 +70,16 @@ func collectTag(f *File, actionID, body, tag string, re *regexp.Regexp) {
 			f.values[baseKey] = text
 		}
 	}
+}
+
+func decodeXMLText(value string) string {
+	var wrapper struct {
+		Text string `xml:",chardata"`
+	}
+	if err := xml.Unmarshal([]byte("<text>"+value+"</text>"), &wrapper); err == nil {
+		return wrapper.Text
+	}
+	return value
 }
 
 func (f *File) Keys() []string {
@@ -84,6 +96,13 @@ func (f *File) UntranslatedKeys() []string {
 		}
 	}
 	return out
+}
+
+func (f *File) Get(key string) (string, bool) {
+	if _, ok := f.sourceValues[key]; !ok {
+		return "", false
+	}
+	return f.values[key], true
 }
 
 func (f *File) Set(key, value string) bool {
@@ -139,6 +158,10 @@ func applyTag(body, actionID, tag, lang string, values map[string]string, re *re
 	if val == "" {
 		return body
 	}
+
+	var escaped bytes.Buffer
+	_ = xml.EscapeText(&escaped, []byte(val))
+	val = escaped.String()
 
 	for _, m := range re.FindAllStringSubmatch(body, -1) {
 		if m[1] == lang {

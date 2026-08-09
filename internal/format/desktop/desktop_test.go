@@ -17,11 +17,20 @@ Name[de]=Meine App
 	if len(f.Keys()) != 2 {
 		t.Fatalf("expected 2 keys, got %d", len(f.Keys()))
 	}
+	if got, ok := f.Get("Name"); !ok || got != "" {
+		t.Fatalf("Get(Name) before Set = %q, %v", got, ok)
+	}
+	if got, ok := f.Get("Unknown"); ok || got != "" {
+		t.Fatalf("Get(Unknown) = %q, %v", got, ok)
+	}
 	if !f.Set("Name", "Мое приложение") {
 		t.Fatalf("Set(Name) failed")
 	}
 	if !f.Set("Comment", "Простое приложение") {
 		t.Fatalf("Set(Comment) failed")
+	}
+	if got, ok := f.Get("Name"); !ok || got != "Мое приложение" {
+		t.Fatalf("Get(Name) after Set = %q, %v", got, ok)
 	}
 
 	out, err := f.Marshal()

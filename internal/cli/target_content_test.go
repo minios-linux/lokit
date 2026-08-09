@@ -11,6 +11,7 @@ import (
 
 	"github.com/minios-linux/lokit/config"
 	"github.com/minios-linux/lokit/lockfile"
+	"github.com/minios-linux/lokit/terminology"
 	"github.com/minios-linux/lokit/translate"
 )
 
@@ -46,8 +47,143 @@ func TestShowConfigJSKVStatsParsesJavaScriptFiles(t *testing.T) {
 	if strings.Contains(output, "missing") {
 		t.Fatalf("JSKV stats reported existing translation as missing:\n%s", output)
 	}
-	if !regexp.MustCompile(`(?m)^\s*🇩🇪 de\s+.*\s+1\s+0\s*$`).MatchString(output) {
+	if !regexp.MustCompile(`(?m)^\s*🇩🇪 de\s+.*\s+1\s+0\s+0\s*$`).MatchString(output) {
 		t.Fatalf("JSKV stats missing translated count:\n%s", output)
+	}
+}
+
+func TestShowConfigJSKVStatsCountsTerminologyViolations(t *testing.T) {
+	dir := t.TempDir()
+	translationsDir := filepath.Join(dir, "translations")
+	if err := os.MkdirAll(translationsDir, 0o755); err != nil {
+		t.Fatalf("mkdir translations: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(translationsDir, "en.js"), []byte("window.translations = {\n    \"Open app\": \"Open app\"\n};\n"), 0o644); err != nil {
+		t.Fatalf("write source: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(translationsDir, "de.js"), []byte("window.translations = {\n    \"Open app\": \"Programm öffnen\"\n};\n"), 0o644); err != nil {
+		t.Fatalf("write translation: %v", err)
+	}
+
+	rt := testJSKVResolvedTarget(dir)
+	rt.Terminology = testTerminologyCatalog(t, `version: 1
+terms:
+  - id: app
+    source: app
+    translations:
+      de: Anwendung
+`)
+	output := captureStderr(t, func() {
+		showConfigJSKVStats(rt, []string{"de"})
+	})
+
+	if !strings.Contains(output, "Terms") {
+		t.Fatalf("JSKV stats missing Terms column:\n%s", output)
+	}
+	if !regexp.MustCompile(`(?m)^\s*🇩🇪 de\s+.*\s0%\s+1\s+1\s+0\s*$`).MatchString(output) {
+		t.Fatalf("JSKV stats did not subtract terminology violations from progress:\n%s", output)
+	}
+}
+
+func TestShowConfigMarkdownStatsUsesRelativeSourcePathForTerminology(t *testing.T) {
+	dir := t.TempDir()
+	sourcePath := filepath.Join(dir, "docs", "guide.md")
+	targetPath := filepath.Join(dir, "locales", "de", "docs", "guide.md")
+	if err := os.MkdirAll(filepath.Dir(sourcePath), 0o755); err != nil {
+		t.Fatalf("mkdir source: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Dir(targetPath), 0o755); err != nil {
+		t.Fatalf("mkdir target: %v", err)
+	}
+	if err := os.WriteFile(sourcePath, []byte("# Open app\n"), 0o644); err != nil {
+		t.Fatalf("write source: %v", err)
+	}
+	if err := os.WriteFile(targetPath, []byte("# Programm öffnen\n"), 0o644); err != nil {
+		t.Fatalf("write target: %v", err)
+	}
+
+	rt := config.ResolvedTarget{
+		Target: config.Target{
+			Name:       "docs",
+			Type:       config.TargetTypeMarkdown,
+			Format:     config.TargetTypeMarkdown,
+			Sources:    []string{"docs/**/*.md"},
+			TargetPath: "locales/{lang}/{path}",
+			SourceLang: "en",
+		},
+		AbsRoot: dir,
+		Terminology: testTerminologyCatalog(t, `version: 1
+terms:
+  - id: docs-app
+    source: app
+    when:
+      path: docs/guide.md
+    translations:
+      de: Anwendung
+`),
+	}
+	output := captureStderr(t, func() {
+		showConfigMarkdownStats(rt, []string{"de"})
+	})
+
+	if !regexp.MustCompile(`(?m)^\s*🇩🇪 de\s+.*\s0%\s+1\s+1\s+0\s*$`).MatchString(output) {
+		t.Fatalf("Markdown stats did not apply path-scoped terminology:\n%s", output)
+	}
+}
+
+func TestShowConfigAndroidStatsCountsFlattenedTerminologyViolations(t *testing.T) {
+	dir := t.TempDir()
+	resDir := filepath.Join(dir, "res")
+	sourcePath := filepath.Join(resDir, "values", "strings.xml")
+	targetPath := filepath.Join(resDir, "values-de", "strings.xml")
+	if err := os.MkdirAll(filepath.Dir(sourcePath), 0o755); err != nil {
+		t.Fatalf("mkdir source: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Dir(targetPath), 0o755); err != nil {
+		t.Fatalf("mkdir target: %v", err)
+	}
+	if err := os.WriteFile(sourcePath, []byte(`<resources>
+  <string-array name="actions">
+    <item>Open app</item>
+    <item>Close app</item>
+  </string-array>
+</resources>
+`), 0o644); err != nil {
+		t.Fatalf("write source: %v", err)
+	}
+	if err := os.WriteFile(targetPath, []byte(`<resources>
+  <string-array name="actions">
+    <item>Programm öffnen</item>
+    <item>Anwendung schließen</item>
+  </string-array>
+</resources>
+`), 0o644); err != nil {
+		t.Fatalf("write target: %v", err)
+	}
+
+	rt := config.ResolvedTarget{
+		Target: config.Target{
+			Name:       "android",
+			Type:       config.TargetTypeAndroid,
+			Format:     config.TargetTypeAndroid,
+			TargetPath: "res",
+			SourceLang: "en",
+		},
+		AbsRoot: dir,
+		Terminology: testTerminologyCatalog(t, `version: 1
+terms:
+  - id: app
+    source: app
+    translations:
+      de: Anwendung
+`),
+	}
+	output := captureStderr(t, func() {
+		showConfigAndroidStats(rt, []string{"de"})
+	})
+
+	if !regexp.MustCompile(`(?m)^\s*🇩🇪 de\s+.*\s50%\s+2\s+1\s+0\s*$`).MatchString(output) {
+		t.Fatalf("Android status did not count flattened terminology violations:\n%s", output)
 	}
 }
 
@@ -248,6 +384,19 @@ func testJSKVResolvedTarget(dir string) config.ResolvedTarget {
 		},
 		AbsRoot: dir,
 	}
+}
+
+func testTerminologyCatalog(t *testing.T, content string) *terminology.Catalog {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "terminology.yaml")
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write terminology: %v", err)
+	}
+	catalog, err := terminology.Load(path)
+	if err != nil {
+		t.Fatalf("load terminology: %v", err)
+	}
+	return catalog
 }
 
 func captureStderr(t *testing.T, fn func()) string {

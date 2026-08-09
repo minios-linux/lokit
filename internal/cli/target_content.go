@@ -236,12 +236,8 @@ func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
+	sourceValues := srcFile.SourceValues()
 
 	for _, lang := range langs {
 		filePath := rt.ExistingTranslationPath(lang)
@@ -258,15 +254,9 @@ func showConfigYAMLStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		total, translated, _ := file.Stats()
-		untranslated := total - translated
-		percent := 0
-		if srcTotal > 0 {
-			percent = translated * 100 / srcTotal
-		}
-
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		_, translated, _ := file.Stats()
+		termViolations := countKVTerminologyViolations(rt, lang, file, sourceValues, "")
+		showKVStatsRow(lang, langWidth, srcTotal, translated, termViolations)
 	}
 }
 
@@ -449,7 +439,7 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	return translate.TranslateAllYAML(ctx, tasks, opts)
 }
@@ -467,7 +457,11 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 	}
 
 	srcTotal := 0
-	srcByRelPath := make(map[string]*mdfile.File, len(srcFiles))
+	type markdownSource struct {
+		path string
+		file *mdfile.File
+	}
+	srcByRelPath := make(map[string]markdownSource, len(srcFiles))
 	for _, p := range srcFiles {
 		f, err := mdfile.ParseFile(p)
 		if err == nil {
@@ -475,17 +469,12 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 			srcTotal += t
 			relPath, relErr := filepath.Rel(srcDir, p)
 			if relErr == nil {
-				srcByRelPath[filepath.ToSlash(relPath)] = f
+				srcByRelPath[filepath.ToSlash(relPath)] = markdownSource{path: p, file: f}
 			}
 		}
 	}
 	keyVal(T("Source segments"), fmt.Sprintf("%d (%s, %d files)", srcTotal, srcLang, len(srcFiles)))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
 
 	for _, lang := range langs {
 		langDir := markdownLangDir(rt, lang)
@@ -496,29 +485,30 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		translated := 0
+		translated, termViolations := 0, 0
 		for _, p := range files {
 			f, err := mdfile.ParseFile(p)
 			if err != nil {
 				continue
 			}
-			relPath, relErr := filepath.Rel(langDir, p)
-			if relErr == nil && !markdownTargetIsFile(rt) {
-				if srcFile, ok := srcByRelPath[filepath.ToSlash(relPath)]; ok {
-					mdfile.SyncKeys(srcFile, f)
+			var source markdownSource
+			if markdownTargetIsFile(rt) && len(srcFiles) == 1 {
+				relPath, relErr := filepath.Rel(srcDir, srcFiles[0])
+				if relErr == nil {
+					source = srcByRelPath[filepath.ToSlash(relPath)]
 				}
+			} else if relPath, relErr := filepath.Rel(langDir, p); relErr == nil {
+				source = srcByRelPath[filepath.ToSlash(relPath)]
+			}
+			if source.file != nil {
+				mdfile.SyncKeys(source.file, f)
+				termViolations += countKVTerminologyViolations(rt, lang, f, source.file.SourceValues(), relativeSourcePath(rt, source.path))
 			}
 			_, tr, _ := f.Stats()
 			translated += tr
 		}
 
-		untranslated := srcTotal - translated
-		percent := 0
-		if srcTotal > 0 {
-			percent = translated * 100 / srcTotal
-		}
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		showKVStatsRow(lang, langWidth, srcTotal, translated, termViolations)
 	}
 }
 
@@ -702,7 +692,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 			}
 
 			lockKeyPrefix := filepath.ToSlash(relPath)
-			tasks = append(tasks, translate.MarkdownLangTask{Lang: lang, LangName: langName, FilePath: targetPath, File: targetFile, SourceFile: srcFile, LockKeyPrefix: lockKeyPrefix})
+			tasks = append(tasks, translate.MarkdownLangTask{Lang: lang, LangName: langName, FilePath: targetPath, File: targetFile, SourceFile: srcFile, LockKeyPrefix: lockKeyPrefix, SourcePath: filepath.ToSlash(relPath)})
 		}
 	}
 
@@ -744,7 +734,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	return translate.TranslateAllMarkdown(ctx, tasks, opts)
 }
@@ -770,12 +760,8 @@ func showConfigPropertiesStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
+	sourceValues := srcFile.SourceValues()
 
 	for _, lang := range langs {
 		filePath := rt.ExistingTranslationPath(lang)
@@ -795,14 +781,9 @@ func showConfigPropertiesStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		total, translated, _ := file.Stats()
-		untranslated := total - translated
-		percent := 0
-		if srcTotal > 0 {
-			percent = translated * 100 / srcTotal
-		}
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		_, translated, _ := file.Stats()
+		termViolations := countKVTerminologyViolations(rt, lang, file, sourceValues, "")
+		showKVStatsRow(lang, langWidth, srcTotal, translated, termViolations)
 	}
 }
 
@@ -965,7 +946,7 @@ func translatePropertiesTarget(ctx context.Context, rt config.ResolvedTarget, pr
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	return translate.TranslateAllProperties(ctx, tasks, opts)
 }
@@ -991,12 +972,8 @@ func showConfigFlutterStats(rt config.ResolvedTarget, langs []string) {
 	}
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, srcLang))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
+	sourceValues := srcFile.SourceValues()
 
 	for _, lang := range langs {
 		filePath := rt.ExistingTranslationPath(lang)
@@ -1016,14 +993,9 @@ func showConfigFlutterStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		total, translated, _ := file.Stats()
-		untranslated := total - translated
-		percent := 0
-		if srcTotal > 0 {
-			percent = translated * 100 / srcTotal
-		}
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		_, translated, _ := file.Stats()
+		termViolations := countKVTerminologyViolations(rt, lang, file, sourceValues, "")
+		showKVStatsRow(lang, langWidth, srcTotal, translated, termViolations)
 	}
 }
 
@@ -1186,7 +1158,7 @@ func translateFlutterTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	return translate.TranslateAllARB(ctx, tasks, opts)
 }
@@ -1209,12 +1181,8 @@ func showConfigVueI18nStats(rt config.ResolvedTarget, langs []string) {
 
 	srcTotal, _, _ := srcFile.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, rt.Target.SourceLang))
-	langWidth := langColumnWidth(langs)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
+	sourceValues := srcFile.SourceValues()
 
 	for _, lang := range langs {
 		filePath := rt.ExistingTranslationPath(lang)
@@ -1229,15 +1197,9 @@ func showConfigVueI18nStats(rt config.ResolvedTarget, langs []string) {
 			continue
 		}
 
-		total, translated, _ := file.Stats()
-		untranslated := total - translated
-		percent := 0
-		if srcTotal > 0 {
-			percent = translated * 100 / srcTotal
-		}
-
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		_, translated, _ := file.Stats()
+		termViolations := countKVTerminologyViolations(rt, lang, file, sourceValues, "")
+		showKVStatsRow(lang, langWidth, srcTotal, translated, termViolations)
 	}
 }
 
@@ -1397,7 +1359,7 @@ func translateVueI18nTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	return translate.TranslateAllVueI18n(ctx, tasks, opts)
 }
@@ -1420,13 +1382,10 @@ func showConfigJSKVStats(rt config.ResolvedTarget, langs []string) {
 	transDir := rt.AbsTranslationsDir()
 	keyVal(T("Translations"), transDir)
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", srcTotal, rt.Target.SourceLang))
-	langWidth := langColumnWidth(langs)
+	sourceValues := srcFile.SourceValues()
 
 	sectionHeader(T("UI Translation Statistics"))
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n",
-		colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+	langWidth := showKVStatsHeader(langs)
 
 	for _, lang := range langs {
 		filePath := rt.ExistingTranslationPath(lang)
@@ -1448,14 +1407,8 @@ func showConfigJSKVStats(rt config.ResolvedTarget, langs []string) {
 		jskv.SyncKeys(srcFile, file)
 
 		_, translated, _ := file.Stats()
-		untranslated := len(file.UntranslatedKeys())
-		percent := 0
-		if srcTotal > 0 {
-			percent = translated * 100 / srcTotal
-		}
-
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n",
-			langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		termViolations := countKVTerminologyViolations(rt, lang, file, sourceValues, "")
+		showKVStatsRow(lang, langWidth, srcTotal, translated, termViolations)
 	}
 
 	fmt.Fprintln(os.Stderr)
@@ -1555,7 +1508,7 @@ func translateJSKVTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		OnLog:               func(format string, args ...any) { logInfo(format, args...) },
 		OnError:             func(format string, args ...any) { logError(format, args...) },
 	}
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	var tasks []translate.KVLangTask
 	for _, lang := range langs {
@@ -1586,13 +1539,15 @@ func showConfigDesktopStats(rt config.ResolvedTarget, langs []string) {
 	}
 	total, _, _ := src.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", total, rt.Target.SourceLang))
-	showSimpleKVSingleFileStats(path, langs, func(lang string) (int, int, error) {
+	sourceValues := src.SourceValues()
+	showSimpleKVSingleFileStats(langs, total, func(lang string) (int, int, error) {
 		f, err := desktop.ParseFile(path, lang)
 		if err != nil {
 			return 0, 0, err
 		}
-		t, tr, _ := f.Stats()
-		return t, tr, nil
+		_, translated, _ := f.Stats()
+		termViolations := countKVTerminologyViolations(rt, lang, f, sourceValues, "")
+		return translated, termViolations, nil
 	})
 }
 
@@ -1605,33 +1560,27 @@ func showConfigPolkitStats(rt config.ResolvedTarget, langs []string) {
 	}
 	total, _, _ := src.Stats()
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", total, rt.Target.SourceLang))
-	showSimpleKVSingleFileStats(path, langs, func(lang string) (int, int, error) {
+	sourceValues := src.SourceValues()
+	showSimpleKVSingleFileStats(langs, total, func(lang string) (int, int, error) {
 		f, err := polkit.ParseFile(path, lang)
 		if err != nil {
 			return 0, 0, err
 		}
-		t, tr, _ := f.Stats()
-		return t, tr, nil
+		_, translated, _ := f.Stats()
+		termViolations := countKVTerminologyViolations(rt, lang, f, sourceValues, "")
+		return translated, termViolations, nil
 	})
 }
 
-func showSimpleKVSingleFileStats(path string, langs []string, fn func(lang string) (int, int, error)) {
-	langWidth := langColumnWidth(langs)
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintf(os.Stderr, "  %s%-*s %-22s %5s %5s%s\n", colorDim, langWidth+3, T("Lang"), T("Progress"), T("Done"), T("Left"), colorReset)
-	fmt.Fprintln(os.Stderr, "  "+colorDim+strings.Repeat("─", 46)+colorReset)
+func showSimpleKVSingleFileStats(langs []string, total int, fn func(lang string) (int, int, error)) {
+	langWidth := showKVStatsHeader(langs)
 	for _, lang := range langs {
-		total, translated, err := fn(lang)
+		translated, termViolations, err := fn(lang)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "  %s %s  %s%s%s\n", langCell(lang, langWidth), progressBar(0, 16), colorYellow, T("parse error"), colorReset)
 			continue
 		}
-		untranslated := total - translated
-		percent := 0
-		if total > 0 {
-			percent = translated * 100 / total
-		}
-		fmt.Fprintf(os.Stderr, "  %s %s %5d %5d\n", langCell(lang, langWidth), progressBar(percent, 16), translated, untranslated)
+		showKVStatsRow(lang, langWidth, total, translated, termViolations)
 	}
 }
 
@@ -1642,19 +1591,28 @@ func translateDesktopTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		return fmt.Errorf(T("cannot read desktop file %s: %w"), path, err)
 	}
 	opts := translate.Options{Provider: prov, SourceLanguage: rt.Target.SourceLang, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
-	setExclusionOpts(&opts, &rt.Target)
-	var tasks []translate.KVLangTask
+	setTargetOpts(&opts, &rt)
+	var preflight []translate.KVLangTask
+	for _, lang := range langs {
+		f, err := desktop.ParseFile(path, lang)
+		if err == nil {
+			preflight = append(preflight, translate.KVLangTask{Lang: lang, File: f, SourceValues: src.SourceValues()})
+		}
+	}
+	if err := translate.PreflightKVTerminology(preflight, opts, translate.DefaultKVChunkTranslator()); err != nil {
+		return err
+	}
 	for _, lang := range langs {
 		f, err := desktop.ParseFile(path, lang)
 		if err != nil {
 			continue
 		}
-		tasks = append(tasks, translate.KVLangTask{Lang: lang, LangName: i18next.ResolveMeta(lang).Name, FilePath: path, File: f, SourceValues: src.SourceValues()})
+		task := translate.KVLangTask{Lang: lang, LangName: i18next.ResolveMeta(lang).Name, FilePath: path, File: f, SourceValues: src.SourceValues()}
+		if err := translate.TranslateAllKV(ctx, []translate.KVLangTask{task}, opts, translate.DefaultKVChunkTranslator()); err != nil {
+			return err
+		}
 	}
-	if len(tasks) == 0 {
-		return nil
-	}
-	return translate.TranslateAllKV(ctx, tasks, opts, translate.DefaultKVChunkTranslator())
+	return nil
 }
 
 func translatePolkitTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
@@ -1664,17 +1622,26 @@ func translatePolkitTarget(ctx context.Context, rt config.ResolvedTarget, prov t
 		return fmt.Errorf(T("cannot read policy file %s: %w"), path, err)
 	}
 	opts := translate.Options{Provider: prov, SourceLanguage: rt.Target.SourceLang, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
-	setExclusionOpts(&opts, &rt.Target)
-	var tasks []translate.KVLangTask
+	setTargetOpts(&opts, &rt)
+	var preflight []translate.KVLangTask
+	for _, lang := range langs {
+		f, err := polkit.ParseFile(path, lang)
+		if err == nil {
+			preflight = append(preflight, translate.KVLangTask{Lang: lang, File: f, SourceValues: src.SourceValues()})
+		}
+	}
+	if err := translate.PreflightKVTerminology(preflight, opts, translate.DefaultKVChunkTranslator()); err != nil {
+		return err
+	}
 	for _, lang := range langs {
 		f, err := polkit.ParseFile(path, lang)
 		if err != nil {
 			continue
 		}
-		tasks = append(tasks, translate.KVLangTask{Lang: lang, LangName: i18next.ResolveMeta(lang).Name, FilePath: path, File: f, SourceValues: src.SourceValues()})
+		task := translate.KVLangTask{Lang: lang, LangName: i18next.ResolveMeta(lang).Name, FilePath: path, File: f, SourceValues: src.SourceValues()}
+		if err := translate.TranslateAllKV(ctx, []translate.KVLangTask{task}, opts, translate.DefaultKVChunkTranslator()); err != nil {
+			return err
+		}
 	}
-	if len(tasks) == 0 {
-		return nil
-	}
-	return translate.TranslateAllKV(ctx, tasks, opts, translate.DefaultKVChunkTranslator())
+	return nil
 }

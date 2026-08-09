@@ -87,11 +87,20 @@ func (f *androidKVFile) Keys() []string {
 func (f *androidKVFile) UntranslatedKeys() []string {
 	keys := make([]string, 0)
 	for _, unit := range f.units {
-		if f.valueForUnit(f.target, unit) == "" {
+		value, _ := f.valueForUnit(f.target, unit)
+		if value == "" {
 			keys = append(keys, unit.key)
 		}
 	}
 	return keys
+}
+
+func (f *androidKVFile) Get(key string) (string, bool) {
+	unit, ok := f.index[key]
+	if !ok {
+		return "", false
+	}
+	return f.valueForUnit(f.target, unit)
 }
 
 func (f *androidKVFile) Set(key, value string) bool {
@@ -129,7 +138,8 @@ func (f *androidKVFile) Set(key, value string) bool {
 func (f *androidKVFile) Stats() (total int, translated int, pct float64) {
 	total = len(f.units)
 	for _, unit := range f.units {
-		if f.valueForUnit(f.target, unit) != "" {
+		value, _ := f.valueForUnit(f.target, unit)
+		if value != "" {
 			translated++
 		}
 	}
@@ -142,7 +152,7 @@ func (f *androidKVFile) Stats() (total int, translated int, pct float64) {
 func (f *androidKVFile) SourceValues() map[string]string {
 	vals := make(map[string]string, len(f.units))
 	for _, unit := range f.units {
-		vals[unit.key] = f.valueForUnit(f.source, unit)
+		vals[unit.key], _ = f.valueForUnit(f.source, unit)
 	}
 	return vals
 }
@@ -151,23 +161,28 @@ func (f *androidKVFile) WriteFile(path string) error {
 	return f.target.WriteTargetFile(path)
 }
 
-func (f *androidKVFile) valueForUnit(file *android.File, unit androidKVUnit) string {
+func (f *androidKVFile) valueForUnit(file *android.File, unit androidKVUnit) (string, bool) {
 	if file == nil {
-		return ""
+		return "", false
 	}
 	entry := file.GetEntry(unit.name)
 	if entry == nil {
-		return ""
+		return "", false
 	}
 	switch unit.kind {
 	case androidUnitString:
-		return entry.Value
+		if entry.Kind == android.KindString {
+			return entry.Value, true
+		}
 	case androidUnitArrayItem:
-		if unit.itemIdx >= 0 && unit.itemIdx < len(entry.Items) {
-			return entry.Items[unit.itemIdx]
+		if entry.Kind == android.KindStringArray && unit.itemIdx >= 0 && unit.itemIdx < len(entry.Items) {
+			return entry.Items[unit.itemIdx], true
 		}
 	case androidUnitPlural:
-		return entry.Plurals[unit.quantity]
+		if entry.Kind == android.KindPlurals {
+			value, ok := entry.Plurals[unit.quantity]
+			return value, ok
+		}
 	}
-	return ""
+	return "", false
 }

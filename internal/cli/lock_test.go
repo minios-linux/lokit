@@ -286,6 +286,15 @@ func (f *testLockKVFile) UntranslatedKeys() []string {
 	return out
 }
 
+func (f *testLockKVFile) Get(key string) (string, bool) {
+	for _, candidate := range f.keys {
+		if candidate == key {
+			return "", true
+		}
+	}
+	return "", false
+}
+
 func (f *testLockKVFile) Set(string, string) bool { return true }
 
 func (f *testLockKVFile) Stats() (int, int, float64) { return 0, 0, 0 }

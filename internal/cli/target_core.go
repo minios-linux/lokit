@@ -144,7 +144,7 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	// Override prompt from target config
 	if rt.Target.Prompt != "" && opts.SystemPrompt == "" {
@@ -166,15 +166,6 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 				}
 			} else {
 				logError(T("Reading %s: %v"), poPath, err)
-				continue
-			}
-		}
-
-		// Skip if already fully translated unless a full re-run was requested.
-		if !a.retranslate && !a.force {
-			untranslated := poFile.UntranslatedEntries()
-			fuzzyEntries := poFile.FuzzyEntries()
-			if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
 				continue
 			}
 		}
@@ -271,7 +262,7 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	// Override prompt from target config
 	if rt.Target.Prompt != "" && a.prompt == "" {
@@ -330,15 +321,6 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 				}
 				logError(T("Reading %s: %v"), file.Path, err)
 				continue
-			}
-
-			// Skip if already fully translated unless a full re-run was requested.
-			if !a.retranslate && !a.force {
-				untranslated := poFile.UntranslatedEntries()
-				fuzzyEntries := poFile.FuzzyEntries()
-				if len(untranslated) == 0 && (!a.fuzzy || len(fuzzyEntries) == 0) {
-					continue
-				}
 			}
 
 			langTasks = append(langTasks, translate.LangTask{
@@ -434,7 +416,7 @@ func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	var langTasks []translate.KVLangTask
 	for _, lang := range langs {
@@ -447,10 +429,6 @@ func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov
 				file.Translations[key] = ""
 			}
 			logInfo(T("Auto-creating %s with %d keys"), filePath, len(srcKeys))
-		}
-
-		if !a.retranslate && !a.force && len(file.UntranslatedKeys()) == 0 {
-			continue
 		}
 
 		langTasks = append(langTasks, translate.KVLangTask{
@@ -553,7 +531,7 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		},
 	}
 
-	setExclusionOpts(&opts, &rt.Target)
+	setTargetOpts(&opts, &rt)
 
 	// Build language tasks
 	var langTasks []translate.AndroidLangTask
@@ -569,14 +547,6 @@ func translateAndroidTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 			added := file.SyncKeys(srcFile)
 			if added > 0 {
 				logInfo(T("Added %d new strings to %s"), added, filePath)
-			}
-		}
-
-		// Skip if already fully translated unless a full re-run was requested.
-		if !a.retranslate && !a.force {
-			untranslated := file.UntranslatedKeys()
-			if len(untranslated) == 0 {
-				continue
 			}
 		}
 

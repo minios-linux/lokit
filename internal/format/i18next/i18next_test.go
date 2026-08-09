@@ -57,6 +57,23 @@ func TestParse_InvalidJSON(t *testing.T) {
 	}
 }
 
+func TestGetDistinguishesEmptyAndMissingValues(t *testing.T) {
+	f, err := Parse([]byte(`{"translations":{"translated":"value","empty":""}}`))
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+
+	if got, ok := f.Get("translated"); !ok || got != "value" {
+		t.Fatalf("Get(translated) = %q, %v", got, ok)
+	}
+	if got, ok := f.Get("empty"); !ok || got != "" {
+		t.Fatalf("Get(empty) = %q, %v", got, ok)
+	}
+	if got, ok := f.Get("missing"); ok || got != "" {
+		t.Fatalf("Get(missing) = %q, %v", got, ok)
+	}
+}
+
 func TestResolveMeta_NormalizationAndFallback(t *testing.T) {
 	m := ResolveMeta("pt_br")
 	if m.Name == "" || m.Flag == "" {
