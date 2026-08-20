@@ -47,6 +47,9 @@ func Parse(data []byte, targetLang string) (*File, error) {
 
 	text := strings.ReplaceAll(string(data), "\r\n", "\n")
 	rows := strings.Split(text, "\n")
+	if len(rows) > 0 && rows[len(rows)-1] == "" {
+		rows = rows[:len(rows)-1]
+	}
 	for _, row := range rows {
 		ln := line{raw: row}
 		trimmed := strings.TrimSpace(row)

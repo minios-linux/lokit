@@ -1,6 +1,9 @@
 package desktop
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 
 func TestDesktopParseSetMarshal(t *testing.T) {
 	input := []byte(`[Desktop Entry]
@@ -47,5 +50,8 @@ Name[de]=Meine App
 	}
 	if got := f2.localized["Comment"]; got != "Простое приложение" {
 		t.Fatalf("comment mismatch: got %q", got)
+	}
+	if bytes.HasSuffix(out, []byte("\n\n")) {
+		t.Fatalf("Marshal() added a blank line at EOF: %q", out)
 	}
 }
