@@ -76,6 +76,8 @@ var allProviders = []struct {
 	{"ollama", "Ollama", "local server, no auth needed", "none"},
 }
 
+const providerIDColumnWidth = len("github-copilot")
+
 func newAuthLoginCmd() *cobra.Command {
 	var provider string
 	var authMethod string
@@ -129,8 +131,8 @@ API key providers:
 					case "mixed":
 						authLabel = T("OAuth / API key")
 					}
-					fmt.Fprintf(os.Stderr, "  %d. %s%-13s%s %s (%s)\n",
-						i+1, colorYellow, p.id, colorReset, T(p.desc), authLabel)
+					fmt.Fprintf(os.Stderr, "  %d. %s%-*s%s %s (%s)\n",
+						i+1, colorYellow, providerIDColumnWidth, p.id, colorReset, T(p.desc), authLabel)
 				}
 				fmt.Fprintln(os.Stderr)
 				fmt.Fprintf(os.Stderr, "  %s ", T("Enter choice (number or name):"))
