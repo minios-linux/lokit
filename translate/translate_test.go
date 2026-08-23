@@ -957,6 +957,21 @@ func TestValidatePOTranslationsAcceptsPreservedPlaceholders(t *testing.T) {
 	}
 }
 
+func TestTranslationValidationPreservesShellLineContinuations(t *testing.T) {
+	source := "lokit translate \\\n  --prompt text"
+	changed := "lokit translate\n  --prompt text"
+
+	if err := validatePOTranslations([]*po.Entry{{MsgID: source}}, []string{changed}); err == nil {
+		t.Fatal("expected missing PO shell line continuation to be rejected")
+	}
+	if err := validateKVTranslations([]string{"command"}, map[string]string{"command": source}, []string{changed}); err == nil {
+		t.Fatal("expected missing KV shell line continuation to be rejected")
+	}
+	if err := validatePOTranslations([]*po.Entry{{MsgID: source}}, []string{source}); err != nil {
+		t.Fatalf("preserved shell line continuation rejected: %v", err)
+	}
+}
+
 func TestValidateKVTranslationsRejectsMissingPlaceholders(t *testing.T) {
 	keys := []string{"welcome", "progress"}
 	sources := map[string]string{

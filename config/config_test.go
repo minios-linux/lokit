@@ -629,7 +629,7 @@ func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 	t.Run("rejects provider base_url for unsupported provider", func(t *testing.T) {
 		dir := t.TempDir()
 		yaml := "provider:\n" +
-			"  id: copilot\n" +
+			"  id: github-copilot\n" +
 			"  model: gpt-4o\n" +
 			"  base_url: https://example.com/v1\n" +
 			"targets:\n" +
@@ -647,6 +647,25 @@ func TestLoadLokitFileProviderAndLocaleValidation(t *testing.T) {
 		}
 		if !strings.Contains(err.Error(), "provider.base_url") {
 			t.Fatalf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("accepts legacy copilot provider alias", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "provider:\n" +
+			"  id: copilot\n" +
+			"  model: gpt-4o\n" +
+			"targets:\n" +
+			"  - name: app\n" +
+			"    format: i18next\n" +
+			"    dir: i18n\n" +
+			"    pattern: '{lang}.json'\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+
+		if _, err := LoadLokitFile(dir); err != nil {
+			t.Fatalf("LoadLokitFile error: %v", err)
 		}
 	})
 

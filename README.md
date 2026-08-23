@@ -95,10 +95,10 @@ lokit status
 lokit init
 
 # Authenticate
-lokit auth login --provider copilot
+lokit auth login --provider github-copilot
 
 # Translate all languages
-lokit translate --provider copilot --model MODEL_NAME
+lokit translate --provider github-copilot --model MODEL_NAME
 ```
 
 ### Multi-target project (`lokit.yaml`)
@@ -138,7 +138,7 @@ Then:
 
 ```bash
 lokit status        # Shows all targets with stats
-lokit translate --provider copilot --model MODEL_NAME  # Translates everything
+lokit translate --provider github-copilot --model MODEL_NAME  # Translates everything
 ```
 
 ## Configuration File (`lokit.yaml`)
@@ -165,7 +165,7 @@ source_lang: en
 
 # Optional default provider for `lokit translate`
 provider:
-  id: copilot
+  id: github-copilot
   model: MODEL_NAME
   # base_url is supported for custom-openai and ollama only
   # base_url: http://localhost:11434
@@ -330,7 +330,7 @@ lokit init --lang ru,de        # Specific languages
 Translates using AI:
 
 ```bash
-lokit translate --provider copilot --model MODEL_NAME
+lokit translate --provider github-copilot --model MODEL_NAME
 
 # All flags:
   --provider string         AI provider (or set provider.id in lokit.yaml)
@@ -361,14 +361,14 @@ Manage provider credentials:
 lokit auth login
 
 # Specific provider
-lokit auth login --provider copilot
+lokit auth login --provider github-copilot
 lokit auth login --provider google
 
 # List stored credentials
 lokit auth list
 
 # Remove credentials
-lokit auth logout --provider copilot
+lokit auth logout --provider github-copilot
 lokit auth logout                      # Remove all
 ```
 
@@ -404,7 +404,7 @@ targets:
 ```
 
 ```bash
-lokit translate --provider copilot --model MODEL_NAME --parallel=10
+lokit translate --provider github-copilot --model MODEL_NAME --parallel=10
 ```
 
 ### Flutter application
@@ -422,7 +422,7 @@ targets:
 
 ```bash
 lokit init
-lokit translate --provider copilot --model MODEL_NAME
+lokit translate --provider github-copilot --model MODEL_NAME
 ```
 
 ### Java application with .properties
@@ -442,7 +442,7 @@ targets:
 
 ```bash
 lokit translate \
-  --provider copilot --model MODEL_NAME \
+  --provider github-copilot --model MODEL_NAME \
   --parallel=10 --chunk 50 \
   --proxy "http://proxy:8080"
 ```
@@ -450,7 +450,7 @@ lokit translate \
 ### Translate specific languages
 
 ```bash
-lokit translate --provider copilot --model MODEL_NAME --lang ru,de
+lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de
 ```
 
 ### Use local Ollama
@@ -484,7 +484,7 @@ lokit translate --provider custom-openai --model my-model
 ### Dry run
 
 ```bash
-lokit translate --provider copilot --model MODEL_NAME --dry-run
+lokit translate --provider github-copilot --model MODEL_NAME --dry-run
 ```
 
 ## User Data Storage
@@ -539,7 +539,7 @@ lokit tracks MD5 checksums of source strings in a `lokit.lock` file (stored next
 - **Per-target tracking** — checksums are stored per target and language, so changes in one target don't trigger re-translation of others.
 - **Force re-translation** — use `--force` to ignore the lock file and re-translate all entries:
   ```bash
-  lokit translate --provider copilot --model MODEL_NAME --force
+  lokit translate --provider github-copilot --model MODEL_NAME --force
   ```
 - **Safe to delete** — removing `lokit.lock` simply causes a full translation on the next run.
 - **Commit to VCS** — it's recommended to commit `lokit.lock` to version control so that CI and teammates benefit from incremental translation.

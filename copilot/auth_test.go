@@ -23,6 +23,9 @@ func TestTokenStatus(t *testing.T) {
 	if err := SaveToken(access); err != nil {
 		t.Fatalf("SaveToken() error: %v", err)
 	}
+	if got := settings.GetOAuth(providerID); got == nil || got.Access != access {
+		t.Fatalf("canonical token = %#v, want saved token", got)
+	}
 
 	want := "authenticated (token: " + settings.MaskKey(access) + ")"
 	if got := TokenStatus(); got != want {
@@ -34,6 +37,23 @@ func TestTokenStatus(t *testing.T) {
 	}
 	if got := TokenStatus(); got != "not authenticated" {
 		t.Fatalf("TokenStatus() after delete = %q, want %q", got, "not authenticated")
+	}
+}
+
+func TestLoadAndDeleteLegacyToken(t *testing.T) {
+	useTempAuthStore(t)
+
+	if err := settings.SetOAuth(legacyProviderID, "legacy-access", "", 0, ""); err != nil {
+		t.Fatalf("SetOAuth() error: %v", err)
+	}
+	if got := LoadToken(); got == nil || got.Access != "legacy-access" {
+		t.Fatalf("LoadToken() = %#v, want legacy token", got)
+	}
+	if err := DeleteToken(); err != nil {
+		t.Fatalf("DeleteToken() error: %v", err)
+	}
+	if got := settings.GetOAuth(legacyProviderID); got != nil {
+		t.Fatalf("legacy token remains after DeleteToken(): %#v", got)
 	}
 }
 

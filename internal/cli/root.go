@@ -223,7 +223,7 @@ AI Providers:
   gemini         Gemini CLI — browser OAuth
   groq           Groq — API key required
   opencode       OpenCode Zen API — API key (optional)
-  copilot        GitHub Copilot — native OAuth
+  github-copilot GitHub Copilot — native OAuth
   openai         OpenAI — browser OAuth, device code, or API key
   ollama         Ollama local server
   custom-openai  Custom OpenAI-compatible endpoint`),

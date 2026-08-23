@@ -34,6 +34,9 @@ jobs:
         run: |
           # Create dist directory
           mkdir -p dist
+
+          # Populate ignored embedded locale directories from tracked catalogs.
+          make i18n-sync
           
           # Build for multiple platforms
           platforms=(

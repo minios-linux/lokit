@@ -40,15 +40,18 @@ import (
 )
 
 // ---------------------------------------------------------------------------
-// Provider IDs (matching the admin panel)
+// Provider IDs (matching OpenCode where providers overlap)
 // ---------------------------------------------------------------------------
 
 const (
-	ProviderGoogle       = "google"
-	ProviderGemini       = "gemini"
-	ProviderGroq         = "groq"
-	ProviderOpenCode     = "opencode"
-	ProviderCopilot      = "copilot"
+	ProviderGoogle        = "google"
+	ProviderGemini        = "gemini"
+	ProviderGroq          = "groq"
+	ProviderOpenCode      = "opencode"
+	ProviderGitHubCopilot = "github-copilot"
+	// ProviderCopilot is kept as a source-compatible alias.
+	// Deprecated: use ProviderGitHubCopilot.
+	ProviderCopilot      = ProviderGitHubCopilot
 	ProviderOpenAI       = "openai"
 	ProviderCustomOpenAI = "custom-openai"
 	ProviderOllama       = "ollama"
@@ -227,8 +230,16 @@ func DefaultProviders() map[string]Provider {
 			Model:   "",
 			Timeout: 120 * time.Second,
 		},
-		ProviderCopilot: {
-			ID:      ProviderCopilot,
+		ProviderGitHubCopilot: {
+			ID:      ProviderGitHubCopilot,
+			Name:    "GitHub Copilot",
+			BaseURL: copilot.CopilotAPIBase,
+			Model:   "",
+			Timeout: 120 * time.Second,
+		},
+		// Deprecated alias for existing command lines and configuration files.
+		"copilot": {
+			ID:      ProviderGitHubCopilot,
 			Name:    "GitHub Copilot",
 			BaseURL: copilot.CopilotAPIBase,
 			Model:   "",
@@ -821,7 +832,7 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
 	case ProviderOpenCode:
 		return callOpenCode(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
-	case ProviderCopilot:
+	case ProviderGitHubCopilot:
 		return callCopilot(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
 	case ProviderOpenAI:
 		return callOpenAI(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
@@ -1368,7 +1379,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 					"  2. Copilot access not enabled for this account\n" +
 					"  3. Invalid or expired authentication token\n\n" +
 					"Solutions:\n" +
-					"  - Re-authenticate: lokit auth logout --provider copilot && lokit auth login --provider copilot\n" +
+					"  - Re-authenticate: lokit auth logout --provider github-copilot && lokit auth login --provider github-copilot\n" +
 					"  - Use proxy/VPN if geographic restrictions apply\n" +
 					"  - Try another provider:\n" +
 					"      lokit auth login --provider gemini\n" +
@@ -2526,6 +2537,9 @@ func validatePOPluralTranslations(entries []*po.Entry, translations []pluralTran
 }
 
 func validatePOPlaceholders(entry *po.Entry, source, translation string) error {
+	if err := validateShellLineContinuations(source, translation); err != nil {
+		return err
+	}
 	for _, flag := range entry.Flags {
 		var sourcePlaceholders, translatedPlaceholders []string
 		switch flag {
@@ -2547,6 +2561,15 @@ func validatePOPlaceholders(entry *po.Entry, source, translation string) error {
 		if !slicesEqual(sourcePlaceholders, translatedPlaceholders) {
 			return fmt.Errorf("%s placeholders changed: expected %v, got %v", flag, sourcePlaceholders, translatedPlaceholders)
 		}
+	}
+	return nil
+}
+
+func validateShellLineContinuations(source, translation string) error {
+	expected := strings.Count(source, "\\\n")
+	actual := strings.Count(translation, "\\\n")
+	if expected != actual {
+		return fmt.Errorf("shell line continuations changed: expected %d, got %d", expected, actual)
 	}
 	return nil
 }

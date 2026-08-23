@@ -457,6 +457,9 @@ func validateKVTranslations(keys []string, srcVals map[string]string, translatio
 		if !slicesEqual(sourcePlaceholders, translatedPlaceholders) {
 			return fmt.Errorf("key %q placeholders changed: expected %v, got %v", key, sourcePlaceholders, translatedPlaceholders)
 		}
+		if err := validateShellLineContinuations(source, translations[i]); err != nil {
+			return fmt.Errorf("key %q: %w", key, err)
+		}
 	}
 	return nil
 }

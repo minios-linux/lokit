@@ -70,22 +70,22 @@ Translates files using an AI provider. Only sends untranslated or changed string
 
 ```bash
 # Basic usage
-lokit translate --provider copilot --model MODEL_NAME
+lokit translate --provider github-copilot --model MODEL_NAME
 
 # Translate specific languages
-lokit translate --provider copilot --model MODEL_NAME --lang ru,de
+lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de
 
 # Parallel with 10 workers
-lokit translate --provider copilot --model MODEL_NAME --parallel=10
+lokit translate --provider github-copilot --model MODEL_NAME --parallel=10
 
 # Translate selected targets
-lokit translate --target app --provider copilot --model MODEL_NAME
+lokit translate --target app --provider github-copilot --model MODEL_NAME
 
 # Preview what would be translated
-lokit translate --provider copilot --model MODEL_NAME --dry-run
+lokit translate --provider github-copilot --model MODEL_NAME --dry-run
 
 # Re-translate everything (ignore lock and locked keys)
-lokit translate --provider copilot --model MODEL_NAME --force
+lokit translate --provider github-copilot --model MODEL_NAME --force
 ```
 
 **Flags:**
@@ -128,7 +128,7 @@ Authenticate with an AI provider. Interactive mode prompts you to choose a provi
 lokit auth login
 
 # Direct
-lokit auth login --provider copilot
+lokit auth login --provider github-copilot
 lokit auth login --provider google
 lokit auth login --provider openai
 lokit auth login --provider openai --headless
@@ -153,7 +153,7 @@ lokit auth login --provider custom-openai
 Remove stored credentials.
 
 ```bash
-lokit auth logout --provider copilot   # Remove specific provider
+lokit auth logout --provider github-copilot   # Remove specific provider
 lokit auth logout                      # Remove all credentials
 ```
 

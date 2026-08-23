@@ -36,7 +36,7 @@ languages: [de, es, fr, ru]
 
 # Default AI provider — avoids repeating --provider/--model on every run
 provider:
-  id: copilot                # Required: copilot | gemini | google | groq | opencode | openai | ollama | custom-openai
+  id: github-copilot         # Required: github-copilot | gemini | google | groq | opencode | openai | ollama | custom-openai
   model: gpt-4.1             # Required: model name
   # base_url: http://...     # custom-openai/ollama only
   # prompt: "Custom prompt"  # Global prompt override (supports {{targetLang}} and {{sourceLang}})
@@ -112,7 +112,7 @@ Default AI provider settings. When set, you can run `lokit translate` without `-
 | `prompt` | string | no | Global system prompt override |
 | `settings.temperature` | number | no | Temperature (0.0–2.0) |
 
-Valid provider IDs: `copilot`, `gemini`, `google`, `groq`, `opencode`, `openai`, `ollama`, `custom-openai`.
+Valid provider IDs: `github-copilot`, `gemini`, `google`, `groq`, `opencode`, `openai`, `ollama`, `custom-openai`. The legacy ID `copilot` remains accepted.
 
 ### `terminology`
 

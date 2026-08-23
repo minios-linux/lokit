@@ -42,7 +42,8 @@ const (
 	oauthScope = "read:user"
 
 	// providerID is the key used in the unified auth store.
-	providerID = "copilot"
+	providerID       = "github-copilot"
+	legacyProviderID = "copilot"
 )
 
 // ---------------------------------------------------------------------------
@@ -52,7 +53,10 @@ const (
 // LoadToken loads the Copilot OAuth token from the unified auth store.
 // Returns nil if no token is stored.
 func LoadToken() *settings.Info {
-	return settings.GetOAuth(providerID)
+	if info := settings.GetOAuth(providerID); info != nil {
+		return info
+	}
+	return settings.GetOAuth(legacyProviderID)
 }
 
 // SaveToken saves a Copilot OAuth token to the unified auth store.
@@ -62,7 +66,10 @@ func SaveToken(access string) error {
 
 // DeleteToken removes the Copilot credentials from the unified auth store.
 func DeleteToken() error {
-	return settings.Remove(providerID)
+	if err := settings.Remove(providerID); err != nil {
+		return err
+	}
+	return settings.Remove(legacyProviderID)
 }
 
 // TokenStatus returns a human-readable status of the stored token.

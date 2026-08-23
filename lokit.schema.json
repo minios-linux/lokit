@@ -67,6 +67,7 @@
             "gemini",
             "groq",
             "opencode",
+            "github-copilot",
             "copilot",
             "openai",
             "ollama",

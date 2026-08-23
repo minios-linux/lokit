@@ -24,7 +24,7 @@ func newAuthCmd() *cobra.Command {
 		Long: T(`Manage authentication credentials for all AI providers.
 
 OAuth providers (interactive browser/device flow):
-  copilot       GitHub Copilot (device code flow)
+  github-copilot GitHub Copilot (device code flow)
   gemini        Google Gemini CLI (browser OAuth)
 
 Multi-method providers:
@@ -41,7 +41,7 @@ No auth required:
 
 Examples:
   lokit auth login                         Interactive provider selection
-  lokit auth login --provider copilot      OAuth with GitHub Copilot
+  lokit auth login --provider github-copilot OAuth with GitHub Copilot
   lokit auth login --provider openai       Choose OpenAI auth method
   lokit auth login --provider openai --headless
   lokit auth login --provider google       Store Google AI API key
@@ -66,7 +66,7 @@ var allProviders = []struct {
 	desc string
 	auth string // "oauth", "api-key", "mixed", "none"
 }{
-	{"copilot", "GitHub Copilot", "device code OAuth", "oauth"},
+	{"github-copilot", "GitHub Copilot", "device code OAuth", "oauth"},
 	{"gemini", "Google Gemini", "Gemini CLI OAuth", "oauth"},
 	{"google", "Google AI Studio", "Gemini API key", "api-key"},
 	{"groq", "Groq Cloud", "API key", "api-key"},
@@ -91,7 +91,7 @@ func newAuthLoginCmd() *cobra.Command {
 If --provider is not specified, you will be prompted to choose.
 
 OAuth providers:
-  copilot       Device code flow — enter code in browser
+  github-copilot Device code flow — enter code in browser
   gemini        Browser-based OAuth — sign in with Google
   openai        Browser OAuth or device code
 
@@ -157,7 +157,7 @@ API key providers:
 			}
 
 			switch provider {
-			case "copilot":
+			case "github-copilot", "copilot":
 				authLoginWithInterrupt(authLoginCopilot)
 			case "gemini":
 				authLoginWithInterrupt(authLoginGemini)
@@ -241,7 +241,7 @@ func authLoginCopilot(ctx context.Context) {
 	}
 
 	logSuccess(T("Copilot authentication successful!"))
-	logInfo(T("You can now use: lokit translate --provider copilot --model MODEL_NAME"))
+	logInfo(T("You can now use: lokit translate --provider github-copilot --model MODEL_NAME"))
 	fmt.Fprintln(os.Stderr)
 }
 
@@ -566,13 +566,13 @@ If --provider is not specified, credentials for ALL providers are removed.
 
 Examples:
   lokit auth logout                        Remove all credentials
-  lokit auth logout --provider copilot     Remove only Copilot OAuth
+  lokit auth logout --provider github-copilot Remove only Copilot OAuth
   lokit auth logout --provider google      Remove only Google API key
   lokit auth logout --provider gemini      Remove only Gemini OAuth`),
 		Run: func(cmd *cobra.Command, args []string) {
 			if provider != "" {
 				switch provider {
-				case "copilot":
+				case "github-copilot", "copilot":
 					if err := copilot.DeleteToken(); err != nil {
 						logError(T("Failed to remove Copilot credentials: %v"), err)
 						os.Exit(1)
@@ -642,7 +642,7 @@ func newAuthListCmd() *cobra.Command {
 			sectionHeader(T("Stored Credentials"))
 
 			fmt.Fprintf(os.Stderr, "\n  %s%s%s\n", colorBold+colorYellow, T("OAuth Providers"), colorReset)
-			keyVal(T("copilot"), copilot.TokenStatus())
+			keyVal(T("github-copilot"), copilot.TokenStatus())
 			keyVal(T("gemini"), gemini.TokenStatus())
 
 			fmt.Fprintf(os.Stderr, "\n  %s%s%s\n", colorBold+colorYellow, T("Flexible Auth Providers"), colorReset)

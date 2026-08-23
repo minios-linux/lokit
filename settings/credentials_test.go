@@ -105,15 +105,16 @@ func TestResolveAPIKeyPriority(t *testing.T) {
 
 func TestEnvVarForProviderAndMaskKey(t *testing.T) {
 	cases := map[string]string{
-		"google":        "GOOGLE_API_KEY",
-		"groq":          "GROQ_API_KEY",
-		"opencode":      "OPENCODE_API_KEY",
-		"openai":        "OPENAI_API_KEY",
-		"custom-openai": "CUSTOM_OPENAI_API_KEY",
-		"copilot":       "",
-		"gemini":        "",
-		"ollama":        "",
-		"unknown":       "",
+		"google":         "GOOGLE_API_KEY",
+		"groq":           "GROQ_API_KEY",
+		"opencode":       "OPENCODE_API_KEY",
+		"openai":         "OPENAI_API_KEY",
+		"custom-openai":  "CUSTOM_OPENAI_API_KEY",
+		"github-copilot": "",
+		"copilot":        "",
+		"gemini":         "",
+		"ollama":         "",
+		"unknown":        "",
 	}
 	for provider, want := range cases {
 		if got := EnvVarForProvider(provider); got != want {

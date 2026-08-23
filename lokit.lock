@@ -39,18 +39,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -71,7 +73,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -80,7 +82,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -97,6 +99,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -386,7 +389,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -403,14 +406,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -495,10 +498,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -571,6 +574,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -604,27 +608,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -652,9 +656,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -688,7 +692,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -696,6 +699,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -726,11 +730,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -738,6 +742,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -751,14 +756,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -777,6 +774,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -808,9 +813,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -887,18 +892,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -919,7 +926,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -928,7 +935,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -945,6 +952,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -1234,7 +1242,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -1251,14 +1259,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -1343,10 +1351,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -1419,6 +1427,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -1452,27 +1461,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -1500,9 +1509,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -1536,7 +1545,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -1544,6 +1552,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -1574,11 +1583,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -1586,6 +1595,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -1599,14 +1609,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -1625,6 +1627,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -1656,9 +1666,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -1735,18 +1745,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -1767,7 +1779,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -1776,7 +1788,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -1793,6 +1805,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -2082,7 +2095,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -2099,14 +2112,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -2191,10 +2204,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -2267,6 +2280,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -2300,27 +2314,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -2348,9 +2362,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -2384,7 +2398,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -2392,6 +2405,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -2422,11 +2436,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -2434,6 +2448,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -2447,14 +2462,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -2473,6 +2480,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -2504,9 +2519,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -2583,18 +2598,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -2615,7 +2632,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -2624,7 +2641,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -2641,6 +2658,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -2930,7 +2948,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -2947,14 +2965,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -3039,10 +3057,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -3115,6 +3133,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -3148,27 +3167,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -3196,9 +3215,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -3232,7 +3251,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -3240,6 +3258,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -3270,11 +3289,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -3282,6 +3301,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -3295,14 +3315,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -3321,6 +3333,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -3352,9 +3372,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -3431,18 +3451,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -3463,7 +3485,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -3472,7 +3494,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -3489,6 +3511,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -3778,7 +3801,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -3795,14 +3818,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -3887,10 +3910,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -3963,6 +3986,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -3996,27 +4020,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -4044,9 +4068,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -4080,7 +4104,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -4088,6 +4111,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -4118,11 +4142,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -4130,6 +4154,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -4143,14 +4168,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -4169,6 +4186,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -4200,9 +4225,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -4279,18 +4304,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -4311,7 +4338,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -4320,7 +4347,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -4337,6 +4364,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -4626,7 +4654,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -4643,14 +4671,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -4735,10 +4763,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -4811,6 +4839,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -4844,27 +4873,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -4892,9 +4921,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -4928,7 +4957,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -4936,6 +4964,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -4966,11 +4995,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -4978,6 +5007,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -4991,14 +5021,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -5017,6 +5039,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -5048,9 +5078,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -5127,18 +5157,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -5159,7 +5191,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -5168,7 +5200,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -5185,6 +5217,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -5474,7 +5507,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -5491,14 +5524,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -5583,10 +5616,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -5659,6 +5692,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -5692,27 +5726,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -5740,9 +5774,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -5776,7 +5810,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -5784,6 +5817,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -5814,11 +5848,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -5826,6 +5860,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -5839,14 +5874,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -5865,6 +5892,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -5896,9 +5931,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -5975,18 +6010,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -6007,7 +6044,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -6016,7 +6053,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -6033,6 +6070,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -6322,7 +6360,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -6339,14 +6377,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -6431,10 +6469,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -6507,6 +6545,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -6540,27 +6579,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -6588,9 +6627,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -6624,7 +6663,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -6632,6 +6670,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -6662,11 +6701,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -6674,6 +6713,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -6687,14 +6727,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -6713,6 +6745,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -6744,9 +6784,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -6823,18 +6863,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -6855,7 +6897,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -6864,7 +6906,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -6881,6 +6923,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -7170,7 +7213,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -7187,14 +7230,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -7279,10 +7322,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -7355,6 +7398,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -7388,27 +7432,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -7436,9 +7480,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -7472,7 +7516,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -7480,6 +7523,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -7510,11 +7554,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -7522,6 +7566,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -7535,14 +7580,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -7561,6 +7598,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -7592,9 +7637,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -7671,18 +7716,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -7703,7 +7750,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -7712,7 +7759,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -7729,6 +7776,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -8018,7 +8066,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -8035,14 +8083,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -8127,10 +8175,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -8203,6 +8251,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -8236,27 +8285,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -8284,9 +8333,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -8320,7 +8369,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -8328,6 +8376,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -8358,11 +8407,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -8370,6 +8419,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -8383,14 +8433,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -8409,6 +8451,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -8440,9 +8490,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -8519,18 +8569,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -8551,7 +8603,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -8560,7 +8612,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -8577,6 +8629,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -8866,7 +8919,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -8883,14 +8936,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -8975,10 +9028,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -9051,6 +9104,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -9084,27 +9138,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -9132,9 +9186,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -9168,7 +9222,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -9176,6 +9229,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -9206,11 +9260,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -9218,6 +9272,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -9231,14 +9286,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -9257,6 +9304,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -9288,9 +9343,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -9367,18 +9422,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -9399,7 +9456,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -9408,7 +9465,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -9425,6 +9482,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -9714,7 +9772,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -9731,14 +9789,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -9823,10 +9881,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -9899,6 +9957,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -9932,27 +9991,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -9980,9 +10039,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -10016,7 +10075,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -10024,6 +10082,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -10054,11 +10113,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -10066,6 +10125,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -10079,14 +10139,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -10105,6 +10157,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -10136,9 +10196,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 
@@ -10215,18 +10275,20 @@ checksums:
         '[%s/%s] cannot read any po4a PO files': 01a5aaaf85fdd23ff0ffa08fbd1cfe29
         '[%s/%s] removed stale entries: %d': 93378b623962c9b4582f5bb0bf235cf9
         '[%s/%s] stale entries: %d (tracked: %d)': 2094666b04cc1f84c4ba4b26704c231f
+        '[%s] %s terminology violations: %s': 2fc469fd91633ec012ccb4791a400125
         '[%s] %v': 6801d27e1b129a3cf469fc895c67c57b
         '[%s] All translations complete!': 7ecab9bec9f8158164654a54fa7673bd
         '[%s] No PO file for %s at %s, skipping': 0ba3810e7d4b4f7c8e547de77a442154
         '[%s] No PO files for %s, skipping': 56dd36c6166e753b08fe5dac5629c733
         '[%s] No languages to translate, skipping': c957584b79e6a9685f22dea287b4b85c
+        '[%s] Terminology check failed for %s: %v': e0442738fa06c7e67dbfa6d138cc9273
         '[%s] Unknown target type %q, skipping': 1d5d1fa8baf31ffccf00c085c659fd7d
         '[%s] orphan lock target: %d tracked': b116c2beb432ed666232f782a12c7467
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
-        'AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 7a67c5ca6720f3eb3b2c1066b8737918
+        'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
         API key: 656a6828d7ef1bb791e42087c4b5ee6e
         'API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)': e58a05cb865f45dc0ac4a627da0cc4c2
@@ -10247,7 +10309,7 @@ checksums:
             If --provider is not specified, you will be prompted to choose.
 
             OAuth providers:
-              copilot       Device code flow — enter code in browser
+              github-copilot Device code flow — enter code in browser
               gemini        Browser-based OAuth — sign in with Google
               openai        Browser OAuth or device code
 
@@ -10256,7 +10318,7 @@ checksums:
               groq          Paste your Groq API key
               opencode      Paste your OpenCode API key
               custom-openai Paste your API key + endpoint URL
-        : 647467cf5eb32e5f57ca585034129e9e
+        : c8c275418afcec662e56bcd8542d2b70
         Authentication cancelled: eb64e3426750f43718a065d621e0f581
         'Authentication failed: %v': 259a876faf7d53c83be19dbcbabb284d
         Authentication method for providers with multiple options: bbbeb65ed7d4260a122ffeb45fc3d4a5
@@ -10273,6 +10335,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
         'Cannot read source ARB file %s: %v': 6c7066592960c37bdb694e8a5812dde5
@@ -10562,7 +10625,7 @@ checksums:
             Manage authentication credentials for all AI providers.
 
             OAuth providers (interactive browser/device flow):
-              copilot       GitHub Copilot (device code flow)
+              github-copilot GitHub Copilot (device code flow)
               gemini        Google Gemini CLI (browser OAuth)
 
             Multi-method providers:
@@ -10579,14 +10642,14 @@ checksums:
 
             Examples:
               lokit auth login                         Interactive provider selection
-              lokit auth login --provider copilot      OAuth with GitHub Copilot
+              lokit auth login --provider github-copilot OAuth with GitHub Copilot
               lokit auth login --provider openai       Choose OpenAI auth method
               lokit auth login --provider openai --headless
               lokit auth login --provider google       Store Google AI API key
               lokit auth logout --provider google      Remove Google API key
               lokit auth logout                        Remove all credentials
               lokit auth list                          Show all stored credentials
-        : 1170fa031fbe5b59a789bcd5c620cf10
+        : 98d34d4c328c17e7b62a40f4e530c805
         ? |-
             Manage incremental translation lock data in lokit.lock.
 
@@ -10671,10 +10734,10 @@ checksums:
 
             Examples:
               lokit auth logout                        Remove all credentials
-              lokit auth logout --provider copilot     Remove only Copilot OAuth
+              lokit auth logout --provider github-copilot Remove only Copilot OAuth
               lokit auth logout --provider google      Remove only Google API key
               lokit auth logout --provider gemini      Remove only Gemini OAuth
-        : 8eaa234833e4ac67d5721d3be5f12245
+        : 1de800ecd9f0da45ae3598c96c4ca529
         'Removed stale/orphan entries: %d': a8a489ae771f167f8fdedd77d23ba2a9
         'Removing %s: %v': 5f21797f4d6b984f248ed3485b575683
         Request timeout (0 = provider default): bcea7051bfdcb7ed5546658894923c07
@@ -10747,6 +10810,7 @@ checksums:
         'Target name from lokit.yaml (default: all targets)': a20a9bc440350d96810fd1e5c69a7645
         'Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)': a64708e67af760478500e0119123cf9f
         Targets: 91fadc5613280f76b916f1fd236e43e9
+        Terms: 6f1bf85c9ebb3c7fa26251e1e335e032
         This will be retried automatically on first translate.: 0516ed60f94586b11414f588a22df47b
         Token was saved but cannot be loaded: 11cb41ad2d8ed089c22e785f7c4bd5ab
         Total: 96b0141273eabab320119c467cdcaf17
@@ -10780,27 +10844,27 @@ checksums:
 
             Examples:
               # Basic translation run
-              lokit translate --provider copilot --model MODEL_NAME
+              lokit translate --provider github-copilot --model MODEL_NAME
 
               # Translate specific languages in parallel
-              lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+              lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
               # Translate only selected targets
-              lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+              lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-              # Use a custom prompt
-              lokit translate --provider copilot --model MODEL_NAME \
+              # Override the translation prompt
+              lokit translate --provider github-copilot --model MODEL_NAME \
                 --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
               # Use local Ollama
               lokit translate --provider ollama --model MODEL_NAME
 
               # Force full re-translation (ignore lock file)
-              lokit translate --provider copilot --model MODEL_NAME --force
+              lokit translate --provider github-copilot --model MODEL_NAME --force
 
               # Dry run (show what would be translated)
-              lokit translate --provider copilot --model MODEL_NAME --dry-run
-        : 515138931ea8031ebcd95cd7d42ad958
+              lokit translate --provider github-copilot --model MODEL_NAME --dry-run
+        : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
@@ -10828,9 +10892,9 @@ checksums:
         'Writing %s: %v': 30a36aa86c83fea498b81055d711ac69
         'YAML init: %d created, %d updated': 5f0eee2de0193e71c4bce57bb40323df
         'You can now use: %s': 45ff6111a3887ec393e97e4e2183fa4c
-        'You can now use: lokit translate --provider copilot --model MODEL_NAME': 0fd59031eeeb5e5174a70043fa5c8a95
         'You can now use: lokit translate --provider custom-openai --model MODEL_NAME': 46db5745e208d2eeb1613dec7df90a4b
         'You can now use: lokit translate --provider gemini --model MODEL_NAME': 618507f6c1c8d54130fc821dfcbaf3e3
+        'You can now use: lokit translate --provider github-copilot --model MODEL_NAME': 06a20de4ee86a3a8ed9b82f5615b2de4
         'You can now use: lokit translate --provider ollama --model MODEL_NAME': 80884fa770abecae2e334e0fd0a508eb
         'You can now use: lokit translate --provider openai --model MODEL_NAME': 8cb5b77b4213d562b8937edb8860337a
         'auto-init failed: %v': f7f83d3b235056beb1034e90837e3551
@@ -10864,7 +10928,6 @@ checksums:
         choose a model installed on your Ollama server: b489d7dc83daa665a4b25fc00f6ef769
         choose a model supported by your endpoint: 08bf048de6ae2bb89dbf44003007c93e
         'commit:': a7c57d04eaa6577c37c2c0b201981ad1
-        copilot: ba4aa223e149069d20250e7f51891c64
         default: c21f969b5f03d33d43e04f8f136e7682
         empty: a2e4822a98337283e39f7b60acf85ec9
         'endpoint:': 89f607889efb7b5466e66732b4df85d1
@@ -10872,6 +10935,7 @@ checksums:
         'extraction failed: %w': c3d66120d56630d83a4971cdabb4eaeb
         'failed to list markdown files: %w': 1404bd2142cdef76b6e62a38f267ad6d
         gemini: 48bafc503cbdbf5e49ca9725f980e241
+        github-copilot: 7334f46dc51483ff8dad734785fd36f8
         help for %s: a4c372ba5df36a670d666e9d36a6b4fb
         index source item not found for %s: 5ac837313d07e7d6b65a6945be219b99
         'index source target must be expanded with {id}: %s': a7d6d6bc3d1f7e3c3b327e18a847c0b6
@@ -10902,11 +10966,11 @@ checksums:
               gemini         Gemini CLI — browser OAuth
               groq           Groq — API key required
               opencode       OpenCode Zen API — API key (optional)
-              copilot        GitHub Copilot — native OAuth
+              github-copilot GitHub Copilot — native OAuth
               openai         OpenAI — browser OAuth, device code, or API key
               ollama         Ollama local server
               custom-openai  Custom OpenAI-compatible endpoint
-        : f816e8dff2b51d37d9b835b30ce3bcae
+        : 8186a841606619eedc8adf7598763ad1
         lokit version %s: ca3c025f963ff1cc5a002c788fb457d7
         'merging POT files: %w': 8207624627bf8489d847f83d7be052df
         missing: ea21841da70e6405af19fabc4ff8bdd9
@@ -10914,6 +10978,7 @@ checksums:
         no key: bad19d29d21bceb4c279e6be0fc34f3f
         'no source files found (supported: %s)': 5d13abdc23691ef3b969781675381ed8
         none detected: a1b6be6802a4bc4d6cf58a9140c36a70
+        'normalizing POT template %s: %w': 42f56e4792679231529aa43bd4e4e561
         not configured: 4929552a5fe5429cb261da0b116326a1
         not found: d8f4a1993546cc4b850cde3599e27aec
         not set: d49dd1bc31e182fe0fb64b4d12389fba
@@ -10927,14 +10992,6 @@ checksums:
         'po4a failed: %v': 8bcb037aa975d884db4616842c451142
         'po4a is not installed. Install with: sudo apt install po4a': 47bb9e546be88577c40eb717b9449c68
         po4a updated POT and PO files: 6c2e57f301be09c4cf646715e4e9edb8
-        ? |-
-            provider 'copilot' requires GitHub Copilot authentication
-
-            Login with your GitHub account:
-              lokit auth login --provider copilot
-
-            This uses GitHub Copilot. Available models depend on your Copilot plan.
-        : a548bcdf90f88f99d312d09fa5479504
         ? |-
             provider 'custom-openai' requires an endpoint URL
 
@@ -10953,6 +11010,14 @@ checksums:
             This uses Gemini CLI OAuth.
             For API key access, use --provider google instead.
         : 249e9629bfe6161e9d3be2f691f1d836
+        ? |-
+            provider 'github-copilot' requires GitHub Copilot authentication
+
+            Login with your GitHub account:
+              lokit auth login --provider github-copilot
+
+            This uses GitHub Copilot. Available models depend on your Copilot plan.
+        : cb9de50306e1fb323bb2c26a4f24dc3d
         ? |-
             provider 'google' requires an API key or Gemini OAuth login
 
@@ -10984,9 +11049,9 @@ checksums:
             Start Ollama with: ollama serve
             Install from: https://ollama.com
             Alternative providers:
-              --provider copilot
+              --provider github-copilot
               --provider google          (requires API key)
-        : 465052e10d08f181b6c2f0056eb54b97
+        : 5864dd30cb7d95f710422e83a586909b
         ? |-
             provider 'openai' does not support custom provider.base_url
 

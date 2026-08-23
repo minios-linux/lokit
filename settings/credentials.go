@@ -12,7 +12,7 @@
 // The file is a JSON object keyed by provider ID, where each value is a
 // discriminated union on the "type" field:
 //
-//   - "oauth"  — OAuth tokens (copilot, gemini, openai)
+//   - "oauth"  — OAuth tokens (github-copilot, gemini, openai)
 //   - "api"    — API keys (google, groq, opencode, openai, custom-openai)
 //
 // File permissions are 0600 (owner read/write only).
@@ -289,7 +289,7 @@ func GetBaseURL(providerID string) string {
 
 // EnvVarForProvider returns the standard environment variable name used to
 // supply an API key for the given provider. Returns empty string for
-// OAuth-only providers (copilot, gemini) and Ollama (no key needed).
+// OAuth-only providers (github-copilot, gemini) and Ollama (no key needed).
 //
 // Lookup order used by ResolveAPIKey:
 //  1. --api-key flag
@@ -307,7 +307,7 @@ func EnvVarForProvider(providerID string) string {
 		return "OPENAI_API_KEY"
 	case "custom-openai":
 		return "CUSTOM_OPENAI_API_KEY"
-	case "ollama", "copilot", "gemini":
+	case "ollama", "github-copilot", "copilot", "gemini":
 		return "" // no API key needed
 	default:
 		return ""

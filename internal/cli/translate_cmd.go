@@ -70,26 +70,26 @@ Use {{targetLang}} and {{sourceLang}} as placeholders for language names.
 
 Examples:
   # Basic translation run
-  lokit translate --provider copilot --model MODEL_NAME
+  lokit translate --provider github-copilot --model MODEL_NAME
 
   # Translate specific languages in parallel
-  lokit translate --provider copilot --model MODEL_NAME --lang ru,de --parallel
+  lokit translate --provider github-copilot --model MODEL_NAME --lang ru,de --parallel
 
   # Translate only selected targets
-  lokit translate --provider copilot --model MODEL_NAME --target website --target blog
+  lokit translate --provider github-copilot --model MODEL_NAME --target website --target blog
 
-  # Use a custom prompt
-  lokit translate --provider copilot --model MODEL_NAME \
+  # Override the translation prompt
+  lokit translate --provider github-copilot --model MODEL_NAME \
     --prompt "Translate to {{targetLang}}. Keep UI tone concise."
 
   # Use local Ollama
   lokit translate --provider ollama --model MODEL_NAME
 
   # Force full re-translation (ignore lock file)
-  lokit translate --provider copilot --model MODEL_NAME --force
+  lokit translate --provider github-copilot --model MODEL_NAME --force
 
   # Dry run (show what would be translated)
-  lokit translate --provider copilot --model MODEL_NAME --dry-run`),
+  lokit translate --provider github-copilot --model MODEL_NAME --dry-run`),
 		Run: func(cmd *cobra.Command, args []string) {
 			runTranslate(translateArgs{
 				langs:    langs,
@@ -105,7 +105,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVar(&provider, "provider", "", T("AI provider: google, gemini, groq, opencode, copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)"))
+	cmd.Flags().StringVar(&provider, "provider", "", T("AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)"))
 	cmd.Flags().StringVar(&model, "model", "", T("Model name (or use lokit.yaml provider.model)"))
 	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)"))
 	cmd.Flags().StringVar(&baseURL, "base-url", "", T("Custom API base URL"))
@@ -134,7 +134,7 @@ Examples:
 			"gemini\t" + T("Gemini CLI — browser OAuth"),
 			"groq\t" + T("Groq — API key required"),
 			"opencode\t" + T("OpenCode — optional API key"),
-			"copilot\t" + T("GitHub Copilot — native OAuth"),
+			"github-copilot\t" + T("GitHub Copilot — native OAuth"),
 			"openai\t" + T("OpenAI — OAuth, device code, or API key"),
 			"ollama\t" + T("Ollama local server"),
 			"custom-openai\t" + T("Custom OpenAI-compatible endpoint"),
@@ -150,7 +150,7 @@ Examples:
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "opencode":
 			return nil, cobra.ShellCompDirectiveNoFileComp
-		case "copilot":
+		case "github-copilot", "copilot":
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "openai":
 			return nil, cobra.ShellCompDirectiveNoFileComp
@@ -218,7 +218,7 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 
 	if providerName == "" {
 		logError(T("No provider specified. Use --provider to choose an AI translation service.\n\n") +
-			"Example: lokit translate --provider copilot --model MODEL_NAME")
+			"Example: lokit translate --provider github-copilot --model MODEL_NAME")
 		os.Exit(1)
 	}
 

@@ -416,10 +416,12 @@ func validateProviderConfig(path string, provider *ProviderConfig) error {
 		return fmt.Errorf("%s: provider.model is required", path)
 	}
 	supportedProviders := map[string]struct{}{
-		"google":        {},
-		"gemini":        {},
-		"groq":          {},
-		"opencode":      {},
+		"google":         {},
+		"gemini":         {},
+		"groq":           {},
+		"opencode":       {},
+		"github-copilot": {},
+		// Deprecated alias retained for existing configuration files.
 		"copilot":       {},
 		"openai":        {},
 		"ollama":        {},

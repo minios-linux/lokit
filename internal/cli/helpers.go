@@ -401,14 +401,14 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 	// Check if model is specified
 	if prov.Model == "" {
 		modelGuidance := map[string]string{
-			translate.ProviderGoogle:       T("choose a model available through Google AI Studio"),
-			translate.ProviderGemini:       T("choose a model available through Gemini CLI OAuth"),
-			translate.ProviderGroq:         T("choose a model available in your Groq account"),
-			translate.ProviderOpenCode:     T("choose a model available through OpenCode Zen"),
-			translate.ProviderCopilot:      T("choose a model available in your GitHub Copilot plan"),
-			translate.ProviderOpenAI:       T("choose a model available through your OpenAI authentication method"),
-			translate.ProviderOllama:       T("choose a model installed on your Ollama server"),
-			translate.ProviderCustomOpenAI: T("choose a model supported by your endpoint"),
+			translate.ProviderGoogle:        T("choose a model available through Google AI Studio"),
+			translate.ProviderGemini:        T("choose a model available through Gemini CLI OAuth"),
+			translate.ProviderGroq:          T("choose a model available in your Groq account"),
+			translate.ProviderOpenCode:      T("choose a model available through OpenCode Zen"),
+			translate.ProviderGitHubCopilot: T("choose a model available in your GitHub Copilot plan"),
+			translate.ProviderOpenAI:        T("choose a model available through your OpenAI authentication method"),
+			translate.ProviderOllama:        T("choose a model installed on your Ollama server"),
+			translate.ProviderCustomOpenAI:  T("choose a model supported by your endpoint"),
 		}
 
 		guidance := modelGuidance[prov.ID]
@@ -490,11 +490,11 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 	case translate.ProviderOpenCode:
 		// OpenCode can work without API key for some models
 
-	case translate.ProviderCopilot:
+	case translate.ProviderGitHubCopilot:
 		if copilot.LoadToken() == nil {
-			return fmt.Errorf(T("provider 'copilot' requires GitHub Copilot authentication\n\n" +
+			return fmt.Errorf(T("provider 'github-copilot' requires GitHub Copilot authentication\n\n" +
 				"Login with your GitHub account:\n" +
-				"  lokit auth login --provider copilot\n\n" +
+				"  lokit auth login --provider github-copilot\n\n" +
 				"This uses GitHub Copilot. Available models depend on your Copilot plan."))
 		}
 
@@ -519,7 +519,7 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 				"Start Ollama with: ollama serve\n" +
 				"Install from: https://ollama.com\n" +
 				"Alternative providers:\n" +
-				"  --provider copilot\n" +
+				"  --provider github-copilot\n" +
 				"  --provider google          (requires API key)"))
 		}
 		resp.Body.Close()

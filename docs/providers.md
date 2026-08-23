@@ -44,17 +44,18 @@ Credentials are stored in `~/.local/share/lokit/auth.json` (permissions: `0600`)
 ## GitHub Copilot
 
 Uses OAuth device-code flow. Availability and model names depend on your Copilot plan, account eligibility, and GitHub's current rollout.
+The provider ID is `github-copilot`, matching OpenCode. The previous `copilot` ID remains accepted for existing configurations and scripts.
 
 **Auth:**
 ```bash
-lokit auth login --provider copilot
+lokit auth login --provider github-copilot
 ```
 
 This prints a code and opens your browser. Confirm the code on github.com to complete authentication.
 
 **Usage:**
 ```bash
-lokit translate --provider copilot --model MODEL_NAME
+lokit translate --provider github-copilot --model MODEL_NAME
 ```
 
 **Pricing/models:** See GitHub Copilot plans and model comparison. GitHub can change which models are available for a given plan.
@@ -62,7 +63,7 @@ lokit translate --provider copilot --model MODEL_NAME
 **Config shortcut:**
 ```yaml
 provider:
-  id: copilot
+  id: github-copilot
   model: MODEL_NAME
 ```
 
