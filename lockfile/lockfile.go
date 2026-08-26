@@ -153,6 +153,18 @@ func (lf *LockFile) Has(target, key string) bool {
 	return ok
 }
 
+// Remove deletes one checksum entry from a target.
+func (lf *LockFile) Remove(target, key string) {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	keys := lf.Checksums[target]
+	delete(keys, key)
+	if len(keys) == 0 {
+		delete(lf.Checksums, target)
+	}
+}
+
 // Clean removes entries from the lock file that are no longer present in
 // the current set of keys. This prevents stale entries from accumulating.
 func (lf *LockFile) Clean(target string, currentKeys []string) int {

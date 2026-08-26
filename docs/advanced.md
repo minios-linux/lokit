@@ -48,16 +48,26 @@ lokit translate --provider github-copilot --model MODEL_NAME --force
 
 ## Key filtering
 
-Control which keys are translated per target using three settings in `lokit.yaml`.
+Control which keys are translated per target using four settings in `lokit.yaml`.
 
 ### `ignored_keys`
 
-Keys excluded from translation entirely. They are never sent to AI, even with `--force`.
+Keys excluded from translation without changing their existing target values. They are never sent to AI, even with `--force`.
 
 ```yaml
 ignored_keys:
   - debug_label
   - internal_test_string
+```
+
+### `ignored_patterns`
+
+Regex patterns for source-passthrough keys. In source-backed key/value formats, matching values are copied verbatim from the source. This is useful for machine-readable Markdown frontmatter or key families whose values must remain identical to the source.
+
+```yaml
+ignored_patterns:
+  - "^fm:updated$"
+  - "^fm:program_commits(?:\\.|$)"
 ```
 
 ### `locked_keys`
@@ -84,7 +94,8 @@ locked_patterns:
 
 | Setting | Effect | Overridden by `--force` |
 |---------|--------|------------------------|
-| `ignored_keys` | Completely skipped | No |
+| `ignored_keys` | Excluded without changing the target value | No |
+| `ignored_patterns` | Excluded; source-backed key/value targets copy the source value | No |
 | `locked_keys` | Existing translation preserved | Yes |
 | `locked_patterns` | Same as `locked_keys` (regex match) | Yes |
 
@@ -98,6 +109,8 @@ targets:
     to: locales/{lang}.json
     ignored_keys:
       - debug_label
+    ignored_patterns:
+      - "^metadata\\."
     locked_keys:
       - app_name
       - copyright_notice

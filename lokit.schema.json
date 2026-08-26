@@ -223,7 +223,15 @@
           "items": {
             "type": "string"
           },
-          "description": "Keys excluded from translation entirely."
+          "description": "Keys excluded from translation without changing their existing target values."
+        },
+        "ignored_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "regex"
+          },
+          "description": "Regex patterns for source-passthrough keys. Source-backed key/value formats copy matching source values verbatim."
         },
         "locked_patterns": {
           "type": "array",

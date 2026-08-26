@@ -555,6 +555,8 @@ func TestLoadLokitFileFromToSchema(t *testing.T) {
 			"      - about/**/*.md\n" +
 			"    except:\n" +
 			"      - draft/**\n" +
+			"    ignored_patterns:\n" +
+			"      - '^fm:updated$'\n" +
 			"    to: translations/{lang}/{path}\n"
 		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
 			t.Fatalf("WriteFile: %v", err)
@@ -573,6 +575,67 @@ func TestLoadLokitFileFromToSchema(t *testing.T) {
 		}
 		if got.TargetPath != "translations/{lang}/{path}" {
 			t.Fatalf("TargetPath = %q", got.TargetPath)
+		}
+		if !reflect.DeepEqual(got.IgnoredPatterns, []string{"^fm:updated$"}) {
+			t.Fatalf("IgnoredPatterns = %v", got.IgnoredPatterns)
+		}
+	})
+
+	t.Run("rejects invalid ignored pattern", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "targets:\n" +
+			"  - name: docs\n" +
+			"    format: markdown\n" +
+			"    root: docs\n" +
+			"    from: [index.md]\n" +
+			"    to: translations/{lang}/{path}\n" +
+			"    ignored_patterns: ['[']\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		if _, err := LoadLokitFile(dir); err == nil || !strings.Contains(err.Error(), "invalid ignored_pattern") {
+			t.Fatalf("LoadLokitFile error = %v, want invalid ignored_pattern", err)
+		}
+	})
+
+	t.Run("rejects invalid surface ignored pattern", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "targets:\n" +
+			"  - name: app\n" +
+			"    surfaces:\n" +
+			"      - name: docs\n" +
+			"        format: markdown\n" +
+			"        root: docs\n" +
+			"        from: [index.md]\n" +
+			"        to: translations/{lang}/{path}\n" +
+			"        ignored_patterns: ['[']\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		if _, err := LoadLokitFile(dir); err == nil || !strings.Contains(err.Error(), "invalid ignored_pattern") {
+			t.Fatalf("LoadLokitFile error = %v, want invalid ignored_pattern", err)
+		}
+	})
+
+	t.Run("rejects invalid inherited surface ignored pattern", func(t *testing.T) {
+		dir := t.TempDir()
+		yaml := "targets:\n" +
+			"  - name: app\n" +
+			"    ignored_patterns: ['[']\n" +
+			"    surfaces:\n" +
+			"      - name: docs\n" +
+			"        format: markdown\n" +
+			"        root: docs\n" +
+			"        from: [index.md]\n" +
+			"        to: translations/{lang}/{path}\n"
+		if err := os.WriteFile(filepath.Join(dir, LokitFileName), []byte(yaml), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		if _, err := LoadLokitFile(dir); err == nil || !strings.Contains(err.Error(), "invalid ignored_pattern") {
+			t.Fatalf("LoadLokitFile error = %v, want invalid ignored_pattern", err)
 		}
 	})
 }
@@ -829,7 +892,7 @@ func TestLoadLokitFileAcceptsFormatField(t *testing.T) {
 
 func TestResolveSurfaces(t *testing.T) {
 	dir := t.TempDir()
-	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: app\n    root: .\n    surfaces:\n      - name: ui\n        format: i18next\n        dir: i18n\n        pattern: '{lang}.json'\n"
+	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: app\n    root: .\n    ignored_patterns: ['^meta\\.']\n    surfaces:\n      - name: ui\n        format: i18next\n        dir: i18n\n        pattern: '{lang}.json'\n        ignored_patterns: ['^internal\\.']\n"
 	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0644); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
@@ -853,6 +916,9 @@ func TestResolveSurfaces(t *testing.T) {
 	}
 	if resolved[0].Target.Name != "app/ui" {
 		t.Fatalf("unexpected resolved name: %q", resolved[0].Target.Name)
+	}
+	if want := []string{"^meta\\.", "^internal\\."}; !reflect.DeepEqual(resolved[0].Target.IgnoredPatterns, want) {
+		t.Fatalf("IgnoredPatterns = %v, want %v", resolved[0].Target.IgnoredPatterns, want)
 	}
 }
 

@@ -19,7 +19,26 @@ func kvSourceValue(key string, sourceValues map[string]string) (string, bool) {
 
 func prepareKVWork(file formatfile.KVFile, sourceValues map[string]string, lockKeyPrefix string, opts Options, translator KVChunkTranslator, applyDirect bool) (provider, direct []string, err error) {
 	for _, key := range file.Keys() {
-		if isKeyIgnored(key, opts) || isKeyLocked(key, opts) {
+		if isKeyIgnoredExact(key, opts) {
+			continue
+		}
+		if isKeyIgnoredPattern(key, opts) {
+			if source, ok := sourceValues[key]; ok {
+				current, _ := file.Get(key)
+				if current != source && applyDirect {
+					if !file.Set(key, source) {
+						return nil, nil, fmt.Errorf("copying ignored key %q from source", key)
+					}
+					direct = append(direct, key)
+				}
+			}
+			if applyDirect && opts.LockFile != nil {
+				lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
+				opts.LockFile.Remove(lockTarget, scopedLockKey(lockKeyPrefix, key))
+			}
+			continue
+		}
+		if isKeyLocked(key, opts) {
 			continue
 		}
 		source, ok := kvSourceValue(key, sourceValues)

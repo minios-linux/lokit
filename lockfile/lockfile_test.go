@@ -132,6 +132,25 @@ func TestRemoveTarget(t *testing.T) {
 	}
 }
 
+func TestRemove(t *testing.T) {
+	lf := &LockFile{Version: Version, Checksums: map[string]map[string]string{}}
+	lf.Update("docs/de", "fm:updated", "2026-08-26")
+	lf.Update("docs/de", "title", "Title")
+
+	lf.Remove("docs/de", "fm:updated")
+	if lf.Has("docs/de", "fm:updated") {
+		t.Fatal("removed key still exists")
+	}
+	if !lf.Has("docs/de", "title") {
+		t.Fatal("unrelated key was removed")
+	}
+
+	lf.Remove("docs/de", "title")
+	if _, ok := lf.Checksums["docs/de"]; ok {
+		t.Fatal("empty target was not removed")
+	}
+}
+
 func TestTargets(t *testing.T) {
 	lf := &LockFile{
 		Version:   Version,

@@ -71,10 +71,23 @@ func compileLockedPatterns(patterns []string) []*regexp.Regexp {
 	return compiled
 }
 
+// compileIgnoredPatterns compiles ignored_patterns validated during config loading.
+func compileIgnoredPatterns(patterns []string) []*regexp.Regexp {
+	if len(patterns) == 0 {
+		return nil
+	}
+	var compiled []*regexp.Regexp
+	for _, p := range patterns {
+		compiled = append(compiled, regexp.MustCompile(p))
+	}
+	return compiled
+}
+
 // setTargetOpts populates target-scoped translation behavior.
 func setTargetOpts(opts *translate.Options, rt *config.ResolvedTarget) {
 	opts.LockedKeys = rt.Target.LockedKeys
 	opts.IgnoredKeys = rt.Target.IgnoredKeys
+	opts.IgnoredPatterns = compileIgnoredPatterns(rt.Target.IgnoredPatterns)
 	opts.LockedPatterns = compileLockedPatterns(rt.Target.LockedPatterns)
 	opts.Terminology = rt.Terminology
 	opts.TargetName = rt.Target.Name

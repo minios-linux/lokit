@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-23 22:05+0000\n"
+"POT-Creation-Date: 2026-08-26 18:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,93 +17,89 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: internal/cli/auth.go:106
+#: internal/cli/auth.go:108
 msgid "--headless is only supported for provider 'openai'"
 msgstr ""
 
-#: internal/cli/auth.go:110
+#: internal/cli/auth.go:112
 msgid "--headless conflicts with --auth-method=%s"
 msgstr ""
 
-#: internal/cli/auth.go:118
+#: internal/cli/auth.go:120
 msgid "Select provider to authenticate"
 msgstr ""
 
-#: internal/cli/auth.go:124
+#: internal/cli/auth.go:126
 msgid "OAuth"
 msgstr ""
 
-#: internal/cli/auth.go:126 internal/cli/auth.go:201 internal/cli/auth.go:327
+#: internal/cli/auth.go:128 internal/cli/auth.go:203 internal/cli/auth.go:329
 msgid "API key"
 msgstr ""
 
-#: internal/cli/auth.go:128
+#: internal/cli/auth.go:130
 msgid "No auth"
 msgstr ""
 
-#: internal/cli/auth.go:130
+#: internal/cli/auth.go:132
 msgid "OAuth / API key"
 msgstr ""
 
-#: internal/cli/auth.go:136
+#: internal/cli/auth.go:138
 msgid "Enter choice (number or name):"
 msgstr ""
 
-#: internal/cli/auth.go:140 internal/cli/auth.go:333 internal/cli/auth.go:464
-#: internal/cli/auth.go:517 internal/cli/auth.go:538
+#: internal/cli/auth.go:142 internal/cli/auth.go:335 internal/cli/auth.go:466
+#: internal/cli/auth.go:519 internal/cli/auth.go:540
 msgid "No input received"
 msgstr ""
 
-#: internal/cli/auth.go:154
+#: internal/cli/auth.go:156
 msgid "Invalid choice. Use: lokit auth login --provider PROVIDER"
 msgstr ""
 
-#: internal/cli/auth.go:171
+#: internal/cli/auth.go:173
 msgid "No authentication is required for Ollama."
 msgstr ""
 
-#: internal/cli/auth.go:172
+#: internal/cli/auth.go:174
 msgid "You can now use: lokit translate --provider ollama --model MODEL_NAME"
 msgstr ""
 
-#: internal/cli/auth.go:175
+#: internal/cli/auth.go:177
 msgid "Unknown provider '%s'. Run 'lokit auth login' for options."
 msgstr ""
 
-#: internal/cli/auth.go:181
+#: internal/cli/auth.go:183
 msgid "Provider to authenticate"
 msgstr ""
 
-#: internal/cli/auth.go:182
+#: internal/cli/auth.go:184
 msgid "Authentication method for providers with multiple options"
 msgstr ""
 
-#: internal/cli/auth.go:183
+#: internal/cli/auth.go:185
 msgid "Use headless/device authentication for OpenAI"
 msgstr ""
 
-#: internal/cli/auth.go:184
+#: internal/cli/auth.go:186
 msgid "API key for API-based providers"
 msgstr ""
 
-#: internal/cli/auth.go:185
+#: internal/cli/auth.go:187
 msgid "Base URL for custom-openai"
 msgstr ""
 
-#: internal/cli/auth.go:199 internal/cli/auth.go:325
+#: internal/cli/auth.go:201 internal/cli/auth.go:327
 msgid "Browser OAuth"
 msgstr ""
 
-#: internal/cli/auth.go:200 internal/cli/auth.go:326
+#: internal/cli/auth.go:202 internal/cli/auth.go:328
 msgid "Device code"
 msgstr ""
 
-#: internal/cli/auth.go:225
+#: internal/cli/auth.go:227
 msgid "GitHub Copilot Authentication"
-msgstr ""
-
-#: internal/cli/auth.go:228 internal/cli/auth.go:378
-msgid "Open this URL in your browser:"
 msgstr ""
 
 #: internal/cli/auth.go:23
@@ -111,22 +107,21 @@ msgid "Manage provider authentication"
 msgstr ""
 
 #: internal/cli/auth.go:230 internal/cli/auth.go:380
+msgid "Open this URL in your browser:"
+msgstr ""
+
+#: internal/cli/auth.go:232 internal/cli/auth.go:382
 msgid "Enter this code:"
 msgstr ""
 
-#: internal/cli/auth.go:232 internal/cli/auth.go:256 internal/cli/auth.go:359
-#: internal/cli/auth.go:382
+#: internal/cli/auth.go:234 internal/cli/auth.go:258 internal/cli/auth.go:361
+#: internal/cli/auth.go:384
 msgid "Waiting for authorization..."
 msgstr ""
 
-#: internal/cli/auth.go:236 internal/cli/auth.go:260 internal/cli/auth.go:363
-#: internal/cli/auth.go:386
+#: internal/cli/auth.go:238 internal/cli/auth.go:262 internal/cli/auth.go:365
+#: internal/cli/auth.go:388
 msgid "Authentication cancelled"
-msgstr ""
-
-#: internal/cli/auth.go:239 internal/cli/auth.go:263 internal/cli/auth.go:366
-#: internal/cli/auth.go:389
-msgid "Authentication failed: %v"
 msgstr ""
 
 #: internal/cli/auth.go:24
@@ -160,199 +155,204 @@ msgid ""
 "  lokit auth list                          Show all stored credentials"
 msgstr ""
 
-#: internal/cli/auth.go:243
+#: internal/cli/auth.go:241 internal/cli/auth.go:265 internal/cli/auth.go:368
+#: internal/cli/auth.go:391
+msgid "Authentication failed: %v"
+msgstr ""
+
+#: internal/cli/auth.go:245
 msgid "Copilot authentication successful!"
 msgstr ""
 
-#: internal/cli/auth.go:244
+#: internal/cli/auth.go:246
 msgid "You can now use: lokit translate --provider github-copilot --model MODEL_NAME"
 msgstr ""
 
-#: internal/cli/auth.go:249
+#: internal/cli/auth.go:251
 msgid "Google Gemini Authentication"
 msgstr ""
 
-#: internal/cli/auth.go:252
+#: internal/cli/auth.go:254
 msgid "Opening browser for Google sign-in..."
 msgstr ""
 
-#: internal/cli/auth.go:254 internal/cli/auth.go:357
+#: internal/cli/auth.go:256 internal/cli/auth.go:359
 msgid "If the browser doesn't open, visit:"
 msgstr ""
 
-#: internal/cli/auth.go:268
+#: internal/cli/auth.go:270
 msgid "Gemini authentication successful!"
 msgstr ""
 
-#: internal/cli/auth.go:273
+#: internal/cli/auth.go:275
 msgid "Token was saved but cannot be loaded"
 msgstr ""
 
-#: internal/cli/auth.go:278
+#: internal/cli/auth.go:280
 msgid "Gemini CLI OAuth requires a GCP project ID to work."
 msgstr ""
 
-#: internal/cli/auth.go:279
+#: internal/cli/auth.go:281
 msgid "Find your project ID at: https://console.cloud.google.com"
 msgstr ""
 
-#: internal/cli/auth.go:280
+#: internal/cli/auth.go:282
 msgid "(Create a project if you don't have one, then enable the Gemini API)"
 msgstr ""
 
-#: internal/cli/auth.go:282
+#: internal/cli/auth.go:284
 msgid "GCP Project ID (or press Enter to skip):"
 msgstr ""
 
-#: internal/cli/auth.go:292 internal/cli/auth.go:304
+#: internal/cli/auth.go:294 internal/cli/auth.go:306
 msgid "Code Assist setup failed: %v"
 msgstr ""
 
-#: internal/cli/auth.go:293
+#: internal/cli/auth.go:295
 msgid "Project ID saved. You can try again later."
 msgstr ""
 
-#: internal/cli/auth.go:295 internal/cli/auth.go:308
+#: internal/cli/auth.go:297 internal/cli/auth.go:310
 msgid "Code Assist project configured!"
 msgstr ""
 
-#: internal/cli/auth.go:298
+#: internal/cli/auth.go:300
 msgid "Skipped. You can set it later with:"
 msgstr ""
 
-#: internal/cli/auth.go:299
+#: internal/cli/auth.go:301
 msgid "  lokit auth login --provider gemini"
 msgstr ""
 
-#: internal/cli/auth.go:305
+#: internal/cli/auth.go:307
 msgid "OAuth login succeeded but Code Assist onboarding failed."
 msgstr ""
 
-#: internal/cli/auth.go:306
+#: internal/cli/auth.go:308
 msgid "This will be retried automatically on first translate."
 msgstr ""
 
-#: internal/cli/auth.go:313
+#: internal/cli/auth.go:315
 msgid "You can now use: lokit translate --provider gemini --model MODEL_NAME"
 msgstr ""
 
-#: internal/cli/auth.go:314
+#: internal/cli/auth.go:316
 msgid "(no API key needed when authenticated via OAuth)"
 msgstr ""
 
-#: internal/cli/auth.go:323 internal/cli/auth.go:353 internal/cli/auth.go:376
+#: internal/cli/auth.go:325 internal/cli/auth.go:355 internal/cli/auth.go:378
 msgid "OpenAI Authentication"
 msgstr ""
 
-#: internal/cli/auth.go:329
+#: internal/cli/auth.go:331
 msgid "Choose authentication method:"
 msgstr ""
 
-#: internal/cli/auth.go:345
+#: internal/cli/auth.go:347
 msgid "Invalid authentication method"
 msgstr ""
 
-#: internal/cli/auth.go:355
+#: internal/cli/auth.go:357
 msgid "Opening browser for OpenAI sign-in..."
 msgstr ""
 
-#: internal/cli/auth.go:370 internal/cli/auth.go:393
+#: internal/cli/auth.go:372 internal/cli/auth.go:395
 msgid "OpenAI authentication successful!"
 msgstr ""
 
-#: internal/cli/auth.go:371 internal/cli/auth.go:394
+#: internal/cli/auth.go:373 internal/cli/auth.go:396
 msgid "You can now use: lokit translate --provider openai --model MODEL_NAME"
 msgstr ""
 
-#: internal/cli/auth.go:400
+#: internal/cli/auth.go:402
 msgid "Unknown authentication method '%s'"
 msgstr ""
 
-#: internal/cli/auth.go:435
+#: internal/cli/auth.go:437
 msgid "%s — API Key Setup"
 msgstr ""
 
-#: internal/cli/auth.go:438
+#: internal/cli/auth.go:440
 msgid "Get your API key from: %s%s%s"
 msgstr ""
 
-#: internal/cli/auth.go:444 internal/cli/auth.go:479
+#: internal/cli/auth.go:446 internal/cli/auth.go:481
 msgid "Failed to save API key: %v"
 msgstr ""
 
-#: internal/cli/auth.go:448 internal/cli/auth.go:483
+#: internal/cli/auth.go:450 internal/cli/auth.go:485
 msgid "%s API key saved!"
 msgstr ""
 
-#: internal/cli/auth.go:449 internal/cli/auth.go:484
+#: internal/cli/auth.go:451 internal/cli/auth.go:486
 msgid "You can now use: %s"
 msgstr ""
 
-#: internal/cli/auth.go:456 internal/cli/auth.go:531
+#: internal/cli/auth.go:458 internal/cli/auth.go:533
 msgid "Current key"
 msgstr ""
 
-#: internal/cli/auth.go:457
+#: internal/cli/auth.go:459
 msgid "Enter new key to replace, or press Enter to keep:"
 msgstr ""
 
-#: internal/cli/auth.go:459
+#: internal/cli/auth.go:461
 msgid "Enter API key:"
 msgstr ""
 
-#: internal/cli/auth.go:471
+#: internal/cli/auth.go:473
 msgid "Keeping existing key"
 msgstr ""
 
-#: internal/cli/auth.go:474
+#: internal/cli/auth.go:476
 msgid "No API key provided"
 msgstr ""
 
-#: internal/cli/auth.go:489
+#: internal/cli/auth.go:491
 msgid "Custom OpenAI-Compatible Endpoint"
 msgstr ""
 
-#: internal/cli/auth.go:500 internal/cli/auth.go:548
+#: internal/cli/auth.go:502 internal/cli/auth.go:550
 msgid "Failed to save credentials: %v"
 msgstr ""
 
-#: internal/cli/auth.go:503 internal/cli/auth.go:552
+#: internal/cli/auth.go:505 internal/cli/auth.go:554
 msgid "Custom OpenAI endpoint saved!"
 msgstr ""
 
-#: internal/cli/auth.go:504 internal/cli/auth.go:553
+#: internal/cli/auth.go:506 internal/cli/auth.go:555
 msgid "You can now use: lokit translate --provider custom-openai --model MODEL_NAME"
 msgstr ""
 
-#: internal/cli/auth.go:510
+#: internal/cli/auth.go:512
 msgid "Current endpoint"
 msgstr ""
 
-#: internal/cli/auth.go:511
+#: internal/cli/auth.go:513
 msgid "Enter new endpoint URL, or press Enter to keep:"
 msgstr ""
 
-#: internal/cli/auth.go:513
+#: internal/cli/auth.go:515
 msgid "Enter endpoint URL (e.g., https://api.example.com/v1):"
 msgstr ""
 
-#: internal/cli/auth.go:526
+#: internal/cli/auth.go:528
 msgid "Endpoint URL is required"
 msgstr ""
 
-#: internal/cli/auth.go:532
+#: internal/cli/auth.go:534
 msgid "Enter new API key, or press Enter to keep (leave empty for none):"
 msgstr ""
 
-#: internal/cli/auth.go:534
+#: internal/cli/auth.go:536
 msgid "Enter API key (or press Enter if not required):"
 msgstr ""
 
-#: internal/cli/auth.go:562
+#: internal/cli/auth.go:564
 msgid "Remove stored credentials"
 msgstr ""
 
-#: internal/cli/auth.go:563
+#: internal/cli/auth.go:565
 msgid ""
 "Remove stored credentials for one or all providers.\n"
 "\n"
@@ -365,103 +365,103 @@ msgid ""
 "  lokit auth logout --provider gemini      Remove only Gemini OAuth"
 msgstr ""
 
-#: internal/cli/auth.go:577 internal/cli/auth.go:602
+#: internal/cli/auth.go:579 internal/cli/auth.go:604
 msgid "Failed to remove Copilot credentials: %v"
 msgstr ""
 
-#: internal/cli/auth.go:580
+#: internal/cli/auth.go:582
 msgid "Copilot credentials removed"
 msgstr ""
 
-#: internal/cli/auth.go:583 internal/cli/auth.go:606
+#: internal/cli/auth.go:585 internal/cli/auth.go:608
 msgid "Failed to remove Gemini credentials: %v"
 msgstr ""
 
-#: internal/cli/auth.go:586
+#: internal/cli/auth.go:588
 msgid "Gemini credentials removed"
 msgstr ""
 
-#: internal/cli/auth.go:589 internal/cli/auth.go:611
+#: internal/cli/auth.go:591 internal/cli/auth.go:613
 msgid "Failed to remove %s credentials: %v"
 msgstr ""
 
-#: internal/cli/auth.go:592
+#: internal/cli/auth.go:594
 msgid "%s credentials removed"
 msgstr ""
 
-#: internal/cli/auth.go:594
+#: internal/cli/auth.go:596
 msgid "Unknown provider '%s'. Run 'lokit auth list' to see providers."
 msgstr ""
 
-#: internal/cli/auth.go:616
+#: internal/cli/auth.go:618
 msgid "All stored credentials removed"
 msgstr ""
 
-#: internal/cli/auth.go:621
+#: internal/cli/auth.go:623
 msgid "Provider to logout (default: all)"
 msgstr ""
 
-#: internal/cli/auth.go:640
+#: internal/cli/auth.go:642
 msgid "Show stored credentials and status"
 msgstr ""
 
-#: internal/cli/auth.go:642
+#: internal/cli/auth.go:644
 msgid "Stored Credentials"
 msgstr ""
 
-#: internal/cli/auth.go:644
+#: internal/cli/auth.go:646
 msgid "OAuth Providers"
 msgstr ""
 
-#: internal/cli/auth.go:645
+#: internal/cli/auth.go:647
 msgid "github-copilot"
 msgstr ""
 
-#: internal/cli/auth.go:646
+#: internal/cli/auth.go:648
 msgid "gemini"
 msgstr ""
 
-#: internal/cli/auth.go:648
+#: internal/cli/auth.go:650
 msgid "Flexible Auth Providers"
 msgstr ""
 
-#: internal/cli/auth.go:649
+#: internal/cli/auth.go:651
 msgid "openai"
 msgstr ""
 
-#: internal/cli/auth.go:651
+#: internal/cli/auth.go:653
 msgid "API Key Providers"
 msgstr ""
 
-#: internal/cli/auth.go:664 internal/cli/auth.go:670
+#: internal/cli/auth.go:666 internal/cli/auth.go:672
 msgid "✓ configured"
 msgstr ""
 
-#: internal/cli/auth.go:666 internal/cli/auth.go:671
+#: internal/cli/auth.go:668 internal/cli/auth.go:673
 msgid "endpoint:"
 msgstr ""
 
-#: internal/cli/auth.go:670
+#: internal/cli/auth.go:672
 msgid "no key"
 msgstr ""
 
-#: internal/cli/auth.go:674
+#: internal/cli/auth.go:676
 msgid "not configured"
 msgstr ""
 
-#: internal/cli/auth.go:678
+#: internal/cli/auth.go:680
 msgid "Environment Variables"
 msgstr ""
 
-#: internal/cli/auth.go:693
+#: internal/cli/auth.go:695
 msgid "not set"
 msgstr ""
 
-#: internal/cli/auth.go:88
+#: internal/cli/auth.go:90
 msgid "Authenticate with an AI provider"
 msgstr ""
 
-#: internal/cli/auth.go:89
+#: internal/cli/auth.go:91
 msgid ""
 "Authenticate with an AI provider using OAuth or API key.\n"
 "\n"
@@ -784,7 +784,7 @@ msgstr ""
 
 #: internal/cli/init.go:198 internal/cli/init.go:510 internal/cli/init.go:530
 #: internal/cli/lock.go:159 internal/cli/lock.go:272 internal/cli/lock.go:366
-#: internal/cli/lock.go:374 internal/cli/lock.go:498 internal/cli/root.go:345
+#: internal/cli/lock.go:374 internal/cli/lock.go:498 internal/cli/root.go:358
 #: internal/cli/status.go:96 internal/cli/translate_cmd.go:230
 #: internal/cli/translate_cmd.go:241
 msgid "%v"
@@ -1182,8 +1182,8 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: internal/cli/lock.go:337 internal/cli/root.go:388 internal/cli/root.go:494
-#: internal/cli/root.go:529 internal/cli/status.go:79
+#: internal/cli/lock.go:337 internal/cli/root.go:401 internal/cli/root.go:507
+#: internal/cli/root.go:542 internal/cli/status.go:79
 #: internal/cli/target_content.go:228 internal/cli/target_content.go:455
 #: internal/cli/target_content.go:752 internal/cli/target_content.go:964
 #: internal/cli/target_content.go:1178 internal/cli/target_content.go:1374
@@ -1374,11 +1374,11 @@ msgstr ""
 msgid "cannot read source Markdown file %s: %v"
 msgstr ""
 
-#: internal/cli/root.go:199
+#: internal/cli/root.go:212
 msgid "Localization Kit: AI-powered translation for multiple formats"
 msgstr ""
 
-#: internal/cli/root.go:200
+#: internal/cli/root.go:213
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
@@ -1412,152 +1412,152 @@ msgid ""
 "  custom-openai  Custom OpenAI-compatible endpoint"
 msgstr ""
 
-#: internal/cli/root.go:236
+#: internal/cli/root.go:249
 msgid "default"
 msgstr ""
 
-#: internal/cli/root.go:239
+#: internal/cli/root.go:252
 msgid "Use \"%s [command] --help\" for more information about a command."
 msgstr ""
 
-#: internal/cli/root.go:245
+#: internal/cli/root.go:258
 msgid "Usage:"
 msgstr ""
 
-#: internal/cli/root.go:249
+#: internal/cli/root.go:262
 msgid "Aliases:"
 msgstr ""
 
-#: internal/cli/root.go:252
+#: internal/cli/root.go:265
 msgid "Examples:"
 msgstr ""
 
-#: internal/cli/root.go:255
+#: internal/cli/root.go:268
 msgid "Available Commands:"
 msgstr ""
 
-#: internal/cli/root.go:261
+#: internal/cli/root.go:274
 msgid "Additional Commands:"
 msgstr ""
 
-#: internal/cli/root.go:264
+#: internal/cli/root.go:277
 msgid "Flags:"
 msgstr ""
 
-#: internal/cli/root.go:267
+#: internal/cli/root.go:280
 msgid "Global Flags:"
 msgstr ""
 
-#: internal/cli/root.go:270
+#: internal/cli/root.go:283
 msgid "Additional help topics:"
 msgstr ""
 
-#: internal/cli/root.go:279
+#: internal/cli/root.go:292
 msgid "Help about any command"
 msgstr ""
 
-#: internal/cli/root.go:280
+#: internal/cli/root.go:293
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
 msgstr ""
 
-#: internal/cli/root.go:302
+#: internal/cli/root.go:315
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 
-#: internal/cli/root.go:312
+#: internal/cli/root.go:325
 msgid "Project root directory"
 msgstr ""
 
-#: internal/cli/root.go:331
+#: internal/cli/root.go:344
 msgid "this command"
 msgstr ""
 
-#: internal/cli/root.go:333
+#: internal/cli/root.go:346
 msgid "help for %s"
 msgstr ""
 
-#: internal/cli/root.go:388
+#: internal/cli/root.go:401
 msgid "run 'lokit init'"
 msgstr ""
 
-#: internal/cli/root.go:388
+#: internal/cli/root.go:401
 msgid "POT"
 msgstr ""
 
-#: internal/cli/root.go:392 internal/cli/root.go:534 internal/cli/root.go:570
+#: internal/cli/root.go:405 internal/cli/root.go:547 internal/cli/root.go:583
 msgid "Source strings"
 msgstr ""
 
-#: internal/cli/root.go:397 internal/cli/root.go:434 internal/cli/root.go:575
-#: internal/cli/root.go:636 internal/cli/root.go:682
-#: internal/cli/status_kv.go:20
-msgid "Lang"
-msgstr ""
-
-#: internal/cli/root.go:397 internal/cli/root.go:434 internal/cli/root.go:575
-#: internal/cli/root.go:636
-msgid "Fuzzy"
-msgstr ""
-
-#: internal/cli/root.go:397 internal/cli/root.go:434
+#: internal/cli/root.go:410 internal/cli/root.go:447
 #: internal/cli/status_kv.go:20
 msgid "Terms"
 msgstr ""
 
-#: internal/cli/root.go:397 internal/cli/root.go:575 internal/cli/root.go:682
-#: internal/cli/status_kv.go:20
-msgid "Left"
-msgstr ""
-
-#: internal/cli/root.go:397 internal/cli/root.go:434 internal/cli/root.go:575
-#: internal/cli/root.go:636 internal/cli/root.go:682
-#: internal/cli/status_kv.go:20
-msgid "Progress"
-msgstr ""
-
-#: internal/cli/root.go:397 internal/cli/root.go:434 internal/cli/root.go:575
-#: internal/cli/root.go:636 internal/cli/root.go:682
+#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
+#: internal/cli/root.go:649 internal/cli/root.go:695
 #: internal/cli/status_kv.go:20
 msgid "Done"
 msgstr ""
 
-#: internal/cli/root.go:404 internal/cli/root.go:441 internal/cli/root.go:510
-#: internal/cli/root.go:543 internal/cli/root.go:591 internal/cli/root.go:644
-#: internal/cli/root.go:694 internal/cli/target_content.go:246
+#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
+#: internal/cli/root.go:649
+msgid "Fuzzy"
+msgstr ""
+
+#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
+#: internal/cli/root.go:649 internal/cli/root.go:695
+#: internal/cli/status_kv.go:20
+msgid "Lang"
+msgstr ""
+
+#: internal/cli/root.go:410 internal/cli/root.go:588 internal/cli/root.go:695
+#: internal/cli/status_kv.go:20
+msgid "Left"
+msgstr ""
+
+#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
+#: internal/cli/root.go:649 internal/cli/root.go:695
+#: internal/cli/status_kv.go:20
+msgid "Progress"
+msgstr ""
+
+#: internal/cli/root.go:417 internal/cli/root.go:454 internal/cli/root.go:523
+#: internal/cli/root.go:556 internal/cli/root.go:604 internal/cli/root.go:657
+#: internal/cli/root.go:707 internal/cli/target_content.go:246
 #: internal/cli/target_content.go:484 internal/cli/target_content.go:773
 #: internal/cli/target_content.go:985 internal/cli/target_content.go:1196
 #: internal/cli/target_content.go:1399 internal/cli/target_index.go:177
 msgid "missing"
 msgstr ""
 
-#: internal/cli/root.go:413 internal/cli/root.go:461
+#: internal/cli/root.go:426 internal/cli/root.go:474
 #: internal/cli/status_kv.go:43
 msgid "[%s] Terminology check failed for %s: %v"
 msgstr ""
 
-#: internal/cli/root.go:429
+#: internal/cli/root.go:442
 msgid "po4a config"
 msgstr ""
 
-#: internal/cli/root.go:434 internal/cli/root.go:636
+#: internal/cli/root.go:447 internal/cli/root.go:649
 msgid "Total"
 msgstr ""
 
-#: internal/cli/root.go:474
+#: internal/cli/root.go:487
 msgid "missing files"
 msgstr ""
 
-#: internal/cli/root.go:486 internal/cli/target_content.go:223
+#: internal/cli/root.go:499 internal/cli/target_content.go:223
 #: internal/cli/target_content.go:449 internal/cli/target_content.go:744
 #: internal/cli/target_content.go:956 internal/cli/target_content.go:1169
 #: internal/cli/target_content.go:1383
 msgid "Translations"
 msgstr ""
 
-#: internal/cli/root.go:494 internal/cli/root.go:529 internal/cli/status.go:221
+#: internal/cli/root.go:507 internal/cli/root.go:542 internal/cli/status.go:221
 #: internal/cli/target_content.go:228 internal/cli/target_content.go:234
 #: internal/cli/target_content.go:455 internal/cli/target_content.go:752
 #: internal/cli/target_content.go:758 internal/cli/target_content.go:964
@@ -1568,7 +1568,7 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-#: internal/cli/root.go:498 internal/cli/root.go:676 internal/cli/status.go:256
+#: internal/cli/root.go:511 internal/cli/root.go:689 internal/cli/status.go:256
 #: internal/cli/target_content.go:238 internal/cli/target_content.go:762
 #: internal/cli/target_content.go:974 internal/cli/target_content.go:1183
 #: internal/cli/target_content.go:1384 internal/cli/target_content.go:1541
@@ -1576,31 +1576,31 @@ msgstr ""
 msgid "Source keys"
 msgstr ""
 
-#: internal/cli/root.go:525
+#: internal/cli/root.go:538
 msgid "Res dir"
 msgstr ""
 
-#: internal/cli/root.go:565
+#: internal/cli/root.go:578
 msgid "No translatable strings found in %s"
 msgstr ""
 
-#: internal/cli/root.go:569
+#: internal/cli/root.go:582
 msgid "Translation Statistics"
 msgstr ""
 
-#: internal/cli/root.go:611
+#: internal/cli/root.go:624
 msgid "Translation gaps:"
 msgstr ""
 
-#: internal/cli/root.go:615
+#: internal/cli/root.go:628
 msgid "%d untranslated"
 msgstr ""
 
-#: internal/cli/root.go:618
+#: internal/cli/root.go:631
 msgid "%d fuzzy"
 msgstr ""
 
-#: internal/cli/root.go:632
+#: internal/cli/root.go:645
 msgid "Documentation Statistics"
 msgstr ""
 
@@ -1608,11 +1608,11 @@ msgstr ""
 msgid "Invalid locked_pattern %q: %v"
 msgstr ""
 
-#: internal/cli/root.go:663
+#: internal/cli/root.go:676
 msgid "No language files detected in %s"
 msgstr ""
 
-#: internal/cli/root.go:674 internal/cli/target_content.go:1387
+#: internal/cli/root.go:687 internal/cli/target_content.go:1387
 msgid "UI Translation Statistics"
 msgstr ""
 

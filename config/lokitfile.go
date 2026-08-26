@@ -82,9 +82,10 @@ type Surface struct {
 	SourceLang string   `yaml:"source_lang,omitempty"`
 	Prompt     string   `yaml:"prompt,omitempty"`
 
-	LockedKeys     []string `yaml:"locked_keys,omitempty"`
-	IgnoredKeys    []string `yaml:"ignored_keys,omitempty"`
-	LockedPatterns []string `yaml:"locked_patterns,omitempty"`
+	LockedKeys      []string `yaml:"locked_keys,omitempty"`
+	IgnoredKeys     []string `yaml:"ignored_keys,omitempty"`
+	IgnoredPatterns []string `yaml:"ignored_patterns,omitempty"`
+	LockedPatterns  []string `yaml:"locked_patterns,omitempty"`
 }
 
 // Target describes a single translation unit.
@@ -151,9 +152,10 @@ type Target struct {
 	// Locked keys are skipped during translation even with --retranslate.
 	// Use --force to override locked keys.
 	LockedKeys []string `yaml:"locked_keys,omitempty"`
-	// IgnoredKeys lists keys that are completely excluded from translation.
-	// Ignored keys are never sent to the AI provider.
+	// IgnoredKeys lists keys excluded from translation without changing their values.
 	IgnoredKeys []string `yaml:"ignored_keys,omitempty"`
+	// IgnoredPatterns lists regex patterns for source-passthrough keys.
+	IgnoredPatterns []string `yaml:"ignored_patterns,omitempty"`
 	// LockedPatterns lists regex patterns; keys matching any pattern are treated as locked.
 	LockedPatterns []string `yaml:"locked_patterns,omitempty"`
 
@@ -499,6 +501,9 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			return nil, fmt.Errorf("%s: duplicate target name %q", path, t.Name)
 		}
 		targetNames[t.Name] = struct{}{}
+		if err := validateIgnoredPatterns(path, t.Name, "", t.IgnoredPatterns); err != nil {
+			return nil, err
+		}
 		if len(t.Surfaces) > 0 {
 			normalizeTargetSchema(t)
 			if t.Format != "" {
@@ -510,6 +515,9 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 			for si := range t.Surfaces {
 				s := &t.Surfaces[si]
 				normalizeSurfaceSchema(s)
+				if err := validateIgnoredPatterns(path, t.Name, s.Name, s.IgnoredPatterns); err != nil {
+					return nil, err
+				}
 				if s.Format == "" {
 					return nil, fmt.Errorf("%s: target %q surface #%d has no format", path, t.Name, si+1)
 				}
@@ -608,6 +616,19 @@ func LoadLokitFile(rootDir string) (*LokitFile, error) {
 	return &lf, nil
 }
 
+func validateIgnoredPatterns(path, targetName, surfaceName string, patterns []string) error {
+	for _, pattern := range patterns {
+		if _, err := regexp.Compile(pattern); err != nil {
+			label := fmt.Sprintf("target %q", targetName)
+			if surfaceName != "" {
+				label += fmt.Sprintf(" surface %q", surfaceName)
+			}
+			return fmt.Errorf("%s: %s has invalid ignored_pattern %q: %w", path, label, pattern, err)
+		}
+	}
+	return nil
+}
+
 // ---------------------------------------------------------------------------
 // Resolving targets to Projects
 // ---------------------------------------------------------------------------
@@ -649,25 +670,26 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 
 		for i, s := range t.Surfaces {
 			st := Target{
-				Name:           t.Name,
-				Format:         s.Format,
-				Type:           s.Type,
-				Root:           coalesceString(s.Root, t.Root),
-				Dir:            s.Dir,
-				Pattern:        s.Pattern,
-				Source:         firstSource(s.Source, t.Source),
-				TargetPath:     s.TargetPath,
-				POT:            s.POT,
-				Sources:        s.Sources,
-				Exclude:        mergeStringSlices(t.Exclude, s.Exclude),
-				Keywords:       s.Keywords,
-				SourceLang:     coalesceString(s.SourceLang, t.SourceLang),
-				Config:         s.Config,
-				Languages:      s.Languages,
-				Prompt:         coalesceString(s.Prompt, t.Prompt),
-				LockedKeys:     mergeStringSlices(t.LockedKeys, s.LockedKeys),
-				IgnoredKeys:    mergeStringSlices(t.IgnoredKeys, s.IgnoredKeys),
-				LockedPatterns: mergeStringSlices(t.LockedPatterns, s.LockedPatterns),
+				Name:            t.Name,
+				Format:          s.Format,
+				Type:            s.Type,
+				Root:            coalesceString(s.Root, t.Root),
+				Dir:             s.Dir,
+				Pattern:         s.Pattern,
+				Source:          firstSource(s.Source, t.Source),
+				TargetPath:      s.TargetPath,
+				POT:             s.POT,
+				Sources:         s.Sources,
+				Exclude:         mergeStringSlices(t.Exclude, s.Exclude),
+				Keywords:        s.Keywords,
+				SourceLang:      coalesceString(s.SourceLang, t.SourceLang),
+				Config:          s.Config,
+				Languages:       s.Languages,
+				Prompt:          coalesceString(s.Prompt, t.Prompt),
+				LockedKeys:      mergeStringSlices(t.LockedKeys, s.LockedKeys),
+				IgnoredKeys:     mergeStringSlices(t.IgnoredKeys, s.IgnoredKeys),
+				IgnoredPatterns: mergeStringSlices(t.IgnoredPatterns, s.IgnoredPatterns),
+				LockedPatterns:  mergeStringSlices(t.LockedPatterns, s.LockedPatterns),
 			}
 			if st.Type == "" {
 				st.Type = st.Format

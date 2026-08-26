@@ -544,7 +544,7 @@ lokit tracks MD5 checksums of source strings in a `lokit.lock` file (stored next
 - **Safe to delete** — removing `lokit.lock` simply causes a full translation on the next run.
 - **Commit to VCS** — it's recommended to commit `lokit.lock` to version control so that CI and teammates benefit from incremental translation.
 
-## Key Filtering (locked_keys / ignored_keys / locked_patterns)
+## Key Filtering
 
 You can control which keys are translated per target in `lokit.yaml`:
 
@@ -557,10 +557,14 @@ targets:
     source_lang: en
     languages: [ru, de, fr]
 
-    # Keys excluded from translation entirely (never sent to AI)
+    # Keys excluded without changing existing target values
     ignored_keys:
       - debug_label
       - internal_test_string
+
+    # Regex patterns copied from source in source-backed key/value formats
+    ignored_patterns:
+      - "^metadata\\."
 
     # Hand-curated translations preserved as-is (skipped even with --all)
     locked_keys:
@@ -577,13 +581,14 @@ targets:
 
 | Field | Effect | Overridden by |
 |-------|--------|---------------|
-| `ignored_keys` | Key is completely skipped, as if it doesn't exist | — |
+| `ignored_keys` | Key is excluded without changing its existing target value | — |
+| `ignored_patterns` | Matching key is excluded and copied from source in source-backed key/value formats | — |
 | `locked_keys` | Existing translation is preserved, key is not re-translated | `--force` |
 | `locked_patterns` | Same as `locked_keys` but matches keys by regex | `--force` |
 
-- `ignored_keys` are always skipped, even with `--force`.
+- `ignored_keys` and `ignored_patterns` are always skipped, even with `--force`.
 - `locked_keys` and `locked_patterns` are skipped during normal and `--all` runs. Only `--force` overrides them.
-- These settings work with all formats: gettext PO, po4a, i18next, vue-i18n, Android, YAML, Markdown, .properties, Flutter ARB, js-kv, desktop, and polkit.
+- These filters work with all formats. Source passthrough applies to source-backed key/value formats; gettext and po4a entries are excluded without changing their existing translations.
 
 ## Development
 

@@ -326,8 +326,11 @@ type Options struct {
 	// LockedKeys lists keys whose existing translations must not be overwritten.
 	// Locked keys are skipped even with --retranslate. Use --force to override.
 	LockedKeys []string
-	// IgnoredKeys lists keys completely excluded from translation.
+	// IgnoredKeys lists keys excluded from translation without changing their values.
 	IgnoredKeys []string
+	// IgnoredPatterns lists regex patterns for keys copied from the source in
+	// source-backed key/value formats and otherwise excluded from translation.
+	IgnoredPatterns []*regexp.Regexp
 	// LockedPatterns lists regex patterns; matching keys are treated as locked.
 	LockedPatterns []*regexp.Regexp
 	// Terminology contains organization/project terminology rules.
@@ -2189,7 +2192,7 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 	}
 
 	// Apply ignored/locked key filters
-	if len(opts.IgnoredKeys) > 0 || len(opts.LockedKeys) > 0 || len(opts.LockedPatterns) > 0 {
+	if len(opts.IgnoredKeys) > 0 || len(opts.IgnoredPatterns) > 0 || len(opts.LockedKeys) > 0 || len(opts.LockedPatterns) > 0 {
 		var filtered []*po.Entry
 		ignoredCount := 0
 		lockedCount := 0
@@ -2273,8 +2276,21 @@ func filterChangedKeys(keys []string, sourceValues map[string]string, lockKeyPre
 
 // isKeyIgnored returns true if a key should be completely excluded from translation.
 func isKeyIgnored(key string, opts Options) bool {
+	return isKeyIgnoredExact(key, opts) || isKeyIgnoredPattern(key, opts)
+}
+
+func isKeyIgnoredExact(key string, opts Options) bool {
 	for _, k := range opts.IgnoredKeys {
 		if k == key {
+			return true
+		}
+	}
+	return false
+}
+
+func isKeyIgnoredPattern(key string, opts Options) bool {
+	for _, re := range opts.IgnoredPatterns {
+		if re.MatchString(key) {
 			return true
 		}
 	}
@@ -2304,7 +2320,7 @@ func isKeyLocked(key string, opts Options) bool {
 // Ignored keys are always removed. Locked keys are removed unless --force is set.
 // Returns the filtered key list.
 func filterExcludedKeys(keys []string, opts Options) []string {
-	if len(opts.IgnoredKeys) == 0 && len(opts.LockedKeys) == 0 && len(opts.LockedPatterns) == 0 {
+	if len(opts.IgnoredKeys) == 0 && len(opts.IgnoredPatterns) == 0 && len(opts.LockedKeys) == 0 && len(opts.LockedPatterns) == 0 {
 		return keys
 	}
 
@@ -2381,6 +2397,9 @@ func updateLockFileForKV(keys []string, sourceValues map[string]string, lockKeyP
 	}
 	lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
 	for _, key := range keys {
+		if isKeyIgnoredPattern(key, opts) {
+			continue
+		}
 		lockKey := scopedLockKey(lockKeyPrefix, key)
 		content := key
 		if sourceValues != nil {

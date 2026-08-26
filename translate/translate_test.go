@@ -177,6 +177,75 @@ terms:
 	}
 }
 
+func TestTranslateAllKVPassesThroughIgnoredPatterns(t *testing.T) {
+	for _, mode := range []string{ParallelSequential, ParallelFullParallel} {
+		t.Run(mode, func(t *testing.T) {
+			file := newTestKVFile(
+				[]string{"fm:updated", "fm:program_commits.app"},
+				map[string]string{
+					"fm:updated":             "26.08.2026",
+					"fm:program_commits.app": "modified-sha",
+				},
+			)
+			task := KVLangTask{
+				Lang:     "de",
+				FilePath: filepath.Join(t.TempDir(), "de.md"),
+				File:     file,
+				SourceValues: map[string]string{
+					"fm:updated":             "2026-08-26",
+					"fm:program_commits.app": "0123456789abcdef0123456789abcdef01234567",
+				},
+			}
+			lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+			lockTarget := lockfile.LockTargetKey("docs", "de")
+			lf.Update(lockTarget, "fm:updated", lockfile.KVEntryContent("fm:updated", "2026-08-26"))
+			opts := Options{
+				ForceTranslate: true,
+				LockFile:       lf,
+				LockTarget:     "docs",
+				IgnoredPatterns: []*regexp.Regexp{
+					regexp.MustCompile(`^fm:updated$`),
+					regexp.MustCompile(`^fm:program_commits(?:\.|$)`),
+				},
+				ParallelMode: mode,
+			}
+			if err := TranslateAllKV(context.Background(), []KVLangTask{task}, opts, MarkdownKVChunkTranslator()); err != nil {
+				t.Fatal(err)
+			}
+			if got := file.Value("fm:updated"); got != "2026-08-26" {
+				t.Fatalf("updated = %q, want source value", got)
+			}
+			if got := file.Value("fm:program_commits.app"); got != "0123456789abcdef0123456789abcdef01234567" {
+				t.Fatalf("program commit = %q, want source value", got)
+			}
+			if lf.Has(lockTarget, "fm:updated") {
+				t.Fatal("passthrough key retained a lock entry")
+			}
+		})
+	}
+}
+
+func TestTranslateAllKVPreservesIgnoredKeyValue(t *testing.T) {
+	file := newTestKVFile([]string{"debug"}, map[string]string{"debug": "target-only"})
+	task := KVLangTask{
+		Lang:         "de",
+		FilePath:     filepath.Join(t.TempDir(), "de.json"),
+		File:         file,
+		SourceValues: map[string]string{"debug": "source"},
+	}
+	opts := Options{
+		ForceTranslate:  true,
+		IgnoredKeys:     []string{"debug"},
+		IgnoredPatterns: []*regexp.Regexp{regexp.MustCompile(`^debug$`)},
+	}
+	if err := TranslateAllKV(context.Background(), []KVLangTask{task}, opts, DefaultKVChunkTranslator()); err != nil {
+		t.Fatal(err)
+	}
+	if got := file.Value("debug"); got != "target-only" {
+		t.Fatalf("ignored key = %q, want existing target value", got)
+	}
+}
+
 func TestTranslateAllKVAppliesPathScopedExactRule(t *testing.T) {
 	catalog := loadTestTerminology(t, `version: 1
 exact:
@@ -1512,6 +1581,19 @@ func TestCollectEntries_ForceOverridesLockedKeys(t *testing.T) {
 	})
 	if len(entries) != 1 {
 		t.Fatalf("collectEntries len=%d, want 1", len(entries))
+	}
+}
+
+func TestCollectEntries_ForceDoesNotOverrideIgnoredPatterns(t *testing.T) {
+	f := po.NewFile()
+	f.Entries = append(f.Entries, &po.Entry{MsgID: "internal.debug", MsgStr: "Debug"})
+
+	entries := collectEntries(f, Options{
+		ForceTranslate:  true,
+		IgnoredPatterns: []*regexp.Regexp{regexp.MustCompile(`^internal\.`)},
+	})
+	if len(entries) != 0 {
+		t.Fatalf("collectEntries len=%d, want 0", len(entries))
 	}
 }
 

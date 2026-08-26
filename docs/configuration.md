@@ -81,7 +81,8 @@ targets:
     prompt: "Custom prompt"     # Override system prompt for this target
 
     # --- Key filtering (optional) ---
-    ignored_keys: [debug_key]   # Never translated, never sent to AI
+    ignored_keys: [debug_key]   # Excluded; target value stays unchanged
+    ignored_patterns: ["^metadata\\."] # Regex source-passthrough keys
     locked_keys: [app_name]     # Preserved as-is (skipped unless --force)
     locked_patterns: ["^brand_"] # Regex patterns treated as locked
 ```
@@ -146,7 +147,8 @@ Array of translation targets. At least one required. Each target defines a set o
 | `source_lang` | string | inherited | Override source language |
 | `languages` | array | inherited | Override target languages |
 | `prompt` | string | — | Custom system prompt for AI |
-| `ignored_keys` | array | — | Keys excluded from translation entirely |
+| `ignored_keys` | array | — | Keys excluded from translation without changing existing target values |
+| `ignored_patterns` | array | — | Regex patterns for source-passthrough keys in source-backed key/value formats |
 | `locked_keys` | array | — | Keys preserved as-is (skipped unless `--force`) |
 | `locked_patterns` | array | — | Regex patterns treated as locked |
 
