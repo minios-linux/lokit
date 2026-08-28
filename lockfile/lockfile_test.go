@@ -245,6 +245,32 @@ func TestLockTargetKey(t *testing.T) {
 	}
 }
 
+func TestReassignHandlesChainedKeyMoves(t *testing.T) {
+	lf := &LockFile{Version: Version, Checksums: map[string]map[string]string{
+		"docs/de": {
+			"guide.md:sec:1": Hash("old-a"),
+			"guide.md:sec:2": Hash("old-b"),
+		},
+	}}
+
+	lf.Reassign("docs/de",
+		[]string{"guide.md:sec:1", "guide.md:sec:2"},
+		map[string]string{
+			"guide.md:sec:2": "new-a",
+			"guide.md:sec:3": "new-b",
+		})
+
+	if lf.IsChanged("docs/de", "guide.md:sec:2", "new-a") {
+		t.Fatal("sec:2 checksum was not reassigned")
+	}
+	if lf.IsChanged("docs/de", "guide.md:sec:3", "new-b") {
+		t.Fatal("sec:3 checksum was not reassigned")
+	}
+	if lf.Has("docs/de", "guide.md:sec:1") {
+		t.Fatal("old sec:1 checksum was not removed")
+	}
+}
+
 func TestSummary(t *testing.T) {
 	lf := &LockFile{
 		Version:   Version,

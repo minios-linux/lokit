@@ -140,6 +140,24 @@ func (lf *LockFile) Update(target, key, sourceContent string) {
 	lf.Checksums[target][key] = Hash(sourceContent)
 }
 
+// Reassign moves checksums to new keys after a positional format has matched
+// existing translations by their previous source checksums. Deletions happen
+// before additions so chained moves such as sec:1 -> sec:2 remain intact.
+func (lf *LockFile) Reassign(target string, oldKeys []string, newContent map[string]string) {
+	lf.mu.Lock()
+	defer lf.mu.Unlock()
+
+	if lf.Checksums[target] == nil {
+		lf.Checksums[target] = make(map[string]string)
+	}
+	for _, key := range oldKeys {
+		delete(lf.Checksums[target], key)
+	}
+	for key, content := range newContent {
+		lf.Checksums[target][key] = Hash(content)
+	}
+}
+
 // Has reports whether an exact target/key entry exists in the lock file.
 func (lf *LockFile) Has(target, key string) bool {
 	lf.mu.Lock()

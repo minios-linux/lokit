@@ -21,6 +21,7 @@ import (
 	propfile "github.com/minios-linux/lokit/internal/format/properties"
 	"github.com/minios-linux/lokit/internal/format/vuei18n"
 	yamlfile "github.com/minios-linux/lokit/internal/format/yaml"
+	"github.com/minios-linux/lokit/lockfile"
 	"github.com/minios-linux/lokit/translate"
 )
 
@@ -444,7 +445,7 @@ func translateYAMLTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	return translate.TranslateAllYAML(ctx, tasks, opts)
 }
 
-func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
+func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string, lockF *lockfile.LockFile) {
 	transDir := rt.AbsTranslationsDir()
 	keyVal(T("Translations"), transDir)
 
@@ -501,8 +502,9 @@ func showConfigMarkdownStats(rt config.ResolvedTarget, langs []string) {
 				source = srcByRelPath[filepath.ToSlash(relPath)]
 			}
 			if source.file != nil {
-				mdfile.SyncKeys(source.file, f)
-				termViolations += countKVTerminologyViolations(rt, lang, f, source.file.SourceValues(), relativeSourcePath(rt, source.path))
+				relPath := relativeSourcePath(rt, source.path)
+				syncMarkdownKeys(source.file, f, lockF, rt.Target.Name, lang, relPath, false)
+				termViolations += countKVTerminologyViolations(rt, lang, f, source.file.SourceValues(), relPath)
 			}
 			_, tr, _ := f.Stats()
 			translated += tr
@@ -524,7 +526,7 @@ func discoverMarkdownTargetFiles(rt config.ResolvedTarget, lang string) ([]strin
 	return discoverMarkdownFiles(langDir, langDir, nil)
 }
 
-func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
+func runInitMarkdown(rt config.ResolvedTarget, langs []string, lockF *lockfile.LockFile) bool {
 	srcLang := rt.Target.SourceLang
 	srcDir := markdownSourceDir(rt)
 
@@ -538,6 +540,7 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 	logInfo(T("Source language (%s): %d files"), srcLang, len(srcFiles))
 
 	created, updated := 0, 0
+	lockChanged := false
 
 	for _, lang := range langs {
 		if lang == srcLang {
@@ -578,7 +581,9 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 					logError(T("Reading %s: %v"), targetPath, err)
 					continue
 				}
-				mdfile.SyncKeys(srcFile, targetFile)
+				if syncMarkdownKeys(srcFile, targetFile, lockF, rt.Target.Name, lang, filepath.ToSlash(relPath), true) {
+					lockChanged = true
+				}
 				if err := targetFile.WriteFile(targetPath); err != nil {
 					logError(T("Writing %s: %v"), targetPath, err)
 					continue
@@ -590,6 +595,63 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string) {
 	}
 
 	logInfo(T("Markdown init: %d created, %d updated"), created, updated)
+	return lockChanged
+}
+
+func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, targetName, lang, prefix string, migrate bool) bool {
+	moved := make(map[string]string)
+	if lockF != nil {
+		lockTarget := lockfile.LockTargetKey(targetName, lang)
+		sourceValues := src.SourceValues()
+		usedSource := make(map[string]bool)
+		for _, oldKey := range target.Keys() {
+			if !strings.HasPrefix(oldKey, "sec:") {
+				continue
+			}
+			oldLockKey := markdownLockKey(prefix, oldKey)
+			for _, sourceKey := range src.Keys() {
+				if usedSource[sourceKey] || !strings.HasPrefix(sourceKey, "sec:") {
+					continue
+				}
+				content := lockfile.KVEntryContent(oldLockKey, sourceValues[sourceKey])
+				if !lockF.IsChanged(lockTarget, oldLockKey, content) {
+					moved[sourceKey] = oldKey
+					usedSource[sourceKey] = true
+					break
+				}
+			}
+		}
+	}
+
+	mdfile.SyncKeysMapped(src, target, moved)
+	if !migrate || lockF == nil {
+		return false
+	}
+
+	lockTarget := lockfile.LockTargetKey(targetName, lang)
+	sourceValues := src.SourceValues()
+	var oldKeys []string
+	newContent := make(map[string]string)
+	for sourceKey, oldKey := range moved {
+		if sourceKey == oldKey {
+			continue
+		}
+		oldKeys = append(oldKeys, markdownLockKey(prefix, oldKey))
+		newLockKey := markdownLockKey(prefix, sourceKey)
+		newContent[newLockKey] = lockfile.KVEntryContent(newLockKey, sourceValues[sourceKey])
+	}
+	if len(oldKeys) == 0 {
+		return false
+	}
+	lockF.Reassign(lockTarget, oldKeys, newContent)
+	return true
+}
+
+func markdownLockKey(prefix, key string) string {
+	if prefix == "" {
+		return key
+	}
+	return prefix + ":" + key
 }
 
 func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
@@ -648,7 +710,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 					count += len(srcFile.Keys())
 					continue
 				}
-				mdfile.SyncKeys(srcFile, tf)
+				syncMarkdownKeys(srcFile, tf, a.lockFile, rt.Target.Name, lang, filepath.ToSlash(relPath), false)
 				count += len(tf.UntranslatedKeys())
 			}
 			logInfo(T("%s (%s): %d segments to translate"), lang, langName, count)
@@ -688,7 +750,7 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 					logError(T("Reading %s: %v"), targetPath, err)
 					continue
 				}
-				mdfile.SyncKeys(srcFile, targetFile)
+				syncMarkdownKeys(srcFile, targetFile, a.lockFile, rt.Target.Name, lang, filepath.ToSlash(relPath), true)
 			}
 
 			lockKeyPrefix := filepath.ToSlash(relPath)

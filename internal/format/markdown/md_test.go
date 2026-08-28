@@ -310,3 +310,50 @@ func TestSyncKeys_AddsNew(t *testing.T) {
 		t.Errorf("after SyncKeys, expected %d keys, got %d", len(src.Keys()), len(target.Keys()))
 	}
 }
+
+func TestSyncKeysMapped_PreservesShiftedSections(t *testing.T) {
+	src, _ := Parse([]byte(`# Title
+
+Intro.
+
+## New section
+
+New text.
+
+## Section A
+
+Text A.
+
+## Section B
+
+Text B.
+`))
+	target, _ := Parse([]byte(`# Titel
+
+Einleitung.
+
+## Abschnitt A
+
+Text A übersetzt.
+
+## Abschnitt B
+
+Text B übersetzt.
+`))
+
+	SyncKeysMapped(src, target, map[string]string{
+		"sec:0": "sec:0",
+		"sec:2": "sec:1",
+		"sec:3": "sec:2",
+	})
+
+	if value, _ := target.Get("sec:1"); value != "" {
+		t.Fatalf("new section should be untranslated, got %q", value)
+	}
+	if value, _ := target.Get("sec:2"); !strings.Contains(value, "Abschnitt A") {
+		t.Fatalf("Section A translation was not preserved: %q", value)
+	}
+	if value, _ := target.Get("sec:3"); !strings.Contains(value, "Abschnitt B") {
+		t.Fatalf("Section B translation was not preserved: %q", value)
+	}
+}

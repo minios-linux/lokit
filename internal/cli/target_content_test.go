@@ -10,10 +10,43 @@ import (
 	"testing"
 
 	"github.com/minios-linux/lokit/config"
+	mdfile "github.com/minios-linux/lokit/internal/format/markdown"
 	"github.com/minios-linux/lokit/lockfile"
 	"github.com/minios-linux/lokit/terminology"
 	"github.com/minios-linux/lokit/translate"
 )
+
+func TestSyncMarkdownKeysMigratesShiftedChecksums(t *testing.T) {
+	oldSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Section A\n\nText A.\n\n## Section B\n\nText B.\n"))
+	newSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## New\n\nNew text.\n\n## Section A\n\nText A.\n\n## Section B\n\nText B.\n"))
+	target, _ := mdfile.Parse([]byte("# Titel\n\nEinleitung.\n\n## Abschnitt A\n\nText A übersetzt.\n\n## Abschnitt B\n\nText B übersetzt.\n"))
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{lockTarget: {}}}
+	for key, value := range oldSource.SourceValues() {
+		lockKey := markdownLockKey("guide.md", key)
+		lf.Checksums[lockTarget][lockKey] = lockfile.Hash(lockfile.KVEntryContent(lockKey, value))
+	}
+
+	if !syncMarkdownKeys(newSource, target, lf, "docs", "de", "guide.md", true) {
+		t.Fatal("expected lock migration")
+	}
+	if value, _ := target.Get("sec:1"); value != "" {
+		t.Fatalf("new section should be untranslated, got %q", value)
+	}
+	if value, _ := target.Get("sec:2"); !strings.Contains(value, "Abschnitt A") {
+		t.Fatalf("Section A translation was not moved: %q", value)
+	}
+	if lf.Has(lockTarget, "guide.md:sec:1") {
+		t.Fatal("new section inherited an old lock checksum")
+	}
+	for _, key := range []string{"sec:2", "sec:3"} {
+		lockKey := markdownLockKey("guide.md", key)
+		value, _ := newSource.Get(key)
+		if lf.IsChanged(lockTarget, lockKey, lockfile.KVEntryContent(lockKey, value)) {
+			t.Fatalf("migrated checksum for %s is stale", key)
+		}
+	}
+}
 
 func TestShowConfigJSKVStatsParsesJavaScriptFiles(t *testing.T) {
 	dir := t.TempDir()
@@ -123,7 +156,7 @@ terms:
 `),
 	}
 	output := captureStderr(t, func() {
-		showConfigMarkdownStats(rt, []string{"de"})
+		showConfigMarkdownStats(rt, []string{"de"}, nil)
 	})
 
 	if !regexp.MustCompile(`(?m)^\s*🇩🇪 de\s+.*\s0%\s+1\s+1\s+0\s*$`).MatchString(output) {

@@ -11,6 +11,7 @@ import (
 	. "github.com/minios-linux/lokit/i18n"
 	"github.com/minios-linux/lokit/internal/format/i18next"
 	po "github.com/minios-linux/lokit/internal/format/po"
+	"github.com/minios-linux/lokit/lockfile"
 	"github.com/spf13/cobra"
 )
 
@@ -187,6 +188,11 @@ EXAMPLES
 // runInitWithConfig initializes translation files using lokit.yaml targets.
 func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string) {
 	absRoot, _ := filepath.Abs(rootDir)
+	lockF, lockErr := lockfile.Load(absRoot)
+	if lockErr != nil {
+		logWarning(T("Cannot load lock file: %v"), lockErr)
+	}
+	lockChanged := false
 
 	resolved, err := lf.Resolve(rootDir)
 	if err != nil {
@@ -274,7 +280,9 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string)
 			runInitYAML(rt, langs)
 
 		case config.TargetTypeMarkdown:
-			runInitMarkdown(rt, langs)
+			if runInitMarkdown(rt, langs, lockF) {
+				lockChanged = true
+			}
 
 		case config.TargetTypeProperties:
 			runInitProperties(rt, langs)
@@ -292,6 +300,11 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string)
 			logInfo(T("Polkit targets do not require init — use 'lokit translate' directly."))
 		default:
 			logWarning(T("[%s] Unknown target type %q, skipping"), rt.Target.Name, rt.Target.Type)
+		}
+	}
+	if lockChanged {
+		if err := lockF.Save(); err != nil {
+			logError(T("Cannot save lock file: %v"), err)
 		}
 	}
 }

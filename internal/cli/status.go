@@ -164,7 +164,7 @@ func showConfigTargetStats(rt config.ResolvedTarget, langs []string, lockF *lock
 	case config.TargetTypeYAML:
 		showConfigYAMLStats(rt, langs)
 	case config.TargetTypeMarkdown:
-		showConfigMarkdownStats(rt, langs)
+		showConfigMarkdownStats(rt, langs, lockF)
 	case config.TargetTypeProperties:
 		showConfigPropertiesStats(rt, langs)
 	case config.TargetTypeFlutter:

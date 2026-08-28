@@ -339,23 +339,39 @@ func NewTranslationFile(src *File, _ string) *File {
 }
 
 // SyncKeys ensures target has the same segment keys as src, preserving
-// existing translations and adding empty segments for new keys.
+// translations at matching keys and adding empty segments for new keys.
 func SyncKeys(src, target *File) {
-	srcKeys := make(map[string]bool, len(src.segments))
-	for _, s := range src.segments {
-		srcKeys[s.Key] = true
-	}
+	SyncKeysMapped(src, target, nil)
+}
 
+// SyncKeysMapped rebuilds target in source order. moved maps a source key to
+// the old target key that contains its translation. Callers can derive this
+// mapping from source checksums when inserted Markdown sections shift sec:N.
+func SyncKeysMapped(src, target *File, moved map[string]string) {
 	targetVals := make(map[string]string, len(target.segments))
 	for _, s := range target.segments {
-		if srcKeys[s.Key] {
-			targetVals[s.Key] = s.Value
-		}
+		targetVals[s.Key] = s.Value
+	}
+
+	reserved := make(map[string]bool, len(moved))
+	for _, oldKey := range moved {
+		reserved[oldKey] = true
 	}
 
 	rebuilt := NewTranslationFile(src, "")
-	for k, v := range targetVals {
-		rebuilt.Set(k, v)
+	for _, source := range src.segments {
+		if oldKey, ok := moved[source.Key]; ok {
+			if value, exists := targetVals[oldKey]; exists {
+				rebuilt.Set(source.Key, value)
+			}
+			continue
+		}
+		if reserved[source.Key] {
+			continue
+		}
+		if value, exists := targetVals[source.Key]; exists {
+			rebuilt.Set(source.Key, value)
+		}
 	}
 
 	target.segments = rebuilt.segments
