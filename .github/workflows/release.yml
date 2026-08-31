@@ -27,8 +27,8 @@ jobs:
       - name: Get version from tag
         id: version
         run: |
-          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
       - name: Build binaries
         run: |
@@ -93,7 +93,7 @@ jobs:
             CHANGELOG="Initial release of lokit - Localization Kit with AI translation support"
           else
             echo "Generating changelog from $PREV_TAG to ${{ steps.version.outputs.TAG_NAME }}"
-            CHANGELOG=$(git log --pretty=format:"%B" ${PREV_TAG}..${{ steps.version.outputs.TAG_NAME }})
+            CHANGELOG=$(git log --pretty=format:"%B" "${PREV_TAG}..${{ steps.version.outputs.TAG_NAME }}")
           fi
           
           # Save to file for release notes
@@ -104,7 +104,7 @@ jobs:
           EOF
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.TAG_NAME }}
           name: ${{ steps.version.outputs.VERSION }}
