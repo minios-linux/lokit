@@ -116,11 +116,11 @@ func (m TermMatch) ValidTranslation(source, target string) bool {
 		return countTerm(target, m.Source, m.Match, m.CaseSensitive) == 0
 	}
 	required := countTerm(source, m.Source, m.Match, m.CaseSensitive)
+	if m.Preserve {
+		return countTerm(target, m.Source, m.Match, m.CaseSensitive) == required
+	}
 	if required == 0 {
 		return true
-	}
-	if m.Preserve {
-		return countTerm(target, m.Source, m.Match, m.CaseSensitive) >= required
 	}
 	accepted := append([]string{m.Preferred}, m.Accepted...)
 	found := countAnyTerm(target, accepted, m.Match, m.CaseSensitive)

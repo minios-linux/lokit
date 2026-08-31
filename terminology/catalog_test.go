@@ -322,6 +322,19 @@ terms:
 	}
 }
 
+func TestPreserveValidationRejectsExtraOccurrences(t *testing.T) {
+	match := TermMatch{Source: "MiniOS", Match: MatchWord, Preserve: true}
+	if !match.ValidTranslation("Open MiniOS", "Откройте MiniOS") {
+		t.Fatal("preserve validation rejected the required occurrence")
+	}
+	if match.ValidTranslation("Open MiniOS", "MiniOS Менеджер MiniOS") {
+		t.Fatal("preserve validation accepted an extra occurrence")
+	}
+	if match.ValidTranslation("Open the manager", "Откройте MiniOS") {
+		t.Fatal("preserve validation accepted an introduced occurrence")
+	}
+}
+
 func TestCaseSensitiveTermVariantsRemainIndependent(t *testing.T) {
 	path := writeCatalog(t, `version: 1
 terms:
