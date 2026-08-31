@@ -121,10 +121,13 @@ func kvChunkTerminology(keys []string, sourceValues map[string]string, ids []str
 	return rulesByKey, prompt, nil
 }
 
-func validateKVChunkTerminology(keys []string, sourceValues map[string]string, translations []string, rules [][]terminology.TermMatch) error {
+func validateKVChunkTerminology(keys []string, sourceValues map[string]string, translations []string, rules [][]terminology.TermMatch, sourcePath string) error {
 	for i, key := range keys {
 		source, _ := kvSourceValue(key, sourceValues)
 		if err := validateTerminology(source, translations[i], rules[i]); err != nil {
+			if sourcePath != "" {
+				return fmt.Errorf("%s:%s: %w", sourcePath, key, err)
+			}
 			return fmt.Errorf("key %q: %w", key, err)
 		}
 	}

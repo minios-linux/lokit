@@ -250,6 +250,31 @@ func validatePOPluralChunkTerminology(entries []*po.Entry, translations []plural
 	return nil
 }
 
+func restorePOPluralPreservedTerms(entries []*po.Entry, translations []pluralTranslation, singular, plural []map[string]string, namespace string) error {
+	for i, entry := range entries {
+		if entry.MsgIDPlural == "" {
+			value, err := restorePreservedTerms(translations[i].singular, singular[i], namespace)
+			if err != nil {
+				return fmt.Errorf("entry %q: %w", entry.MsgID, err)
+			}
+			translations[i].singular = value
+			continue
+		}
+		for form, value := range translations[i].plural {
+			preserved := plural[i]
+			if form == 0 {
+				preserved = singular[i]
+			}
+			restored, err := restorePreservedTerms(value, preserved, namespace)
+			if err != nil {
+				return fmt.Errorf("entry %q plural form %d: %w", entry.MsgID, form, err)
+			}
+			translations[i].plural[form] = restored
+		}
+	}
+	return nil
+}
+
 // CountPOTerminologyViolations counts translated entries that do not satisfy
 // an exact or term rule. Empty, fuzzy, obsolete, and ignored entries are not
 // double-counted as terminology failures.

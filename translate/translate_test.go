@@ -49,6 +49,17 @@ func identifiedKVProviderResponse(keys, translations []string) string {
 	return string(response)
 }
 
+var preservedTermTokenPattern = regexp.MustCompile(`__LOKIT_PRESERVE_TERM_[0-9a-f]+_[0-9]+_[0-9]+__`)
+
+func preservedTermTokenFromBody(t *testing.T, body []byte) string {
+	t.Helper()
+	token := preservedTermTokenPattern.Find(body)
+	if token == nil {
+		t.Fatalf("provider prompt does not contain a preserved terminology token: %s", body)
+	}
+	return string(token)
+}
+
 func loadTestTerminology(t *testing.T, content string) *terminology.Catalog {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "terminology.yaml")
@@ -126,9 +137,13 @@ terms:
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requests++
 		defer r.Body.Close()
-		_, _ = io.Copy(io.Discard, r.Body)
+		body, _ := io.ReadAll(r.Body)
+		token := preservedTermTokenFromBody(t, body)
+		if !strings.Contains(string(body), token+" Settings") {
+			t.Errorf("provider prompt does not mask preserved term: %s", body)
+		}
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"title"}, []string{"MiniOS-Einstellungen"})))
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"title"}, []string{token + "-Einstellungen"})))
 	}))
 	defer ts.Close()
 
@@ -154,6 +169,151 @@ terms:
 	}
 	if got := file.Value("title"); got != "MiniOS-Einstellungen" {
 		t.Fatalf("translated value = %q", got)
+	}
+}
+
+func TestPreservedTermMaskRoundTrip(t *testing.T) {
+	rules := []terminology.TermMatch{{
+		ID:            "brand.minios",
+		Source:        "MiniOS",
+		Match:         terminology.MatchWord,
+		CaseSensitive: false,
+		Preserve:      true,
+	}}
+	source := "MiniOS and minios, but not MiniOSX"
+	namespace := "__LOKIT_PRESERVE_TERM_test_"
+	masked, values := maskPreservedTerms(source, rules, namespace, 3)
+	if masked != namespace+"3_0__ and "+namespace+"3_1__, but not MiniOSX" {
+		t.Fatalf("masked source = %q", masked)
+	}
+	restored, err := restorePreservedTerms(masked, values, namespace)
+	if err != nil {
+		t.Fatalf("restorePreservedTerms: %v", err)
+	}
+	if restored != source {
+		t.Fatalf("restored source = %q, want %q", restored, source)
+	}
+	if _, err := restorePreservedTerms("missing tokens", values, namespace); err == nil {
+		t.Fatal("missing preserved terminology tokens were accepted")
+	}
+	if _, err := restorePreservedTerms(namespace+"9_0__", nil, namespace); err == nil {
+		t.Fatal("unexpected cross-entry terminology token was accepted")
+	}
+}
+
+func TestPreservedTermMaskMergesCrossingSpans(t *testing.T) {
+	rules := []terminology.TermMatch{
+		{Source: "Open Code", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+		{Source: "Code Assistant", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+	}
+	namespace := "__LOKIT_PRESERVE_TERM_crossing_"
+	masked, values := maskPreservedTerms("Open Code Assistant", rules, namespace, 0)
+	if masked != namespace+"0_0__" {
+		t.Fatalf("crossing terms were not merged: %q", masked)
+	}
+	restored, err := restorePreservedTerms(masked, values, namespace)
+	if err != nil {
+		t.Fatalf("restorePreservedTerms: %v", err)
+	}
+	if restored != "Open Code Assistant" {
+		t.Fatalf("restored crossing terms = %q", restored)
+	}
+}
+
+func TestTerminologyDiagnosticIncludesPathCountsAndTranslation(t *testing.T) {
+	rules := [][]terminology.TermMatch{{{
+		ID:            "brand.minios",
+		Source:        "MiniOS",
+		Match:         terminology.MatchWord,
+		CaseSensitive: true,
+		Preserve:      true,
+	}}}
+	err := validateKVChunkTerminology(
+		[]string{"sec:0"},
+		map[string]string{"sec:0": "MiniOS runs MiniOS"},
+		[]string{"Mini OS executa MiniOS"},
+		rules,
+		"maintenance/Updating-MiniOS.md",
+	)
+	if err == nil {
+		t.Fatal("expected terminology diagnostic")
+	}
+	for _, want := range []string{
+		"maintenance/Updating-MiniOS.md:sec:0",
+		`terminology rule "brand.minios"`,
+		"expected 2 occurrence(s), found 1",
+		"Mini OS executa MiniOS",
+	} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("diagnostic %q does not contain %q", err, want)
+		}
+	}
+}
+
+func TestTranslateChunkMasksAndRestoresPreservedPOTerms(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+`)
+	entry := &po.Entry{MsgID: "MiniOS settings"}
+	entries := []*po.Entry{entry}
+	id := entryTranslationIDs(entries)[0]
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		body, _ := io.ReadAll(r.Body)
+		token := preservedTermTokenFromBody(t, body)
+		if !strings.Contains(string(body), token+" settings") {
+			t.Errorf("PO provider prompt does not mask preserved term: %s", body)
+		}
+		value, _ := json.Marshal(token + "-Einstellungen")
+		content, _ := json.Marshal([]identifiedTranslation{{ID: id, Translation: value}})
+		response, _ := json.Marshal(map[string]any{
+			"choices": []any{map[string]any{"message": map[string]string{"content": string(content)}}},
+		})
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(response)
+	}))
+	defer ts.Close()
+
+	translations, err := translateChunk(context.Background(), entries, DefaultSystemPrompt, Options{
+		Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
+		Language:     "de",
+		LanguageName: "German",
+		TargetName:   "app",
+		Format:       "gettext",
+		Terminology:  catalog,
+	}, &rateLimitState{})
+	if err != nil {
+		t.Fatalf("translateChunk: %v", err)
+	}
+	if len(translations) != 1 || translations[0] != "MiniOS-Einstellungen" {
+		t.Fatalf("translations = %v", translations)
+	}
+}
+
+func TestRestorePOPluralRejectsCrossFormToken(t *testing.T) {
+	rules := []terminology.TermMatch{{
+		Source:        "MiniOS",
+		Match:         terminology.MatchWord,
+		CaseSensitive: true,
+		Preserve:      true,
+	}}
+	namespace := preservedTermNamespace([]string{"MiniOS file", "MiniOS files"})
+	maskedSingular, singular := maskPreservedTerms("MiniOS file", rules, namespace, 0)
+	_, plural := maskPreservedTerms("MiniOS files", rules, namespace, 1)
+	translations := []pluralTranslation{{plural: []string{maskedSingular, maskedSingular}}}
+	err := restorePOPluralPreservedTerms(
+		[]*po.Entry{{MsgID: "MiniOS file", MsgIDPlural: "MiniOS files"}},
+		translations,
+		[]map[string]string{singular},
+		[]map[string]string{plural},
+		namespace,
+	)
+	if err == nil {
+		t.Fatal("cross-form preserved terminology token was accepted")
 	}
 }
 
@@ -862,7 +1022,7 @@ func TestBuildKVUserPrompt_UsesSourceValuesAndFallbackToKey(t *testing.T) {
 
 func TestBuildI18NextUserPrompt_UsesKeysAsSource(t *testing.T) {
 	keys := []string{"Save", "Cancel"}
-	prompt := buildI18NextUserPrompt(keys, "English", "German")
+	prompt := buildI18NextUserPrompt(keys, nil, "English", "German")
 
 	if !strings.Contains(prompt, "Translate these UI strings from English to German") {
 		t.Fatalf("prompt missing language header: %q", prompt)
@@ -1204,6 +1364,61 @@ terms:
 	)
 	if err == nil {
 		t.Fatal("expected Markdown retry terminology violation")
+	}
+}
+
+func TestTranslateMarkdownSingleRetryMasksPreservedTerminology(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+`)
+	requests := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		defer r.Body.Close()
+		body, _ := io.ReadAll(r.Body)
+		token := preservedTermTokenFromBody(t, body)
+		if !strings.Contains(string(body), "### "+token+" Settings") {
+			t.Errorf("Markdown retry prompt does not mask preserved term: %s", body)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		translation := "### MiniOS-Einstellungen"
+		if requests > 1 {
+			translation = "### " + token + "-Einstellungen"
+		}
+		_, _ = w.Write([]byte(identifiedKVProviderResponse(
+			[]string{"sec:0"},
+			[]string{translation},
+		)))
+	}))
+	defer ts.Close()
+
+	translations, err := translateMarkdownSingleRetry(
+		context.Background(),
+		"sec:0",
+		map[string]string{"sec:0": "### MiniOS Settings"},
+		DefaultSystemPrompt,
+		Options{
+			Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
+			Language:     "de",
+			LanguageName: "German",
+			TargetName:   "docs",
+			Format:       "markdown",
+			Terminology:  catalog,
+		},
+		&rateLimitState{},
+	)
+	if err != nil {
+		t.Fatalf("translateMarkdownSingleRetry: %v", err)
+	}
+	if len(translations) != 1 || translations[0] != "### MiniOS-Einstellungen" {
+		t.Fatalf("translations = %v", translations)
+	}
+	if requests != 2 {
+		t.Fatalf("provider requests = %d, want 2", requests)
 	}
 }
 

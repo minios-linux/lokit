@@ -42,6 +42,33 @@ func TestProgressBar(t *testing.T) {
 	}
 }
 
+func TestInfoLogStylesAreSemantic(t *testing.T) {
+	tests := []struct {
+		format string
+		icon   string
+	}{
+		{"Provider: %s (%s), Model: %s", "◆"},
+		{"Parallel: enabled, max concurrent: %d", "⚙"},
+		{"Translations dir: %s", "▣"},
+		{"Translating: %s", "◎"},
+		{"Source segments: %d (%d files)", "#"},
+		{"Translating %s (%s) — %d keys...", "▶"},
+		{"  Invalid translation response, retrying (%d/%d): %v", "↻"},
+		{"Saved %s (%d/%d translated)", "↓"},
+	}
+	for _, test := range tests {
+		if got := infoLogStyleFor(test.format).icon; got != test.icon {
+			t.Errorf("infoLogStyleFor(%q) icon = %q, want %q", test.format, got, test.icon)
+		}
+	}
+}
+
+func TestFormatPrefixRejectsPlaceholderFirstTranslation(t *testing.T) {
+	if hasFormatPrefix("Provider: test", "%s gespeichert (%d/%d übersetzt)") {
+		t.Fatal("placeholder-first translated format matched every info message")
+	}
+}
+
 func TestFlagFromRegion(t *testing.T) {
 	if got := flagFromRegion("us"); got != "🇺🇸" {
 		t.Fatalf("flagFromRegion(us) = %q, want %q", got, "🇺🇸")

@@ -273,6 +273,17 @@ func DefaultProviders() map[string]Provider {
 // Translation options
 // ---------------------------------------------------------------------------
 
+// LogEvent identifies the semantic kind of a translation-engine message.
+type LogEvent string
+
+const (
+	LogEventInfo     LogEvent = "info"
+	LogEventAction   LogEvent = "action"
+	LogEventProgress LogEvent = "progress"
+	LogEventRetry    LogEvent = "retry"
+	LogEventWrite    LogEvent = "write"
+)
+
 // Options controls the translation behavior.
 type Options struct {
 	// Provider is the AI provider configuration.
@@ -310,6 +321,9 @@ type Options struct {
 	OnProgress func(lang string, done, total int)
 	// OnLog emits log messages during translation.
 	OnLog func(format string, args ...any)
+	// OnLogEvent emits semantically classified log messages. When set, it takes
+	// precedence over OnLog for messages with an explicit event kind.
+	OnLogEvent func(event LogEvent, format string, args ...any)
 	// OnError emits error messages during translation.
 	OnError func(format string, args ...any)
 	// Verbose enables detailed logging.
@@ -344,6 +358,16 @@ type Options struct {
 }
 
 func (o *Options) log(format string, args ...any) {
+	if o.OnLog != nil {
+		o.OnLog(format, args...)
+	}
+}
+
+func (o *Options) logEvent(event LogEvent, format string, args ...any) {
+	if o.OnLogEvent != nil {
+		o.OnLogEvent(event, format, args...)
+		return
+	}
 	if o.OnLog != nil {
 		o.OnLog(format, args...)
 	}
@@ -1805,6 +1829,19 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 	if err != nil {
 		return nil, err
 	}
+	maskedSingular := make([]string, len(entries))
+	maskedPlural := make([]string, len(entries))
+	preservedSingular := make([]map[string]string, len(entries))
+	preservedPlural := make([]map[string]string, len(entries))
+	preserveSources := make([]string, 0, len(entries)*2)
+	for _, entry := range entries {
+		preserveSources = append(preserveSources, entry.MsgID, entry.MsgIDPlural)
+	}
+	preserveNamespace := preservedTermNamespace(preserveSources)
+	for i, entry := range entries {
+		maskedSingular[i], preservedSingular[i] = maskPreservedTerms(entry.MsgID, rulesByEntry[i], preserveNamespace, i*2)
+		maskedPlural[i], preservedPlural[i] = maskPreservedTerms(entry.MsgIDPlural, rulesByEntry[i], preserveNamespace, i*2+1)
+	}
 	if opts.Terminology != nil {
 		systemPrompt = terminologySystemPrompt(systemPrompt)
 	}
@@ -1817,10 +1854,10 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 	for i, e := range entries {
 		if e.MsgIDPlural != "" {
 			userMsg.WriteString(fmt.Sprintf("ID %s: singular: %s | plural: %s\n",
-				ids[i], escapeForPrompt(e.MsgID), escapeForPrompt(e.MsgIDPlural)))
+				ids[i], escapeForPrompt(maskedSingular[i]), escapeForPrompt(maskedPlural[i])))
 			userMsg.WriteString(fmt.Sprintf("   (return an array of exactly %d plural forms for the target language)\n", nplurals))
 		} else {
-			userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(e.MsgID)))
+			userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(maskedSingular[i])))
 		}
 		if len(e.References) > 0 {
 			userMsg.WriteString(fmt.Sprintf("   (context: %s)\n", strings.Join(e.References, ", ")))
@@ -1844,6 +1881,9 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		}
 		translations, err := parseIdentifiedPluralTranslations(text, entries, ids, nplurals)
 		if err == nil {
+			err = restorePOPluralPreservedTerms(entries, translations, preservedSingular, preservedPlural, preserveNamespace)
+		}
+		if err == nil {
 			err = validatePOPluralTranslations(entries, translations)
 		}
 		if err == nil {
@@ -1854,7 +1894,7 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			opts.log(i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
+			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
 			}
@@ -2119,7 +2159,7 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 		}
 
 		if opts.Verbose {
-			opts.log(i18n.T("  Chunk %d/%d (%d entries)"), i+1, len(chunks), len(chunk))
+			opts.logEvent(LogEventProgress, i18n.T("  Chunk %d/%d (%d entries)"), i+1, len(chunks), len(chunk))
 		}
 
 		if hasPluralEntries(chunk) {
@@ -2446,6 +2486,16 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 	if err != nil {
 		return nil, err
 	}
+	maskedSource := make([]string, len(entries))
+	preservedTerms := make([]map[string]string, len(entries))
+	preserveSources := make([]string, len(entries))
+	for i, entry := range entries {
+		preserveSources[i] = entry.MsgID
+	}
+	preserveNamespace := preservedTermNamespace(preserveSources)
+	for i, entry := range entries {
+		maskedSource[i], preservedTerms[i] = maskPreservedTerms(entry.MsgID, rulesByEntry[i], preserveNamespace, i)
+	}
 	if opts.Terminology != nil {
 		systemPrompt = terminologySystemPrompt(systemPrompt)
 	}
@@ -2455,7 +2505,7 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		userMsg.WriteString("Translate these entries:\n\n")
 	}
 	for i, e := range entries {
-		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(e.MsgID)))
+		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(maskedSource[i])))
 		if len(e.References) > 0 {
 			userMsg.WriteString(fmt.Sprintf("   (context: %s)\n", strings.Join(e.References, ", ")))
 		}
@@ -2477,6 +2527,15 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		}
 		translations, err := parseIdentifiedStringTranslations(text, ids)
 		if err == nil {
+			for i := range translations {
+				translations[i], err = restorePreservedTerms(translations[i], preservedTerms[i], preserveNamespace)
+				if err != nil {
+					err = fmt.Errorf("entry %q: %w", entries[i].MsgID, err)
+					break
+				}
+			}
+		}
+		if err == nil {
 			err = validatePOTranslations(entries, translations)
 		}
 		if err == nil {
@@ -2487,7 +2546,7 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			opts.log(i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
+			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
 			}
@@ -3119,7 +3178,7 @@ func savePOFile(poFile *po.File, poPath string, opts Options) {
 		opts.logError(i18n.T("Error saving %s: %v"), poPath, err)
 	} else {
 		total, translated, _, _ := poFile.Stats()
-		opts.log(i18n.T("Saved %s (%d/%d translated)"), poPath, translated, total)
+		opts.logEvent(LogEventWrite, i18n.T("Saved %s (%d/%d translated)"), poPath, translated, total)
 	}
 }
 

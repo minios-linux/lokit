@@ -1,8 +1,10 @@
 package translate
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/minios-linux/lokit/terminology"
@@ -54,10 +56,118 @@ func resolveTerminologyTerms(source string, opts Options, selector terminology.S
 func validateTerminology(source, target string, rules []terminology.TermMatch) error {
 	for _, rule := range rules {
 		if !rule.ValidTranslation(source, target) {
-			return fmt.Errorf("terminology rule %q for %q requires %v", rule.ID, rule.Source, rule.Expected())
+			required := rule.RequiredOccurrences(source)
+			found := rule.AcceptedOccurrences(target)
+			mode := "use one of"
+			if rule.Preserve {
+				mode = "preserve"
+			}
+			return fmt.Errorf("terminology rule %q: %s %q, expected %d occurrence(s), found %d; translation: %q",
+				rule.ID, mode, strings.Join(rule.Expected(), " | "), required, found, terminologyExcerpt(target))
 		}
 	}
 	return nil
+}
+
+type preservedTermSpan struct {
+	start int
+	end   int
+}
+
+func preservedTermNamespace(texts []string) string {
+	seed := strings.Join(texts, "\x00")
+	for attempt := 0; ; attempt++ {
+		sum := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%d", seed, attempt)))
+		namespace := fmt.Sprintf("__LOKIT_PRESERVE_TERM_%x_", sum[:8])
+		collision := false
+		for _, text := range texts {
+			if strings.Contains(text, namespace) {
+				collision = true
+				break
+			}
+		}
+		if !collision {
+			return namespace
+		}
+	}
+}
+
+func maskPreservedTerms(text string, rules []terminology.TermMatch, namespace string, scope int) (string, map[string]string) {
+	var spans []preservedTermSpan
+	for _, rule := range rules {
+		if !rule.Preserve {
+			continue
+		}
+		for _, span := range rule.SourceSpans(text) {
+			spans = append(spans, preservedTermSpan{start: span.Start, end: span.End})
+		}
+	}
+	if len(spans) == 0 {
+		return text, nil
+	}
+	sort.Slice(spans, func(i, j int) bool {
+		if spans[i].start != spans[j].start {
+			return spans[i].start < spans[j].start
+		}
+		return spans[i].end > spans[j].end
+	})
+	merged := spans[:0]
+	for _, span := range spans {
+		if len(merged) == 0 || span.start >= merged[len(merged)-1].end {
+			merged = append(merged, span)
+			continue
+		}
+		if span.end > merged[len(merged)-1].end {
+			merged[len(merged)-1].end = span.end
+		}
+	}
+
+	runes := []rune(text)
+	values := make(map[string]string)
+	var out strings.Builder
+	end, tokenIndex := 0, 0
+	for _, span := range merged {
+		out.WriteString(string(runes[end:span.start]))
+		token := fmt.Sprintf("%s%d_%d__", namespace, scope, tokenIndex)
+		for strings.Contains(text, token) {
+			tokenIndex++
+			token = fmt.Sprintf("%s%d_%d__", namespace, scope, tokenIndex)
+		}
+		values[token] = string(runes[span.start:span.end])
+		out.WriteString(token)
+		tokenIndex++
+		end = span.end
+	}
+	out.WriteString(string(runes[end:]))
+	return out.String(), values
+}
+
+func restorePreservedTerms(text string, values map[string]string, namespace string) (string, error) {
+	tokens := make([]string, 0, len(values))
+	for token := range values {
+		tokens = append(tokens, token)
+	}
+	sort.Strings(tokens)
+	for _, token := range tokens {
+		count := strings.Count(text, token)
+		if count != 1 {
+			return "", fmt.Errorf("preserved terminology placeholder %q: expected once, found %d", token, count)
+		}
+		text = strings.Replace(text, token, values[token], 1)
+	}
+	if strings.Contains(text, namespace) {
+		return "", fmt.Errorf("unexpected preserved terminology placeholder in translation")
+	}
+	return text, nil
+}
+
+func terminologyExcerpt(text string) string {
+	text = strings.Join(strings.Fields(text), " ")
+	runes := []rune(text)
+	if len(runes) > 240 {
+		return string(runes[:240]) + "..."
+	}
+	return text
 }
 
 func appendTerminologyPrompt(prompt string, entries []terminologyPromptEntry) string {
@@ -73,6 +183,7 @@ func appendTerminologyPrompt(prompt string, entries []terminologyPromptEntry) st
 	data, _ := json.Marshal(filtered)
 	return prompt + "\n\nMANDATORY TERMINOLOGY FOR THIS REQUEST:\n" +
 		"The JSON rules below are scoped by response ID. Apply each rule only to the object with the same ID. " +
+		"Copy every token beginning with __LOKIT_PRESERVE_TERM_ exactly; Lokit restores its protected term after translation. " +
 		"Preserve terms marked preserve exactly and prefer the preferred form; accepted forms are also valid.\n" + string(data)
 }
 

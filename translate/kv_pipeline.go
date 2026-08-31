@@ -38,8 +38,8 @@ func (defaultKVChunkTranslator) DefaultChunkSize() int { return 0 }
 
 type i18nextChunkTranslator struct{}
 
-func (i18nextChunkTranslator) BuildUserPrompt(keys []string, _ map[string]string, opts Options) string {
-	return buildI18NextUserPrompt(keys, opts.SourceLanguageName, opts.LanguageName)
+func (i18nextChunkTranslator) BuildUserPrompt(keys []string, srcVals map[string]string, opts Options) string {
+	return buildI18NextUserPrompt(keys, srcVals, opts.SourceLanguageName, opts.LanguageName)
 }
 
 func (i18nextChunkTranslator) DefaultChunkSize() int { return 0 }
@@ -146,7 +146,7 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 			continue
 		}
 
-		opts.log(i18n.T("Translating %s (%s) — %d keys..."), task.Lang, task.LangName, len(keysToTranslate))
+		opts.logEvent(LogEventAction, i18n.T("Translating %s (%s) — %d keys..."), task.Lang, task.LangName, len(keysToTranslate))
 
 		translatedKeys, err := translateKVFile(ctx, task.File, task.SourceValues, keysToTranslate, taskOpts, translator)
 		if err != nil {
@@ -241,7 +241,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 			taskOpts.SourcePath = t.sourcePath
 		}
 
-		opts.log(i18n.T("Translating %s (%s) — %d keys..."), t.lang, t.langName, len(t.keys))
+		opts.logEvent(LogEventAction, i18n.T("Translating %s (%s) — %d keys..."), t.lang, t.langName, len(t.keys))
 		translatedKeys, err := translateKVFileWithRL(ctx, t.file, t.sourceValues, t.keys, taskOpts, translator, rl)
 		if err != nil {
 			if ctx.Err() == nil {
@@ -292,7 +292,7 @@ func translateKVFileWithRL(ctx context.Context, file formatfile.KVFile, srcVals 
 		}
 
 		if opts.Verbose {
-			opts.log(i18n.T("  Chunk %d/%d (%d keys)"), i+1, len(chunks), len(chunk))
+			opts.logEvent(LogEventProgress, i18n.T("  Chunk %d/%d (%d keys)"), i+1, len(chunks), len(chunk))
 		}
 
 		translations, err := translateKVChunk(ctx, chunk, srcVals, systemPrompt, opts, translator, rl)
@@ -312,7 +312,7 @@ func translateKVFileWithRL(ctx context.Context, file formatfile.KVFile, srcVals 
 					return translatedKeys, fmt.Errorf("invalid markdown translation for key %q: structure mismatch", badKey)
 				}
 				if opts.Verbose {
-					opts.log(i18n.T("  Retrying chunk %d/%d due to markdown structure mismatch (%s)"), i+1, len(chunks), badKey)
+					opts.logEvent(LogEventRetry, i18n.T("  Retrying chunk %d/%d due to markdown structure mismatch (%s)"), i+1, len(chunks), badKey)
 				}
 				attempt++
 				if len(chunk) == 1 {
@@ -378,7 +378,6 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		promptVals = masked
 	}
 
-	userPrompt := translator.BuildUserPrompt(keys, promptVals, opts)
 	ids := kvTranslationIDs(keys)
 	systemPrompt = identifiedKVSystemPrompt(systemPrompt)
 	validationVals := promptVals
@@ -389,6 +388,40 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 	if err != nil {
 		return nil, err
 	}
+	providerVals := promptVals
+	preservedTermsByKey := make(map[string]map[string]string, len(keys))
+	sourceTexts := make([]string, len(keys))
+	for i, key := range keys {
+		source := key
+		if promptVals != nil {
+			if value, ok := promptVals[key]; ok && value != "" {
+				source = value
+			}
+		}
+		sourceTexts[i] = source
+	}
+	preserveNamespace := preservedTermNamespace(sourceTexts)
+	for i, key := range keys {
+		masked, preserved := maskPreservedTerms(sourceTexts[i], rulesByKey[i], preserveNamespace, i)
+		if len(preserved) == 0 {
+			continue
+		}
+		if providerVals == nil || len(preservedTermsByKey) == 0 {
+			providerVals = make(map[string]string, len(keys))
+			for _, sourceKey := range keys {
+				value := sourceKey
+				if promptVals != nil {
+					if sourceValue, ok := promptVals[sourceKey]; ok && sourceValue != "" {
+						value = sourceValue
+					}
+				}
+				providerVals[sourceKey] = value
+			}
+		}
+		providerVals[key] = masked
+		preservedTermsByKey[key] = preserved
+	}
+	userPrompt := translator.BuildUserPrompt(keys, providerVals, opts)
 	if opts.Terminology != nil {
 		systemPrompt = terminologySystemPrompt(systemPrompt)
 	}
@@ -407,10 +440,19 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		}
 		translations, err = parseIdentifiedStringTranslations(text, ids)
 		if err == nil {
+			for i, key := range keys {
+				translations[i], err = restorePreservedTerms(translations[i], preservedTermsByKey[key], preserveNamespace)
+				if err != nil {
+					err = fmt.Errorf("key %q: %w", key, err)
+					break
+				}
+			}
+		}
+		if err == nil {
 			err = validateKVTranslations(keys, validationVals, translations)
 		}
 		if err == nil {
-			err = validateKVChunkTerminology(keys, validationVals, translations, rulesByKey)
+			err = validateKVChunkTerminology(keys, validationVals, translations, rulesByKey, opts.SourcePath)
 		}
 		if err == nil {
 			lastErr = nil
@@ -418,7 +460,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			opts.log(i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
+			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
 			}
@@ -471,7 +513,7 @@ func saveKVFile(file formatfile.KVFile, path string, opts Options) error {
 		return err
 	}
 	total, translated, _ := file.Stats()
-	opts.log(i18n.T("Saved %s (%d/%d translated)"), path, translated, total)
+	opts.logEvent(LogEventWrite, i18n.T("Saved %s (%d/%d translated)"), path, translated, total)
 	return nil
 }
 
@@ -497,7 +539,7 @@ func buildKVUserPrompt(keys []string, srcVals map[string]string, sourceLangName,
 	return userMsg.String()
 }
 
-func buildI18NextUserPrompt(keys []string, sourceLangName, langName string) string {
+func buildI18NextUserPrompt(keys []string, srcVals map[string]string, sourceLangName, langName string) string {
 	var userMsg strings.Builder
 	ids := kvTranslationIDs(keys)
 	if sourceLangName != "" {
@@ -506,7 +548,11 @@ func buildI18NextUserPrompt(keys []string, sourceLangName, langName string) stri
 		userMsg.WriteString(fmt.Sprintf("Translate these UI strings to %s:\n\n", langName))
 	}
 	for i, key := range keys {
-		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(key)))
+		source := key
+		if value, ok := srcVals[key]; ok && value != "" {
+			source = value
+		}
+		userMsg.WriteString(fmt.Sprintf("ID %s: %s\n", ids[i], escapeForPrompt(source)))
 	}
 	userMsg.WriteString(fmt.Sprintf("\nReturn a JSON array with exactly %d objects in this form: ", len(keys)))
 	userMsg.WriteString(`{"id":"kv-...","translation":"..."}. Preserve every input ID exactly; the objects may be returned in any order.`)
@@ -710,6 +756,8 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	if opts.Terminology != nil {
 		systemPrompt = terminologySystemPrompt(systemPrompt)
 	}
+	preserveNamespace := preservedTermNamespace([]string{maskedSrc})
+	maskedSrc, preservedTerms := maskPreservedTerms(maskedSrc, rulesByKey[0], preserveNamespace, 0)
 
 	var userMsg strings.Builder
 	if opts.SourceLanguageName != "" {
@@ -728,25 +776,46 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	userMsg.WriteString(escapeForPrompt(maskedSrc))
 	userMsg.WriteString(`\n\nReturn [{"id":"` + id + `","translation":"..."}].`)
 
-	prompt := appendTerminologyPrompt(userMsg.String(), terminologyPrompt)
-	text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, opts.effectiveMaxRetries(), opts.Verbose)
-	if err != nil {
-		return nil, err
+	basePrompt := appendTerminologyPrompt(userMsg.String(), terminologyPrompt)
+	maxRetries := opts.effectiveMaxRetries()
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		prompt := basePrompt
+		if lastErr != nil {
+			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required ID and JSON shape.", lastErr)
+		}
+		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
+		if err != nil {
+			return nil, err
+		}
+		translations, err := parseIdentifiedStringTranslations(text, []string{id})
+		if err == nil && len(translations) > 0 {
+			translations[0], err = restorePreservedTerms(translations[0], preservedTerms, preserveNamespace)
+			if err != nil {
+				err = fmt.Errorf("key %q: %w", key, err)
+			}
+		}
+		if err == nil {
+			translations[0] = restoreMarkdownCodeBlocks(translations[0], blocks)
+			translations[0] = restoreMarkdownInlineCode(translations[0], inlineCode)
+			translations[0] = restoreMarkdownParserPlaceholders(translations[0], parserPlaceholders)
+			if _, bad := firstInvalidMarkdownTranslation([]string{key}, translations, map[string]string{key: src}); bad {
+				err = fmt.Errorf("invalid markdown translation for key %q: structure or code changed", key)
+			}
+		}
+		if err == nil {
+			err = validateKVChunkTerminology([]string{key}, map[string]string{key: src}, translations, rulesByKey, opts.SourcePath)
+		}
+		if err == nil {
+			return translations, nil
+		}
+		lastErr = err
+		if attempt < maxRetries {
+			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
+			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
+				return nil, err
+			}
+		}
 	}
-	translations, err := parseIdentifiedStringTranslations(text, []string{id})
-	if err != nil {
-		return nil, err
-	}
-	if len(translations) > 0 {
-		translations[0] = restoreMarkdownCodeBlocks(translations[0], blocks)
-		translations[0] = restoreMarkdownInlineCode(translations[0], inlineCode)
-		translations[0] = restoreMarkdownParserPlaceholders(translations[0], parserPlaceholders)
-	}
-	if _, bad := firstInvalidMarkdownTranslation([]string{key}, translations, map[string]string{key: src}); bad {
-		return nil, fmt.Errorf("invalid markdown translation for key %q: structure or code changed", key)
-	}
-	if err := validateKVChunkTerminology([]string{key}, map[string]string{key: src}, translations, rulesByKey); err != nil {
-		return nil, err
-	}
-	return translations, nil
+	return nil, lastErr
 }

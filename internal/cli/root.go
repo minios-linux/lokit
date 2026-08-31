@@ -38,7 +38,75 @@ const (
 )
 
 func logInfo(format string, args ...any) {
-	fmt.Fprintf(os.Stderr, colorCyan+"  → "+colorReset+format+"\n", args...)
+	style := infoLogStyleFor(format)
+	logInfoWithStyle(style, format, args...)
+}
+
+func logInfoWithStyle(style infoLogStyle, format string, args ...any) {
+	fmt.Fprintf(os.Stderr, style.color+"  "+style.icon+" "+colorReset+format+"\n", args...)
+}
+
+func logTranslationEvent(event translate.LogEvent, format string, args ...any) {
+	style := infoLogStyle{icon: "ℹ", color: colorCyan}
+	switch event {
+	case translate.LogEventAction:
+		style = infoLogStyle{icon: "▶", color: colorCyan}
+	case translate.LogEventProgress:
+		style = infoLogStyle{icon: "↻", color: colorCyan}
+	case translate.LogEventRetry:
+		style = infoLogStyle{icon: "↻", color: colorYellow}
+	case translate.LogEventWrite:
+		style = infoLogStyle{icon: "↓", color: colorGreen}
+	}
+	logInfoWithStyle(style, format, args...)
+}
+
+type infoLogStyle struct {
+	icon  string
+	color string
+}
+
+func infoLogStyleFor(format string) infoLogStyle {
+	switch {
+	case hasTranslatedFormatPrefix(format, "  Invalid translation response, retrying (%d/%d): %v"),
+		hasTranslatedFormatPrefix(format, "  Retrying chunk %d/%d due to markdown structure mismatch (%s)"):
+		return infoLogStyle{icon: "↻", color: colorYellow}
+	case hasTranslatedFormatPrefix(format, "Saved %s (%d/%d translated)"):
+		return infoLogStyle{icon: "↓", color: colorGreen}
+	case hasTranslatedFormatPrefix(format, "Translating %s (%s) — %d keys..."):
+		return infoLogStyle{icon: "▶", color: colorCyan}
+	case hasTranslatedFormatPrefix(format, "Provider: %s (%s), Model: %s"):
+		return infoLogStyle{icon: "◆", color: colorBlue}
+	case hasTranslatedFormatPrefix(format, "Parallel: enabled, max concurrent: %d"),
+		hasTranslatedFormatPrefix(format, "Chunk size: %d"):
+		return infoLogStyle{icon: "⚙", color: colorCyan}
+	case hasTranslatedFormatPrefix(format, "Translations dir: %s"):
+		return infoLogStyle{icon: "▣", color: colorBlue}
+	case hasTranslatedFormatPrefix(format, "Translating: %s"):
+		return infoLogStyle{icon: "◎", color: colorCyan}
+	case hasTranslatedFormatPrefix(format, "Source segments: %d (%d files)"),
+		hasTranslatedFormatPrefix(format, "Source strings: %d"):
+		return infoLogStyle{icon: "#", color: colorBlue}
+	case strings.HasPrefix(format, "  "):
+		return infoLogStyle{icon: "↻", color: colorCyan}
+	default:
+		return infoLogStyle{icon: "ℹ", color: colorCyan}
+	}
+}
+
+func hasTranslatedFormatPrefix(format, msgid string) bool {
+	return hasFormatPrefix(format, T(msgid))
+}
+
+func hasFormatPrefix(format, translatedTemplate string) bool {
+	prefix := translatedTemplate
+	if index := strings.IndexByte(prefix, '%'); index >= 0 {
+		prefix = prefix[:index]
+	}
+	if prefix == "" {
+		return false
+	}
+	return strings.HasPrefix(format, prefix)
 }
 
 func logSuccess(format string, args ...any) {
@@ -85,6 +153,7 @@ func compileIgnoredPatterns(patterns []string) []*regexp.Regexp {
 
 // setTargetOpts populates target-scoped translation behavior.
 func setTargetOpts(opts *translate.Options, rt *config.ResolvedTarget) {
+	opts.OnLogEvent = logTranslationEvent
 	opts.LockedKeys = rt.Target.LockedKeys
 	opts.IgnoredKeys = rt.Target.IgnoredKeys
 	opts.IgnoredPatterns = compileIgnoredPatterns(rt.Target.IgnoredPatterns)

@@ -49,9 +49,38 @@ type TermMatch struct {
 	order         int
 }
 
+// TermSpan identifies a matched term occurrence using rune offsets.
+type TermSpan struct {
+	Start int
+	End   int
+}
+
 // MatchesSource reports whether the rule's source term occurs in text.
 func (m TermMatch) MatchesSource(text string) bool {
 	return containsTerm(text, m.Source, m.Match, m.CaseSensitive)
+}
+
+// SourceSpans returns the non-overlapping occurrences of the source term.
+func (m TermMatch) SourceSpans(text string) []TermSpan {
+	spans := termSpans(text, m.Source, m.Match, m.CaseSensitive)
+	result := make([]TermSpan, len(spans))
+	for i, span := range spans {
+		result[i] = TermSpan{Start: span.start, End: span.end}
+	}
+	return result
+}
+
+// RequiredOccurrences returns the number of source term occurrences.
+func (m TermMatch) RequiredOccurrences(source string) int {
+	return countTerm(source, m.Source, m.Match, m.CaseSensitive)
+}
+
+// AcceptedOccurrences returns the number of approved target term occurrences.
+func (m TermMatch) AcceptedOccurrences(target string) int {
+	if m.Preserve {
+		return countTerm(target, m.Source, m.Match, m.CaseSensitive)
+	}
+	return countAnyTerm(target, append([]string{m.Preferred}, m.Accepted...), m.Match, m.CaseSensitive)
 }
 
 // Accepts reports whether candidate is preferred, accepted, or preserved by the rule.
