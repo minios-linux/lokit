@@ -126,6 +126,28 @@ terms:
 	}
 }
 
+func TestPromptValidationAllowsGrammaticalForms(t *testing.T) {
+	path := writeCatalog(t, `version: 1
+terms:
+  - id: module-manager
+    source: MiniOS Module Manager
+    validation: prompt
+    translations:
+      ru: Менеджер модулей MiniOS
+`)
+	catalog, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	rules := catalog.MatchTerms("Open MiniOS Module Manager", "ru", Selector{})
+	if len(rules) != 1 || rules[0].Validation != ValidationPrompt {
+		t.Fatalf("unexpected prompt-validated rules: %#v", rules)
+	}
+	if !rules[0].ValidTranslation("Open MiniOS Module Manager", "Откройте менеджер модулей MiniOS") {
+		t.Fatal("prompt validation rejected a grammatical form")
+	}
+}
+
 func TestLocaleNormalizationAndFallbacks(t *testing.T) {
 	for input, want := range map[string]string{
 		"pt_br":      "pt-BR",
@@ -206,6 +228,20 @@ terms:
   - id: app
     source: app
     match: regex
+    preserve: true
+`,
+		"invalid validation": `version: 1
+terms:
+  - id: app
+    source: app
+    validation: advisory
+    translations: {de: Anwendung}
+`,
+		"prompt validation with preserve": `version: 1
+terms:
+  - id: api
+    source: API
+    validation: prompt
     preserve: true
 `,
 	}

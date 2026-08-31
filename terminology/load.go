@@ -116,7 +116,7 @@ func parseExact(path string, node *yaml.Node, order int) (exactRule, error) {
 }
 
 func parseTerm(path string, node *yaml.Node, order int) (termRule, error) {
-	fields, err := mapping(path, node, "term entry", "id", "source", "match", "case_sensitive", "when", "preserve", "translations")
+	fields, err := mapping(path, node, "term entry", "id", "source", "match", "case_sensitive", "validation", "when", "preserve", "translations")
 	if err != nil {
 		return termRule{}, err
 	}
@@ -151,6 +151,20 @@ func parseTerm(path string, node *yaml.Node, order int) (termRule, error) {
 	if preserveNode != nil && !preserve {
 		return termRule{}, nodeError(path, preserveNode, "preserve, when present, must be true")
 	}
+	validation := ValidationStrict
+	if fields["validation"] != nil {
+		value, err := optionalString(path, fields["validation"], "validation")
+		if err != nil {
+			return termRule{}, err
+		}
+		validation = ValidationMode(value)
+		if validation != ValidationStrict && validation != ValidationPrompt {
+			return termRule{}, nodeError(path, fields["validation"], "validation must be strict or prompt")
+		}
+	}
+	if preserve && validation != ValidationStrict {
+		return termRule{}, nodeError(path, fields["validation"], "preserve terms require strict validation")
+	}
 	translationsNode := fields["translations"]
 	if (preserveNode != nil) == (translationsNode != nil) {
 		return termRule{}, nodeError(path, node, "term entry must define exactly one of preserve: true or translations")
@@ -166,7 +180,7 @@ func parseTerm(path string, node *yaml.Node, order int) (termRule, error) {
 			return termRule{}, err
 		}
 	}
-	return termRule{id: id, source: source, match: mode, caseSensitive: caseSensitive, when: when, preserve: preserve, translations: translations, order: order}, nil
+	return termRule{id: id, source: source, match: mode, caseSensitive: caseSensitive, when: when, preserve: preserve, validation: validation, translations: translations, order: order}, nil
 }
 
 func parseCondition(path string, node *yaml.Node) (condition, error) {

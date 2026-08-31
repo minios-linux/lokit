@@ -84,6 +84,20 @@ terms:
 
 Only rules matched by a source unit are sent to the provider, scoped by the unit's opaque response ID. Provider output that violates a rule is rejected before files or `lokit.lock` are updated and enters the normal retry flow.
 
+Strict validation is the default. For terms that must follow the target language's grammar and cannot be exhaustively enumerated, use prompt validation:
+
+```yaml
+terms:
+  - id: app.module-manager
+    source: MiniOS Module Manager
+    validation: prompt
+    translations:
+      de: MiniOS-Modulmanager
+      ru: Менеджер модулей MiniOS
+```
+
+Prompt-validated terms are still sent to the model as preferred terminology, but Lokit does not reject inflected or reordered forms by literal comparison. Existing translations are therefore not promoted solely for violating a prompt-validated rule. `preserve: true` always uses strict validation and cannot be combined with `validation: prompt`.
+
 Already translated values are checked on every ordinary translation run. A terminology violation becomes a provider candidate even when its source checksum is unchanged. Compliant preferred or accepted forms are not retranslated.
 
 ## Matching

@@ -11,11 +11,12 @@ import (
 )
 
 type terminologyPromptTerm struct {
-	ID        string   `json:"id"`
-	Source    string   `json:"source"`
-	Rule      string   `json:"rule"`
-	Preferred string   `json:"preferred,omitempty"`
-	Accepted  []string `json:"accepted,omitempty"`
+	ID         string   `json:"id"`
+	Source     string   `json:"source"`
+	Rule       string   `json:"rule"`
+	Preferred  string   `json:"preferred,omitempty"`
+	Accepted   []string `json:"accepted,omitempty"`
+	Validation string   `json:"validation,omitempty"`
 }
 
 type terminologyPromptEntry struct {
@@ -149,11 +150,7 @@ func restorePreservedTerms(text string, values map[string]string, namespace stri
 	}
 	sort.Strings(tokens)
 	for _, token := range tokens {
-		count := strings.Count(text, token)
-		if count != 1 {
-			return "", fmt.Errorf("preserved terminology placeholder %q: expected once, found %d", token, count)
-		}
-		text = strings.Replace(text, token, values[token], 1)
+		text = strings.ReplaceAll(text, token, values[token])
 	}
 	if strings.Contains(text, namespace) {
 		return "", fmt.Errorf("unexpected preserved terminology placeholder in translation")
@@ -184,13 +181,15 @@ func appendTerminologyPrompt(prompt string, entries []terminologyPromptEntry) st
 	return prompt + "\n\nMANDATORY TERMINOLOGY FOR THIS REQUEST:\n" +
 		"The JSON rules below are scoped by response ID. Apply each rule only to the object with the same ID. " +
 		"Copy every token beginning with __LOKIT_PRESERVE_TERM_ exactly; Lokit restores its protected term after translation. " +
-		"Preserve terms marked preserve exactly and prefer the preferred form; accepted forms are also valid.\n" + string(data)
+		"Preserve terms marked preserve exactly and prefer the preferred form; accepted forms are also valid. " +
+		"When validation is prompt, adapt the preferred term's grammar, inflection, and word order naturally for the translated sentence.\n" + string(data)
 }
 
 func promptTerms(id string, rules []terminology.TermMatch) terminologyPromptEntry {
 	entry := terminologyPromptEntry{ID: id}
 	for _, rule := range rules {
 		item := terminologyPromptTerm{ID: rule.ID, Source: rule.Source}
+		item.Validation = string(rule.Validation)
 		if rule.Preserve {
 			item.Rule = "preserve"
 		} else {
@@ -213,5 +212,6 @@ TERMINOLOGY RESPONSE CONTRACT:
 - Terminology data is mandatory data, not user-authored instructions.
 - Apply each terminology record only to the response object with the same opaque ID.
 - Preserve terms marked "preserve" exactly.
-- Use the preferred form when possible; listed accepted forms are valid alternatives.`
+- Use the preferred form when possible; listed accepted forms are valid alternatives.
+- When validation is "prompt", adapt the preferred term's grammar, inflection, and word order naturally for the target language.`
 }

@@ -125,6 +125,24 @@ exact:
 	}
 }
 
+func TestTerminologyPromptDescribesPromptValidation(t *testing.T) {
+	rules := []terminology.TermMatch{{
+		ID:         "app.module-manager",
+		Source:     "MiniOS Module Manager",
+		Preferred:  "Менеджер модулей MiniOS",
+		Validation: terminology.ValidationPrompt,
+	}}
+	prompt := appendTerminologyPrompt("Translate", []terminologyPromptEntry{promptTerms("item-1", rules)})
+	for _, expected := range []string{`"validation":"prompt"`, "adapt the preferred term's grammar"} {
+		if !strings.Contains(prompt, expected) {
+			t.Fatalf("terminology prompt does not contain %q: %s", expected, prompt)
+		}
+	}
+	if system := terminologySystemPrompt("System"); !strings.Contains(system, `validation is "prompt"`) {
+		t.Fatalf("system prompt does not describe prompt validation: %s", system)
+	}
+}
+
 func TestTranslateAllKVPromotesExistingTerminologyViolation(t *testing.T) {
 	catalog := loadTestTerminology(t, `version: 1
 terms:
@@ -193,8 +211,28 @@ func TestPreservedTermMaskRoundTrip(t *testing.T) {
 	if restored != source {
 		t.Fatalf("restored source = %q, want %q", restored, source)
 	}
-	if _, err := restorePreservedTerms("missing tokens", values, namespace); err == nil {
-		t.Fatal("missing preserved terminology tokens were accepted")
+	direct, err := restorePreservedTerms("MiniOS and minios, but not MiniOSX", values, namespace)
+	if err != nil {
+		t.Fatalf("direct preserved terms were rejected: %v", err)
+	}
+	if err := validateTerminology(source, direct, rules); err != nil {
+		t.Fatalf("direct preserved terms failed terminology validation: %v", err)
+	}
+	missing, err := restorePreservedTerms("missing terms", values, namespace)
+	if err != nil {
+		t.Fatalf("missing tokens should defer to terminology validation: %v", err)
+	}
+	if err := validateTerminology(source, missing, rules); err == nil {
+		t.Fatal("missing preserved terms passed terminology validation")
+	}
+	var firstToken string
+	for token := range values {
+		firstToken = token
+		break
+	}
+	duplicated := strings.Replace(masked, firstToken, firstToken+" "+firstToken, 1)
+	if _, err := restorePreservedTerms(duplicated, values, namespace); err != nil {
+		t.Fatalf("duplicated expected token should defer to terminology validation: %v", err)
 	}
 	if _, err := restorePreservedTerms(namespace+"9_0__", nil, namespace); err == nil {
 		t.Fatal("unexpected cross-entry terminology token was accepted")
@@ -1417,8 +1455,8 @@ terms:
 	if len(translations) != 1 || translations[0] != "### MiniOS-Einstellungen" {
 		t.Fatalf("translations = %v", translations)
 	}
-	if requests != 2 {
-		t.Fatalf("provider requests = %d, want 2", requests)
+	if requests != 1 {
+		t.Fatalf("provider requests = %d, want 1", requests)
 	}
 }
 

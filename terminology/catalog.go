@@ -13,9 +13,15 @@ import (
 // MatchMode controls how a source term is found in text.
 type MatchMode string
 
+// ValidationMode controls whether a translated term is enforced literally or
+// supplied to the provider as grammatical guidance only.
+type ValidationMode string
+
 const (
-	MatchWord      MatchMode = "word"
-	MatchSubstring MatchMode = "substring"
+	MatchWord        MatchMode      = "word"
+	MatchSubstring   MatchMode      = "substring"
+	ValidationStrict ValidationMode = "strict"
+	ValidationPrompt ValidationMode = "prompt"
 )
 
 // Selector describes the translation item against which a rule's when block is matched.
@@ -44,6 +50,7 @@ type TermMatch struct {
 	Match         MatchMode
 	CaseSensitive bool
 	Preserve      bool
+	Validation    ValidationMode
 	Preferred     string
 	Accepted      []string
 	order         int
@@ -102,6 +109,9 @@ func (m TermMatch) Accepts(candidate string) bool {
 // ValidTranslation reports whether target contains enough approved term
 // occurrences for the occurrences present in source.
 func (m TermMatch) ValidTranslation(source, target string) bool {
+	if m.Validation == ValidationPrompt {
+		return true
+	}
 	required := countTerm(source, m.Source, m.Match, m.CaseSensitive)
 	if required == 0 {
 		return true
@@ -161,6 +171,7 @@ type termRule struct {
 	caseSensitive bool
 	when          condition
 	preserve      bool
+	validation    ValidationMode
 	translations  []localizedTerm
 	order         int
 }
@@ -289,6 +300,7 @@ func (c *Catalog) ResolveTerms(locale string, selector Selector) ([]TermMatch, e
 			Match:         item.rule.match,
 			CaseSensitive: item.rule.caseSensitive,
 			Preserve:      item.rule.preserve,
+			Validation:    item.rule.validation,
 			order:         item.rule.order,
 		}
 		if item.translation != nil {
@@ -322,7 +334,7 @@ func termMatchesOverlap(a, b TermMatch) bool {
 }
 
 func termPoliciesConflict(a, b TermMatch) bool {
-	if a.Preserve != b.Preserve {
+	if a.Preserve != b.Preserve || a.Validation != b.Validation {
 		return true
 	}
 	if a.Preserve {
@@ -344,7 +356,7 @@ func (c *Catalog) MatchTerms(text, locale string, selector Selector) []TermMatch
 }
 
 func termRulesConflict(current selectedTerm, next *termRule, translation *localizedTerm) bool {
-	if current.rule.preserve != next.preserve {
+	if current.rule.preserve != next.preserve || current.rule.validation != next.validation {
 		return true
 	}
 	if next.preserve {

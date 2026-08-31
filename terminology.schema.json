@@ -168,6 +168,14 @@
           "type": "boolean",
           "default": false
         },
+        "validation": {
+          "type": "string",
+          "enum": [
+            "strict",
+            "prompt"
+          ],
+          "default": "strict"
+        },
         "when": {
           "$ref": "#/$defs/when"
         },
@@ -201,6 +209,22 @@
             "required": [
               "preserve"
             ]
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "preserve"
+            ]
+          },
+          "then": {
+            "properties": {
+              "validation": {
+                "const": "strict"
+              }
+            }
           }
         }
       ]
