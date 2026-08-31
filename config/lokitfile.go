@@ -1322,7 +1322,12 @@ type Po4aPOFile struct {
 
 // DocsPOMasters returns master document names configured for a po4a target.
 func (rt *ResolvedTarget) DocsPOMasters() ([]string, error) {
-	cfg, err := parsePo4aConfig(rt.AbsPo4aConfig())
+	return Po4aMasters(rt.AbsPo4aConfig())
+}
+
+// Po4aMasters returns master document paths explicitly listed in a po4a config.
+func Po4aMasters(cfgPath string) ([]string, error) {
+	cfg, err := parsePo4aConfig(cfgPath)
 	if err != nil {
 		return nil, err
 	}

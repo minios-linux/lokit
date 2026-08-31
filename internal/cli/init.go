@@ -397,36 +397,28 @@ func generateManpagesFromMarkdown(proj *config.Project) error {
 
 	manpageDir := filepath.Dir(proj.Po4aConfig)
 
-	// Find all markdown files in docs that look like manpage sources (name.section.md)
-	// Example: myapp.1.md -> myapp.1
-	mdFiles, err := filepath.Glob(filepath.Join(proj.DocsDir, "*.*.md"))
+	masters, err := config.Po4aMasters(proj.Po4aConfig)
 	if err != nil {
-		return fmt.Errorf(T("failed to list markdown files: %w"), err)
+		return fmt.Errorf(T("failed to read po4a masters: %w"), err)
 	}
 
 	generated := 0
-	for _, mdPath := range mdFiles {
-		mdFile := filepath.Base(mdPath)
-
-		// Extract manpage name (remove .md extension)
-		// Example: myapp.1.md -> myapp.1
-		if !strings.HasSuffix(mdFile, ".md") {
+	for _, master := range masters {
+		cleanMaster := filepath.Clean(filepath.FromSlash(master))
+		if filepath.IsAbs(cleanMaster) || cleanMaster == ".." || strings.HasPrefix(cleanMaster, ".."+string(filepath.Separator)) {
+			return fmt.Errorf(T("unsafe po4a master path: %s"), master)
+		}
+		manFile := filepath.Base(cleanMaster)
+		section := filepath.Ext(manFile)
+		if len(section) != 2 || section[1] < '0' || section[1] > '9' {
 			continue
 		}
-		manFile := strings.TrimSuffix(mdFile, ".md")
-
-		// Check if this looks like a manpage (has section number)
-		// Format should be: name.section where section is a digit
-		parts := strings.Split(manFile, ".")
-		if len(parts) < 2 {
+		mdFile := manFile + ".md"
+		mdPath := filepath.Join(proj.DocsDir, mdFile)
+		if _, err := os.Stat(mdPath); err != nil {
 			continue
 		}
-		lastPart := parts[len(parts)-1]
-		if len(lastPart) != 1 || lastPart[0] < '0' || lastPart[0] > '9' {
-			continue
-		}
-
-		manPath := filepath.Join(manpageDir, manFile)
+		manPath := filepath.Join(manpageDir, cleanMaster)
 
 		// Skip if manpage already exists
 		if _, err := os.Stat(manPath); err == nil {
@@ -435,6 +427,9 @@ func generateManpagesFromMarkdown(proj *config.Project) error {
 
 		// Generate manpage from markdown
 		logInfo(T("Generating %s from %s"), manFile, mdFile)
+		if err := os.MkdirAll(filepath.Dir(manPath), 0o755); err != nil {
+			return fmt.Errorf(T("failed to create manpage directory for %s: %w"), master, err)
+		}
 		cmd := exec.Command("pandoc", "-s", "-t", "man", mdPath, "-o", manPath)
 		cmd.Stdout = os.Stderr
 		cmd.Stderr = os.Stderr

@@ -282,7 +282,11 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		PODir:       poDir,
 		ManpagesDir: cfgDir,
 	}
-	proj.DocsDir = po4aMarkdownDir(cfgDir)
+	masters, err := rt.DocsPOMasters()
+	if err != nil {
+		return fmt.Errorf(T("cannot read po4a masters: %v"), err)
+	}
+	proj.DocsDir = po4aMarkdownDir(cfgDir, masters)
 	logInfo(T("Updating po4a source catalogs..."))
 	if err := doPo4aInit(proj); err != nil {
 		return fmt.Errorf(T("po4a initialization failed: %v"), err)
@@ -333,7 +337,7 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	return nil
 }
 
-func po4aMarkdownDir(cfgDir string) string {
+func po4aMarkdownDir(cfgDir string, masters []string) string {
 	candidates := []string{
 		cfgDir,
 		filepath.Join(cfgDir, "docs"),
@@ -347,14 +351,9 @@ func po4aMarkdownDir(cfgDir string) string {
 			continue
 		}
 		seen[dir] = true
-		files, err := filepath.Glob(filepath.Join(dir, "*.*.md"))
-		if err != nil {
-			continue
-		}
-		for _, path := range files {
-			name := strings.TrimSuffix(filepath.Base(path), ".md")
-			section := filepath.Ext(name)
-			if len(section) == 2 && section[1] >= '0' && section[1] <= '9' {
+		for _, master := range masters {
+			name := filepath.Base(filepath.FromSlash(master))
+			if _, err := os.Stat(filepath.Join(dir, name+".md")); err == nil {
 				return dir
 			}
 		}
