@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -334,10 +335,19 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 
 	if len(langTasks) == 0 {
 		logSuccess(T("[%s] All translations complete!"), rt.Target.Name)
-		return nil
+	} else if err := translate.TranslateAll(ctx, langTasks, opts); err != nil {
+		return err
 	}
 
-	return translate.TranslateAll(ctx, langTasks, opts)
+	logInfo(T("Rendering translated documents with po4a..."))
+	cmd := exec.Command("po4a", cfgPath)
+	cmd.Dir = cfgDir
+	cmd.Stdout = os.Stderr
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf(T("po4a rendering failed: %v"), err)
+	}
+	return nil
 }
 
 // translateI18NextTarget translates flat JSON translation files.

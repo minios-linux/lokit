@@ -700,7 +700,7 @@ func collectTranslatedKeys(rt config.ResolvedTarget, lang string) (map[string]st
 	case config.TargetTypeDesktop:
 		path := rt.SourcePath()
 		return collectTranslatedSimpleKV(path, func(p string) (formatfile.KVFile, error) {
-			return desktop.ParseFile(p, lang)
+			return desktop.ParseFile(p, desktop.DesktopLocale(lang))
 		})
 
 	case config.TargetTypePolkit:

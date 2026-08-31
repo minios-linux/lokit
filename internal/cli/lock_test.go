@@ -47,6 +47,20 @@ func TestCountStaleKeys(t *testing.T) {
 	}
 }
 
+func TestCollectTranslatedDesktopKeysNormalizesLocale(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "app.desktop"), []byte("[Desktop Entry]\nName=App\nName[pt_BR]=Aplicativo\n"), 0o644); err != nil {
+		t.Fatalf("write desktop file: %v", err)
+	}
+	keys, err := collectTranslatedKeys(testDesktopResolvedTarget(dir), "pt-BR")
+	if err != nil {
+		t.Fatalf("collectTranslatedKeys: %v", err)
+	}
+	if _, ok := keys["Name"]; !ok || len(keys) != 1 {
+		t.Fatalf("translated desktop keys = %v", keys)
+	}
+}
+
 func TestOrphanLockTargetsPrefixScope(t *testing.T) {
 	lf := &lockfile.LockFile{
 		Checksums: map[string]map[string]string{

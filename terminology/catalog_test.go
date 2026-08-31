@@ -146,6 +146,21 @@ terms:
 	if !rules[0].ValidTranslation("Open MiniOS Module Manager", "Откройте менеджер модулей MiniOS") {
 		t.Fatal("prompt validation rejected a grammatical form")
 	}
+	if rules[0].ValidTranslation("Open MiniOS Module Manager", "Откройте MiniOS Module Manager") {
+		t.Fatal("prompt validation accepted an untranslated source term")
+	}
+}
+
+func TestPromptValidationAcceptsCaseEquivalentPreferredForm(t *testing.T) {
+	match := TermMatch{
+		Source:     "app",
+		Match:      MatchWord,
+		Preferred:  "App",
+		Validation: ValidationPrompt,
+	}
+	if !match.ValidTranslation("Open the app", "App öffnen") {
+		t.Fatal("prompt validation rejected a case-equivalent preferred form")
+	}
 }
 
 func TestLocaleNormalizationAndFallbacks(t *testing.T) {

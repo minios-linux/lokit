@@ -96,7 +96,7 @@ terms:
       ru: Менеджер модулей MiniOS
 ```
 
-Prompt-validated terms are still sent to the model as preferred terminology, but Lokit does not reject inflected or reordered forms by literal comparison. Existing translations are therefore not promoted solely for violating a prompt-validated rule. `preserve: true` always uses strict validation and cannot be combined with `validation: prompt`.
+Prompt-validated terms are still sent to the model as preferred terminology, but Lokit does not require a literal preferred or accepted form. It accepts natural inflection and word order while rejecting a target that leaves the source term untranslated. Existing translations containing the untranslated source term are promoted automatically. `preserve: true` always uses strict validation and cannot be combined with `validation: prompt`.
 
 Already translated values are checked on every ordinary translation run. A terminology violation becomes a provider candidate even when its source checksum is unchanged. Compliant preferred or accepted forms are not retranslated.
 

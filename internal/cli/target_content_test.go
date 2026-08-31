@@ -3,6 +3,8 @@ package cli
 import (
 	"context"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -350,6 +352,134 @@ func TestTranslateJSKVTargetDryRunCountsMissingSourceKeys(t *testing.T) {
 	}
 }
 
+func TestTranslateDesktopTargetDryRunDoesNotMutate(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "app.desktop")
+	original := []byte("[Desktop Entry]\nName=App\nName[de]=Anwendung\nName[de]=Anwendung\nComment=Description\n")
+	if err := os.WriteFile(path, original, 0o644); err != nil {
+		t.Fatalf("write desktop file: %v", err)
+	}
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{}}
+
+	output := captureStderr(t, func() {
+		if err := translateDesktopTarget(context.Background(), testDesktopResolvedTarget(dir), translate.Provider{}, translateArgs{dryRun: true, lockFile: lf}, []string{"de"}); err != nil {
+			t.Fatalf("translateDesktopTarget dry-run error: %v", err)
+		}
+	})
+	current, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read desktop file: %v", err)
+	}
+	if string(current) != string(original) {
+		t.Fatalf("dry-run mutated desktop file:\n%s", current)
+	}
+	if len(lf.Checksums) != 0 {
+		t.Fatalf("dry-run mutated lock file: %#v", lf.Checksums)
+	}
+	if !strings.Contains(output, "1 strings to translate") {
+		t.Fatalf("dry-run output missing count:\n%s", output)
+	}
+}
+
+func TestTranslateDesktopTargetNormalizesLocaleAndDuplicates(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "app.desktop")
+	if err := os.WriteFile(path, []byte("[Desktop Entry]\nName=App\nName[pt_BR]=Aplicativo antigo\nName[pt_BR]=Aplicativo\nComment=Description\nComment[pt_BR]=Descrição\n"), 0o644); err != nil {
+		t.Fatalf("write desktop file: %v", err)
+	}
+
+	if err := translateDesktopTarget(context.Background(), testDesktopResolvedTarget(dir), translate.Provider{}, translateArgs{}, []string{"pt-BR"}); err != nil {
+		t.Fatalf("translateDesktopTarget error: %v", err)
+	}
+	current, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read desktop file: %v", err)
+	}
+	if count := strings.Count(string(current), "Name[pt_BR]="); count != 1 {
+		t.Fatalf("Name[pt_BR] count = %d:\n%s", count, current)
+	}
+	if strings.Contains(string(current), "[pt-BR]") {
+		t.Fatalf("desktop file contains a hyphenated locale:\n%s", current)
+	}
+}
+
+func TestTranslateCommandDryRunSkipsProviderAndLockWrites(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "app.desktop")
+	original := []byte("[Desktop Entry]\nName=App\nName[de]=Anwendung\nComment=Description\nComment[de]=Beschreibung\n")
+	if err := os.WriteFile(path, original, 0o644); err != nil {
+		t.Fatalf("write desktop file: %v", err)
+	}
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		requests++
+	}))
+	defer server.Close()
+
+	oldRoot := rootDir
+	rootDir = dir
+	defer func() { rootDir = oldRoot }()
+	lf := &config.LokitFile{
+		Languages:  []string{"de"},
+		SourceLang: "en",
+		Targets: []config.Target{{
+			Name:   "desktop",
+			Format: config.TargetTypeDesktop,
+			To:     "app.desktop",
+		}},
+	}
+	runTranslateWithConfig(lf, translateArgs{provider: "ollama", model: "test", baseURL: server.URL, dryRun: true, targets: []string{"desktop"}})
+
+	if requests != 0 {
+		t.Fatalf("dry-run made %d provider requests", requests)
+	}
+	current, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read desktop file: %v", err)
+	}
+	if string(current) != string(original) {
+		t.Fatalf("dry-run mutated desktop file:\n%s", current)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "lokit.lock")); !os.IsNotExist(err) {
+		t.Fatalf("dry-run created lock file, stat err=%v", err)
+	}
+}
+
+func TestTranslatePolkitTargetDryRunDoesNotMutate(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "policy.xml")
+	original := []byte("<policyconfig><action id=\"org.test\"><description>Allow action</description><message>Authenticate</message></action></policyconfig>\n")
+	if err := os.WriteFile(path, original, 0o644); err != nil {
+		t.Fatalf("write policy file: %v", err)
+	}
+	rt := config.ResolvedTarget{
+		Target: config.Target{
+			Name:       "policy",
+			Type:       config.TargetTypePolkit,
+			Format:     config.TargetTypePolkit,
+			Dir:        ".",
+			Pattern:    "policy.xml",
+			SourceLang: "en",
+		},
+		AbsRoot: dir,
+	}
+	output := captureStderr(t, func() {
+		if err := translatePolkitTarget(context.Background(), rt, translate.Provider{}, translateArgs{dryRun: true}, []string{"de"}); err != nil {
+			t.Fatalf("translatePolkitTarget dry-run error: %v", err)
+		}
+	})
+	current, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read policy file: %v", err)
+	}
+	if string(current) != string(original) {
+		t.Fatalf("dry-run mutated policy file:\n%s", current)
+	}
+	if !strings.Contains(output, "2 strings to translate") {
+		t.Fatalf("dry-run output missing count:\n%s", output)
+	}
+}
+
 func TestRunInitJSKVSyncsExistingFile(t *testing.T) {
 	dir := t.TempDir()
 	translationsDir := filepath.Join(dir, "translations")
@@ -413,6 +543,20 @@ func testJSKVResolvedTarget(dir string) config.ResolvedTarget {
 			Format:     config.TargetTypeJSKV,
 			Dir:        "translations",
 			Pattern:    "{lang}.js",
+			SourceLang: "en",
+		},
+		AbsRoot: dir,
+	}
+}
+
+func testDesktopResolvedTarget(dir string) config.ResolvedTarget {
+	return config.ResolvedTarget{
+		Target: config.Target{
+			Name:       "desktop",
+			Type:       config.TargetTypeDesktop,
+			Format:     config.TargetTypeDesktop,
+			Dir:        ".",
+			Pattern:    "app.desktop",
 			SourceLang: "en",
 		},
 		AbsRoot: dir,

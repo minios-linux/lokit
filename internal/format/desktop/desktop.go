@@ -18,6 +18,7 @@ var translatableKeys = map[string]struct{}{
 type line struct {
 	raw      string
 	key      string
+	id       string
 	lang     string
 	hasEntry bool
 }
@@ -50,6 +51,7 @@ func Parse(data []byte, targetLang string) (*File, error) {
 	if len(rows) > 0 && rows[len(rows)-1] == "" {
 		rows = rows[:len(rows)-1]
 	}
+	group := ""
 	for _, row := range rows {
 		ln := line{raw: row}
 		trimmed := strings.TrimSpace(row)
@@ -58,6 +60,7 @@ func Parse(data []byte, targetLang string) (*File, error) {
 			continue
 		}
 		if strings.HasPrefix(trimmed, "[") && strings.HasSuffix(trimmed, "]") {
+			group = strings.TrimSpace(trimmed[1 : len(trimmed)-1])
 			f.lines = append(f.lines, ln)
 			continue
 		}
@@ -77,20 +80,28 @@ func Parse(data []byte, targetLang string) (*File, error) {
 
 		ln.hasEntry = true
 		ln.key = baseKey
+		ln.id = desktopFieldID(group, baseKey)
 		ln.lang = lang
 		if lang == "" {
-			if _, exists := f.base[baseKey]; !exists {
-				f.order = append(f.order, baseKey)
+			if _, exists := f.base[ln.id]; !exists {
+				f.order = append(f.order, ln.id)
 			}
-			f.base[baseKey] = val
+			f.base[ln.id] = val
 		} else if lang == targetLang {
-			f.localized[baseKey] = val
+			f.localized[ln.id] = val
 		}
 
 		f.lines = append(f.lines, ln)
 	}
 
 	return f, nil
+}
+
+func desktopFieldID(group, key string) string {
+	if group == "" || group == "Desktop Entry" {
+		return key
+	}
+	return "[" + group + "]." + key
 }
 
 func parseField(left string) (baseKey, lang string, ok bool) {
@@ -168,17 +179,26 @@ func (f *File) SourceValues() map[string]string {
 func (f *File) Marshal() ([]byte, error) {
 	var out bytes.Buffer
 	written := make(map[string]bool)
+	existing := make(map[string]bool)
+	for _, ln := range f.lines {
+		if ln.hasEntry && ln.lang == f.targetLang {
+			existing[ln.id] = true
+		}
+	}
 
 	for _, ln := range f.lines {
 		if ln.hasEntry && ln.lang == f.targetLang {
-			val := f.localized[ln.key]
+			if written[ln.id] {
+				continue
+			}
+			val := f.localized[ln.id]
 			out.WriteString(ln.key)
 			out.WriteString("[")
 			out.WriteString(f.targetLang)
 			out.WriteString("]=")
 			out.WriteString(val)
 			out.WriteByte('\n')
-			written[ln.key] = true
+			written[ln.id] = true
 			continue
 		}
 
@@ -186,14 +206,14 @@ func (f *File) Marshal() ([]byte, error) {
 		out.WriteByte('\n')
 
 		if ln.hasEntry && ln.lang == "" {
-			if val, ok := f.localized[ln.key]; ok && val != "" && !written[ln.key] {
+			if val, ok := f.localized[ln.id]; ok && val != "" && !existing[ln.id] && !written[ln.id] {
 				out.WriteString(ln.key)
 				out.WriteString("[")
 				out.WriteString(f.targetLang)
 				out.WriteString("]=")
 				out.WriteString(val)
 				out.WriteByte('\n')
-				written[ln.key] = true
+				written[ln.id] = true
 			}
 		}
 	}

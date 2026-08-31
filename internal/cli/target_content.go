@@ -1603,7 +1603,7 @@ func showConfigDesktopStats(rt config.ResolvedTarget, langs []string) {
 	keyVal(T("Source keys"), fmt.Sprintf("%d (%s)", total, rt.Target.SourceLang))
 	sourceValues := src.SourceValues()
 	showSimpleKVSingleFileStats(langs, total, func(lang string) (int, int, error) {
-		f, err := desktop.ParseFile(path, lang)
+		f, err := desktop.ParseFile(path, desktop.DesktopLocale(lang))
 		if err != nil {
 			return 0, 0, err
 		}
@@ -1652,11 +1652,24 @@ func translateDesktopTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 	if err != nil {
 		return fmt.Errorf(T("cannot read desktop file %s: %w"), path, err)
 	}
+	if a.dryRun {
+		total, _, _ := src.Stats()
+		for _, lang := range langs {
+			count := total
+			if !a.retranslate && !a.force {
+				if f, err := desktop.ParseFile(path, desktop.DesktopLocale(lang)); err == nil {
+					count = len(f.UntranslatedKeys())
+				}
+			}
+			logInfo(T("%s (%s): %d strings to translate"), lang, i18next.ResolveMeta(lang).Name, count)
+		}
+		return nil
+	}
 	opts := translate.Options{Provider: prov, SourceLanguage: rt.Target.SourceLang, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
 	setTargetOpts(&opts, &rt)
 	var preflight []translate.KVLangTask
 	for _, lang := range langs {
-		f, err := desktop.ParseFile(path, lang)
+		f, err := desktop.ParseFile(path, desktop.DesktopLocale(lang))
 		if err == nil {
 			preflight = append(preflight, translate.KVLangTask{Lang: lang, File: f, SourceValues: src.SourceValues()})
 		}
@@ -1665,12 +1678,17 @@ func translateDesktopTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 		return err
 	}
 	for _, lang := range langs {
-		f, err := desktop.ParseFile(path, lang)
+		f, err := desktop.ParseFile(path, desktop.DesktopLocale(lang))
 		if err != nil {
 			continue
 		}
 		task := translate.KVLangTask{Lang: lang, LangName: i18next.ResolveMeta(lang).Name, FilePath: path, File: f, SourceValues: src.SourceValues()}
 		if err := translate.TranslateAllKV(ctx, []translate.KVLangTask{task}, opts, translate.DefaultKVChunkTranslator()); err != nil {
+			return err
+		}
+		// Rewrite even when no translation is needed so duplicate localized
+		// fields left by older Lokit versions are normalized.
+		if err := f.WriteFile(path); err != nil {
 			return err
 		}
 	}
@@ -1682,6 +1700,19 @@ func translatePolkitTarget(ctx context.Context, rt config.ResolvedTarget, prov t
 	src, err := polkit.ParseFile(path, rt.Target.SourceLang)
 	if err != nil {
 		return fmt.Errorf(T("cannot read policy file %s: %w"), path, err)
+	}
+	if a.dryRun {
+		total, _, _ := src.Stats()
+		for _, lang := range langs {
+			count := total
+			if !a.retranslate && !a.force {
+				if f, err := polkit.ParseFile(path, lang); err == nil {
+					count = len(f.UntranslatedKeys())
+				}
+			}
+			logInfo(T("%s (%s): %d strings to translate"), lang, i18next.ResolveMeta(lang).Name, count)
+		}
+		return nil
 	}
 	opts := translate.Options{Provider: prov, SourceLanguage: rt.Target.SourceLang, ChunkSize: a.chunkSize, ParallelMode: translate.ParallelSequential, RequestDelay: a.requestDelay, Timeout: a.timeout, MaxRetries: a.maxRetries, RetranslateExisting: a.retranslate, SystemPrompt: a.prompt, PromptType: "default", Verbose: a.verbose, LockFile: a.lockFile, LockTarget: rt.Target.Name, ForceTranslate: a.force, OnLog: func(format string, args ...any) { logInfo(format, args...) }, OnError: func(format string, args ...any) { logError(format, args...) }}
 	setTargetOpts(&opts, &rt)

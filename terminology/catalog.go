@@ -110,7 +110,10 @@ func (m TermMatch) Accepts(candidate string) bool {
 // occurrences for the occurrences present in source.
 func (m TermMatch) ValidTranslation(source, target string) bool {
 	if m.Validation == ValidationPrompt {
-		return true
+		if m.sourceFormAccepted() {
+			return true
+		}
+		return countTerm(target, m.Source, m.Match, m.CaseSensitive) == 0
 	}
 	required := countTerm(source, m.Source, m.Match, m.CaseSensitive)
 	if required == 0 {
@@ -122,6 +125,16 @@ func (m TermMatch) ValidTranslation(source, target string) bool {
 	accepted := append([]string{m.Preferred}, m.Accepted...)
 	found := countAnyTerm(target, accepted, m.Match, m.CaseSensitive)
 	return found >= required
+}
+
+func (m TermMatch) sourceFormAccepted() bool {
+	forms := append([]string{m.Preferred}, m.Accepted...)
+	for _, form := range forms {
+		if form == m.Source || (!m.CaseSensitive && strings.EqualFold(form, m.Source)) {
+			return true
+		}
+	}
+	return false
 }
 
 // Expected returns the approved target forms for diagnostics.

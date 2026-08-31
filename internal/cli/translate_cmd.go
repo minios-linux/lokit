@@ -226,9 +226,11 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 	if lf.Provider != nil && lf.Provider.Settings.Temperature != nil {
 		prov.Temperature = *lf.Provider.Settings.Temperature
 	}
-	if err := validateProvider(prov, key); err != nil {
-		logError(T("%v"), err)
-		os.Exit(1)
+	if !a.dryRun {
+		if err := validateProvider(prov, key); err != nil {
+			logError(T("%v"), err)
+			os.Exit(1)
+		}
 	}
 
 	resolved, err := lf.Resolve(rootDir)
@@ -316,10 +318,12 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 					}
 				}
 
-				if err := a.lockFile.Save(); err != nil {
-					logWarning(T("Could not save lock file after target %s: %v"), base, err)
-				} else if a.verbose {
-					logInfo(T("Lock file saved after target %s/%s"), base, "*")
+				if !a.dryRun {
+					if err := a.lockFile.Save(); err != nil {
+						logWarning(T("Could not save lock file after target %s: %v"), base, err)
+					} else if a.verbose {
+						logInfo(T("Lock file saved after target %s/%s"), base, "*")
+					}
 				}
 				continue
 			}
@@ -412,15 +416,19 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 			logWarning(T("[%s] Unknown target type %q, skipping"), rt.Target.Name, rt.Target.Type)
 		}
 
-		if err := a.lockFile.Save(); err != nil {
-			logWarning(T("Could not save lock file after target %s: %v"), rt.Target.Name, err)
-		} else if a.verbose {
-			logInfo(T("Lock file saved after target %s/%s"), rt.Target.Name, "*")
+		if !a.dryRun {
+			if err := a.lockFile.Save(); err != nil {
+				logWarning(T("Could not save lock file after target %s: %v"), rt.Target.Name, err)
+			} else if a.verbose {
+				logInfo(T("Lock file saved after target %s/%s"), rt.Target.Name, "*")
+			}
 		}
 	}
 
-	if err := a.lockFile.Save(); err != nil {
-		logWarning(T("Could not save lock file: %v"), err)
+	if !a.dryRun {
+		if err := a.lockFile.Save(); err != nil {
+			logWarning(T("Could not save lock file: %v"), err)
+		}
 	}
 
 	if hadErrors {
