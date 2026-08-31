@@ -2,6 +2,12 @@
 
 **lokit** is a universal localization manager with AI-powered translation. It supports gettext PO, po4a documentation, i18next JSON, vue-i18n JSON, Android strings.xml, YAML, Markdown, Java .properties, Flutter ARB, JS-KV, desktop entries, and polkit policy files configured via `lokit.yaml`.
 
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash
+```
+
 ## Features
 
 - **Config-first workflow** — `lokit.yaml` is required and acts as the single source of truth
@@ -42,13 +48,7 @@
 | **Ollama** | none (local) |
 | **Custom OpenAI** | API key |
 
-## Installation
-
-### One-line installer (recommended)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/minios-linux/lokit/refs/heads/master/install.sh | bash
-```
+## Alternative Installation
 
 ### From source
 
