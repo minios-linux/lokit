@@ -529,28 +529,16 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 }
 
 func filterResolvedTargetsByNames(resolved []config.ResolvedTarget, targets []string) ([]config.ResolvedTarget, error) {
-	if len(targets) == 0 {
-		return resolved, nil
-	}
-
-	selected := make([]string, 0, len(targets))
-	seenInput := make(map[string]struct{}, len(targets))
-	for _, raw := range targets {
-		for _, part := range strings.Split(raw, ",") {
-			name := strings.TrimSpace(part)
-			if name == "" {
-				continue
-			}
-			if _, ok := seenInput[name]; ok {
-				continue
-			}
-			seenInput[name] = struct{}{}
-			selected = append(selected, name)
-		}
-	}
+	selected := splitTargetSelection(targets)
 
 	if len(selected) == 0 {
-		return resolved, nil
+		result := make([]config.ResolvedTarget, 0, len(resolved))
+		for _, rt := range resolved {
+			if rt.Target.IsEnabled() && rt.Target.IsIncludedByDefault() {
+				result = append(result, rt)
+			}
+		}
+		return result, nil
 	}
 
 	result := make([]config.ResolvedTarget, 0, len(resolved))
@@ -568,6 +556,9 @@ func filterResolvedTargetsByNames(resolved []config.ResolvedTarget, targets []st
 		exactFound := false
 		for _, rt := range resolved {
 			if rt.Target.Name == target {
+				if !rt.Target.IsEnabled() {
+					return nil, fmt.Errorf(T("Target %q is disabled in lokit.yaml"), target)
+				}
 				appendTarget(rt)
 				exactFound = true
 				break
@@ -578,16 +569,110 @@ func filterResolvedTargetsByNames(resolved []config.ResolvedTarget, targets []st
 		}
 
 		prefixFound := false
+		enabledFound := false
 		for _, rt := range resolved {
 			if strings.HasPrefix(rt.Target.Name, target+"/") {
-				appendTarget(rt)
 				prefixFound = true
+				if rt.Target.IsEnabled() {
+					appendTarget(rt)
+					enabledFound = true
+				}
 			}
 		}
 		if !prefixFound {
 			return nil, fmt.Errorf(T("Target %q not found in lokit.yaml"), target)
 		}
+		if !enabledFound {
+			return nil, fmt.Errorf(T("Target %q is disabled in lokit.yaml"), target)
+		}
 	}
 
 	return result, nil
+}
+
+func splitTargetSelection(targets []string) []string {
+	selected := make([]string, 0, len(targets))
+	seenInput := make(map[string]struct{}, len(targets))
+	for _, raw := range targets {
+		for _, part := range strings.Split(raw, ",") {
+			name := strings.TrimSpace(part)
+			if name == "" {
+				continue
+			}
+			if _, ok := seenInput[name]; ok {
+				continue
+			}
+			seenInput[name] = struct{}{}
+			selected = append(selected, name)
+		}
+	}
+
+	return selected
+}
+
+func resolveTargetsForSelection(lf *config.LokitFile, projectRoot string, targets []string) ([]config.ResolvedTarget, error) {
+	selected := splitTargetSelection(targets)
+	filtered := *lf
+	filtered.Targets = make([]config.Target, 0, len(lf.Targets))
+
+	for _, target := range lf.Targets {
+		if len(target.Surfaces) == 0 {
+			wanted := len(selected) == 0 && target.IsEnabled() && target.IsIncludedByDefault()
+			for _, name := range selected {
+				if name == target.Name || strings.HasPrefix(name, target.Name+"/") {
+					if !target.IsEnabled() {
+						return nil, fmt.Errorf(T("Target %q is disabled in lokit.yaml"), target.Name)
+					}
+					wanted = true
+				}
+			}
+			if wanted {
+				filtered.Targets = append(filtered.Targets, target)
+			}
+			continue
+		}
+
+		copyTarget := target
+		copyTarget.Surfaces = nil
+		for _, surface := range target.Surfaces {
+			enabled := inheritedBool(surface.Enabled, target.Enabled)
+			included := inheritedBool(surface.IncludeByDefault, target.IncludeByDefault)
+			effective := config.Target{Enabled: enabled, IncludeByDefault: included}
+			fullName := target.Name
+			if surface.Name != "" {
+				fullName += "/" + surface.Name
+			}
+			wanted := len(selected) == 0 && effective.IsEnabled() && effective.IsIncludedByDefault()
+			for _, name := range selected {
+				if name == target.Name || name == fullName || strings.HasPrefix(name, fullName+"/") {
+					if !effective.IsEnabled() {
+						if name == fullName {
+							return nil, fmt.Errorf(T("Target %q is disabled in lokit.yaml"), fullName)
+						}
+						continue
+					}
+					wanted = true
+				}
+			}
+			if wanted {
+				copyTarget.Surfaces = append(copyTarget.Surfaces, surface)
+			}
+		}
+		if len(copyTarget.Surfaces) > 0 {
+			filtered.Targets = append(filtered.Targets, copyTarget)
+		}
+	}
+
+	resolved, err := filtered.Resolve(projectRoot)
+	if err != nil {
+		return nil, err
+	}
+	return filterResolvedTargetsByNames(resolved, targets)
+}
+
+func inheritedBool(value, fallback *bool) *bool {
+	if value != nil {
+		return value
+	}
+	return fallback
 }

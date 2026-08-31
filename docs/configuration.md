@@ -52,6 +52,8 @@ terminology:
 targets:
   - name: my-target           # Display name (required, must be unique)
     format: i18next            # Format (required) — see Formats Guide
+    enabled: true              # Set false to disable this target completely
+    include_by_default: true   # Set false to require an explicit --target
 
     # --- Path resolution ---
     root: .                    # Working directory, relative to lokit.yaml (default: ".")
@@ -139,6 +141,8 @@ Array of translation targets. At least one required. Each target defines a set o
 |-------|------|---------|-------------|
 | `name` | string | — | Display name (required, must be unique) |
 | `format` | string | — | Translation format (required) |
+| `enabled` | boolean | `true` | Set to `false` to disable the target completely |
+| `include_by_default` | boolean | `true` | Set to `false` to select the target only with `--target` |
 | `root` | string | `"."` | Base directory relative to `lokit.yaml` |
 | `from` | array/object | — | Source files/globs, or indexed record source |
 | `except` | array | — | Source file globs excluded from `from` discovery |
@@ -272,4 +276,4 @@ targets:
     to: README.{lang}.md
 ```
 
-All targets are processed together by `lokit status`, `lokit init`, and `lokit translate`.
+Enabled targets with `include_by_default: true` are processed together by `lokit status`, `lokit init`, and `lokit translate`. Use `--target` to select an enabled target with `include_by_default: false` explicitly. Surfaces inherit `enabled` and `include_by_default` from their parent target and may override either value.

@@ -137,8 +137,8 @@ targets:
 Then:
 
 ```bash
-lokit status        # Shows all targets with stats
-lokit translate --provider github-copilot --model MODEL_NAME  # Translates everything
+lokit status        # Shows enabled targets included by default
+lokit translate --provider github-copilot --model MODEL_NAME  # Translates enabled targets included by default
 ```
 
 ## Configuration File (`lokit.yaml`)

@@ -61,6 +61,96 @@ func TestCollectTranslatedDesktopKeysNormalizesLocale(t *testing.T) {
 	}
 }
 
+func TestResolvedTargetInventoryPreservesNonDefaultLockScopes(t *testing.T) {
+	dir := t.TempDir()
+	configData := []byte(`source_lang: en
+languages: [de]
+targets:
+  - name: default
+    format: i18next
+    from: [default.en.json]
+    to: default.{lang}.json
+  - name: manual
+    include_by_default: false
+    format: i18next
+    from: [manual.en.json]
+    to: manual.{lang}.json
+`)
+	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), configData, 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+	for _, name := range []string{"default.en.json", "manual.en.json"} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(`{"key":"value"}`), 0o644); err != nil {
+			t.Fatalf("write %s: %v", name, err)
+		}
+	}
+
+	oldRoot := rootDir
+	rootDir = dir
+	defer func() { rootDir = oldRoot }()
+	defaults, err := loadResolvedTargets("")
+	if err != nil {
+		t.Fatalf("loadResolvedTargets(default): %v", err)
+	}
+	manual, err := loadResolvedTargets("manual")
+	if err != nil {
+		t.Fatalf("loadResolvedTargets(manual): %v", err)
+	}
+	if len(defaults) != 1 || len(manual) != 1 || manual[0].Target.Name != "manual" {
+		t.Fatalf("unexpected target inventory sizes: default=%d manual=%v", len(defaults), manual)
+	}
+	configFile, err := config.LoadLokitFile(dir)
+	if err != nil {
+		t.Fatalf("LoadLokitFile: %v", err)
+	}
+	protected := protectedConfiguredTargetScopes(configFile, true)
+	if _, ok := protected["manual"]; !ok {
+		t.Fatalf("manual lock scope is not protected: %v", protected)
+	}
+}
+
+func TestInactiveLockScopeBlocksGlobalOrphanCleanup(t *testing.T) {
+	lf := &lockfile.LockFile{Checksums: map[string]map[string]string{
+		"default/de":           {"key": "hash"},
+		"manual/fr":            {"old": "hash"},
+		"manual/removed-id/de": {"old": "hash"},
+		"removed/de":           {"old": "hash"},
+	}}
+	expected := map[string]struct{}{"default/de": {}}
+	blocked := map[string]struct{}{"manual": {}}
+	got := orphanLockTargets(lf, expected, nil, blocked)
+	if !reflect.DeepEqual(got, []string{"removed/de"}) {
+		t.Fatalf("orphanLockTargets = %v, want [removed/de]", got)
+	}
+}
+
+func TestProtectedConfiguredScopesAlwaysKeepDisabledSurfaces(t *testing.T) {
+	disabled := false
+	nonDefault := false
+	lf := &config.LokitFile{Targets: []config.Target{
+		{
+			Name: "app",
+			Surfaces: []config.Surface{
+				{Name: "ui"},
+				{Name: "legacy", Enabled: &disabled},
+			},
+		},
+		{Name: "manual", IncludeByDefault: &nonDefault},
+	}}
+
+	explicitScopes := protectedConfiguredTargetScopes(lf, false)
+	if _, ok := explicitScopes["app/legacy"]; !ok {
+		t.Fatalf("disabled surface is not protected: %v", explicitScopes)
+	}
+	if _, ok := explicitScopes["manual"]; ok {
+		t.Fatalf("explicit non-default target was incorrectly protected: %v", explicitScopes)
+	}
+	defaultScopes := protectedConfiguredTargetScopes(lf, true)
+	if _, ok := defaultScopes["manual"]; !ok {
+		t.Fatalf("non-default target is not protected during global clean: %v", defaultScopes)
+	}
+}
+
 func TestOrphanLockTargetsPrefixScope(t *testing.T) {
 	lf := &lockfile.LockFile{
 		Checksums: map[string]map[string]string{

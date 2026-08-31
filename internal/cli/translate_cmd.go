@@ -111,7 +111,7 @@ Examples:
 	cmd.Flags().StringVar(&baseURL, "base-url", "", T("Custom API base URL"))
 
 	cmd.Flags().StringVarP(&langs, "lang", "l", "", T("Languages to translate (comma-separated, default: all with untranslated)"))
-	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: enabled targets with include_by_default=true)"))
 
 	cmd.Flags().IntVar(&chunkSize, "chunk", 0, T("Entries per API request (0 = all at once)"))
 	cmd.Flags().BoolVarP(&retranslate, "all", "a", false, T("Translate all entries, including already translated ones"))
@@ -233,17 +233,11 @@ func runTranslateWithConfig(lf *config.LokitFile, a translateArgs) {
 		}
 	}
 
-	resolved, err := lf.Resolve(rootDir)
+	resolved, err := resolveTargetsForSelection(lf, rootDir, a.targets)
 	if err != nil {
 		logError(T("Config resolve error: %v"), err)
 		os.Exit(1)
 	}
-	resolved, err = filterResolvedTargetsByNames(resolved, a.targets)
-	if err != nil {
-		logError(T("%v"), err)
-		os.Exit(1)
-	}
-
 	if len(resolved) == 0 {
 		logError(T("No targets defined in lokit.yaml"))
 		os.Exit(1)

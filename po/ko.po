@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-31 11:37+0000\n"
-"PO-Revision-Date: 2026-08-31 11:37+0000\n"
+"POT-Creation-Date: 2026-08-31 23:35+0000\n"
+"PO-Revision-Date: 2026-08-31 23:35+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ko\n"
@@ -599,16 +599,16 @@ msgstr "%s을(를) 자동 생성할 수 없습니다: 추출 결과 POT 템플�
 msgid "Check that source files contain translatable strings (_(), N_(), etc.)"
 msgstr "소스 파일에 번역 가능한 문자열(_(), N_() 등)이 포함되어 있는지 확인하세요"
 
-#: internal/cli/helpers.go:276 internal/cli/target_core.go:85
+#: internal/cli/helpers.go:276 internal/cli/target_core.go:86
 msgid "Cannot read POT template %s: %v"
 msgstr "POT 템플릿 %s을(를) 읽을 수 없습니다: %v"
 
-#: internal/cli/helpers.go:304 internal/cli/init.go:567
+#: internal/cli/helpers.go:304 internal/cli/init.go:558
 msgid "Creating directory for %s: %v"
 msgstr "%s용 디렉터리 생성 중: %v"
 
-#: internal/cli/helpers.go:309 internal/cli/init.go:344
-#: internal/cli/init.go:593 internal/cli/target_content.go:300
+#: internal/cli/helpers.go:309 internal/cli/init.go:340
+#: internal/cli/init.go:584 internal/cli/target_content.go:300
 #: internal/cli/target_content.go:573 internal/cli/target_content.go:888
 #: internal/cli/target_content.go:1100 internal/cli/target_content.go:1300
 #: internal/cli/target_content.go:1498 internal/cli/target_index.go:217
@@ -867,7 +867,12 @@ msgstr ""
 msgid "scanning sources: %w"
 msgstr "소스 스캔 중: %w"
 
-#: internal/cli/helpers.go:588
+#: internal/cli/helpers.go:560 internal/cli/helpers.go:586
+#: internal/cli/helpers.go:624 internal/cli/helpers.go:650
+msgid "Target %q is disabled in lokit.yaml"
+msgstr "lokit.yaml에서 대상 %q이(가) 비활성화되어 있습니다"
+
+#: internal/cli/helpers.go:583
 msgid "Target %q not found in lokit.yaml"
 msgstr "lokit.yaml에서 타겟 %q을(를) 찾을 수 없습니다"
 
@@ -879,46 +884,38 @@ msgstr "소스 파일을 찾을 수 없습니다 (지원 형식: %s)"
 msgid "reading explicit source file %s: %w"
 msgstr "명시적 소스 파일 %s 읽는 중: %w"
 
-#: internal/cli/init.go:169 internal/cli/lock.go:543 internal/cli/status.go:43
+#: internal/cli/init.go:171 internal/cli/lock.go:546 internal/cli/status.go:43
 #: internal/cli/translate_cmd.go:185
 msgid "Config error: %v"
 msgstr "설정 오류: %v"
 
-#: internal/cli/init.go:173 internal/cli/lock.go:546 internal/cli/status.go:51
-#: internal/cli/translate_cmd.go:193
+#: internal/cli/init.go:175 internal/cli/lock.go:370 internal/cli/lock.go:549
+#: internal/cli/status.go:51 internal/cli/translate_cmd.go:193
 msgid "No lokit.yaml found in %s"
 msgstr "%s에 lokit.yaml 파일이 없습니다"
 
-#: internal/cli/init.go:174 internal/cli/status.go:52
+#: internal/cli/init.go:176 internal/cli/status.go:52
 #: internal/cli/translate_cmd.go:194
 msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
 msgstr "lokit.yaml 설정 파일을 생성하세요. 포맷 참고는 'lokit init --help'를 확인하세요."
 
-#: internal/cli/init.go:182
+#: internal/cli/init.go:184
 msgid "Languages to init (comma-separated, default: all from config)"
 msgstr "초기화할 언어 (쉼표로 구분, 기본값: config의 모든 언어)"
 
-#: internal/cli/init.go:183 internal/cli/lock.go:125 internal/cli/status.go:35
+#: internal/cli/init.go:185 internal/cli/lock.go:125 internal/cli/status.go:35
 #: internal/cli/translate_cmd.go:114
-msgid "Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"
-msgstr "lokit.yaml의 대상 이름(플래그를 반복하거나 쉼표로 구분된 목록 사용; 기본값: 모든 대상)"
+msgid "Target name from lokit.yaml (repeat flag or use comma-separated list; default: enabled targets with include_by_default=true)"
+msgstr "lokit.yaml의 대상 이름(플래그를 반복 지정하거나 쉼표로 구분된 목록 사용; 기본값: include_by_default=true로 설정된 활성화된 대상)"
 
-#: internal/cli/init.go:193
+#: internal/cli/init.go:195
 msgid "Cannot load lock file: %v"
 msgstr "잠금 파일을 불러올 수 없습니다: %v"
 
-#: internal/cli/init.go:199 internal/cli/lock.go:551 internal/cli/status.go:91
-#: internal/cli/translate_cmd.go:236
+#: internal/cli/init.go:201 internal/cli/lock.go:554 internal/cli/status.go:91
+#: internal/cli/translate_cmd.go:238
 msgid "Config resolve error: %v"
 msgstr "설정 해석 오류: %v"
-
-#: internal/cli/init.go:204 internal/cli/init.go:523 internal/cli/init.go:543
-#: internal/cli/lock.go:159 internal/cli/lock.go:272 internal/cli/lock.go:366
-#: internal/cli/lock.go:374 internal/cli/lock.go:498 internal/cli/root.go:358
-#: internal/cli/status.go:96 internal/cli/translate_cmd.go:230
-#: internal/cli/translate_cmd.go:241
-msgid "%v"
-msgstr "%v"
 
 #: internal/cli/init.go:24
 msgid "Prepare translation files (extract strings, create/update PO)"
@@ -1019,6 +1016,8 @@ msgid ""
 "\n"
 "COMMON OPTIONS (all target formats)\n"
 "\n"
+"  enabled: true                      # Set false to disable the target completely\n"
+"  include_by_default: true           # Set false to require an explicit --target\n"
 "  languages: [ru, de]               # Override global language list\n"
 "  prompt: \"Custom translation...\"   # Override AI translation prompt\n"
 "\n"
@@ -1071,56 +1070,54 @@ msgstr ""
 "\n"
 "프로젝트 루트에 lokit.yaml 설정 파일이 필요합니다.\n"
 "\n"
-"gettext 프로젝트의 경우: xgettext를 실행해 문자열을 POT 템플릿으로 추출한 다음,\n"
-"각 언어의 PO 파일을 생성하거나 업데이트합니다.\n"
+"gettext 프로젝트: xgettext를 실행하여 문자열을 POT 템플릿으로 추출한 후,\n"
+"각 언어별로 PO 파일을 생성하거나 업데이트합니다.\n"
 "\n"
-"po4a 프로젝트의 경우: 'po4a --no-translations'를 실행해 템플릿을 업데이트합니다.\n"
+"po4a 프로젝트: 'po4a --no-translations'를 실행하여 템플릿을 업데이트합니다.\n"
 "\n"
-"i18next/vue-i18n/yaml/properties/flutter/js-kv 프로젝트의 경우: 누락된 언어\n"
-"파일을 빈 번역으로 생성합니다.\n"
+"i18next/vue-i18n/yaml/properties/flutter/js-kv 프로젝트: 누락된 언어 파일을\n"
+"빈 번역으로 생성합니다.\n"
 "\n"
-"index-source 대상(source object with index, records_path, key_field,\n"
-"fields)의 경우: index 파일에서 레코드별 번역 파일을 생성합니다.\n"
+"index-source 대상(인덱스, records_path, key_field, fields가 있는 소스 오브젝트):\n"
+"인덱스 파일에서 레코드별 번역 파일을 생성합니다.\n"
 "\n"
-"android/desktop/polkit 프로젝트의 경우: 초기화 단계가 필요하지 않습니다 — 'lokit translate'\n"
-"를 직접 사용하세요.\n"
+"android/desktop/polkit 프로젝트: 별도의 초기화 단계가 필요하지 않습니다 — 'lokit translate'를 바로 사용하세요.\n"
 "\n"
-"이 명령은 멱등적입니다 — 여러 번 실행해도 안전합니다. 기존 번역은\n"
-"파일을 업데이트할 때 유지됩니다.\n"
+"이 명령은 멱등성을 보장하므로 여러 번 실행해도 안전합니다. 기존 번역은 파일 업데이트 시 유지됩니다.\n"
 "\n"
-"설정 형식(lokit.yaml)\n"
+"설정 형식 (lokit.yaml)\n"
 "\n"
-"  source_lang: en                    # 소스 언어(기본값: en)\n"
-"  languages: [ru, de, fr, es, ...]   # 대상 언어\n"
+"  source_lang: en                    # 소스 언어 (기본값: en)\n"
+"  languages: [ru, de, fr, es, ...]   # 대상 언어 목록\n"
 "\n"
 "  targets:\n"
 "    - name: myproject                # 표시 이름\n"
-"      format: gettext                # 대상 형식(아래 참조)\n"
-"      root: .                        # 작업 디렉터리(기본값: .)\n"
-"      # ... 형식별 옵션\n"
+"      format: gettext                # 대상 포맷 (아래 참고)\n"
+"      root: .                        # 작업 디렉터리 (기본값: .)\n"
+"      # ... 포맷별 옵션\n"
 "\n"
-"대상 형식\n"
+"대상 포맷\n"
 "\n"
-"  gettext — 소스 코드 문자열 추출(shell, python, C, Go 등)\n"
-"    dir: po                          # PO 파일 디렉터리(필수)\n"
-"    pot: messages.pot                # POT 템플릿 파일명(dir 내부)\n"
-"    sources: [src, scripts]          # 검사할 디렉터리(기본값: root)\n"
-"    keywords: [_, N_, gettext]       # xgettext 키워드(기본값: 표준 세트)\n"
+"  gettext — 소스 코드 문자열 추출 (shell, python, C, Go 등)\n"
+"    dir: po                          # PO 파일 디렉터리 (필수)\n"
+"    pot: messages.pot                # POT 템플릿 파일명 (dir 내부)\n"
+"    sources: [src, scripts]          # 스캔할 디렉터리 (기본값: root)\n"
+"    keywords: [_, N_, gettext]       # xgettext 키워드 (기본값: 표준 세트)\n"
 "\n"
-"  po4a — 문서 번역(man 페이지, AsciiDoc 등)\n"
-"    config: po4a.cfg                 # po4a.cfg 경로(필수)\n"
+"  po4a — 문서 번역 (man 페이지, AsciiDoc 등)\n"
+"    config: po4a.cfg                 # po4a.cfg 경로 (필수)\n"
 "\n"
-"  i18next — 평면 JSON 번역\n"
-"    dir: public/translations         # JSON 파일 디렉터리(필수)\n"
-"    pattern: \"{lang}.json\"           # 언어 파일 패턴(필수)\n"
+"  i18next — flat JSON 번역\n"
+"    dir: public/translations         # JSON 파일 디렉터리 (필수)\n"
+"    pattern: \"{lang}.json\"           # 언어 파일 패턴 (필수)\n"
 "\n"
-"  vue-i18n — 중첩 JSON 번역\n"
-"    dir: frontend/src/i18n           # JSON 파일 디렉터리(필수)\n"
-"    pattern: \"{lang}.json\"           # 언어 파일 패턴(필수)\n"
+"  vue-i18n — nested JSON 번역\n"
+"    dir: frontend/src/i18n           # JSON 파일 디렉터리 (필수)\n"
+"    pattern: \"{lang}.json\"           # 언어 파일 패턴 (필수)\n"
 "\n"
 "  vue-i18n (index source mode) — 하나의 소스 인덱스에서 레코드별 JSON 번역\n"
 "    dir: web/public/data/recipe-translations\n"
-"    pattern: \"{lang}/{id}.json\"      # {id}를 반드시 포함해야 함\n"
+"    pattern: \"{lang}/{id}.json\"      # 반드시 {id} 포함\n"
 "    source:\n"
 "      index: web/public/data/recipes.json\n"
 "      records_path: \"$\"              # 지원: $ 또는 $.field\n"
@@ -1128,44 +1125,46 @@ msgstr ""
 "      fields: [name, description, longDescription]\n"
 "\n"
 "  android — Android strings.xml\n"
-"    dir: app/src/main/res            # Android res/ 디렉터리(필수)\n"
+"    dir: app/src/main/res            # Android res/ 디렉터리 (필수)\n"
 "\n"
-"  yaml — YAML 키/값 번역\n"
-"    dir: translations                # YAML 파일 디렉터리(필수)\n"
-"    pattern: \"{lang}.yaml\"           # 언어 파일 패턴(필수)\n"
+"  yaml — YAML key/value 번역\n"
+"    dir: translations                # YAML 파일 디렉터리 (필수)\n"
+"    pattern: \"{lang}.yaml\"           # 언어 파일 패턴 (필수)\n"
 "\n"
 "  markdown — Markdown 문서 번역\n"
-"    dir: translations                # markdown 트리의 루트 디렉터리(필수)\n"
-"    pattern: \"{lang}\"               # 선택적 언어 디렉터리 패턴(기본값: {lang})\n"
+"    dir: translations                # 마크다운 트리 루트 디렉터리 (필수)\n"
+"    pattern: \"{lang}\"               # 선택적 언어 디렉터리 패턴 (기본값: {lang})\n"
 "\n"
 "  properties — Java .properties 번역\n"
-"    dir: translations                # .properties 파일 디렉터리(필수)\n"
-"    pattern: \"{lang}.properties\"     # 언어 파일 패턴(필수)\n"
+"    dir: translations                # .properties 파일 디렉터리 (필수)\n"
+"    pattern: \"{lang}.properties\"     # 언어 파일 패턴 (필수)\n"
 "\n"
-"  flutter — Flutter ARB(Application Resource Bundle)\n"
-"    dir: lib/l10n                    # ARB 파일 디렉터리(필수)\n"
-"    pattern: \"app_{lang}.arb\"        # 언어 파일 패턴(필수)\n"
+"  flutter — Flutter ARB (Application Resource Bundle)\n"
+"    dir: lib/l10n                    # ARB 파일 디렉터리 (필수)\n"
+"    pattern: \"app_{lang}.arb\"        # 언어 파일 패턴 (필수)\n"
 "\n"
-"  js-kv — JavaScript 할당형 키/값 번역\n"
-"    dir: translations                # JS 파일 디렉터리(필수)\n"
-"    pattern: \"{lang}.js\"             # 언어 파일 패턴(필수)\n"
+"  js-kv — JavaScript key/value 번역\n"
+"    dir: translations                # JS 파일 디렉터리 (필수)\n"
+"    pattern: \"{lang}.js\"             # 언어 파일 패턴 (필수)\n"
 "\n"
-"  desktop — freedesktop desktop entry(단일 파일)\n"
-"    dir: .                           # desktop 파일이 있는 디렉터리\n"
-"    pattern: \"myapp.desktop\"         # desktop 파일명\n"
+"  desktop — freedesktop 데스크톱 엔트리 (단일 파일)\n"
+"    dir: .                           # 데스크톱 파일이 있는 디렉터리\n"
+"    pattern: \"myapp.desktop\"         # 데스크톱 파일명\n"
 "\n"
-"  polkit — PolicyKit XML policy(단일 파일)\n"
-"    dir: .                           # policy 파일이 있는 디렉터리\n"
-"    pattern: \"org.example.policy\"    # policy 파일명\n"
+"  polkit — PolicyKit XML 정책 (단일 파일)\n"
+"    dir: .                           # 정책 파일이 있는 디렉터리\n"
+"    pattern: \"org.example.policy\"    # 정책 파일명\n"
 "\n"
-"공통 옵션(모든 대상 형식)\n"
+"공통 옵션 (모든 대상 포맷)\n"
 "\n"
+"  enabled: true                      # false로 설정 시 해당 대상 완전 비활성화\n"
+"  include_by_default: true           # false로 설정 시 --target 명시 필요\n"
 "  languages: [ru, de]               # 전역 언어 목록 재정의\n"
 "  prompt: \"Custom translation...\"   # AI 번역 프롬프트 재정의\n"
 "\n"
 "예시\n"
 "\n"
-"  # gettext를 사용하는 셸 스크립트\n"
+"  # gettext를 사용하는 쉘 스크립트\n"
 "  source_lang: en\n"
 "  languages: [ru, de, fr]\n"
 "  targets:\n"
@@ -1174,7 +1173,7 @@ msgstr ""
 "      sources: [scripts, lib]\n"
 "      keywords: [gettext, eval_gettext]\n"
 "\n"
-"  # 래퍼 함수를 사용하는 Go 프로젝트\n"
+"  # Go 프로젝트(래퍼 함수 사용)\n"
 "  targets:\n"
 "    - name: myapp\n"
 "      format: gettext\n"
@@ -1202,143 +1201,158 @@ msgstr ""
 "      format: flutter\n"
 "      dir: lib/l10n\n"
 "\n"
-"  # .properties를 사용하는 Java 애플리케이션\n"
+"  # Java 애플리케이션(.properties)\n"
 "  targets:\n"
 "    - name: app\n"
 "      format: properties\n"
 "      dir: src/main/resources"
 
-#: internal/cli/init.go:277
+#: internal/cli/init.go:273
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Android 대상은 초기화가 필요하지 않습니다 — 바로 'lokit translate'를 사용하세요."
 
-#: internal/cli/init.go:297
+#: internal/cli/init.go:293
 msgid "Desktop targets do not require init — use 'lokit translate' directly."
 msgstr "Desktop 대상은 초기화가 필요하지 않습니다 — 바로 'lokit translate'를 사용하세요."
 
-#: internal/cli/init.go:300
+#: internal/cli/init.go:296
 msgid "Polkit targets do not require init — use 'lokit translate' directly."
 msgstr "Polkit 대상은 초기화가 필요하지 않습니다 — 바로 'lokit translate'를 사용하세요."
 
-#: internal/cli/init.go:302 internal/cli/status.go:179
-#: internal/cli/translate_cmd.go:412
+#: internal/cli/init.go:298 internal/cli/status.go:173
+#: internal/cli/translate_cmd.go:410
 msgid "[%s] Unknown target type %q, skipping"
 msgstr "[%s] 알 수 없는 대상 타입 %q, 건너뜀"
 
-#: internal/cli/init.go:307
+#: internal/cli/init.go:303
 msgid "Cannot save lock file: %v"
 msgstr "잠금 파일을 저장할 수 없습니다: %v"
 
-#: internal/cli/init.go:316
+#: internal/cli/init.go:312
 msgid "Cannot read source language file %s: %v"
 msgstr "원본 언어 파일 %s을(를) 읽을 수 없습니다: %v"
 
-#: internal/cli/init.go:321 internal/cli/target_content.go:281
+#: internal/cli/init.go:317 internal/cli/target_content.go:281
 #: internal/cli/target_content.go:871 internal/cli/target_content.go:1083
 #: internal/cli/target_content.go:1283
 msgid "Source language (%s): %d keys"
 msgstr "원본 언어 (%s): %d개 키"
 
-#: internal/cli/init.go:347 internal/cli/target_content.go:303
+#: internal/cli/init.go:343 internal/cli/target_content.go:303
 #: internal/cli/target_content.go:891 internal/cli/target_content.go:1103
 #: internal/cli/target_content.go:1303 internal/cli/target_index.go:220
 msgid "Created: %s (%d keys)"
 msgstr "생성됨: %s (%d개 키)"
 
-#: internal/cli/init.go:363 internal/cli/target_core.go:81
+#: internal/cli/init.go:359 internal/cli/target_core.go:82
 msgid "Updating %s: %v"
 msgstr "%s 업데이트 중: %v"
 
-#: internal/cli/init.go:366
+#: internal/cli/init.go:362
 msgid "Updated: %s (+%d new keys)"
 msgstr "업데이트됨: %s (+%d개 신규 키)"
 
-#: internal/cli/init.go:369
+#: internal/cli/init.go:365
 msgid "%s: up to date"
 msgstr "%s: 최신 상태"
 
-#: internal/cli/init.go:373 internal/cli/init.go:615
+#: internal/cli/init.go:369 internal/cli/init.go:606
 msgid "Summary: %d created, %d updated"
 msgstr "요약: %d개 생성, %d개 업데이트"
 
-#: internal/cli/init.go:376 internal/cli/init.go:535 internal/cli/init.go:621
+#: internal/cli/init.go:372 internal/cli/init.go:526 internal/cli/init.go:612
 msgid "Init complete!"
 msgstr "초기화 완료!"
 
-#: internal/cli/init.go:389
+#: internal/cli/init.go:385
 msgid "pandoc not found, skipping manpage generation from markdown"
 msgstr "pandoc을 찾을 수 없어 markdown에서 manpage 생성을 건너뜁니다"
 
-#: internal/cli/init.go:404
-msgid "failed to list markdown files: %w"
-msgstr "markdown 파일 목록화 실패: %w"
+#: internal/cli/init.go:398
+msgid "failed to read po4a masters: %w"
+msgstr "po4a 마스터 파일 읽기 실패: %w"
 
-#: internal/cli/init.go:437
+#: internal/cli/init.go:405
+msgid "unsafe po4a master path: %s"
+msgstr "po4a 마스터 경로가 안전하지 않습니다: %s"
+
+#: internal/cli/init.go:425
 msgid "Generating %s from %s"
 msgstr "%s에서 %s 생성 중"
 
-#: internal/cli/init.go:442
+#: internal/cli/init.go:427
+msgid "failed to create manpage directory for %s: %w"
+msgstr "%s용 manpage 디렉터리 생성 실패: %w"
+
+#: internal/cli/init.go:433
 msgid "pandoc failed for %s: %w"
 msgstr "%s에 대해 pandoc 실패: %w"
 
-#: internal/cli/init.go:447
+#: internal/cli/init.go:438
 msgid "Failed to post-process %s: %v"
 msgstr "%s 후처리 실패: %v"
 
-#: internal/cli/init.go:454
+#: internal/cli/init.go:445
 msgid "Generated %d manpage(s) from markdown"
 msgstr "markdown에서 %d개의 manpage 생성 완료"
 
-#: internal/cli/init.go:489
+#: internal/cli/init.go:480
 msgid "po4a is not installed. Install with: sudo apt install po4a"
 msgstr "po4a가 설치되어 있지 않습니다. 설치: sudo apt install po4a"
 
-#: internal/cli/init.go:494
+#: internal/cli/init.go:485
 msgid "Failed to generate manpages from markdown: %v"
 msgstr "markdown에서 manpage 생성 실패: %v"
 
-#: internal/cli/init.go:495
+#: internal/cli/init.go:486
 msgid "Continuing anyway, po4a might fail if source files don't exist"
 msgstr "계속 진행합니다. 소스 파일이 없으면 po4a가 실패할 수 있습니다"
 
-#: internal/cli/init.go:498
+#: internal/cli/init.go:489
 msgid "Running po4a --no-translations %s ..."
 msgstr "po4a --no-translations %s 실행 중 ..."
 
-#: internal/cli/init.go:504
+#: internal/cli/init.go:495
 msgid "po4a failed: %v"
 msgstr "po4a 실패: %v"
 
-#: internal/cli/init.go:506
+#: internal/cli/init.go:497
 msgid "po4a updated POT and PO files"
 msgstr "po4a가 POT 및 PO 파일을 업데이트했습니다"
 
-#: internal/cli/init.go:550 internal/cli/init.go:601
+#: internal/cli/init.go:514 internal/cli/init.go:534 internal/cli/lock.go:159
+#: internal/cli/lock.go:272 internal/cli/lock.go:366 internal/cli/lock.go:375
+#: internal/cli/lock.go:501 internal/cli/root.go:427
+#: internal/cli/translate_cmd.go:231
+msgid "%v"
+msgstr "%v"
+
+#: internal/cli/init.go:541 internal/cli/init.go:592
 #: internal/cli/target_content.go:310 internal/cli/target_content.go:390
 #: internal/cli/target_content.go:581 internal/cli/target_content.go:740
 #: internal/cli/target_content.go:750 internal/cli/target_content.go:896
 #: internal/cli/target_content.go:964 internal/cli/target_content.go:1108
-#: internal/cli/target_content.go:1176 internal/cli/target_core.go:168
-#: internal/cli/target_core.go:322
+#: internal/cli/target_content.go:1176 internal/cli/target_core.go:169
+#: internal/cli/target_core.go:310
 msgid "Reading %s: %v"
 msgstr "%s 읽는 중: %v"
 
-#: internal/cli/init.go:554
+#: internal/cli/init.go:545
 msgid "Updating PO files for: %s"
 msgstr "%s에 대해 PO 파일 업데이트 중"
 
-#: internal/cli/init.go:596 internal/cli/target_content.go:1501
+#: internal/cli/init.go:587 internal/cli/target_content.go:1501
 msgid "Created: %s"
 msgstr "생성됨: %s"
 
-#: internal/cli/init.go:607 internal/cli/target_content.go:316
+#: internal/cli/init.go:598 internal/cli/target_content.go:316
 #: internal/cli/target_content.go:588 internal/cli/target_content.go:901
 #: internal/cli/target_content.go:1113 internal/cli/target_content.go:1310
 #: internal/cli/target_content.go:1512 internal/cli/target_index.go:236
 msgid "Writing %s: %v"
 msgstr "%s 쓰는 중: %v"
 
-#: internal/cli/init.go:610 internal/cli/target_content.go:319
+#: internal/cli/init.go:601 internal/cli/target_content.go:319
 #: internal/cli/target_content.go:591 internal/cli/target_content.go:904
 #: internal/cli/target_content.go:1116 internal/cli/target_content.go:1313
 #: internal/cli/target_content.go:1515 internal/cli/target_index.go:239
@@ -1413,22 +1427,22 @@ msgid "Skip confirmation prompt"
 msgstr "확인 메시지 건너뛰기"
 
 #: internal/cli/lock.go:165 internal/cli/lock.go:278 internal/cli/lock.go:382
-#: internal/cli/lock.go:487 internal/cli/translate_cmd.go:252
+#: internal/cli/lock.go:490 internal/cli/translate_cmd.go:248
 msgid "Could not load lock file: %v"
 msgstr "잠금 파일을 불러올 수 없습니다: %v"
 
-#: internal/cli/lock.go:177 internal/cli/lock.go:393
-#: internal/cli/translate_cmd.go:314 internal/cli/translate_cmd.go:345
-#: internal/cli/translate_cmd.go:350 internal/cli/translate_cmd.go:355
-#: internal/cli/translate_cmd.go:362 internal/cli/translate_cmd.go:368
-#: internal/cli/translate_cmd.go:373 internal/cli/translate_cmd.go:378
-#: internal/cli/translate_cmd.go:383 internal/cli/translate_cmd.go:388
-#: internal/cli/translate_cmd.go:393 internal/cli/translate_cmd.go:398
-#: internal/cli/translate_cmd.go:403 internal/cli/translate_cmd.go:408
+#: internal/cli/lock.go:177 internal/cli/lock.go:396
+#: internal/cli/translate_cmd.go:310 internal/cli/translate_cmd.go:343
+#: internal/cli/translate_cmd.go:348 internal/cli/translate_cmd.go:353
+#: internal/cli/translate_cmd.go:360 internal/cli/translate_cmd.go:366
+#: internal/cli/translate_cmd.go:371 internal/cli/translate_cmd.go:376
+#: internal/cli/translate_cmd.go:381 internal/cli/translate_cmd.go:386
+#: internal/cli/translate_cmd.go:391 internal/cli/translate_cmd.go:396
+#: internal/cli/translate_cmd.go:401 internal/cli/translate_cmd.go:406
 msgid "[%s] %v"
 msgstr "[%s] %v"
 
-#: internal/cli/lock.go:191 internal/cli/lock.go:405
+#: internal/cli/lock.go:191 internal/cli/lock.go:408
 msgid "[%s/%s] cannot read any po4a PO files"
 msgstr "[%s/%s] 어떤 po4a PO 파일도 읽을 수 없습니다"
 
@@ -1436,8 +1450,8 @@ msgstr "[%s/%s] 어떤 po4a PO 파일도 읽을 수 없습니다"
 msgid "[%s/%s] %v"
 msgstr "[%s/%s] %v"
 
-#: internal/cli/lock.go:240 internal/cli/lock.go:474 internal/cli/lock.go:529
-#: internal/cli/translate_cmd.go:423
+#: internal/cli/lock.go:240 internal/cli/lock.go:477 internal/cli/lock.go:532
+#: internal/cli/translate_cmd.go:424
 msgid "Could not save lock file: %v"
 msgstr "잠금 파일을 저장할 수 없습니다: %v"
 
@@ -1465,8 +1479,8 @@ msgstr "잠금 파일"
 msgid "Path"
 msgstr "경로"
 
-#: internal/cli/lock.go:337 internal/cli/root.go:401 internal/cli/root.go:507
-#: internal/cli/root.go:542 internal/cli/status.go:79
+#: internal/cli/lock.go:337 internal/cli/root.go:470 internal/cli/root.go:576
+#: internal/cli/root.go:611 internal/cli/status.go:79
 #: internal/cli/target_content.go:229 internal/cli/target_content.go:456
 #: internal/cli/target_content.go:814 internal/cli/target_content.go:1026
 #: internal/cli/target_content.go:1240 internal/cli/target_content.go:1436
@@ -1484,8 +1498,8 @@ msgid "Targets"
 msgstr "타겟"
 
 #: internal/cli/lock.go:339 internal/cli/lock.go:345 internal/cli/status.go:65
-#: internal/cli/status.go:144 internal/cli/status.go:146
-#: internal/cli/status.go:214 internal/cli/status.go:216
+#: internal/cli/status.go:138 internal/cli/status.go:140
+#: internal/cli/status.go:208 internal/cli/status.go:210
 msgid "Languages"
 msgstr "언어"
 
@@ -1523,71 +1537,71 @@ msgstr ""
 msgid "%d keys"
 msgstr "%d개 키"
 
-#: internal/cli/lock.go:416
+#: internal/cli/lock.go:419
 msgid "[%s] stale entries: %d (tracked: %d)"
 msgstr "[%s] 오래된 항목: %d (추적됨: %d)"
 
-#: internal/cli/lock.go:423
+#: internal/cli/lock.go:426
 msgid "[%s] removed stale entries: %d"
 msgstr "[%s] 오래된 항목 제거: %d"
 
-#: internal/cli/lock.go:435
+#: internal/cli/lock.go:438
 msgid "[%s/%s] stale entries: %d (tracked: %d)"
 msgstr "[%s/%s] 오래된 항목: %d (추적 중: %d)"
 
-#: internal/cli/lock.go:443
+#: internal/cli/lock.go:446
 msgid "[%s/%s] removed stale entries: %d"
 msgstr "[%s/%s] 삭제된 오래된 항목: %d"
 
-#: internal/cli/lock.go:450
+#: internal/cli/lock.go:453
 msgid "Skipping orphan lock target cleanup for scopes with unresolved sources"
 msgstr "해결되지 않은 소스가 있는 범위는 고아 lock 대상 정리 건너뜀"
 
-#: internal/cli/lock.go:455
+#: internal/cli/lock.go:458
 msgid "[%s] orphan lock target: %d tracked"
 msgstr "[%s] 고아 lock 대상: %d개 추적됨"
 
-#: internal/cli/lock.go:461
+#: internal/cli/lock.go:464
 msgid "[%s] removed orphan lock target: %d"
 msgstr "[%s] 고아 lock 대상 제거: %d"
 
-#: internal/cli/lock.go:466
+#: internal/cli/lock.go:469
 msgid "Dry run: total stale/orphan entries: %d"
 msgstr "드라이런: 오래된/고아 항목 총합: %d"
 
-#: internal/cli/lock.go:477
+#: internal/cli/lock.go:480
 msgid "Removed stale/orphan entries: %d"
 msgstr "오래된/고아 항목 제거됨: %d"
 
-#: internal/cli/lock.go:492
+#: internal/cli/lock.go:495
 msgid "--lang requires --target"
 msgstr "--lang 옵션은 --target이 필요합니다"
 
-#: internal/cli/lock.go:504
+#: internal/cli/lock.go:507
 msgid "Reset entire lock file?"
 msgstr "잠금 파일 전체를 초기화하시겠습니까?"
 
-#: internal/cli/lock.go:505
+#: internal/cli/lock.go:508
 msgid "Cancelled"
 msgstr "취소됨"
 
-#: internal/cli/lock.go:509
+#: internal/cli/lock.go:512
 msgid "Removing %s: %v"
 msgstr "%s 삭제 중: %v"
 
-#: internal/cli/lock.go:512
+#: internal/cli/lock.go:515
 msgid "Reset complete: %s removed"
 msgstr "초기화 완료: %s 삭제됨"
 
-#: internal/cli/lock.go:534
+#: internal/cli/lock.go:537
 msgid "Reset complete: %s/%s"
 msgstr "초기화 완료: %s/%s"
 
-#: internal/cli/lock.go:537
+#: internal/cli/lock.go:540
 msgid "Reset complete: target %s"
 msgstr "초기화 완료: 타겟 %s"
 
-#: internal/cli/lock.go:587 internal/cli/lock.go:713
+#: internal/cli/lock.go:590 internal/cli/lock.go:716
 msgid "unsupported target type %q"
 msgstr "지원되지 않는 타겟 타입 %q"
 
@@ -1616,28 +1630,28 @@ msgstr ""
 "  lokit lock init --target ui\n"
 "  lokit lock init --target ui --force"
 
-#: internal/cli/lock.go:631 internal/cli/lock.go:647
+#: internal/cli/lock.go:634 internal/cli/lock.go:650
 msgid "cannot read PO %s: %v"
 msgstr "PO %s를 읽을 수 없음: %v"
 
 #: internal/cli/lock.go:75 internal/cli/lock.go:100
-msgid "Target name from lokit.yaml (default: all targets)"
-msgstr "lokit.yaml의 대상 이름 (기본값: 모든 대상)"
+msgid "Target name from lokit.yaml (default: enabled targets with include_by_default=true)"
+msgstr "lokit.yaml의 대상 이름(기본값: include_by_default=true로 설정된 활성화된 대상)"
 
 #: internal/cli/lock.go:76
 msgid "Overwrite existing lock entries for selected targets"
 msgstr "선택한 대상의 기존 잠금 항목을 덮어쓰기"
 
-#: internal/cli/lock.go:772 internal/cli/lock.go:958
+#: internal/cli/lock.go:775 internal/cli/lock.go:961
 msgid "cannot read markdown files in %s: %v"
 msgstr "%s 내의 마크다운 파일을 읽을 수 없습니다: %v"
 
-#: internal/cli/lock.go:833 internal/cli/lock.go:894 internal/cli/lock.go:1002
-#: internal/cli/lock.go:1016 internal/cli/lock.go:1029
+#: internal/cli/lock.go:836 internal/cli/lock.go:897 internal/cli/lock.go:1005
+#: internal/cli/lock.go:1019 internal/cli/lock.go:1032
 msgid "cannot read source file %s: %v"
 msgstr "소스 파일 %s을(를) 읽을 수 없습니다: %v"
 
-#: internal/cli/lock.go:847
+#: internal/cli/lock.go:850
 msgid "cannot read POT %s: %v"
 msgstr "POT %s을(를) 읽을 수 없습니다: %v"
 
@@ -1663,31 +1677,35 @@ msgstr ""
 "  lokit lock status --verbose\n"
 "  lokit lock status --json"
 
-#: internal/cli/lock.go:882
+#: internal/cli/lock.go:885
 msgid "cannot read any po4a PO files for target %s"
 msgstr "타겟 %s에 대한 po4a PO 파일을 찾을 수 없습니다"
 
-#: internal/cli/lock.go:914
+#: internal/cli/lock.go:917
 msgid "cannot read source strings.xml %s: %v"
 msgstr "소스 strings.xml %s을(를) 읽을 수 없습니다: %v"
 
-#: internal/cli/lock.go:961 internal/cli/target_content.go:673
+#: internal/cli/lock.go:964 internal/cli/target_content.go:673
 msgid "cannot find source Markdown files in %s"
 msgstr "%s에서 소스 마크다운 파일을 찾을 수 없습니다"
 
-#: internal/cli/lock.go:968
+#: internal/cli/lock.go:971
 msgid "cannot compute relative path for %s: %v"
 msgstr "%s에 대한 상대 경로를 계산할 수 없습니다: %v"
 
-#: internal/cli/lock.go:973
+#: internal/cli/lock.go:976
 msgid "cannot read source Markdown file %s: %v"
 msgstr "소스 마크다운 파일 %s을(를) 읽을 수 없습니다: %v"
 
-#: internal/cli/root.go:212
+#: internal/cli/root.go:134
+msgid "Invalid locked_pattern %q: %v"
+msgstr "잘못된 locked_pattern %q: %v"
+
+#: internal/cli/root.go:281
 msgid "Localization Kit: AI-powered translation for multiple formats"
 msgstr "Localization Kit: 다양한 포맷을 지원하는 AI 기반 번역"
 
-#: internal/cli/root.go:213
+#: internal/cli/root.go:282
 msgid ""
 "lokit — Localization Kit: AI-powered translation for multiple formats.\n"
 "\n"
@@ -1751,51 +1769,51 @@ msgstr ""
 "  ollama         Ollama 로컬 서버\n"
 "  custom-openai  OpenAI 호환 커스텀 엔드포인트"
 
-#: internal/cli/root.go:249
+#: internal/cli/root.go:318
 msgid "default"
 msgstr "기본값"
 
-#: internal/cli/root.go:252
+#: internal/cli/root.go:321
 msgid "Use \"%s [command] --help\" for more information about a command."
 msgstr "\"%s [command] --help\"를 입력하면 해당 명령어에 대한 자세한 정보를 볼 수 있습니다."
 
-#: internal/cli/root.go:258
+#: internal/cli/root.go:327
 msgid "Usage:"
 msgstr "사용법:"
 
-#: internal/cli/root.go:262
+#: internal/cli/root.go:331
 msgid "Aliases:"
 msgstr "별칭:"
 
-#: internal/cli/root.go:265
+#: internal/cli/root.go:334
 msgid "Examples:"
 msgstr "예시:"
 
-#: internal/cli/root.go:268
+#: internal/cli/root.go:337
 msgid "Available Commands:"
 msgstr "사용 가능한 명령어:"
 
-#: internal/cli/root.go:274
+#: internal/cli/root.go:343
 msgid "Additional Commands:"
 msgstr "추가 명령어:"
 
-#: internal/cli/root.go:277
+#: internal/cli/root.go:346
 msgid "Flags:"
 msgstr "옵션:"
 
-#: internal/cli/root.go:280
+#: internal/cli/root.go:349
 msgid "Global Flags:"
 msgstr "글로벌 옵션:"
 
-#: internal/cli/root.go:283
+#: internal/cli/root.go:352
 msgid "Additional help topics:"
 msgstr "추가 도움말 주제:"
 
-#: internal/cli/root.go:292
+#: internal/cli/root.go:361
 msgid "Help about any command"
 msgstr "명령어 도움말"
 
-#: internal/cli/root.go:293
+#: internal/cli/root.go:362
 msgid ""
 "Help provides help for any command in the application.\n"
 "Simply type %s help [path to command] for full details."
@@ -1803,103 +1821,103 @@ msgstr ""
 "도움말은 애플리케이션의 모든 명령어에 대한 도움을 제공합니다.\n"
 "자세한 내용을 보려면 %s help [명령어 경로]를 입력하세요."
 
-#: internal/cli/root.go:315
+#: internal/cli/root.go:384
 msgid ""
 "Unknown help topic %q\n"
 msgstr ""
 "알 수 없는 도움말 주제 %q\n"
 
-#: internal/cli/root.go:325
+#: internal/cli/root.go:394
 msgid "Project root directory"
 msgstr "프로젝트 루트 디렉터리"
 
-#: internal/cli/root.go:344
+#: internal/cli/root.go:413
 msgid "this command"
 msgstr "이 명령어"
 
-#: internal/cli/root.go:346
+#: internal/cli/root.go:415
 msgid "help for %s"
 msgstr "%s 도움말"
 
-#: internal/cli/root.go:401
+#: internal/cli/root.go:470
 msgid "run 'lokit init'"
 msgstr "'lokit init' 실행"
 
-#: internal/cli/root.go:401
+#: internal/cli/root.go:470
 msgid "POT"
 msgstr "POT"
 
-#: internal/cli/root.go:405 internal/cli/root.go:547 internal/cli/root.go:583
+#: internal/cli/root.go:474 internal/cli/root.go:616 internal/cli/root.go:652
 msgid "Source strings"
 msgstr "원본 문자열"
 
-#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
-#: internal/cli/root.go:649
-msgid "Fuzzy"
-msgstr "퍼지"
-
-#: internal/cli/root.go:410 internal/cli/root.go:447
-#: internal/cli/status_kv.go:20
-msgid "Terms"
-msgstr "용어"
-
-#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
-#: internal/cli/root.go:649 internal/cli/root.go:695
-#: internal/cli/status_kv.go:20
-msgid "Lang"
-msgstr "언어"
-
-#: internal/cli/root.go:410 internal/cli/root.go:588 internal/cli/root.go:695
-#: internal/cli/status_kv.go:20
-msgid "Left"
-msgstr "남음"
-
-#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
-#: internal/cli/root.go:649 internal/cli/root.go:695
+#: internal/cli/root.go:479 internal/cli/root.go:516 internal/cli/root.go:657
+#: internal/cli/root.go:718 internal/cli/root.go:764
 #: internal/cli/status_kv.go:20
 msgid "Progress"
 msgstr "진행률"
 
-#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
-#: internal/cli/root.go:649 internal/cli/root.go:695
+#: internal/cli/root.go:479 internal/cli/root.go:516 internal/cli/root.go:657
+#: internal/cli/root.go:718
+msgid "Fuzzy"
+msgstr "퍼지"
+
+#: internal/cli/root.go:479 internal/cli/root.go:516
+#: internal/cli/status_kv.go:20
+msgid "Terms"
+msgstr "용어"
+
+#: internal/cli/root.go:479 internal/cli/root.go:516 internal/cli/root.go:657
+#: internal/cli/root.go:718 internal/cli/root.go:764
+#: internal/cli/status_kv.go:20
+msgid "Lang"
+msgstr "언어"
+
+#: internal/cli/root.go:479 internal/cli/root.go:516 internal/cli/root.go:657
+#: internal/cli/root.go:718 internal/cli/root.go:764
 #: internal/cli/status_kv.go:20
 msgid "Done"
 msgstr "완료"
 
-#: internal/cli/root.go:417 internal/cli/root.go:454 internal/cli/root.go:523
-#: internal/cli/root.go:556 internal/cli/root.go:604 internal/cli/root.go:657
-#: internal/cli/root.go:707 internal/cli/target_content.go:247
+#: internal/cli/root.go:479 internal/cli/root.go:657 internal/cli/root.go:764
+#: internal/cli/status_kv.go:20
+msgid "Left"
+msgstr "남음"
+
+#: internal/cli/root.go:486 internal/cli/root.go:523 internal/cli/root.go:592
+#: internal/cli/root.go:625 internal/cli/root.go:673 internal/cli/root.go:726
+#: internal/cli/root.go:776 internal/cli/target_content.go:247
 #: internal/cli/target_content.go:485 internal/cli/target_content.go:835
 #: internal/cli/target_content.go:1047 internal/cli/target_content.go:1258
 #: internal/cli/target_content.go:1461 internal/cli/target_index.go:177
 msgid "missing"
 msgstr "누락됨"
 
-#: internal/cli/root.go:426 internal/cli/root.go:474
+#: internal/cli/root.go:495 internal/cli/root.go:543
 #: internal/cli/status_kv.go:43
 msgid "[%s] Terminology check failed for %s: %v"
 msgstr "[%s] %s의 용어 검사 실패: %v"
 
-#: internal/cli/root.go:442
+#: internal/cli/root.go:511
 msgid "po4a config"
 msgstr "po4a 설정"
 
-#: internal/cli/root.go:447 internal/cli/root.go:649
+#: internal/cli/root.go:516 internal/cli/root.go:718
 msgid "Total"
 msgstr "전체"
 
-#: internal/cli/root.go:487
+#: internal/cli/root.go:556
 msgid "missing files"
 msgstr "파일이 없음"
 
-#: internal/cli/root.go:499 internal/cli/target_content.go:224
+#: internal/cli/root.go:568 internal/cli/target_content.go:224
 #: internal/cli/target_content.go:450 internal/cli/target_content.go:806
 #: internal/cli/target_content.go:1018 internal/cli/target_content.go:1231
 #: internal/cli/target_content.go:1445
 msgid "Translations"
 msgstr "번역"
 
-#: internal/cli/root.go:507 internal/cli/root.go:542 internal/cli/status.go:221
+#: internal/cli/root.go:576 internal/cli/root.go:611 internal/cli/status.go:215
 #: internal/cli/target_content.go:229 internal/cli/target_content.go:235
 #: internal/cli/target_content.go:456 internal/cli/target_content.go:814
 #: internal/cli/target_content.go:820 internal/cli/target_content.go:1026
@@ -1910,7 +1928,7 @@ msgstr "번역"
 msgid "Source"
 msgstr "원본"
 
-#: internal/cli/root.go:511 internal/cli/root.go:689 internal/cli/status.go:256
+#: internal/cli/root.go:580 internal/cli/root.go:758 internal/cli/status.go:250
 #: internal/cli/target_content.go:239 internal/cli/target_content.go:824
 #: internal/cli/target_content.go:1036 internal/cli/target_content.go:1245
 #: internal/cli/target_content.go:1446 internal/cli/target_content.go:1603
@@ -1918,55 +1936,51 @@ msgstr "원본"
 msgid "Source keys"
 msgstr "원본 키"
 
-#: internal/cli/root.go:538
+#: internal/cli/root.go:607
 msgid "Res dir"
 msgstr "리소스 디렉터리"
 
-#: internal/cli/root.go:578
+#: internal/cli/root.go:647
 msgid "No translatable strings found in %s"
 msgstr "%s에서 번역 가능한 문자열을 찾을 수 없습니다"
 
-#: internal/cli/root.go:582
+#: internal/cli/root.go:651
 msgid "Translation Statistics"
 msgstr "번역 통계"
 
-#: internal/cli/root.go:624
+#: internal/cli/root.go:693
 msgid "Translation gaps:"
 msgstr "번역 누락:"
 
-#: internal/cli/root.go:628
+#: internal/cli/root.go:697
 msgid "%d untranslated"
 msgstr "미번역 %d개"
 
-#: internal/cli/root.go:631
+#: internal/cli/root.go:700
 msgid "%d fuzzy"
 msgstr "퍼지 %d개"
 
-#: internal/cli/root.go:645
+#: internal/cli/root.go:714
 msgid "Documentation Statistics"
 msgstr "문서 통계"
 
-#: internal/cli/root.go:66
-msgid "Invalid locked_pattern %q: %v"
-msgstr "잘못된 locked_pattern %q: %v"
-
-#: internal/cli/root.go:676
+#: internal/cli/root.go:745
 msgid "No language files detected in %s"
 msgstr "%s에서 언어 파일을 찾을 수 없습니다"
 
-#: internal/cli/root.go:687 internal/cli/target_content.go:1449
+#: internal/cli/root.go:756 internal/cli/target_content.go:1449
 msgid "UI Translation Statistics"
 msgstr "UI 번역 통계"
 
-#: internal/cli/status.go:141 internal/cli/status.go:211
+#: internal/cli/status.go:135 internal/cli/status.go:205
 msgid "%d keys x %d languages"
 msgstr "%d개 키 x %d개 언어"
 
-#: internal/cli/status.go:141 internal/cli/status.go:211
+#: internal/cli/status.go:135 internal/cli/status.go:205
 msgid "Locked"
 msgstr "잠금됨"
 
-#: internal/cli/status.go:146 internal/cli/status.go:216
+#: internal/cli/status.go:140 internal/cli/status.go:210
 msgid "none detected"
 msgstr "감지되지 않음"
 
@@ -1994,11 +2008,11 @@ msgstr ""
 "\n"
 "어떤 파일도 수정하지 않습니다."
 
-#: internal/cli/status.go:254 internal/cli/target_index.go:166
+#: internal/cli/status.go:248 internal/cli/target_index.go:166
 msgid "Source index"
 msgstr "소스 인덱스"
 
-#: internal/cli/status.go:255
+#: internal/cli/status.go:249
 msgid "Records"
 msgstr "레코드"
 
@@ -2010,8 +2024,8 @@ msgstr "프로젝트"
 msgid "Config"
 msgstr "설정"
 
-#: internal/cli/status.go:61 internal/cli/status.go:133
-#: internal/cli/status.go:203
+#: internal/cli/status.go:61 internal/cli/status.go:127
+#: internal/cli/status.go:197
 msgid "Root"
 msgstr "루트"
 
@@ -2024,7 +2038,7 @@ msgstr "소스 언어"
 msgid "Lock file"
 msgstr "Lock 파일"
 
-#: internal/cli/status.go:76 internal/cli/status.go:221
+#: internal/cli/status.go:76 internal/cli/status.go:215
 #: internal/cli/target_index.go:158
 msgid "error: %v"
 msgstr "오류: %v"
@@ -2093,7 +2107,7 @@ msgstr "소스 JS 파일 %s을(를) 읽을 수 없습니다: %w"
 msgid "cannot read desktop file %s: %w"
 msgstr "desktop 파일 %s을(를) 읽을 수 없습니다: %w"
 
-#: internal/cli/target_content.go:1684
+#: internal/cli/target_content.go:1702
 msgid "cannot read policy file %s: %w"
 msgstr "policy 파일 %s을(를) 읽을 수 없습니다: %w"
 
@@ -2132,37 +2146,37 @@ msgstr "YAML 초기화: %d개 생성, %d개 업데이트됨"
 
 #: internal/cli/target_content.go:329 internal/cli/target_content.go:660
 #: internal/cli/target_content.go:915 internal/cli/target_content.go:1127
-#: internal/cli/target_content.go:1323 internal/cli/target_core.go:89
-#: internal/cli/target_core.go:194 internal/cli/target_core.go:351
-#: internal/cli/target_core.go:455
+#: internal/cli/target_content.go:1323 internal/cli/target_core.go:90
+#: internal/cli/target_core.go:195 internal/cli/target_core.go:372
+#: internal/cli/target_core.go:476
 msgid "Provider: %s (%s), Model: %s"
 msgstr "Provider: %s (%s), Model: %s"
 
 #: internal/cli/target_content.go:331 internal/cli/target_content.go:662
 #: internal/cli/target_content.go:917 internal/cli/target_content.go:1129
-#: internal/cli/target_content.go:1325 internal/cli/target_core.go:91
-#: internal/cli/target_core.go:457
+#: internal/cli/target_content.go:1325 internal/cli/target_core.go:92
+#: internal/cli/target_core.go:478
 msgid "Parallel: enabled, max concurrent: %d"
 msgstr "병렬 처리: 사용함, 최대 동시 실행: %d"
 
 #: internal/cli/target_content.go:334 internal/cli/target_content.go:665
 #: internal/cli/target_content.go:920 internal/cli/target_content.go:1132
-#: internal/cli/target_content.go:1328 internal/cli/target_core.go:94
-#: internal/cli/target_core.go:460
+#: internal/cli/target_content.go:1328 internal/cli/target_core.go:95
+#: internal/cli/target_core.go:481
 msgid "Chunk size: %d"
 msgstr "청크 크기: %d"
 
 #: internal/cli/target_content.go:336 internal/cli/target_content.go:667
 #: internal/cli/target_content.go:922 internal/cli/target_content.go:1134
-#: internal/cli/target_content.go:1330 internal/cli/target_core.go:352
+#: internal/cli/target_content.go:1330 internal/cli/target_core.go:373
 msgid "Translations dir: %s"
 msgstr "번역 디렉터리: %s"
 
 #: internal/cli/target_content.go:337 internal/cli/target_content.go:668
 #: internal/cli/target_content.go:923 internal/cli/target_content.go:1135
-#: internal/cli/target_content.go:1331 internal/cli/target_core.go:97
-#: internal/cli/target_core.go:197 internal/cli/target_core.go:353
-#: internal/cli/target_core.go:463
+#: internal/cli/target_content.go:1331 internal/cli/target_core.go:98
+#: internal/cli/target_core.go:198 internal/cli/target_core.go:374
+#: internal/cli/target_core.go:484
 msgid "Translating: %s"
 msgstr "번역 중: %s"
 
@@ -2176,20 +2190,21 @@ msgstr "소스 YAML %s을(를) 읽을 수 없습니다: %w"
 
 #: internal/cli/target_content.go:350 internal/cli/target_content.go:934
 #: internal/cli/target_content.go:1146 internal/cli/target_content.go:1344
-#: internal/cli/target_core.go:472
+#: internal/cli/target_core.go:493
 msgid "Source strings: %d"
 msgstr "소스 문자열: %d개"
 
 #: internal/cli/target_content.go:358 internal/cli/target_content.go:1537
-#: internal/cli/target_core.go:369 internal/cli/target_core.go:480
+#: internal/cli/target_core.go:390 internal/cli/target_core.go:501
 msgid "%s (%s): %d strings to translate (file will be auto-created)"
 msgstr "%s (%s): 번역할 문자열 %d개 (파일이 자동 생성됨)"
 
 #: internal/cli/target_content.go:364 internal/cli/target_content.go:372
 #: internal/cli/target_content.go:948 internal/cli/target_content.go:1160
 #: internal/cli/target_content.go:1356 internal/cli/target_content.go:1545
-#: internal/cli/target_core.go:105 internal/cli/target_core.go:227
-#: internal/cli/target_core.go:377 internal/cli/target_core.go:490
+#: internal/cli/target_content.go:1664 internal/cli/target_content.go:1713
+#: internal/cli/target_core.go:106 internal/cli/target_core.go:228
+#: internal/cli/target_core.go:398 internal/cli/target_core.go:511
 #: internal/cli/target_index.go:270
 msgid "%s (%s): %d strings to translate"
 msgstr "%s (%s): 번역할 문자열 %d개"
@@ -2273,97 +2288,109 @@ msgstr "소스 .properties 파일 %s을(를) 읽을 수 없습니다: %w"
 msgid "No .properties files to translate"
 msgstr "번역할 .properties 파일이 없습니다"
 
-#: internal/cli/target_core.go:107
+#: internal/cli/target_core.go:108
 msgid "%s: PO file not found, will be created"
 msgstr "%s: PO 파일이 없어 새로 생성됩니다"
 
-#: internal/cli/target_core.go:137 internal/cli/target_core.go:255
-#: internal/cli/target_core.go:409 internal/cli/target_core.go:524
+#: internal/cli/target_core.go:138 internal/cli/target_core.go:256
+#: internal/cli/target_core.go:430 internal/cli/target_core.go:545
 msgid "  %s: %d/%d"
 msgstr "  %s: %d/%d"
 
-#: internal/cli/target_core.go:181 internal/cli/target_core.go:336
-#: internal/cli/target_core.go:565 internal/cli/target_index.go:340
+#: internal/cli/target_core.go:182 internal/cli/target_core.go:324
+#: internal/cli/target_core.go:586 internal/cli/target_index.go:340
 msgid "[%s] All translations complete!"
 msgstr "[%s] 모든 번역이 완료되었습니다!"
 
-#: internal/cli/target_core.go:195
+#: internal/cli/target_core.go:196
 msgid "po4a config: %s"
 msgstr "po4a 설정: %s"
 
-#: internal/cli/target_core.go:203
+#: internal/cli/target_core.go:204
 msgid "%s: PO files not found"
 msgstr "%s: PO 파일을 찾을 수 없음"
 
-#: internal/cli/target_core.go:210
+#: internal/cli/target_core.go:211
 msgid "%s: PO file not found at %s"
 msgstr "%s: PO 파일을 %s에서 찾을 수 없습니다"
 
-#: internal/cli/target_core.go:272
+#: internal/cli/target_core.go:273
 msgid "Using documentation-specific translation prompt (groff/man markup preservation)"
 msgstr "문서 전용 번역 프롬프트 사용 중(groff/man 마크업 보존)"
 
-#: internal/cli/target_core.go:284
-msgid "PO files missing, running po4a initialization..."
-msgstr "PO 파일이 없어서 po4a 초기화를 실행합니다..."
+#: internal/cli/target_core.go:287
+msgid "cannot read po4a masters: %v"
+msgstr "po4a 마스터 파일을 읽을 수 없습니다: %v"
 
-#: internal/cli/target_core.go:303
-msgid "auto-init failed: %v"
-msgstr "자동 초기화 실패: %v"
+#: internal/cli/target_core.go:290
+msgid "Updating po4a source catalogs..."
+msgstr "po4a 소스 카탈로그를 업데이트하는 중..."
 
-#: internal/cli/target_core.go:312
+#: internal/cli/target_core.go:292
+msgid "po4a initialization failed: %v"
+msgstr "po4a 초기화 실패: %v"
+
+#: internal/cli/target_core.go:300
 msgid "[%s] No PO files for %s, skipping"
 msgstr "[%s] %s에 대한 PO 파일이 없어 건너뜀"
 
-#: internal/cli/target_core.go:319
+#: internal/cli/target_core.go:307
 msgid "[%s] No PO file for %s at %s, skipping"
 msgstr "[%s] %s에 대한 PO 파일이 %s에 없어 건너뜁니다"
 
-#: internal/cli/target_core.go:358
+#: internal/cli/target_core.go:329
+msgid "Rendering translated documents with po4a..."
+msgstr "po4a로 번역된 문서를 렌더링하는 중..."
+
+#: internal/cli/target_core.go:335
+msgid "po4a rendering failed: %v"
+msgstr "po4a 렌더링 실패: %v"
+
+#: internal/cli/target_core.go:379
 msgid "cannot read source language file %s: %w"
 msgstr "소스 언어 파일 %s을(를) 읽을 수 없습니다: %w"
 
-#: internal/cli/target_core.go:361
+#: internal/cli/target_core.go:382
 msgid "Source keys (%s): %d"
 msgstr "소스 키(%s): %d개"
 
-#: internal/cli/target_core.go:431
+#: internal/cli/target_core.go:452
 msgid "Auto-creating %s with %d keys"
 msgstr "%s을(를) %d개의 키로 자동 생성합니다"
 
-#: internal/cli/target_core.go:444
+#: internal/cli/target_core.go:465
 msgid "All UI translations are complete!"
 msgstr "모든 UI 번역이 완료되었습니다!"
 
-#: internal/cli/target_core.go:462
+#: internal/cli/target_core.go:483
 msgid "Res dir: %s"
 msgstr "Res 디렉터리: %s"
 
-#: internal/cli/target_core.go:469
+#: internal/cli/target_core.go:490
 msgid "cannot read source strings.xml %s: %w"
 msgstr "소스 strings.xml %s을(를) 읽을 수 없습니다: %w"
 
-#: internal/cli/target_core.go:544
+#: internal/cli/target_core.go:565
 msgid "Auto-creating %s with %d strings"
 msgstr "%s을(를) %d개의 문자열로 자동 생성합니다"
 
-#: internal/cli/target_core.go:549
-msgid "Added %d new strings to %s"
-msgstr "%d개의 새로운 문자열이 %s에 추가되었습니다"
-
-#: internal/cli/target_core.go:56
+#: internal/cli/target_core.go:57
 msgid "Extracting strings and updating PO files..."
 msgstr "문자열 추출 및 PO 파일 업데이트 중..."
 
-#: internal/cli/target_core.go:60
+#: internal/cli/target_core.go:570
+msgid "Added %d new strings to %s"
+msgstr "%d개의 새로운 문자열이 %s에 추가되었습니다"
+
+#: internal/cli/target_core.go:61
 msgid "Extraction failed: %v"
 msgstr "추출 실패: %v"
 
-#: internal/cli/target_core.go:61
+#: internal/cli/target_core.go:62
 msgid "Continuing with existing PO files"
 msgstr "기존 PO 파일로 계속 진행합니다"
 
-#: internal/cli/target_core.go:96 internal/cli/target_core.go:196
+#: internal/cli/target_core.go:97 internal/cli/target_core.go:197
 msgid "PO dir: %s"
 msgstr "PO 디렉터리: %s"
 
@@ -2503,35 +2530,35 @@ msgstr ""
 "프로바이더가 지정되지 않았습니다. --provider 옵션으로 AI 번역 서비스를 선택하세요.\n"
 "\n"
 
-#: internal/cli/translate_cmd.go:246
+#: internal/cli/translate_cmd.go:242
 msgid "No targets defined in lokit.yaml"
 msgstr "lokit.yaml에 대상이 정의되어 있지 않습니다"
 
-#: internal/cli/translate_cmd.go:264
+#: internal/cli/translate_cmd.go:260
 msgid "Interrupted, saving progress..."
 msgstr "중단됨, 진행 상황을 저장합니다..."
 
-#: internal/cli/translate_cmd.go:320 internal/cli/translate_cmd.go:416
+#: internal/cli/translate_cmd.go:317 internal/cli/translate_cmd.go:415
 msgid "Could not save lock file after target %s: %v"
 msgstr "대상 %s 이후 lock 파일을 저장하지 못했습니다: %v"
 
-#: internal/cli/translate_cmd.go:322 internal/cli/translate_cmd.go:418
+#: internal/cli/translate_cmd.go:319 internal/cli/translate_cmd.go:417
 msgid "Lock file saved after target %s/%s"
 msgstr "대상 %s/%s 이후 lock 파일이 저장되었습니다"
 
-#: internal/cli/translate_cmd.go:336
+#: internal/cli/translate_cmd.go:334
 msgid "[%s] No languages to translate, skipping"
 msgstr "[%s] 번역할 언어가 없어 건너뜁니다"
 
-#: internal/cli/translate_cmd.go:427
+#: internal/cli/translate_cmd.go:429
 msgid "Translation completed with errors"
 msgstr "오류와 함께 번역이 완료되었습니다"
 
-#: internal/cli/translate_cmd.go:431
+#: internal/cli/translate_cmd.go:433
 msgid "Dry run complete"
 msgstr "드라이런 완료"
 
-#: internal/cli/translate_cmd.go:434
+#: internal/cli/translate_cmd.go:436
 msgid "All targets translated!"
 msgstr "모든 대상 번역 완료!"
 
@@ -2658,7 +2685,7 @@ msgstr "빌드:"
 msgid "Error applying terminology for %s: %v"
 msgstr "%s에 대한 용어 적용 중 오류: %v"
 
-#: translate/kv_pipeline.go:135 translate/translate.go:2090
+#: translate/kv_pipeline.go:135 translate/translate.go:2130
 msgid "  Applied %d exact terminology translations"
 msgstr "  %d개의 정확한 용어 번역 적용됨"
 
@@ -2666,7 +2693,7 @@ msgstr "  %d개의 정확한 용어 번역 적용됨"
 msgid "Translating %s (%s) — %d keys..."
 msgstr "%s(%s) 번역 중 — %d개의 키..."
 
-#: translate/kv_pipeline.go:162 translate/translate.go:2823
+#: translate/kv_pipeline.go:162 translate/translate.go:2882
 msgid "Error translating %s: %v"
 msgstr "%s 번역 중 오류: %v"
 
@@ -2678,83 +2705,89 @@ msgstr "  청크 %d/%d (%d개 키)"
 msgid "  Retrying chunk %d/%d due to markdown structure mismatch (%s)"
 msgstr "  마크다운 구조 불일치로 인해 청크 %d/%d 재시도 중 (%s)"
 
-#: translate/kv_pipeline.go:421 translate/translate.go:1857
-#: translate/translate.go:2490
+#: translate/kv_pipeline.go:463 translate/kv_pipeline.go:814
+#: translate/translate.go:1897 translate/translate.go:2549
 msgid "  Invalid translation response, retrying (%d/%d): %v"
 msgstr "  잘못된 번역 응답, 재시도 중 (%d/%d): %v"
 
-#: translate/kv_pipeline.go:470 translate/translate.go:3119
+#: translate/kv_pipeline.go:512 translate/translate.go:3178
 msgid "Error saving %s: %v"
 msgstr "%s 저장 중 오류: %v"
 
-#: translate/kv_pipeline.go:474 translate/translate.go:3122
+#: translate/kv_pipeline.go:516 translate/translate.go:3181
 msgid "Saved %s (%d/%d translated)"
 msgstr "%s 저장 완료 (%d/%d 번역됨)"
 
-#: translate/translate.go:1308
+#: translate/translate.go:1332
 msgid "[DEBUG] copilot attempt %d: POST %s (model: %s)"
 msgstr "[DEBUG] copilot 시도 %d: POST %s (모델: %s)"
 
-#: translate/translate.go:1332
+#: translate/translate.go:1356
 msgid "[WARN] Copilot returned 401, re-authenticating..."
 msgstr "[WARN] Copilot에서 401 오류가 반환되어 다시 인증 중..."
 
-#: translate/translate.go:1348
+#: translate/translate.go:1372
 msgid "[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)"
 msgstr "[WARN] Copilot이 429(요청 제한) 오류를 반환하여 %v 동안 대기 중 (시도 %d/%d)"
 
-#: translate/translate.go:1496
+#: translate/translate.go:1520
 msgid "[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)"
 msgstr "[DEBUG] gemini-oauth 시도 %d: POST %s (모델: %s)"
 
-#: translate/translate.go:1520
+#: translate/translate.go:1544
 msgid "[WARN] Gemini returned 401, refreshing token..."
 msgstr "[WARN] Gemini에서 401 오류가 반환되어 토큰을 새로고침 중..."
 
-#: translate/translate.go:1526
+#: translate/translate.go:1550
 msgid "[WARN] Token refresh failed: %v, re-authenticating..."
 msgstr "[WARN] 토큰 새로고침 실패: %v, 다시 인증 중..."
 
-#: translate/translate.go:1553
+#: translate/translate.go:1577
 msgid "[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)"
 msgstr "[WARN] Gemini가 429(요청 제한) 오류를 반환하여 %v 동안 대기 중 (시도 %d/%d)"
 
-#: translate/translate.go:2122
+#: translate/translate.go:2162
 msgid "  Chunk %d/%d (%d entries)"
 msgstr "  청크 %d/%d (%d개 항목)"
 
-#: translate/translate.go:2212
+#: translate/translate.go:2252
 msgid "  Skipping %d ignored entries"
 msgstr "  %d개의 무시된 항목 건너뜀"
 
-#: translate/translate.go:2215
+#: translate/translate.go:2255
 msgid "  Skipping %d locked entries"
 msgstr "  %d개의 잠긴 항목 건너뜀"
 
-#: translate/translate.go:2239
+#: translate/translate.go:2279
 msgid "  Lock file: skipping %d unchanged entries"
 msgstr "  잠금 파일: 변경되지 않은 %d개 항목 건너뜀"
 
-#: translate/translate.go:2273
+#: translate/translate.go:2313
 msgid "  Lock file: skipping %d unchanged keys"
 msgstr "  잠금 파일: 변경되지 않은 %d개 키 건너뜀"
 
-#: translate/translate.go:2343
+#: translate/translate.go:2383
 msgid "  Skipping %d ignored keys"
 msgstr "  %d개의 무시된 키 건너뜀"
 
-#: translate/translate.go:2346
+#: translate/translate.go:2386
 msgid "  Skipping %d locked keys"
 msgstr "  %d개의 잠긴 키 건너뜀"
 
-#: translate/translate.go:2371
+#: translate/translate.go:2411
 msgid "  Skipping %d keys with empty/missing source values"
 msgstr "  소스 값이 비어있거나 없는 %d개 키 건너뜀"
 
-#: translate/translate.go:912 translate/translate.go:1018
+#: translate/translate.go:936 translate/translate.go:1042
 msgid "[DEBUG] %s attempt %d: POST %s"
 msgstr "[DEBUG] %s 시도 %d: POST %s"
 
-#: translate/translate.go:941 translate/translate.go:1041
+#: translate/translate.go:965 translate/translate.go:1065
 msgid "[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)"
 msgstr "[WARN] 429(요청 제한) 오류로 인해 %v 후 재시도 예정 (시도 %d/%d)"
+
+#~ msgid "Target name from lokit.yaml (repeat flag or use comma-separated list; default: enabled targets included by default)"
+#~ msgstr "lokit.yaml의 대상 이름 (플래그를 반복 지정하거나 쉼표로 구분된 목록 사용; 기본값: 활성화된 대상은 기본 포함)"
+
+#~ msgid "Target name from lokit.yaml (default: enabled targets included by default)"
+#~ msgstr "lokit.yaml의 대상 이름 (기본값: 활성화된 대상은 기본 포함)"

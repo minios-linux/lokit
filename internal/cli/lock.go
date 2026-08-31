@@ -72,7 +72,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVar(&target, "target", "", T("Target name from lokit.yaml (default: all targets)"))
+	cmd.Flags().StringVar(&target, "target", "", T("Target name from lokit.yaml (default: enabled targets with include_by_default=true)"))
 	cmd.Flags().BoolVarP(&force, "force", "f", false, T("Overwrite existing lock entries for selected targets"))
 	return cmd
 }
@@ -97,7 +97,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVar(&target, "target", "", T("Target name from lokit.yaml (default: all targets)"))
+	cmd.Flags().StringVar(&target, "target", "", T("Target name from lokit.yaml (default: enabled targets with include_by_default=true)"))
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, T("Show per-language lock breakdown"))
 	cmd.Flags().BoolVar(&jsonOut, "json", false, T("Output lock status as JSON"))
 	return cmd
@@ -122,7 +122,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: enabled targets with include_by_default=true)"))
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, T("Show stale and orphan entries without modifying lokit.lock"))
 	return cmd
 }
@@ -361,21 +361,21 @@ func runLockStatus(target string, verbose bool, jsonOut bool) {
 }
 
 func runLockClean(targets []string, dryRun bool) {
-	allResolved, err := loadResolvedTargets("")
+	configFile, err := config.LoadLokitFile(rootDir)
 	if err != nil {
 		logError(T("%v"), err)
 		os.Exit(1)
 	}
-
-	resolved := allResolved
-	if len(targets) > 0 {
-		resolved, err = filterResolvedTargetsByNames(allResolved, targets)
-		if err != nil {
-			logError(T("%v"), err)
-			os.Exit(1)
-		}
+	if configFile == nil {
+		logError(T("No lokit.yaml found in %s"), rootDir)
+		os.Exit(1)
 	}
-	orphanScopes := orphanCleanupScopes(allResolved, resolved, targets)
+	resolved, err := resolveTargetsForSelection(configFile, rootDir, targets)
+	if err != nil {
+		logError(T("%v"), err)
+		os.Exit(1)
+	}
+	orphanScopes := orphanCleanupScopes(resolved, resolved, targets)
 
 	lf, err := lockfile.Load(rootDir)
 	if err != nil {
@@ -385,7 +385,10 @@ func runLockClean(targets []string, dryRun bool) {
 
 	totalRemoved := 0
 	hadErrors := false
-	expectedTargets, blockedOrphanScopes := expectedLockTargets(allResolved)
+	expectedTargets, blockedOrphanScopes := expectedLockTargets(resolved)
+	for scope := range protectedConfiguredTargetScopes(configFile, len(targets) == 0) {
+		blockedOrphanScopes[scope] = struct{}{}
+	}
 
 	for _, rt := range resolved {
 		sourceEntries, err := collectSourceEntries(rt)
@@ -546,12 +549,12 @@ func loadResolvedTargets(target string) ([]config.ResolvedTarget, error) {
 		return nil, fmt.Errorf(T("No lokit.yaml found in %s"), rootDir)
 	}
 
-	resolved, err := lf.Resolve(rootDir)
+	resolved, err := resolveTargetsForSelection(lf, rootDir, []string{target})
 	if err != nil {
 		return nil, fmt.Errorf(T("Config resolve error: %v"), err)
 	}
 
-	return filterResolvedTargetsByNames(resolved, []string{target})
+	return resolved, nil
 }
 
 func collectSourceEntries(rt config.ResolvedTarget) (map[string]string, error) {
@@ -1111,6 +1114,33 @@ type orphanScope struct {
 	targetType string
 	langs      map[string]struct{}
 	prefix     bool
+}
+
+func protectedConfiguredTargetScopes(lf *config.LokitFile, protectNonDefault bool) map[string]struct{} {
+	scopes := make(map[string]struct{})
+	for _, target := range lf.Targets {
+		if len(target.Surfaces) == 0 {
+			if !target.IsEnabled() || (protectNonDefault && !target.IsIncludedByDefault()) {
+				scopes[target.Name] = struct{}{}
+			}
+			continue
+		}
+		for _, surface := range target.Surfaces {
+			effective := config.Target{
+				Enabled:          inheritedBool(surface.Enabled, target.Enabled),
+				IncludeByDefault: inheritedBool(surface.IncludeByDefault, target.IncludeByDefault),
+			}
+			if effective.IsEnabled() && (!protectNonDefault || effective.IsIncludedByDefault()) {
+				continue
+			}
+			name := target.Name
+			if surface.Name != "" {
+				name += "/" + surface.Name
+			}
+			scopes[name] = struct{}{}
+		}
+	}
+	return scopes
 }
 
 func orphanCleanupScopes(allResolved, selected []config.ResolvedTarget, targets []string) []orphanScope {

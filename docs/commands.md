@@ -2,7 +2,7 @@
 
 ## `lokit status`
 
-Shows project info and translation statistics for all targets defined in `lokit.yaml`. Read-only — nothing is modified.
+Shows project info and translation statistics for enabled targets included by default. Read-only — nothing is modified.
 
 ```bash
 lokit status
@@ -15,7 +15,7 @@ lokit status --target app
 | Flag | Description |
 |------|-------------|
 | `--root string` | Project root directory (default: `.`) |
-| `--target string` | Target name from `lokit.yaml` (repeatable or comma-separated; default: all targets) |
+| `--target string` | Target name from `lokit.yaml` (repeatable or comma-separated; default: enabled targets with `include_by_default: true`) |
 
 **Output includes:**
 - Target name and format
@@ -39,7 +39,7 @@ lokit init --lang ru,de
 
 | Flag | Description |
 |------|-------------|
-| `--target string` | Target name from `lokit.yaml` (repeatable or comma-separated; default: all targets) |
+| `--target string` | Target name from `lokit.yaml` (repeatable or comma-separated; default: enabled targets with `include_by_default: true`) |
 | `--lang, -l string` | Comma-separated languages to initialize (default: all) |
 
 **What it does per format:**
@@ -94,7 +94,7 @@ lokit translate --provider github-copilot --model MODEL_NAME --force
 |------|---------|-------------|
 | `--provider string` | from config | AI provider ID |
 | `--model string` | from config | Model name |
-| `--target string` | all | Target name from `lokit.yaml` (repeatable or comma-separated) |
+| `--target string` | included by default | Enabled target name from `lokit.yaml` (repeatable or comma-separated) |
 | `--lang, -l string` | all | Comma-separated target languages |
 | `--parallel[=N]` | off (N=3) | Enable parallel translation with N workers |
 | `--chunk int` | 0 (all) | Entries per API request (0 = send all at once) |
@@ -214,6 +214,8 @@ lokit lock init --target app
 ### `lokit lock clean`
 
 Remove stale lock entries that no longer exist in source files and orphan lock targets that no longer exist in the current `lokit.yaml` configuration.
+
+Without `--target`, clean processes enabled targets included by default, preserves complete lock namespaces for configured inactive targets, and removes namespaces for targets no longer present in `lokit.yaml`.
 
 When `--target` is used, stale entries are checked only for the selected target, and orphan lock targets are removed only within that target namespace. For example, `--target app` can clean `app/old/de`, but it will not touch `app-extra/de`.
 

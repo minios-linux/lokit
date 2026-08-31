@@ -115,6 +115,8 @@ TARGET FORMATS
 
 COMMON OPTIONS (all target formats)
 
+  enabled: true                      # Set false to disable the target completely
+  include_by_default: true           # Set false to require an explicit --target
   languages: [ru, de]               # Override global language list
   prompt: "Custom translation..."   # Override AI translation prompt
 
@@ -180,7 +182,7 @@ EXAMPLES
 	}
 
 	cmd.Flags().StringVarP(&langs, "lang", "l", "", T("Languages to init (comma-separated, default: all from config)"))
-	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: enabled targets with include_by_default=true)"))
 
 	return cmd
 }
@@ -194,17 +196,11 @@ func runInitWithConfig(lf *config.LokitFile, langsFlag string, targets []string)
 	}
 	lockChanged := false
 
-	resolved, err := lf.Resolve(rootDir)
+	resolved, err := resolveTargetsForSelection(lf, rootDir, targets)
 	if err != nil {
 		logError(T("Config resolve error: %v"), err)
 		os.Exit(1)
 	}
-	resolved, err = filterResolvedTargetsByNames(resolved, targets)
-	if err != nil {
-		logError(T("%v"), err)
-		os.Exit(1)
-	}
-
 	for _, rt := range resolved {
 		langs := filterOutLang(rt.Languages, rt.Target.SourceLang)
 		if langsFlag != "" {

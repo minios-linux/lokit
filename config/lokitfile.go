@@ -58,6 +58,10 @@ type ProviderSettings struct {
 // Surface describes one translation surface inside a multi-surface target.
 type Surface struct {
 	Name string `yaml:"name,omitempty"`
+	// Enabled disables this surface when explicitly set to false.
+	Enabled *bool `yaml:"enabled,omitempty"`
+	// IncludeByDefault controls selection when no target is named explicitly.
+	IncludeByDefault *bool `yaml:"include_by_default,omitempty"`
 
 	Format     string       `yaml:"format,omitempty"`
 	Type       string       `yaml:"-"`
@@ -92,6 +96,10 @@ type Surface struct {
 type Target struct {
 	// Name is a human-readable label shown in status/logs.
 	Name string `yaml:"name"`
+	// Enabled disables this target completely when explicitly set to false.
+	Enabled *bool `yaml:"enabled,omitempty"`
+	// IncludeByDefault controls selection when no target is named explicitly.
+	IncludeByDefault *bool `yaml:"include_by_default,omitempty"`
 	// Format: "gettext", "po4a", "i18next", "vue-i18n", "android", "yaml",
 	// "markdown", "properties", "flutter", "js-kv", "desktop", "polkit".
 	Format string `yaml:"format"`
@@ -161,6 +169,16 @@ type Target struct {
 
 	// Surfaces defines multiple translation surfaces under one logical target.
 	Surfaces []Surface `yaml:"surfaces,omitempty"`
+}
+
+// IsEnabled reports whether a target participates in any command.
+func (t Target) IsEnabled() bool {
+	return t.Enabled == nil || *t.Enabled
+}
+
+// IsIncludedByDefault reports whether a target participates when no --target is supplied.
+func (t Target) IsIncludedByDefault() bool {
+	return t.IncludeByDefault == nil || *t.IncludeByDefault
 }
 
 // TargetTypeGettext is used for gettext PO projects (shell, python, C source code).
@@ -670,26 +688,28 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 
 		for i, s := range t.Surfaces {
 			st := Target{
-				Name:            t.Name,
-				Format:          s.Format,
-				Type:            s.Type,
-				Root:            coalesceString(s.Root, t.Root),
-				Dir:             s.Dir,
-				Pattern:         s.Pattern,
-				Source:          firstSource(s.Source, t.Source),
-				TargetPath:      s.TargetPath,
-				POT:             s.POT,
-				Sources:         s.Sources,
-				Exclude:         mergeStringSlices(t.Exclude, s.Exclude),
-				Keywords:        s.Keywords,
-				SourceLang:      coalesceString(s.SourceLang, t.SourceLang),
-				Config:          s.Config,
-				Languages:       s.Languages,
-				Prompt:          coalesceString(s.Prompt, t.Prompt),
-				LockedKeys:      mergeStringSlices(t.LockedKeys, s.LockedKeys),
-				IgnoredKeys:     mergeStringSlices(t.IgnoredKeys, s.IgnoredKeys),
-				IgnoredPatterns: mergeStringSlices(t.IgnoredPatterns, s.IgnoredPatterns),
-				LockedPatterns:  mergeStringSlices(t.LockedPatterns, s.LockedPatterns),
+				Name:             t.Name,
+				Enabled:          coalesceBool(s.Enabled, t.Enabled),
+				IncludeByDefault: coalesceBool(s.IncludeByDefault, t.IncludeByDefault),
+				Format:           s.Format,
+				Type:             s.Type,
+				Root:             coalesceString(s.Root, t.Root),
+				Dir:              s.Dir,
+				Pattern:          s.Pattern,
+				Source:           firstSource(s.Source, t.Source),
+				TargetPath:       s.TargetPath,
+				POT:              s.POT,
+				Sources:          s.Sources,
+				Exclude:          mergeStringSlices(t.Exclude, s.Exclude),
+				Keywords:         s.Keywords,
+				SourceLang:       coalesceString(s.SourceLang, t.SourceLang),
+				Config:           s.Config,
+				Languages:        s.Languages,
+				Prompt:           coalesceString(s.Prompt, t.Prompt),
+				LockedKeys:       mergeStringSlices(t.LockedKeys, s.LockedKeys),
+				IgnoredKeys:      mergeStringSlices(t.IgnoredKeys, s.IgnoredKeys),
+				IgnoredPatterns:  mergeStringSlices(t.IgnoredPatterns, s.IgnoredPatterns),
+				LockedPatterns:   mergeStringSlices(t.LockedPatterns, s.LockedPatterns),
 			}
 			if st.Type == "" {
 				st.Type = st.Format
@@ -734,6 +754,13 @@ func (lf *LokitFile) Resolve(projectRoot string) ([]ResolvedTarget, error) {
 func coalesceString(v, fallback string) string {
 	if v != "" {
 		return v
+	}
+	return fallback
+}
+
+func coalesceBool(value, fallback *bool) *bool {
+	if value != nil {
+		return value
 	}
 	return fallback
 }

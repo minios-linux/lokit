@@ -32,7 +32,7 @@ Does not modify any files.`),
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"))
+	cmd.Flags().StringSliceVar(&targets, "target", nil, T("Target name from lokit.yaml (repeat flag or use comma-separated list; default: enabled targets with include_by_default=true)"))
 
 	return cmd
 }
@@ -86,17 +86,11 @@ func runStatusWithConfig(lf *config.LokitFile, targets []string) {
 		}
 	}
 
-	resolved, err := lf.Resolve(rootDir)
+	resolved, err := resolveTargetsForSelection(lf, rootDir, targets)
 	if err != nil {
 		logError(T("Config resolve error: %v"), err)
 		os.Exit(1)
 	}
-	resolved, err = filterResolvedTargetsByNames(resolved, targets)
-	if err != nil {
-		logError(T("%v"), err)
-		os.Exit(1)
-	}
-
 	indexGroups := make(map[string][]config.ResolvedTarget)
 	for _, rt := range resolved {
 		base, ok := statusIndexGroupKey(rt)

@@ -112,6 +112,16 @@
           "type": "string",
           "description": "Target name (must be unique)."
         },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the target is available. Naming a disabled target explicitly returns an error."
+        },
+        "include_by_default": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the target is selected when no --target option is supplied."
+        },
         "format": {
           "type": "string",
           "enum": [

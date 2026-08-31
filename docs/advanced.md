@@ -232,7 +232,7 @@ targets:
     to: lib/l10n/app_{lang}.arb
 ```
 
-Each target operates independently within its `root` directory. All targets are processed together by `lokit status`, `lokit init`, and `lokit translate`.
+Each target operates independently within its `root` directory. Commands without `--target` process enabled targets whose `include_by_default` value is true.
 
 ---
 

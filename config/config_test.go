@@ -892,7 +892,7 @@ func TestLoadLokitFileAcceptsFormatField(t *testing.T) {
 
 func TestResolveSurfaces(t *testing.T) {
 	dir := t.TempDir()
-	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: app\n    root: .\n    ignored_patterns: ['^meta\\.']\n    surfaces:\n      - name: ui\n        format: i18next\n        dir: i18n\n        pattern: '{lang}.json'\n        ignored_patterns: ['^internal\\.']\n"
+	yaml := "source_lang: en\nlanguages: [ru]\ntargets:\n  - name: app\n    root: .\n    include_by_default: false\n    ignored_patterns: ['^meta\\.']\n    surfaces:\n      - name: ui\n        format: i18next\n        dir: i18n\n        pattern: '{lang}.json'\n        ignored_patterns: ['^internal\\.']\n      - name: disabled-surface\n        enabled: false\n        format: i18next\n        dir: i18n\n        pattern: '{lang}.json'\n  - name: disabled-target\n    enabled: false\n    format: i18next\n    dir: i18n\n    pattern: '{lang}.json'\n"
 	if err := os.WriteFile(filepath.Join(dir, "lokit.yaml"), []byte(yaml), 0644); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
@@ -911,14 +911,28 @@ func TestResolveSurfaces(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Resolve() error = %v", err)
 	}
-	if len(resolved) != 1 {
-		t.Fatalf("expected 1 resolved surface, got %d", len(resolved))
+	if len(resolved) != 3 {
+		t.Fatalf("expected 3 resolved targets including disabled entries, got %d", len(resolved))
 	}
-	if resolved[0].Target.Name != "app/ui" {
-		t.Fatalf("unexpected resolved name: %q", resolved[0].Target.Name)
+	var active *ResolvedTarget
+	for i := range resolved {
+		if resolved[i].Target.Name == "app/ui" {
+			active = &resolved[i]
+		}
 	}
-	if want := []string{"^meta\\.", "^internal\\."}; !reflect.DeepEqual(resolved[0].Target.IgnoredPatterns, want) {
-		t.Fatalf("IgnoredPatterns = %v, want %v", resolved[0].Target.IgnoredPatterns, want)
+	if active == nil {
+		t.Fatal("app/ui surface was not resolved")
+	}
+	if active.Target.IsIncludedByDefault() {
+		t.Fatal("surface did not inherit include_by_default: false")
+	}
+	if want := []string{"^meta\\.", "^internal\\."}; !reflect.DeepEqual(active.Target.IgnoredPatterns, want) {
+		t.Fatalf("IgnoredPatterns = %v, want %v", active.Target.IgnoredPatterns, want)
+	}
+	for _, rt := range resolved {
+		if strings.Contains(rt.Target.Name, "disabled") && rt.Target.IsEnabled() {
+			t.Fatalf("disabled target %q resolved as enabled", rt.Target.Name)
+		}
 	}
 }
 
