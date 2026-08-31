@@ -273,36 +273,19 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		logInfo(T("Using documentation-specific translation prompt (groff/man markup preservation)"))
 	}
 
-	// Auto-init: if any PO files are missing, run po4a to generate them
-	hasMissing := false
-	for _, lang := range langs {
-		if len(rt.DocsPOFiles(lang)) == 0 {
-			hasMissing = true
-			break
-		}
+	proj := &config.Project{
+		Name:        rt.Target.Name,
+		POStructure: config.POStructurePo4a,
+		Po4aConfig:  cfgPath,
+		Languages:   langs,
+		SourceLang:  rt.Target.SourceLang,
+		PODir:       poDir,
+		ManpagesDir: cfgDir,
 	}
-	if hasMissing {
-		logInfo(T("PO files missing, running po4a initialization..."))
-		proj := &config.Project{
-			Name:        rt.Target.Name,
-			POStructure: config.POStructurePo4a,
-			Po4aConfig:  cfgPath,
-			Languages:   langs,
-			SourceLang:  rt.Target.SourceLang,
-		}
-		proj.PODir = poDir
-		proj.ManpagesDir = cfgDir
-		// Check for docs directory for manpage generation
-		for _, candidate := range []string{"docs", "doc"} {
-			docsDir := filepath.Join(rt.AbsRoot, candidate)
-			if info, err := os.Stat(docsDir); err == nil && info.IsDir() {
-				proj.DocsDir = docsDir
-				break
-			}
-		}
-		if err := doPo4aInit(proj); err != nil {
-			return fmt.Errorf(T("auto-init failed: %v"), err)
-		}
+	proj.DocsDir = po4aMarkdownDir(cfgDir)
+	logInfo(T("Updating po4a source catalogs..."))
+	if err := doPo4aInit(proj); err != nil {
+		return fmt.Errorf(T("po4a initialization failed: %v"), err)
 	}
 
 	// Collect PO files for each language
@@ -348,6 +331,35 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		return fmt.Errorf(T("po4a rendering failed: %v"), err)
 	}
 	return nil
+}
+
+func po4aMarkdownDir(cfgDir string) string {
+	candidates := []string{
+		cfgDir,
+		filepath.Join(cfgDir, "docs"),
+		filepath.Join(cfgDir, "doc"),
+		filepath.Join(filepath.Dir(cfgDir), "docs"),
+		filepath.Join(filepath.Dir(cfgDir), "doc"),
+	}
+	seen := make(map[string]bool)
+	for _, dir := range candidates {
+		if seen[dir] {
+			continue
+		}
+		seen[dir] = true
+		files, err := filepath.Glob(filepath.Join(dir, "*.*.md"))
+		if err != nil {
+			continue
+		}
+		for _, path := range files {
+			name := strings.TrimSuffix(filepath.Base(path), ".md")
+			section := filepath.Ext(name)
+			if len(section) == 2 && section[1] >= '0' && section[1] <= '9' {
+				return dir
+			}
+		}
+	}
+	return ""
 }
 
 // translateI18NextTarget translates flat JSON translation files.
