@@ -1,6 +1,9 @@
 package extract
 
 import (
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
@@ -43,4 +46,83 @@ func TestRunGoExtractUsesRelativeReferences(t *testing.T) {
 	if !strings.HasPrefix(ref, "internal/cli/sample.go:") {
 		t.Fatalf("reference is not relative to root: %q", ref)
 	}
+}
+
+func TestRunGoExtractIncludesTranslationEngineLogs(t *testing.T) {
+	root := filepath.Clean("..")
+	potPath := filepath.Join(t.TempDir(), "lokit.pot")
+	if _, err := RunGoExtract([]string{filepath.Join(root, "translate")}, potPath, "lokit", []string{"T"}, root); err != nil {
+		t.Fatalf("RunGoExtract: %v", err)
+	}
+
+	potPO, err := po.ParseFile(potPath)
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	extracted := make(map[string]bool, len(potPO.Entries))
+	for _, entry := range potPO.Entries {
+		extracted[entry.MsgID] = true
+	}
+
+	for _, msgid := range []string{
+		"Translating %s (%s) — %d keys...",
+		"  Chunk %d/%d (%d entries)",
+		"Saved %s (%d/%d translated)",
+		"Error translating %s: %v",
+	} {
+		if !extracted[msgid] {
+			t.Errorf("translation engine log %q was not extracted", msgid)
+		}
+	}
+}
+
+func TestTranslationEngineLogsUseGettext(t *testing.T) {
+	translateDir := filepath.Join("..", "translate")
+	entries, err := os.ReadDir(translateDir)
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+
+	checked := 0
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".go") || strings.HasSuffix(entry.Name(), "_test.go") {
+			continue
+		}
+		path := filepath.Join(translateDir, entry.Name())
+		file, err := parser.ParseFile(token.NewFileSet(), path, nil, 0)
+		if err != nil {
+			t.Fatalf("ParseFile(%s): %v", path, err)
+		}
+		ast.Inspect(file, func(node ast.Node) bool {
+			call, ok := node.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			sel, ok := call.Fun.(*ast.SelectorExpr)
+			if !ok || (sel.Sel.Name != "log" && sel.Sel.Name != "logError" && sel.Sel.Name != "Printf") {
+				return true
+			}
+			if len(call.Args) == 0 || !isGettextCall(call.Args[0]) {
+				t.Errorf("%s: %s format is not wrapped with i18n.T", path, sel.Sel.Name)
+			}
+			checked++
+			return true
+		})
+	}
+	if checked == 0 {
+		t.Fatal("no translation engine log calls checked")
+	}
+}
+
+func isGettextCall(expr ast.Expr) bool {
+	call, ok := expr.(*ast.CallExpr)
+	if !ok {
+		return false
+	}
+	sel, ok := call.Fun.(*ast.SelectorExpr)
+	if !ok || sel.Sel.Name != "T" {
+		return false
+	}
+	pkg, ok := sel.X.(*ast.Ident)
+	return ok && pkg.Name == "i18n"
 }

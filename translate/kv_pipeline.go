@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/minios-linux/lokit/i18n"
 	formatfile "github.com/minios-linux/lokit/internal/format"
 )
 
@@ -126,12 +127,12 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 
 		keysToTranslate, direct, err := prepareKVWork(task.File, task.SourceValues, task.LockKeyPrefix, taskOpts, translator, true)
 		if err != nil {
-			opts.logError("Error applying terminology for %s: %v", task.Lang, err)
+			opts.logError(i18n.T("Error applying terminology for %s: %v"), task.Lang, err)
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
 		if len(direct) > 0 {
-			opts.log("  Applied %d exact terminology translations", len(direct))
+			opts.log(i18n.T("  Applied %d exact terminology translations"), len(direct))
 		}
 
 		if len(keysToTranslate) == 0 {
@@ -145,7 +146,7 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 			continue
 		}
 
-		opts.log("Translating %s (%s) — %d keys...", task.Lang, task.LangName, len(keysToTranslate))
+		opts.log(i18n.T("Translating %s (%s) — %d keys..."), task.Lang, task.LangName, len(keysToTranslate))
 
 		translatedKeys, err := translateKVFile(ctx, task.File, task.SourceValues, keysToTranslate, taskOpts, translator)
 		if err != nil {
@@ -158,7 +159,7 @@ func translateKVSequential(ctx context.Context, langTasks []KVLangTask, opts Opt
 			if saveKVFile(task.File, task.FilePath, opts) == nil {
 				updateLockFileForKV(append(direct, translatedKeys...), task.SourceValues, task.LockKeyPrefix, taskOpts)
 			}
-			opts.logError("Error translating %s: %v", task.Lang, err)
+			opts.logError(i18n.T("Error translating %s: %v"), task.Lang, err)
 			failedLangs = append(failedLangs, task.Lang)
 			continue
 		}
@@ -240,7 +241,7 @@ func translateKVFullParallel(ctx context.Context, langTasks []KVLangTask, opts O
 			taskOpts.SourcePath = t.sourcePath
 		}
 
-		opts.log("Translating %s (%s) — %d keys...", t.lang, t.langName, len(t.keys))
+		opts.log(i18n.T("Translating %s (%s) — %d keys..."), t.lang, t.langName, len(t.keys))
 		translatedKeys, err := translateKVFileWithRL(ctx, t.file, t.sourceValues, t.keys, taskOpts, translator, rl)
 		if err != nil {
 			if ctx.Err() == nil {
@@ -291,7 +292,7 @@ func translateKVFileWithRL(ctx context.Context, file formatfile.KVFile, srcVals 
 		}
 
 		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d keys)", i+1, len(chunks), len(chunk))
+			opts.log(i18n.T("  Chunk %d/%d (%d keys)"), i+1, len(chunks), len(chunk))
 		}
 
 		translations, err := translateKVChunk(ctx, chunk, srcVals, systemPrompt, opts, translator, rl)
@@ -311,7 +312,7 @@ func translateKVFileWithRL(ctx context.Context, file formatfile.KVFile, srcVals 
 					return translatedKeys, fmt.Errorf("invalid markdown translation for key %q: structure mismatch", badKey)
 				}
 				if opts.Verbose {
-					opts.log("  Retrying chunk %d/%d due to markdown structure mismatch (%s)", i+1, len(chunks), badKey)
+					opts.log(i18n.T("  Retrying chunk %d/%d due to markdown structure mismatch (%s)"), i+1, len(chunks), badKey)
 				}
 				attempt++
 				if len(chunk) == 1 {
@@ -417,7 +418,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			opts.log("  Invalid translation response, retrying (%d/%d): %v", attempt+1, maxRetries, err)
+			opts.log(i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
 			}
@@ -466,11 +467,11 @@ func validateKVTranslations(keys []string, srcVals map[string]string, translatio
 
 func saveKVFile(file formatfile.KVFile, path string, opts Options) error {
 	if err := file.WriteFile(path); err != nil {
-		opts.logError("Error saving %s: %v", path, err)
+		opts.logError(i18n.T("Error saving %s: %v"), path, err)
 		return err
 	}
 	total, translated, _ := file.Stats()
-	opts.log("Saved %s (%d/%d translated)", path, translated, total)
+	opts.log(i18n.T("Saved %s (%d/%d translated)"), path, translated, total)
 	return nil
 }
 

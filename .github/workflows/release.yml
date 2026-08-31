@@ -64,6 +64,24 @@ jobs:
           # List built files
           ls -lh dist/
 
+      - name: Verify release binary
+        run: |
+          test_dir=$(mktemp -d)
+          archive="dist/lokit-${{ steps.version.outputs.VERSION }}-linux-amd64.tar.gz"
+          tar -xzf "$archive" -C "$test_dir"
+          binary="$test_dir/lokit-${{ steps.version.outputs.VERSION }}-linux-amd64"
+
+          version_output=$("$binary" version)
+          [[ "$version_output" == *"${{ steps.version.outputs.VERSION }}"* ]]
+          [[ "$version_output" == *"${{ github.sha }}"* ]]
+
+          LANGUAGE=C "$binary" --help > "$test_dir/help-en.txt"
+          LANGUAGE=de "$binary" --help > "$test_dir/help-de.txt"
+          if cmp -s "$test_dir/help-en.txt" "$test_dir/help-de.txt"; then
+            echo "Release binary does not contain the German locale" >&2
+            exit 1
+          fi
+
       - name: Generate changelog
         id: changelog
         run: |

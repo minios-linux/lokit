@@ -4,6 +4,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -51,6 +63,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -99,6 +120,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -108,6 +130,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -161,6 +184,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -523,6 +549,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -630,6 +657,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -857,6 +885,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -904,6 +944,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -952,6 +1001,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -961,6 +1011,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -1014,6 +1065,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -1376,6 +1430,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -1483,6 +1538,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -1710,6 +1766,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -1757,6 +1825,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -1805,6 +1882,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -1814,6 +1892,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -1867,6 +1946,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -2229,6 +2311,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -2336,6 +2419,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -2563,6 +2647,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -2610,6 +2706,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -2658,6 +2763,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -2667,6 +2773,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -2720,6 +2827,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -3082,6 +3192,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -3189,6 +3300,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -3416,6 +3528,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -3463,6 +3587,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -3511,6 +3644,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -3520,6 +3654,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -3573,6 +3708,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -3935,6 +4073,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -4042,6 +4181,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -4269,6 +4409,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -4316,6 +4468,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -4364,6 +4525,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -4373,6 +4535,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -4426,6 +4589,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -4788,6 +4954,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -4895,6 +5062,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -5122,6 +5290,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -5169,6 +5349,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -5217,6 +5406,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -5226,6 +5416,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -5279,6 +5470,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -5641,6 +5835,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -5748,6 +5943,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -5975,6 +6171,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -6022,6 +6230,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -6070,6 +6287,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -6079,6 +6297,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -6132,6 +6351,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -6494,6 +6716,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -6601,6 +6824,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -6828,6 +7052,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -6875,6 +7111,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -6923,6 +7168,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -6932,6 +7178,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -6985,6 +7232,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -7347,6 +7597,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -7454,6 +7705,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -7681,6 +7933,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -7728,6 +7992,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -7776,6 +8049,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -7785,6 +8059,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -7838,6 +8113,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -8200,6 +8478,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -8307,6 +8586,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -8534,6 +8814,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -8581,6 +8873,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -8629,6 +8930,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -8638,6 +8940,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -8691,6 +8994,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -9053,6 +9359,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -9160,6 +9467,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -9387,6 +9695,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -9434,6 +9754,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -9482,6 +9811,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -9491,6 +9821,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -9544,6 +9875,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -9906,6 +10240,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -10013,6 +10348,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d
@@ -10240,6 +10576,18 @@ checksums:
         '  %s: %d/%d': 59af8b39971b473414f8028151a5e5c1
         '  %s: %d/%d segments': 66968482ff9ff005e216b36c09e5d81f
         '  %s: %d/%d strings': 2c1c2e237cf41b84795f2642042c920a
+        '  Applied %d exact terminology translations': 4b3ee2129d3394c80fc308b857471654
+        '  Chunk %d/%d (%d entries)': 9eea89f0b097d2863588e807ed82cc2b
+        '  Chunk %d/%d (%d keys)': f14a4f90dbf67c6cdf0881ef611d4751
+        '  Invalid translation response, retrying (%d/%d): %v': e3ab7427742c6892f36e18ab41c3567e
+        '  Lock file: skipping %d unchanged entries': cb17cb28575e152a1e30f04c88ae19ca
+        '  Lock file: skipping %d unchanged keys': f03a9116ed0c13e1cf970bef724da0ee
+        '  Retrying chunk %d/%d due to markdown structure mismatch (%s)': 5e240cd76433f1ca944c06353782c8b3
+        '  Skipping %d ignored entries': 2ba901a276d647f2b609bbcfc583ffb3
+        '  Skipping %d ignored keys': 061a3b4c981cf76df76df7017d49fc8f
+        '  Skipping %d keys with empty/missing source values': a5e9b04bf354f2adae1e9e944db7196e
+        '  Skipping %d locked entries': b2937808803471d2d506f0c94194f085
+        '  Skipping %d locked keys': 050f26fe22df09742be0153d6b319466
         '  lokit auth login --provider gemini': 5c75e2c6cb6ecb5481560e47e58c75c4
         '%d fuzzy': fdd3317cf1e36e8a01f4c86817577cd9
         '%d keys': 4725932c1ed1a96db4ac6f6fa66bc8ef
@@ -10287,6 +10635,15 @@ checksums:
         '[%s] removed orphan lock target: %d': 4c2bd791f32bc1e535a3c189ac341c53
         '[%s] removed stale entries: %d': c0eedd2a15244ef5f2902f79bfba336c
         '[%s] stale entries: %d (tracked: %d)': 11a00cb01dc5162462b23ea2e9d26010
+        '[DEBUG] %s attempt %d: POST %s': 3ed12d9f3a689fa09baa64faf5ab8280
+        '[DEBUG] copilot attempt %d: POST %s (model: %s)': 833479b1f358a8ba1d2bc9cf49e0d32a
+        '[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)': 351a52f9bdaa0bde6074a769605f4e71
+        '[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)': c302e7bba02b03fb93cb31651e605850
+        '[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)': b2e1a77be96ad799c42d0b30156cbefd
+        '[WARN] Copilot returned 401, re-authenticating...': 9143e6ff7b47d26e424ca4e0a248b8ad
+        '[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)': 046693c4781d545230be3282e065bb46
+        '[WARN] Gemini returned 401, refreshing token...': 53dc6032071965218af47a64ae830f9a
+        '[WARN] Token refresh failed: %v, re-authenticating...': b9d1df30e07f1da6586f423a59c56aaf
         ✓ configured: 2cfaea3fba78014f7a0283e2541fe8bc
         'AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)': 01b0185a702b4af8188a9f3c20e21060
         API Key Providers: d043e557d325e01d620bd0e81b7e2249
@@ -10335,6 +10692,7 @@ checksums:
         'Cannot find source ARB file: %s': cd6b4bedc245ea0df1c51bb624a8d303
         Cannot find source Markdown files in %s: 0c9b272bfb80fe6c0b81921204a61f84
         Cannot find source YAML file for language %q in %s: 8aefb6cd3e4937eb90c226381da8f584
+        'Cannot load lock file: %v': 6e3751d6ed6e340e1ab11ca3a6ede003
         'Cannot read JS file %s: %v': cc6806b6cd50f06287bbbf4c62ce78bb
         'Cannot read POT template %s: %v': 5c23df0dcd0832dd8cfe7adefeb7a9f2
         'Cannot read source .properties file %s: %v': ecf5204f78aba2f9207dfc632b44c33f
@@ -10344,6 +10702,7 @@ checksums:
         'Cannot read source YAML file %s: %v': eaf4c3a6eeb4b459be86a7ca8b727e81
         'Cannot read source language file %s: %v': 5e9584f505a7206cc3a602d4fb5777ee
         'Cannot read source nested JSON file %s: %v': 4e6d30669982e99f18be3629c9db16c4
+        'Cannot save lock file: %v': 24da83845e11d8ebfd9612553c3d2a2c
         Check that source files contain translatable strings (_(), N_(), etc.): d57e0a4941ba0c6658003aa2381e665a
         'Choose authentication method:': 0417fb090990c4027bfc7a3cf76ca5d7
         'Chunk size: %d': 023071caa64b8bcf25a58b5a335b9164
@@ -10397,6 +10756,9 @@ checksums:
         'Enter this code:': dccb8cc034e7fe05c2c5529a1ccd3b8b
         Entries per API request (0 = all at once): 66aa13c5f562c18a5563d574cb2bb40d
         Environment Variables: b24f9455f35ddee269073bd635bd9216
+        'Error applying terminology for %s: %v': 7edfa2b887a1d0b95590473b201c2ede
+        'Error saving %s: %v': 646efa6be7eeb738861e3416e995045c
+        'Error translating %s: %v': d7eee659490480f1eb96804ce06e6b77
         'Examples:': fd05d7f6bfc90e815087880e8e915b43
         'Expected markdown files under: %s': 658bf935cfc4f8eb0510093ea36d2956
         'Expected: %s': a6bf3f59a4bf76e6b81d755493cb9357
@@ -10759,6 +11121,7 @@ checksums:
         Reset lock entries: 7d032c8471dcdea61090b0fa393c9a92
         Root: fa03eb688ad8aa1db593d33dabd89bad
         Running po4a --no-translations %s ...: 44f64adc80fd91f61d04955eb9cc8346
+        Saved %s (%d/%d translated): 991070d30bcf5e89b7186c143194b06f
         'Scanning for source files in: %s': f44b3b58f10e8b5df1f2d44a1dd42102
         Seeded %d desktop translations for %s: 8944fef06c3cb426fea8a2518679d198
         Select provider to authenticate: 5f794e1255325aa2901b964b3f6b49de
@@ -10866,6 +11229,7 @@ checksums:
               lokit translate --provider github-copilot --model MODEL_NAME --dry-run
         : 3cd51ef10c97c035e2a00a9a2b57c780
         Translate fuzzy entries and clear fuzzy flag: 407e2c0df88c8cad9132d0fb6d4bd0f5
+        Translating %s (%s) — %d keys...: 8e5bbc9385e426f1dc1bd1c0df99b94a
         'Translating: %s': 394ebb03e84707151cdb89a1930521d8
         Translation Statistics: 104ff41602e92ee8c760c9ad3d4867e7
         Translation completed with errors: df4ad34f9d56e66952de531d1e35162d

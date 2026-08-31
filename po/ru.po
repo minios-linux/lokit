@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lokit CLI \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-26 18:40+0000\n"
-"PO-Revision-Date: 2026-08-26 18:13+0000\n"
+"POT-Creation-Date: 2026-08-31 11:37+0000\n"
+"PO-Revision-Date: 2026-08-31 11:37+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -603,15 +603,15 @@ msgstr "Проверьте, что исходные файлы содержат 
 msgid "Cannot read POT template %s: %v"
 msgstr "Не удалось прочитать POT-шаблон %s: %v"
 
-#: internal/cli/helpers.go:304 internal/cli/init.go:554
+#: internal/cli/helpers.go:304 internal/cli/init.go:567
 msgid "Creating directory for %s: %v"
 msgstr "Создание директории для %s: %v"
 
-#: internal/cli/helpers.go:309 internal/cli/init.go:331
-#: internal/cli/init.go:580 internal/cli/target_content.go:299
-#: internal/cli/target_content.go:570 internal/cli/target_content.go:826
-#: internal/cli/target_content.go:1038 internal/cli/target_content.go:1238
-#: internal/cli/target_content.go:1436 internal/cli/target_index.go:217
+#: internal/cli/helpers.go:309 internal/cli/init.go:344
+#: internal/cli/init.go:593 internal/cli/target_content.go:300
+#: internal/cli/target_content.go:573 internal/cli/target_content.go:888
+#: internal/cli/target_content.go:1100 internal/cli/target_content.go:1300
+#: internal/cli/target_content.go:1498 internal/cli/target_index.go:217
 msgid "Creating %s: %v"
 msgstr "Создание %s: %v"
 
@@ -879,36 +879,40 @@ msgstr "исходные файлы не найдены (поддерживаю�
 msgid "reading explicit source file %s: %w"
 msgstr "чтение явного исходного файла %s: %w"
 
-#: internal/cli/init.go:168 internal/cli/lock.go:543 internal/cli/status.go:43
+#: internal/cli/init.go:169 internal/cli/lock.go:543 internal/cli/status.go:43
 #: internal/cli/translate_cmd.go:185
 msgid "Config error: %v"
 msgstr "Ошибка конфигурации: %v"
 
-#: internal/cli/init.go:172 internal/cli/lock.go:546 internal/cli/status.go:51
+#: internal/cli/init.go:173 internal/cli/lock.go:546 internal/cli/status.go:51
 #: internal/cli/translate_cmd.go:193
 msgid "No lokit.yaml found in %s"
 msgstr "Файл lokit.yaml не найден в %s"
 
-#: internal/cli/init.go:173 internal/cli/status.go:52
+#: internal/cli/init.go:174 internal/cli/status.go:52
 #: internal/cli/translate_cmd.go:194
 msgid "Create a lokit.yaml configuration file. See 'lokit init --help' for format reference."
 msgstr "Создайте конфигурационный файл lokit.yaml. Формат смотрите в 'lokit init --help'."
 
-#: internal/cli/init.go:181
+#: internal/cli/init.go:182
 msgid "Languages to init (comma-separated, default: all from config)"
 msgstr "Языки для инициализации (через запятую, по умолчанию: все из конфигурации)"
 
-#: internal/cli/init.go:182 internal/cli/lock.go:125 internal/cli/status.go:35
+#: internal/cli/init.go:183 internal/cli/lock.go:125 internal/cli/status.go:35
 #: internal/cli/translate_cmd.go:114
 msgid "Target name from lokit.yaml (repeat flag or use comma-separated list; default: all targets)"
 msgstr "Имя целевого объекта из lokit.yaml (повторите флаг или используйте список через запятую; по умолчанию: все targets)"
 
-#: internal/cli/init.go:193 internal/cli/lock.go:551 internal/cli/status.go:91
+#: internal/cli/init.go:193
+msgid "Cannot load lock file: %v"
+msgstr "Не удалось загрузить lock-файл: %v"
+
+#: internal/cli/init.go:199 internal/cli/lock.go:551 internal/cli/status.go:91
 #: internal/cli/translate_cmd.go:236
 msgid "Config resolve error: %v"
 msgstr "Ошибка разрешения конфигурации: %v"
 
-#: internal/cli/init.go:198 internal/cli/init.go:510 internal/cli/init.go:530
+#: internal/cli/init.go:204 internal/cli/init.go:523 internal/cli/init.go:543
 #: internal/cli/lock.go:159 internal/cli/lock.go:272 internal/cli/lock.go:366
 #: internal/cli/lock.go:374 internal/cli/lock.go:498 internal/cli/root.go:358
 #: internal/cli/status.go:96 internal/cli/translate_cmd.go:230
@@ -916,11 +920,11 @@ msgstr "Ошибка разрешения конфигурации: %v"
 msgid "%v"
 msgstr "%v"
 
-#: internal/cli/init.go:23
+#: internal/cli/init.go:24
 msgid "Prepare translation files (extract strings, create/update PO)"
 msgstr "Подготовить файлы переводов (извлечение строк, создание/обновление PO)"
 
-#: internal/cli/init.go:24
+#: internal/cli/init.go:25
 msgid ""
 "Extract translatable strings and create/update translation files.\n"
 "\n"
@@ -1204,136 +1208,140 @@ msgstr ""
 "      format: properties\n"
 "      dir: src/main/resources"
 
-#: internal/cli/init.go:271
+#: internal/cli/init.go:277
 msgid "Android targets do not require init — use 'lokit translate' directly."
 msgstr "Для целей Android инициализация не требуется — используйте 'lokit translate'."
 
-#: internal/cli/init.go:289
+#: internal/cli/init.go:297
 msgid "Desktop targets do not require init — use 'lokit translate' directly."
 msgstr "Для desktop-целей инициализация не требуется — используйте 'lokit translate'."
 
-#: internal/cli/init.go:292
+#: internal/cli/init.go:300
 msgid "Polkit targets do not require init — use 'lokit translate' directly."
 msgstr "Для polkit-целей инициализация не требуется — используйте 'lokit translate'."
 
-#: internal/cli/init.go:294 internal/cli/status.go:179
+#: internal/cli/init.go:302 internal/cli/status.go:179
 #: internal/cli/translate_cmd.go:412
 msgid "[%s] Unknown target type %q, skipping"
 msgstr "[%s] Неизвестный тип цели %q, пропускается"
 
-#: internal/cli/init.go:303
+#: internal/cli/init.go:307
+msgid "Cannot save lock file: %v"
+msgstr "Не удалось сохранить lock-файл: %v"
+
+#: internal/cli/init.go:316
 msgid "Cannot read source language file %s: %v"
 msgstr "Не удалось прочитать файл исходного языка %s: %v"
 
-#: internal/cli/init.go:308 internal/cli/target_content.go:280
-#: internal/cli/target_content.go:809 internal/cli/target_content.go:1021
-#: internal/cli/target_content.go:1221
+#: internal/cli/init.go:321 internal/cli/target_content.go:281
+#: internal/cli/target_content.go:871 internal/cli/target_content.go:1083
+#: internal/cli/target_content.go:1283
 msgid "Source language (%s): %d keys"
 msgstr "Исходный язык (%s): %d ключей"
 
-#: internal/cli/init.go:334 internal/cli/target_content.go:302
-#: internal/cli/target_content.go:829 internal/cli/target_content.go:1041
-#: internal/cli/target_content.go:1241 internal/cli/target_index.go:220
+#: internal/cli/init.go:347 internal/cli/target_content.go:303
+#: internal/cli/target_content.go:891 internal/cli/target_content.go:1103
+#: internal/cli/target_content.go:1303 internal/cli/target_index.go:220
 msgid "Created: %s (%d keys)"
 msgstr "Создано: %s (%d ключей)"
 
-#: internal/cli/init.go:350 internal/cli/target_core.go:81
+#: internal/cli/init.go:363 internal/cli/target_core.go:81
 msgid "Updating %s: %v"
 msgstr "Обновление %s: %v"
 
-#: internal/cli/init.go:353
+#: internal/cli/init.go:366
 msgid "Updated: %s (+%d new keys)"
 msgstr "Обновлено: %s (+%d новых ключей)"
 
-#: internal/cli/init.go:356
+#: internal/cli/init.go:369
 msgid "%s: up to date"
 msgstr "%s: актуально"
 
-#: internal/cli/init.go:360 internal/cli/init.go:602
+#: internal/cli/init.go:373 internal/cli/init.go:615
 msgid "Summary: %d created, %d updated"
 msgstr "Итого: создано — %d, обновлено — %d"
 
-#: internal/cli/init.go:363 internal/cli/init.go:522 internal/cli/init.go:608
+#: internal/cli/init.go:376 internal/cli/init.go:535 internal/cli/init.go:621
 msgid "Init complete!"
 msgstr "Инициализация завершена!"
 
-#: internal/cli/init.go:376
+#: internal/cli/init.go:389
 msgid "pandoc not found, skipping manpage generation from markdown"
 msgstr "pandoc не найден, пропуск генерации man-страниц из markdown"
 
-#: internal/cli/init.go:391
+#: internal/cli/init.go:404
 msgid "failed to list markdown files: %w"
 msgstr "не удалось получить список markdown-файлов: %w"
 
-#: internal/cli/init.go:424
+#: internal/cli/init.go:437
 msgid "Generating %s from %s"
 msgstr "Генерация %s из %s"
 
-#: internal/cli/init.go:429
+#: internal/cli/init.go:442
 msgid "pandoc failed for %s: %w"
 msgstr "ошибка pandoc для %s: %w"
 
-#: internal/cli/init.go:434
+#: internal/cli/init.go:447
 msgid "Failed to post-process %s: %v"
 msgstr "Не удалось выполнить постобработку %s: %v"
 
-#: internal/cli/init.go:441
+#: internal/cli/init.go:454
 msgid "Generated %d manpage(s) from markdown"
 msgstr "Сгенерировано %d man-страниц из markdown"
 
-#: internal/cli/init.go:476
+#: internal/cli/init.go:489
 msgid "po4a is not installed. Install with: sudo apt install po4a"
 msgstr "po4a не установлен. Установите командой: sudo apt install po4a"
 
-#: internal/cli/init.go:481
+#: internal/cli/init.go:494
 msgid "Failed to generate manpages from markdown: %v"
 msgstr "Не удалось сгенерировать man-страницы из markdown: %v"
 
-#: internal/cli/init.go:482
+#: internal/cli/init.go:495
 msgid "Continuing anyway, po4a might fail if source files don't exist"
 msgstr "Продолжаем выполнение, po4a может завершиться с ошибкой, если исходные файлы отсутствуют"
 
-#: internal/cli/init.go:485
+#: internal/cli/init.go:498
 msgid "Running po4a --no-translations %s ..."
 msgstr "Выполняется po4a --no-translations %s ..."
 
-#: internal/cli/init.go:491
+#: internal/cli/init.go:504
 msgid "po4a failed: %v"
 msgstr "ошибка po4a: %v"
 
-#: internal/cli/init.go:493
+#: internal/cli/init.go:506
 msgid "po4a updated POT and PO files"
 msgstr "po4a обновил POT и PO-файлы"
 
-#: internal/cli/init.go:537 internal/cli/init.go:588
-#: internal/cli/target_content.go:309 internal/cli/target_content.go:389
-#: internal/cli/target_content.go:578 internal/cli/target_content.go:678
-#: internal/cli/target_content.go:688 internal/cli/target_content.go:834
-#: internal/cli/target_content.go:902 internal/cli/target_content.go:1046
-#: internal/cli/target_content.go:1114 internal/cli/target_core.go:168
+#: internal/cli/init.go:550 internal/cli/init.go:601
+#: internal/cli/target_content.go:310 internal/cli/target_content.go:390
+#: internal/cli/target_content.go:581 internal/cli/target_content.go:740
+#: internal/cli/target_content.go:750 internal/cli/target_content.go:896
+#: internal/cli/target_content.go:964 internal/cli/target_content.go:1108
+#: internal/cli/target_content.go:1176 internal/cli/target_core.go:168
 #: internal/cli/target_core.go:322
 msgid "Reading %s: %v"
 msgstr "Чтение %s: %v"
 
-#: internal/cli/init.go:541
+#: internal/cli/init.go:554
 msgid "Updating PO files for: %s"
 msgstr "Обновление PO-файлов для: %s"
 
-#: internal/cli/init.go:583 internal/cli/target_content.go:1439
+#: internal/cli/init.go:596 internal/cli/target_content.go:1501
 msgid "Created: %s"
 msgstr "Создано: %s"
 
-#: internal/cli/init.go:594 internal/cli/target_content.go:315
-#: internal/cli/target_content.go:583 internal/cli/target_content.go:839
-#: internal/cli/target_content.go:1051 internal/cli/target_content.go:1248
-#: internal/cli/target_content.go:1450 internal/cli/target_index.go:236
+#: internal/cli/init.go:607 internal/cli/target_content.go:316
+#: internal/cli/target_content.go:588 internal/cli/target_content.go:901
+#: internal/cli/target_content.go:1113 internal/cli/target_content.go:1310
+#: internal/cli/target_content.go:1512 internal/cli/target_index.go:236
 msgid "Writing %s: %v"
 msgstr "Запись %s: %v"
 
-#: internal/cli/init.go:597 internal/cli/target_content.go:318
-#: internal/cli/target_content.go:586 internal/cli/target_content.go:842
-#: internal/cli/target_content.go:1054 internal/cli/target_content.go:1251
-#: internal/cli/target_content.go:1453 internal/cli/target_index.go:239
+#: internal/cli/init.go:610 internal/cli/target_content.go:319
+#: internal/cli/target_content.go:591 internal/cli/target_content.go:904
+#: internal/cli/target_content.go:1116 internal/cli/target_content.go:1313
+#: internal/cli/target_content.go:1515 internal/cli/target_index.go:239
 msgid "Updated: %s"
 msgstr "Обновлено: %s"
 
@@ -1457,19 +1465,19 @@ msgstr "Файл блокировки"
 msgid "Path"
 msgstr "Путь"
 
-#: internal/cli/lock.go:337
-msgid "Status"
-msgstr "Статус"
-
 #: internal/cli/lock.go:337 internal/cli/root.go:401 internal/cli/root.go:507
 #: internal/cli/root.go:542 internal/cli/status.go:79
-#: internal/cli/target_content.go:228 internal/cli/target_content.go:455
-#: internal/cli/target_content.go:752 internal/cli/target_content.go:964
-#: internal/cli/target_content.go:1178 internal/cli/target_content.go:1374
-#: internal/cli/target_content.go:1537 internal/cli/target_content.go:1558
+#: internal/cli/target_content.go:229 internal/cli/target_content.go:456
+#: internal/cli/target_content.go:814 internal/cli/target_content.go:1026
+#: internal/cli/target_content.go:1240 internal/cli/target_content.go:1436
+#: internal/cli/target_content.go:1599 internal/cli/target_content.go:1620
 #: internal/cli/target_index.go:162
 msgid "not found"
 msgstr "не найдено"
+
+#: internal/cli/lock.go:337
+msgid "Status"
+msgstr "Статус"
 
 #: internal/cli/lock.go:338 internal/cli/lock.go:344 internal/cli/status.go:67
 msgid "Targets"
@@ -1664,7 +1672,7 @@ msgstr "не удалось прочитать ни одного po4a PO-фай�
 msgid "cannot read source strings.xml %s: %v"
 msgstr "не удалось прочитать исходный strings.xml %s: %v"
 
-#: internal/cli/lock.go:961 internal/cli/target_content.go:611
+#: internal/cli/lock.go:961 internal/cli/target_content.go:673
 msgid "cannot find source Markdown files in %s"
 msgstr "не удалось найти исходные Markdown-файлы в %s"
 
@@ -1826,21 +1834,15 @@ msgstr "POT"
 msgid "Source strings"
 msgstr "Исходные строки"
 
-#: internal/cli/root.go:410 internal/cli/root.go:447
-#: internal/cli/status_kv.go:20
-msgid "Terms"
-msgstr "Термины"
-
-#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
-#: internal/cli/root.go:649 internal/cli/root.go:695
-#: internal/cli/status_kv.go:20
-msgid "Done"
-msgstr "Готово"
-
 #: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
 #: internal/cli/root.go:649
 msgid "Fuzzy"
 msgstr "Неточно"
+
+#: internal/cli/root.go:410 internal/cli/root.go:447
+#: internal/cli/status_kv.go:20
+msgid "Terms"
+msgstr "Термины"
 
 #: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
 #: internal/cli/root.go:649 internal/cli/root.go:695
@@ -1859,12 +1861,18 @@ msgstr "Осталось"
 msgid "Progress"
 msgstr "Прогресс"
 
+#: internal/cli/root.go:410 internal/cli/root.go:447 internal/cli/root.go:588
+#: internal/cli/root.go:649 internal/cli/root.go:695
+#: internal/cli/status_kv.go:20
+msgid "Done"
+msgstr "Готово"
+
 #: internal/cli/root.go:417 internal/cli/root.go:454 internal/cli/root.go:523
 #: internal/cli/root.go:556 internal/cli/root.go:604 internal/cli/root.go:657
-#: internal/cli/root.go:707 internal/cli/target_content.go:246
-#: internal/cli/target_content.go:484 internal/cli/target_content.go:773
-#: internal/cli/target_content.go:985 internal/cli/target_content.go:1196
-#: internal/cli/target_content.go:1399 internal/cli/target_index.go:177
+#: internal/cli/root.go:707 internal/cli/target_content.go:247
+#: internal/cli/target_content.go:485 internal/cli/target_content.go:835
+#: internal/cli/target_content.go:1047 internal/cli/target_content.go:1258
+#: internal/cli/target_content.go:1461 internal/cli/target_index.go:177
 msgid "missing"
 msgstr "отсутствует"
 
@@ -1885,29 +1893,29 @@ msgstr "Всего"
 msgid "missing files"
 msgstr "нехватающие файлы"
 
-#: internal/cli/root.go:499 internal/cli/target_content.go:223
-#: internal/cli/target_content.go:449 internal/cli/target_content.go:744
-#: internal/cli/target_content.go:956 internal/cli/target_content.go:1169
-#: internal/cli/target_content.go:1383
+#: internal/cli/root.go:499 internal/cli/target_content.go:224
+#: internal/cli/target_content.go:450 internal/cli/target_content.go:806
+#: internal/cli/target_content.go:1018 internal/cli/target_content.go:1231
+#: internal/cli/target_content.go:1445
 msgid "Translations"
 msgstr "Переводы"
 
 #: internal/cli/root.go:507 internal/cli/root.go:542 internal/cli/status.go:221
-#: internal/cli/target_content.go:228 internal/cli/target_content.go:234
-#: internal/cli/target_content.go:455 internal/cli/target_content.go:752
-#: internal/cli/target_content.go:758 internal/cli/target_content.go:964
-#: internal/cli/target_content.go:970 internal/cli/target_content.go:1178
-#: internal/cli/target_content.go:1378 internal/cli/target_content.go:1537
-#: internal/cli/target_content.go:1558 internal/cli/target_index.go:158
+#: internal/cli/target_content.go:229 internal/cli/target_content.go:235
+#: internal/cli/target_content.go:456 internal/cli/target_content.go:814
+#: internal/cli/target_content.go:820 internal/cli/target_content.go:1026
+#: internal/cli/target_content.go:1032 internal/cli/target_content.go:1240
+#: internal/cli/target_content.go:1440 internal/cli/target_content.go:1599
+#: internal/cli/target_content.go:1620 internal/cli/target_index.go:158
 #: internal/cli/target_index.go:162
 msgid "Source"
 msgstr "Исходник"
 
 #: internal/cli/root.go:511 internal/cli/root.go:689 internal/cli/status.go:256
-#: internal/cli/target_content.go:238 internal/cli/target_content.go:762
-#: internal/cli/target_content.go:974 internal/cli/target_content.go:1183
-#: internal/cli/target_content.go:1384 internal/cli/target_content.go:1541
-#: internal/cli/target_content.go:1562 internal/cli/target_index.go:168
+#: internal/cli/target_content.go:239 internal/cli/target_content.go:824
+#: internal/cli/target_content.go:1036 internal/cli/target_content.go:1245
+#: internal/cli/target_content.go:1446 internal/cli/target_content.go:1603
+#: internal/cli/target_content.go:1624 internal/cli/target_index.go:168
 msgid "Source keys"
 msgstr "Исходные ключи"
 
@@ -1947,7 +1955,7 @@ msgstr "Некорректный locked_pattern %q: %v"
 msgid "No language files detected in %s"
 msgstr "В %s не обнаружено языковых файлов"
 
-#: internal/cli/root.go:687 internal/cli/target_content.go:1387
+#: internal/cli/root.go:687 internal/cli/target_content.go:1449
 msgid "UI Translation Statistics"
 msgstr "Статистика перевода интерфейса"
 
@@ -2011,15 +2019,15 @@ msgstr "Корень"
 msgid "Source lang"
 msgstr "Исходный язык"
 
-#: internal/cli/status.go:76 internal/cli/status.go:221
-#: internal/cli/target_index.go:158
-msgid "error: %v"
-msgstr "ошибка: %v"
-
 #: internal/cli/status.go:76 internal/cli/status.go:79
 #: internal/cli/status.go:83 internal/cli/status.go:85
 msgid "Lock file"
 msgstr "Lock-файл"
+
+#: internal/cli/status.go:76 internal/cli/status.go:221
+#: internal/cli/target_index.go:158
+msgid "error: %v"
+msgstr "ошибка: %v"
 
 #: internal/cli/status.go:83
 msgid "empty"
@@ -2033,235 +2041,235 @@ msgstr "%d целей, %d ключей"
 msgid "[%s] %s terminology violations: %s"
 msgstr "[%s] %s нарушения терминологии: %s"
 
-#: internal/cli/target_content.go:1011
+#: internal/cli/target_content.go:1073
 msgid "Cannot find source ARB file: %s"
 msgstr "Не удалось найти исходный ARB-файл: %s"
 
-#: internal/cli/target_content.go:1017
+#: internal/cli/target_content.go:1079
 msgid "Cannot read source ARB file %s: %v"
 msgstr "Не удалось прочитать исходный ARB-файл %s: %v"
 
-#: internal/cli/target_content.go:1059
+#: internal/cli/target_content.go:1121
 msgid "Flutter ARB init: %d created, %d updated"
 msgstr "Инициализация Flutter ARB: создано — %d, обновлено — %d"
 
-#: internal/cli/target_content.go:1081
+#: internal/cli/target_content.go:1143
 msgid "cannot read source ARB file %s: %w"
 msgstr "не удалось прочитать исходный ARB-файл %s: %w"
 
-#: internal/cli/target_content.go:1124
+#: internal/cli/target_content.go:1186
 msgid "No ARB files to translate"
 msgstr "Нет ARB-файлов для перевода"
 
-#: internal/cli/target_content.go:1217
+#: internal/cli/target_content.go:1279
 msgid "Cannot read source nested JSON file %s: %v"
 msgstr "Не удалось прочитать исходный вложенный JSON-файл %s: %v"
 
-#: internal/cli/target_content.go:1255
+#: internal/cli/target_content.go:1317
 msgid "Vue i18n init: %d created, %d updated"
 msgstr "Инициализация Vue i18n: создано — %d, обновлено — %d"
 
-#: internal/cli/target_content.go:1278
+#: internal/cli/target_content.go:1340
 msgid "cannot read source nested JSON file %s: %w"
 msgstr "не удалось прочитать исходный вложенный JSON-файл %s: %w"
 
-#: internal/cli/target_content.go:1321
+#: internal/cli/target_content.go:1383
 msgid "No nested JSON files to translate"
 msgstr "Нет вложенных JSON-файлов для перевода"
 
-#: internal/cli/target_content.go:1424
+#: internal/cli/target_content.go:1486
 msgid "Cannot read source JS file %s: %v"
 msgstr "Не удалось прочитать исходный JS-файл %s: %v"
 
-#: internal/cli/target_content.go:1445
+#: internal/cli/target_content.go:1507
 msgid "Cannot read JS file %s: %v"
 msgstr "Не удалось прочитать JS-файл %s: %v"
 
-#: internal/cli/target_content.go:1464
+#: internal/cli/target_content.go:1526
 msgid "cannot read source JS file %s: %w"
 msgstr "не удалось прочитать исходный JS-файл %s: %w"
 
-#: internal/cli/target_content.go:1591
+#: internal/cli/target_content.go:1653
 msgid "cannot read desktop file %s: %w"
 msgstr "не удалось прочитать desktop-файл %s: %w"
 
-#: internal/cli/target_content.go:1622
+#: internal/cli/target_content.go:1684
 msgid "cannot read policy file %s: %w"
 msgstr "не удалось прочитать policy-файл %s: %w"
 
-#: internal/cli/target_content.go:234 internal/cli/target_content.go:758
-#: internal/cli/target_content.go:970
+#: internal/cli/target_content.go:235 internal/cli/target_content.go:820
+#: internal/cli/target_content.go:1032
 msgid "parse error: %v"
 msgstr "ошибка разбора: %v"
 
-#: internal/cli/target_content.go:253 internal/cli/target_content.go:780
-#: internal/cli/target_content.go:992 internal/cli/target_content.go:1376
-#: internal/cli/target_content.go:1401 internal/cli/target_content.go:1580
+#: internal/cli/target_content.go:254 internal/cli/target_content.go:842
+#: internal/cli/target_content.go:1054 internal/cli/target_content.go:1438
+#: internal/cli/target_content.go:1463 internal/cli/target_content.go:1642
 msgid "parse error"
 msgstr "ошибка разбора"
 
-#: internal/cli/target_content.go:269
+#: internal/cli/target_content.go:270
 msgid "Cannot find source YAML file for language %q in %s"
 msgstr "Не найден исходный YAML-файл для языка %q в %s"
 
-#: internal/cli/target_content.go:270
+#: internal/cli/target_content.go:271
 msgid "Expected: %s"
 msgstr "Ожидалось: %s"
 
-#: internal/cli/target_content.go:276
+#: internal/cli/target_content.go:277
 msgid "Cannot read source YAML file %s: %v"
 msgstr "Не удалось прочитать исходный YAML-файл %s: %v"
 
-#: internal/cli/target_content.go:295 internal/cli/target_content.go:549
-#: internal/cli/target_content.go:664 internal/cli/target_content.go:822
-#: internal/cli/target_content.go:1034 internal/cli/target_content.go:1234
+#: internal/cli/target_content.go:296 internal/cli/target_content.go:552
+#: internal/cli/target_content.go:726 internal/cli/target_content.go:884
+#: internal/cli/target_content.go:1096 internal/cli/target_content.go:1296
 msgid "Creating directory %s: %v"
 msgstr "Создание каталога %s: %v"
 
-#: internal/cli/target_content.go:322
+#: internal/cli/target_content.go:323
 msgid "YAML init: %d created, %d updated"
 msgstr "Инициализация YAML: создано — %d, обновлено — %d"
 
-#: internal/cli/target_content.go:328 internal/cli/target_content.go:598
-#: internal/cli/target_content.go:853 internal/cli/target_content.go:1065
-#: internal/cli/target_content.go:1261 internal/cli/target_core.go:89
+#: internal/cli/target_content.go:329 internal/cli/target_content.go:660
+#: internal/cli/target_content.go:915 internal/cli/target_content.go:1127
+#: internal/cli/target_content.go:1323 internal/cli/target_core.go:89
 #: internal/cli/target_core.go:194 internal/cli/target_core.go:351
 #: internal/cli/target_core.go:455
 msgid "Provider: %s (%s), Model: %s"
 msgstr "Провайдер: %s (%s), Модель: %s"
 
-#: internal/cli/target_content.go:330 internal/cli/target_content.go:600
-#: internal/cli/target_content.go:855 internal/cli/target_content.go:1067
-#: internal/cli/target_content.go:1263 internal/cli/target_core.go:91
+#: internal/cli/target_content.go:331 internal/cli/target_content.go:662
+#: internal/cli/target_content.go:917 internal/cli/target_content.go:1129
+#: internal/cli/target_content.go:1325 internal/cli/target_core.go:91
 #: internal/cli/target_core.go:457
 msgid "Parallel: enabled, max concurrent: %d"
 msgstr "Параллельно: включено, макс. одновременно: %d"
 
-#: internal/cli/target_content.go:333 internal/cli/target_content.go:603
-#: internal/cli/target_content.go:858 internal/cli/target_content.go:1070
-#: internal/cli/target_content.go:1266 internal/cli/target_core.go:94
+#: internal/cli/target_content.go:334 internal/cli/target_content.go:665
+#: internal/cli/target_content.go:920 internal/cli/target_content.go:1132
+#: internal/cli/target_content.go:1328 internal/cli/target_core.go:94
 #: internal/cli/target_core.go:460
 msgid "Chunk size: %d"
 msgstr "Размер чанка: %d"
 
-#: internal/cli/target_content.go:335 internal/cli/target_content.go:605
-#: internal/cli/target_content.go:860 internal/cli/target_content.go:1072
-#: internal/cli/target_content.go:1268 internal/cli/target_core.go:352
+#: internal/cli/target_content.go:336 internal/cli/target_content.go:667
+#: internal/cli/target_content.go:922 internal/cli/target_content.go:1134
+#: internal/cli/target_content.go:1330 internal/cli/target_core.go:352
 msgid "Translations dir: %s"
 msgstr "Каталог переводов: %s"
 
-#: internal/cli/target_content.go:336 internal/cli/target_content.go:606
-#: internal/cli/target_content.go:861 internal/cli/target_content.go:1073
-#: internal/cli/target_content.go:1269 internal/cli/target_core.go:97
+#: internal/cli/target_content.go:337 internal/cli/target_content.go:668
+#: internal/cli/target_content.go:923 internal/cli/target_content.go:1135
+#: internal/cli/target_content.go:1331 internal/cli/target_core.go:97
 #: internal/cli/target_core.go:197 internal/cli/target_core.go:353
 #: internal/cli/target_core.go:463
 msgid "Translating: %s"
 msgstr "Перевод: %s"
 
-#: internal/cli/target_content.go:341
+#: internal/cli/target_content.go:342
 msgid "cannot find source YAML file for language %q in %s"
 msgstr "не найден исходный YAML-файл для языка %q в %s"
 
-#: internal/cli/target_content.go:346
+#: internal/cli/target_content.go:347
 msgid "cannot read source YAML %s: %w"
 msgstr "не удалось прочитать исходный YAML %s: %w"
 
-#: internal/cli/target_content.go:349 internal/cli/target_content.go:872
-#: internal/cli/target_content.go:1084 internal/cli/target_content.go:1282
+#: internal/cli/target_content.go:350 internal/cli/target_content.go:934
+#: internal/cli/target_content.go:1146 internal/cli/target_content.go:1344
 #: internal/cli/target_core.go:472
 msgid "Source strings: %d"
 msgstr "Исходные строки: %d"
 
-#: internal/cli/target_content.go:357 internal/cli/target_content.go:1475
+#: internal/cli/target_content.go:358 internal/cli/target_content.go:1537
 #: internal/cli/target_core.go:369 internal/cli/target_core.go:480
 msgid "%s (%s): %d strings to translate (file will be auto-created)"
 msgstr "%s (%s): %d строк для перевода (файл будет создан автоматически)"
 
-#: internal/cli/target_content.go:363 internal/cli/target_content.go:371
-#: internal/cli/target_content.go:886 internal/cli/target_content.go:1098
-#: internal/cli/target_content.go:1294 internal/cli/target_content.go:1483
+#: internal/cli/target_content.go:364 internal/cli/target_content.go:372
+#: internal/cli/target_content.go:948 internal/cli/target_content.go:1160
+#: internal/cli/target_content.go:1356 internal/cli/target_content.go:1545
 #: internal/cli/target_core.go:105 internal/cli/target_core.go:227
 #: internal/cli/target_core.go:377 internal/cli/target_core.go:490
 #: internal/cli/target_index.go:270
 msgid "%s (%s): %d strings to translate"
 msgstr "%s (%s): %d строк для перевода"
 
-#: internal/cli/target_content.go:405
+#: internal/cli/target_content.go:406
 msgid "No YAML files to translate"
 msgstr "Нет YAML-файлов для перевода"
 
-#: internal/cli/target_content.go:438 internal/cli/target_content.go:945
-#: internal/cli/target_content.go:1157 internal/cli/target_content.go:1358
+#: internal/cli/target_content.go:439 internal/cli/target_content.go:1007
+#: internal/cli/target_content.go:1219 internal/cli/target_content.go:1420
 #: internal/cli/target_index.go:302
 msgid "  %s: %d/%d strings"
 msgstr "  %s: %d/%d строк"
 
-#: internal/cli/target_content.go:476
+#: internal/cli/target_content.go:477
 msgid "Source segments"
 msgstr "Исходные сегменты"
 
-#: internal/cli/target_content.go:533
+#: internal/cli/target_content.go:535
 msgid "Cannot find source Markdown files in %s"
 msgstr "Не удалось найти исходные Markdown-файлы в %s"
 
-#: internal/cli/target_content.go:534
+#: internal/cli/target_content.go:536
 msgid "Expected markdown files under: %s"
 msgstr "Ожидаемые файлы Markdown находятся в каталоге: %s"
 
-#: internal/cli/target_content.go:538
+#: internal/cli/target_content.go:540
 msgid "Source language (%s): %d files"
 msgstr "Исходный язык (%s): %d файлов"
 
-#: internal/cli/target_content.go:556 internal/cli/target_content.go:630
-#: internal/cli/target_content.go:671
+#: internal/cli/target_content.go:559 internal/cli/target_content.go:692
+#: internal/cli/target_content.go:733
 msgid "Computing relative path for %s: %v"
 msgstr "Вычисление относительного пути для %s: %v"
 
-#: internal/cli/target_content.go:563
+#: internal/cli/target_content.go:566
 msgid "Cannot read source Markdown file %s: %v"
 msgstr "Не удалось прочитать исходный Markdown-файл %s: %v"
 
-#: internal/cli/target_content.go:573
+#: internal/cli/target_content.go:576
 msgid "Created: %s (%d segments)"
 msgstr "Создано: %s (%d сегментов)"
 
-#: internal/cli/target_content.go:592
+#: internal/cli/target_content.go:597
 msgid "Markdown init: %d created, %d updated"
 msgstr "Инициализация Markdown: создано — %d, обновлено — %d"
 
-#: internal/cli/target_content.go:621
+#: internal/cli/target_content.go:683
 msgid "Source segments: %d (%d files)"
 msgstr "Исходные сегменты: %d (%d файлов)"
 
-#: internal/cli/target_content.go:654
+#: internal/cli/target_content.go:716
 msgid "%s (%s): %d segments to translate"
 msgstr "%s (%s): %d сегментов для перевода"
 
-#: internal/cli/target_content.go:700
+#: internal/cli/target_content.go:762
 msgid "No Markdown files to translate"
 msgstr "Нет Markdown-файлов для перевода"
 
-#: internal/cli/target_content.go:733
+#: internal/cli/target_content.go:795
 msgid "  %s: %d/%d segments"
 msgstr "  %s: %d/%d сегментов"
 
-#: internal/cli/target_content.go:799
+#: internal/cli/target_content.go:861
 msgid "Cannot find source .properties file: %s"
 msgstr "Не удалось найти исходный .properties-файл: %s"
 
-#: internal/cli/target_content.go:805
+#: internal/cli/target_content.go:867
 msgid "Cannot read source .properties file %s: %v"
 msgstr "Не удалось прочитать исходный .properties-файл %s: %v"
 
-#: internal/cli/target_content.go:847
+#: internal/cli/target_content.go:909
 msgid "Properties init: %d created, %d updated"
 msgstr "Инициализация Properties: создано — %d, обновлено — %d"
 
-#: internal/cli/target_content.go:869
+#: internal/cli/target_content.go:931
 msgid "cannot read source .properties file %s: %w"
 msgstr "не удалось прочитать исходный .properties-файл %s: %w"
 
-#: internal/cli/target_content.go:912
+#: internal/cli/target_content.go:974
 msgid "No .properties files to translate"
 msgstr "Нет .properties-файлов для перевода"
 
@@ -2649,5 +2657,107 @@ msgstr "коммит:"
 msgid "built:"
 msgstr "собрано:"
 
-#~ msgid "Invalid ignored_pattern %q: %v"
-#~ msgstr "Недопустимый ignored_pattern %q: %v"
+#: translate/kv_pipeline.go:130
+msgid "Error applying terminology for %s: %v"
+msgstr "Ошибка применения терминологии для %s: %v"
+
+#: translate/kv_pipeline.go:135 translate/translate.go:2090
+msgid "  Applied %d exact terminology translations"
+msgstr "  Применено %d точных переводов терминологии"
+
+#: translate/kv_pipeline.go:149 translate/kv_pipeline.go:244
+msgid "Translating %s (%s) — %d keys..."
+msgstr "Перевод %s (%s) — %d ключей..."
+
+#: translate/kv_pipeline.go:162 translate/translate.go:2823
+msgid "Error translating %s: %v"
+msgstr "Ошибка перевода %s: %v"
+
+#: translate/kv_pipeline.go:295
+msgid "  Chunk %d/%d (%d keys)"
+msgstr "  Блок %d/%d (%d ключей)"
+
+#: translate/kv_pipeline.go:315
+msgid "  Retrying chunk %d/%d due to markdown structure mismatch (%s)"
+msgstr "  Повторная попытка блока %d/%d из-за несоответствия структуры markdown (%s)"
+
+#: translate/kv_pipeline.go:421 translate/translate.go:1857
+#: translate/translate.go:2490
+msgid "  Invalid translation response, retrying (%d/%d): %v"
+msgstr "  Некорректный ответ перевода, повторная попытка (%d/%d): %v"
+
+#: translate/kv_pipeline.go:470 translate/translate.go:3119
+msgid "Error saving %s: %v"
+msgstr "Ошибка сохранения %s: %v"
+
+#: translate/kv_pipeline.go:474 translate/translate.go:3122
+msgid "Saved %s (%d/%d translated)"
+msgstr "Сохранено %s (переведено %d/%d)"
+
+#: translate/translate.go:1308
+msgid "[DEBUG] copilot attempt %d: POST %s (model: %s)"
+msgstr "[ОТЛАДКА] попытка copilot %d: POST %s (модель: %s)"
+
+#: translate/translate.go:1332
+msgid "[WARN] Copilot returned 401, re-authenticating..."
+msgstr "[ПРЕДУПРЕЖДЕНИЕ] Copilot вернул 401, повторная аутентификация..."
+
+#: translate/translate.go:1348
+msgid "[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)"
+msgstr "[ПРЕДУПРЕЖДЕНИЕ] Copilot ограничил по 429, ожидание %v (попытка %d/%d)"
+
+#: translate/translate.go:1496
+msgid "[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)"
+msgstr "[ОТЛАДКА] попытка gemini-oauth %d: POST %s (модель: %s)"
+
+#: translate/translate.go:1520
+msgid "[WARN] Gemini returned 401, refreshing token..."
+msgstr "[ПРЕДУПРЕЖДЕНИЕ] Gemini вернул 401, обновление токена..."
+
+#: translate/translate.go:1526
+msgid "[WARN] Token refresh failed: %v, re-authenticating..."
+msgstr "[ПРЕДУПРЕЖДЕНИЕ] Не удалось обновить токен: %v, повторная аутентификация..."
+
+#: translate/translate.go:1553
+msgid "[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)"
+msgstr "[ПРЕДУПРЕЖДЕНИЕ] Gemini ограничил по 429, ожидание %v (попытка %d/%d)"
+
+#: translate/translate.go:2122
+msgid "  Chunk %d/%d (%d entries)"
+msgstr "  Блок %d/%d (%d записей)"
+
+#: translate/translate.go:2212
+msgid "  Skipping %d ignored entries"
+msgstr "  Пропущено %d игнорируемых записей"
+
+#: translate/translate.go:2215
+msgid "  Skipping %d locked entries"
+msgstr "  Пропущено %d заблокированных записей"
+
+#: translate/translate.go:2239
+msgid "  Lock file: skipping %d unchanged entries"
+msgstr "  Lock-файл: пропущено %d неизменённых записей"
+
+#: translate/translate.go:2273
+msgid "  Lock file: skipping %d unchanged keys"
+msgstr "  Lock-файл: пропущено %d неизменённых ключей"
+
+#: translate/translate.go:2343
+msgid "  Skipping %d ignored keys"
+msgstr "  Пропущено %d игнорируемых ключей"
+
+#: translate/translate.go:2346
+msgid "  Skipping %d locked keys"
+msgstr "  Пропущено %d заблокированных ключей"
+
+#: translate/translate.go:2371
+msgid "  Skipping %d keys with empty/missing source values"
+msgstr "  Пропущено %d ключей с пустыми или отсутствующими исходными значениями"
+
+#: translate/translate.go:912 translate/translate.go:1018
+msgid "[DEBUG] %s attempt %d: POST %s"
+msgstr "[ОТЛАДКА] %s попытка %d: POST %s"
+
+#: translate/translate.go:941 translate/translate.go:1041
+msgid "[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)"
+msgstr "[ПРЕДУПРЕЖДЕНИЕ] Ограничение по 429, ожидание %v перед повтором (попытка %d/%d)"

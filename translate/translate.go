@@ -26,6 +26,7 @@ import (
 
 	"github.com/minios-linux/lokit/copilot"
 	"github.com/minios-linux/lokit/gemini"
+	"github.com/minios-linux/lokit/i18n"
 	"github.com/minios-linux/lokit/internal/format/android"
 	arbfile "github.com/minios-linux/lokit/internal/format/arb"
 	"github.com/minios-linux/lokit/internal/format/i18next"
@@ -908,7 +909,7 @@ func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 		}
 
 		if verbose {
-			log.Printf("[DEBUG] %s attempt %d: POST %s", prov.Name, attempt+1, openai.CodexResponsesEndpoint)
+			log.Printf(i18n.T("[DEBUG] %s attempt %d: POST %s"), prov.Name, attempt+1, openai.CodexResponsesEndpoint)
 		}
 
 		resp, err := client.Do(req)
@@ -937,7 +938,7 @@ func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 		if resp.StatusCode == http.StatusTooManyRequests {
 			retryDelay := parseRetryDelay(respBody)
 			if verbose {
-				log.Printf("[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)", retryDelay, attempt+1, maxRetries)
+				log.Printf(i18n.T("[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)"), retryDelay, attempt+1, maxRetries)
 			}
 			if rl != nil {
 				rl.pause(retryDelay)
@@ -1014,7 +1015,7 @@ func callHTTPProvider(ctx context.Context, prov Provider, systemPrompt, userProm
 		}
 
 		if verbose {
-			log.Printf("[DEBUG] %s attempt %d: POST %s", prov.Name, attempt+1, endpoint)
+			log.Printf(i18n.T("[DEBUG] %s attempt %d: POST %s"), prov.Name, attempt+1, endpoint)
 		}
 
 		resp, err := client.Do(req)
@@ -1037,7 +1038,7 @@ func callHTTPProvider(ctx context.Context, prov Provider, systemPrompt, userProm
 		if resp.StatusCode == http.StatusTooManyRequests {
 			retryDelay := parseRetryDelay(respBody)
 			if verbose {
-				log.Printf("[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)", retryDelay, attempt+1, maxRetries)
+				log.Printf(i18n.T("[WARN] 429 rate limited, waiting %v before retry (attempt %d/%d)"), retryDelay, attempt+1, maxRetries)
 			}
 			// Globally pause all workers
 			if rl != nil {
@@ -1304,7 +1305,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 		copilot.SetAuthHeaders(req, accessToken)
 
 		if verbose {
-			log.Printf("[DEBUG] copilot attempt %d: POST %s (model: %s)", attempt+1, endpoint, prov.Model)
+			log.Printf(i18n.T("[DEBUG] copilot attempt %d: POST %s (model: %s)"), attempt+1, endpoint, prov.Model)
 		}
 
 		resp, err := client.Do(req)
@@ -1328,7 +1329,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 			// Token may be expired/invalid -- delete and retry auth once
 			if attempt == 0 {
 				if verbose {
-					log.Printf("[WARN] Copilot returned 401, re-authenticating...")
+					log.Printf(i18n.T("[WARN] Copilot returned 401, re-authenticating..."))
 				}
 				_ = copilot.DeleteToken()
 				newToken, err := copilot.EnsureAuth(ctx)
@@ -1344,7 +1345,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 		if resp.StatusCode == http.StatusTooManyRequests {
 			retryDelay := parseRetryDelay(respBody)
 			if verbose {
-				log.Printf("[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)", retryDelay, attempt+1, maxRetries)
+				log.Printf(i18n.T("[WARN] Copilot 429 rate limited, waiting %v (attempt %d/%d)"), retryDelay, attempt+1, maxRetries)
 			}
 			if rl != nil {
 				rl.pause(retryDelay)
@@ -1492,7 +1493,7 @@ func callGeminiOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 		gemini.SetAuthHeaders(req, accessToken)
 
 		if verbose {
-			log.Printf("[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)", attempt+1, endpoint, prov.Model)
+			log.Printf(i18n.T("[DEBUG] gemini-oauth attempt %d: POST %s (model: %s)"), attempt+1, endpoint, prov.Model)
 		}
 
 		resp, err := client.Do(req)
@@ -1516,13 +1517,13 @@ func callGeminiOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 			// Token may be expired/revoked -- try refreshing once
 			if attempt == 0 {
 				if verbose {
-					log.Printf("[WARN] Gemini returned 401, refreshing token...")
+					log.Printf(i18n.T("[WARN] Gemini returned 401, refreshing token..."))
 				}
 				tok := gemini.LoadToken()
 				if tok != nil && tok.Refresh != "" {
 					if err := gemini.RefreshAccessToken(ctx, tok); err != nil {
 						if verbose {
-							log.Printf("[WARN] Token refresh failed: %v, re-authenticating...", err)
+							log.Printf(i18n.T("[WARN] Token refresh failed: %v, re-authenticating..."), err)
 						}
 						_ = gemini.DeleteToken()
 						newTok, err := gemini.EnsureAuthWithSetup(ctx)
@@ -1549,7 +1550,7 @@ func callGeminiOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 		if resp.StatusCode == http.StatusTooManyRequests {
 			retryDelay := parseRetryDelay(respBody)
 			if verbose {
-				log.Printf("[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)", retryDelay, attempt+1, maxRetries)
+				log.Printf(i18n.T("[WARN] Gemini 429 rate limited, waiting %v (attempt %d/%d)"), retryDelay, attempt+1, maxRetries)
 			}
 			if rl != nil {
 				rl.pause(retryDelay)
@@ -1853,7 +1854,7 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			opts.log("  Invalid translation response, retrying (%d/%d): %v", attempt+1, maxRetries, err)
+			opts.log(i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
 			}
@@ -2086,7 +2087,7 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 	}
 	if len(direct) > 0 {
 		updateLockFileForPO(direct, opts)
-		opts.log("  Applied %d exact terminology translations", len(direct))
+		opts.log(i18n.T("  Applied %d exact terminology translations"), len(direct))
 	}
 	toTranslate, err := collectEntriesWithTerminology(poFile, opts)
 	if err != nil {
@@ -2118,7 +2119,7 @@ func Translate(ctx context.Context, poFile *po.File, opts Options) error {
 		}
 
 		if opts.Verbose {
-			opts.log("  Chunk %d/%d (%d entries)", i+1, len(chunks), len(chunk))
+			opts.log(i18n.T("  Chunk %d/%d (%d entries)"), i+1, len(chunks), len(chunk))
 		}
 
 		if hasPluralEntries(chunk) {
@@ -2208,10 +2209,10 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 			filtered = append(filtered, e)
 		}
 		if ignoredCount > 0 {
-			opts.log("  Skipping %d ignored entries", ignoredCount)
+			opts.log(i18n.T("  Skipping %d ignored entries"), ignoredCount)
 		}
 		if lockedCount > 0 {
-			opts.log("  Skipping %d locked entries", lockedCount)
+			opts.log(i18n.T("  Skipping %d locked entries"), lockedCount)
 		}
 		toTranslate = filtered
 	}
@@ -2235,7 +2236,7 @@ func collectEntries(poFile *po.File, opts Options) []*po.Entry {
 			}
 		}
 		if skipped := len(toTranslate) - len(changed); skipped > 0 {
-			opts.log("  Lock file: skipping %d unchanged entries", skipped)
+			opts.log(i18n.T("  Lock file: skipping %d unchanged entries"), skipped)
 		}
 		toTranslate = changed
 	}
@@ -2269,7 +2270,7 @@ func filterChangedKeys(keys []string, sourceValues map[string]string, lockKeyPre
 		}
 	}
 	if skipped := len(keys) - len(changed); skipped > 0 {
-		opts.log("  Lock file: skipping %d unchanged keys", skipped)
+		opts.log(i18n.T("  Lock file: skipping %d unchanged keys"), skipped)
 	}
 	return changed
 }
@@ -2339,10 +2340,10 @@ func filterExcludedKeys(keys []string, opts Options) []string {
 		filtered = append(filtered, key)
 	}
 	if ignoredCount > 0 {
-		opts.log("  Skipping %d ignored keys", ignoredCount)
+		opts.log(i18n.T("  Skipping %d ignored keys"), ignoredCount)
 	}
 	if lockedCount > 0 {
-		opts.log("  Skipping %d locked keys", lockedCount)
+		opts.log(i18n.T("  Skipping %d locked keys"), lockedCount)
 	}
 	return filtered
 }
@@ -2367,7 +2368,7 @@ func filterKeysWithSourceValues(keys []string, sourceValues map[string]string, o
 		filtered = append(filtered, key)
 	}
 	if skipped > 0 {
-		opts.log("  Skipping %d keys with empty/missing source values", skipped)
+		opts.log(i18n.T("  Skipping %d keys with empty/missing source values"), skipped)
 	}
 	return filtered
 }
@@ -2486,7 +2487,7 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			opts.log("  Invalid translation response, retrying (%d/%d): %v", attempt+1, maxRetries, err)
+			opts.log(i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
 			}
@@ -2819,7 +2820,7 @@ func translateSequential(ctx context.Context, tasks []translationTask, opts Opti
 				return ctx.Err()
 			}
 			savePOFile(task.poFile, task.poPath, opts)
-			opts.logError("Error translating %s: %v", task.lang, err)
+			opts.logError(i18n.T("Error translating %s: %v"), task.lang, err)
 			failedLangs = append(failedLangs, task.lang)
 			continue
 		}
@@ -3115,10 +3116,10 @@ func splitStrings(items []string, chunkSize int) [][]string {
 func savePOFile(poFile *po.File, poPath string, opts Options) {
 	poFile.SetHeaderField("PO-Revision-Date", time.Now().UTC().Format("2006-01-02 15:04+0000"))
 	if err := poFile.WriteFile(poPath); err != nil {
-		opts.logError("Error saving %s: %v", poPath, err)
+		opts.logError(i18n.T("Error saving %s: %v"), poPath, err)
 	} else {
 		total, translated, _, _ := poFile.Stats()
-		opts.log("Saved %s (%d/%d translated)", poPath, translated, total)
+		opts.log(i18n.T("Saved %s (%d/%d translated)"), poPath, translated, total)
 	}
 }
 
