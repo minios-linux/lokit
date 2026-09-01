@@ -370,7 +370,7 @@ func groupFilesForXgettext(files []string) xgettextFileGroups {
 //  2. Shell scripts without extension (detected via shebang) — --language=Shell
 //  3. Glade .ui / .glade — --language=Glade
 //  4. Desktop .desktop / .nemo_action — --language=Desktop
-//  5. Polkit .policy / .policy.template — best-effort via ITS if available
+//  5. Polkit .policy / .policy.template — via ITS rules
 //
 // Parameters:
 //   - files: source files to extract from (must NOT contain .go files)
@@ -504,9 +504,7 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 	if len(groups.polkit) > 0 {
 		itsFile := findPolkitITS()
 		if itsFile == "" {
-			fmt.Fprintf(os.Stderr,
-				"warning: polkit ITS rules not found; polkit strings skipped"+
-					" (install polkit or gettext >= 0.19.8)\n")
+			return nil, fmt.Errorf("polkit ITS rules not found; install polkit or gettext >= 0.19.8")
 		} else {
 			tmpDir, err := os.MkdirTemp("", "lokit-polkit-*")
 			if err != nil {
@@ -546,8 +544,7 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 			args := baseArgs(true)
 			args = append(args, "--its="+itsFile)
 			if err := runPass(args, resolvedPolkit); err != nil {
-				// Non-fatal: polkit extraction is best-effort.
-				fmt.Fprintf(os.Stderr, "warning: polkit extraction failed (continuing): %v\n", err)
+				return nil, fmt.Errorf("polkit extraction failed: %w", err)
 			}
 		}
 	}

@@ -2,9 +2,12 @@ package po
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestClearTranslationsForPOT(t *testing.T) {
@@ -30,6 +33,31 @@ msgstr "translated"
 	}
 	if !strings.Contains(out, `msgstr ""`) {
 		t.Fatalf("expected empty msgstr for entry: %s", out)
+	}
+}
+
+func TestWriteFileDoesNotTouchUnchangedFile(t *testing.T) {
+	f, err := Parse(strings.NewReader("msgid \"hello\"\nmsgstr \"Hallo\"\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	path := filepath.Join(t.TempDir(), "de.po")
+	if err := f.WriteFile(path); err != nil {
+		t.Fatalf("initial WriteFile: %v", err)
+	}
+	oldTime := time.Unix(1_700_000_000, 0)
+	if err := os.Chtimes(path, oldTime, oldTime); err != nil {
+		t.Fatalf("Chtimes: %v", err)
+	}
+	if err := f.WriteFile(path); err != nil {
+		t.Fatalf("unchanged WriteFile: %v", err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("Stat: %v", err)
+	}
+	if !info.ModTime().Equal(oldTime) {
+		t.Fatalf("unchanged WriteFile changed mtime to %v", info.ModTime())
 	}
 }
 

@@ -3,6 +3,8 @@
 package merge
 
 import (
+	"sort"
+
 	po "github.com/minios-linux/lokit/internal/format/po"
 )
 
@@ -146,11 +148,14 @@ func mergeFlags(poFlags, potFlags []string) []string {
 	if flagSet["fuzzy"] {
 		result = append(result, "fuzzy")
 	}
+	var remaining []string
 	for f := range flagSet {
 		if f != "fuzzy" {
-			result = append(result, f)
+			remaining = append(remaining, f)
 		}
 	}
+	sort.Strings(remaining)
+	result = append(result, remaining...)
 
 	return result
 }

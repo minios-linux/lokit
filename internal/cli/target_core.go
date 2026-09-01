@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/minios-linux/lokit/config"
 	. "github.com/minios-linux/lokit/i18n"
@@ -55,35 +56,52 @@ func translateGettextTarget(ctx context.Context, rt config.ResolvedTarget, prov 
 	var desktopFiles []string
 	if !a.dryRun {
 		logInfo(T("Extracting strings and updating PO files..."))
+		previousPOT, err := snapshotFile(proj.POTFile)
+		if err != nil {
+			return fmt.Errorf(T("cannot snapshot POT template %s: %v"), proj.POTFile, err)
+		}
 		var extractErr error
 		desktopFiles, extractErr = doExtract(proj)
+		potReady := extractErr == nil
 		if extractErr != nil {
 			logWarning(T("Extraction failed: %v"), extractErr)
 			logInfo(T("Continuing with existing PO files"))
+			if previousPOT.exists {
+				if err := restoreFileSnapshot(proj.POTFile, previousPOT); err != nil {
+					return fmt.Errorf(T("cannot restore POT template %s: %v"), proj.POTFile, err)
+				} else {
+					potReady = true
+				}
+			} else {
+				if err := os.Remove(proj.POTFile); err != nil && !os.IsNotExist(err) {
+					return fmt.Errorf(T("cannot remove incomplete POT template %s: %v"), proj.POTFile, err)
+				}
+			}
 		}
-
 		// Merge POT into existing PO files and seed desktop translations in
 		// one pass via mergeAndSeedPO (same logic as runInitCode). If extraction
 		// failed after source scanning, desktopFiles may still be available, and
 		// the last on-disk POT can still drive a useful merge+seed update.
-		potPO, err := po.ParseFile(proj.POTFile)
-		if err == nil {
-			for _, lang := range langs {
-				poPath := rt.POPath(lang)
-				if !fileExists(poPath) {
-					continue // will be created below
+		if potReady {
+			potPO, err := po.ParseFile(proj.POTFile)
+			if err == nil {
+				for _, lang := range langs {
+					poPath := rt.POPath(lang)
+					if !fileExists(poPath) {
+						continue // will be created below
+					}
+					existingPO, err := po.ParseFile(poPath)
+					if err != nil {
+						continue
+					}
+					merged := mergeAndSeedPO(existingPO, potPO, lang, root, desktopFiles)
+					if err := merged.WriteFile(poPath); err != nil {
+						logError(T("Updating %s: %v"), poPath, err)
+					}
 				}
-				existingPO, err := po.ParseFile(poPath)
-				if err != nil {
-					continue
-				}
-				merged := mergeAndSeedPO(existingPO, potPO, lang, root, desktopFiles)
-				if err := merged.WriteFile(poPath); err != nil {
-					logError(T("Updating %s: %v"), poPath, err)
-				}
+			} else {
+				logWarning(T("Cannot read POT template %s: %v"), proj.POTFile, err)
 			}
-		} else if extractErr == nil || fileExists(proj.POTFile) {
-			logWarning(T("Cannot read POT template %s: %v"), proj.POTFile, err)
 		}
 	}
 
@@ -325,6 +343,9 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	} else if err := translate.TranslateAll(ctx, langTasks, opts); err != nil {
 		return err
 	}
+	if err := synchronizePo4aSharedTranslations(langTasks, opts); err != nil {
+		return err
+	}
 
 	logInfo(T("Rendering translated documents with po4a..."))
 	cmd := exec.Command("po4a", cfgPath)
@@ -335,6 +356,172 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 		return fmt.Errorf(T("po4a rendering failed: %v"), err)
 	}
 	return nil
+}
+
+type po4aSharedTranslation struct {
+	msgstr    string
+	localized bool
+}
+
+func synchronizePo4aSharedTranslations(tasks []translate.LangTask, opts translate.Options) error {
+	byLanguage := make(map[string][]translate.LangTask)
+	var languageOrder []string
+	for _, task := range tasks {
+		if _, exists := byLanguage[task.Lang]; !exists {
+			languageOrder = append(languageOrder, task.Lang)
+		}
+		byLanguage[task.Lang] = append(byLanguage[task.Lang], task)
+	}
+	for _, language := range languageOrder {
+		languageTasks := byLanguage[language]
+		canonical := make(map[string]po4aSharedTranslation)
+		for _, task := range languageTasks {
+			for _, entry := range task.POFile.Entries {
+				if entry.Obsolete || entry.MsgIDPlural != "" || !entry.IsTranslated() || po4aSyncExcluded(entry.MsgID, opts) {
+					continue
+				}
+				key := entry.MsgCtxt + "\x00" + entry.MsgID + "\x00" + entry.MsgIDPlural
+				candidateLocalized := poTranslationDiffersFromSource(entry)
+				if existing, exists := canonical[key]; exists && (existing.localized || !candidateLocalized) {
+					continue
+				}
+				canonical[key] = po4aSharedTranslation{
+					msgstr:    entry.MsgStr,
+					localized: candidateLocalized,
+				}
+			}
+		}
+		for _, task := range languageTasks {
+			changed := false
+			for _, entry := range task.POFile.Entries {
+				if entry.MsgID == "" || entry.MsgIDPlural != "" || entry.Obsolete || po4aSyncExcluded(entry.MsgID, opts) {
+					continue
+				}
+				key := entry.MsgCtxt + "\x00" + entry.MsgID + "\x00" + entry.MsgIDPlural
+				translation, exists := canonical[key]
+				if !exists {
+					continue
+				}
+				if entry.MsgStr == translation.msgstr && !entry.IsFuzzy() {
+					continue
+				}
+				entry.MsgStr = translation.msgstr
+				entry.SetFuzzy(false)
+				changed = true
+			}
+			if changed {
+				if err := task.POFile.WriteFile(task.POPath); err != nil {
+					return fmt.Errorf(T("cannot synchronize shared po4a translations in %s: %v"), task.POPath, err)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func poTranslationDiffersFromSource(entry *po.Entry) bool {
+	return entry.MsgStr != entry.MsgID
+}
+
+func po4aSyncExcluded(key string, opts translate.Options) bool {
+	for _, ignored := range opts.IgnoredKeys {
+		if ignored == key {
+			return true
+		}
+	}
+	for _, pattern := range opts.IgnoredPatterns {
+		if pattern.MatchString(key) {
+			return true
+		}
+	}
+	if opts.ForceTranslate {
+		return false
+	}
+	for _, locked := range opts.LockedKeys {
+		if locked == key {
+			return true
+		}
+	}
+	for _, pattern := range opts.LockedPatterns {
+		if pattern.MatchString(key) {
+			return true
+		}
+	}
+	return false
+}
+
+type fileSnapshot struct {
+	data    []byte
+	mode    os.FileMode
+	modTime time.Time
+	exists  bool
+}
+
+func snapshotFile(path string) (fileSnapshot, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fileSnapshot{}, nil
+		}
+		return fileSnapshot{}, err
+	}
+	snapshot := fileSnapshot{data: data, mode: 0o644, exists: true}
+	info, err := os.Stat(path)
+	if err != nil {
+		return fileSnapshot{}, err
+	}
+	snapshot.mode = info.Mode().Perm()
+	snapshot.modTime = info.ModTime()
+	return snapshot, nil
+}
+
+func restoreFileSnapshot(path string, snapshot fileSnapshot) error {
+	if !snapshot.exists {
+		return nil
+	}
+	if err := os.WriteFile(path, snapshot.data, snapshot.mode); err != nil {
+		return err
+	}
+	if err := os.Chmod(path, snapshot.mode); err != nil {
+		return err
+	}
+	if !snapshot.modTime.IsZero() {
+		return os.Chtimes(path, snapshot.modTime, snapshot.modTime)
+	}
+	return nil
+}
+
+func restorePOTCreationDateOnlyChange(path string, previous fileSnapshot) error {
+	if !previous.exists {
+		return nil
+	}
+	current, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	if potEqualIgnoringCreationDate(string(current), string(previous.data)) {
+		return restoreFileSnapshot(path, previous)
+	}
+	return nil
+}
+
+func potEqualIgnoringCreationDate(a, b string) bool {
+	strip := func(value string) string {
+		lines := strings.Split(value, "\n")
+		filtered := lines[:0]
+		inHeader := true
+		for _, line := range lines {
+			if inHeader && strings.HasPrefix(line, `"POT-Creation-Date:`) {
+				continue
+			}
+			filtered = append(filtered, line)
+			if inHeader && line == "" {
+				inHeader = false
+			}
+		}
+		return strings.Join(filtered, "\n")
+	}
+	return strip(a) == strip(b)
 }
 
 func po4aMarkdownDir(cfgDir string, masters []string) string {

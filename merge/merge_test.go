@@ -1,10 +1,18 @@
 package merge
 
 import (
+	"strings"
 	"testing"
 
 	po "github.com/minios-linux/lokit/internal/format/po"
 )
+
+func TestMergeFlagsUsesDeterministicOrder(t *testing.T) {
+	got := mergeFlags([]string{"python-format", "fuzzy"}, []string{"c-format", "sh-format"})
+	if joined := strings.Join(got, ","); joined != "fuzzy,c-format,python-format,sh-format" {
+		t.Fatalf("mergeFlags order = %q", joined)
+	}
+}
 
 func TestMergeKeepNewObsoleteAndHeaderUpdate(t *testing.T) {
 	poFile := po.NewFile()

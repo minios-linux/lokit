@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/minios-linux/lokit/internal/format/i18next"
 	po "github.com/minios-linux/lokit/internal/format/po"
@@ -1947,6 +1948,39 @@ func TestCollectEntries_ForceDoesNotOverrideIgnoredPatterns(t *testing.T) {
 	})
 	if len(entries) != 0 {
 		t.Fatalf("collectEntries len=%d, want 0", len(entries))
+	}
+}
+
+func TestTranslateAllSequentialNoOpPreservesPOFile(t *testing.T) {
+	raw := []byte("msgid \"\"\n\"hello\"\nmsgstr \"Hallo\"\n")
+	poFile, err := po.Parse(bytes.NewReader(raw))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	path := filepath.Join(t.TempDir(), "de.po")
+	if err := os.WriteFile(path, raw, 0o664); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if err := os.Chmod(path, 0o664); err != nil {
+		t.Fatalf("Chmod: %v", err)
+	}
+	oldTime := time.Unix(1_700_000_000, 0)
+	if err := os.Chtimes(path, oldTime, oldTime); err != nil {
+		t.Fatalf("Chtimes: %v", err)
+	}
+	if err := TranslateAll(context.Background(), []LangTask{{Lang: "de", POFile: poFile, POPath: path}}, Options{}); err != nil {
+		t.Fatalf("TranslateAll: %v", err)
+	}
+	got, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("ReadFile: %v", err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("Stat: %v", err)
+	}
+	if !bytes.Equal(got, raw) || info.Mode().Perm() != 0o664 || !info.ModTime().Equal(oldTime) {
+		t.Fatalf("no-op changed file: bytes=%q mode=%o mtime=%v", got, info.Mode().Perm(), info.ModTime())
 	}
 }
 

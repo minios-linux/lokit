@@ -123,10 +123,20 @@ func RunGoExtract(dirs []string, potFile, domain string, keywords []string, refB
 		kwMap[kw.FuncName] = append(kwMap[kw.FuncName], kw)
 	}
 
-	// Collect .go files from directories
+	// Collect .go files from explicit files or directories.
 	var goFiles []string
-	for _, dir := range dirs {
-		filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	for _, input := range dirs {
+		info, err := os.Stat(input)
+		if err != nil {
+			return nil, fmt.Errorf("reading Go source %s: %w", input, err)
+		}
+		if !info.IsDir() {
+			if filepath.Ext(input) == ".go" && !strings.HasSuffix(input, "_test.go") {
+				goFiles = append(goFiles, input)
+			}
+			continue
+		}
+		filepath.Walk(input, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
 			}
@@ -168,8 +178,7 @@ func RunGoExtract(dirs []string, potFile, domain string, keywords []string, refB
 
 	for _, path := range goFiles {
 		if err := extractFromFile(fset, path, refBase, kwMap, entries); err != nil {
-			// Log but continue — one bad file shouldn't stop extraction
-			fmt.Fprintf(os.Stderr, "warning: skipping %s: %v\n", path, err)
+			return nil, fmt.Errorf("extracting %s: %w", path, err)
 		}
 	}
 

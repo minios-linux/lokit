@@ -4,6 +4,7 @@ package po
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -422,12 +423,20 @@ func (f *File) Write(w io.Writer) error {
 
 // WriteFile writes the PO file to disk.
 func (f *File) WriteFile(path string) error {
-	out, err := os.Create(path)
-	if err != nil {
+	var out bytes.Buffer
+	if err := f.Write(&out); err != nil {
 		return err
 	}
-	defer out.Close()
-	return f.Write(out)
+	mode := os.FileMode(0o644)
+	if current, err := os.ReadFile(path); err == nil {
+		if bytes.Equal(current, out.Bytes()) {
+			return nil
+		}
+		if info, statErr := os.Stat(path); statErr == nil {
+			mode = info.Mode().Perm()
+		}
+	}
+	return os.WriteFile(path, out.Bytes(), mode)
 }
 
 func writeEntry(w *bufio.Writer, e *Entry) error {

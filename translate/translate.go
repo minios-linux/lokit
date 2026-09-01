@@ -2915,19 +2915,23 @@ func translateSequential(ctx context.Context, tasks []translationTask, opts Opti
 		if task.lockTarget != "" {
 			taskOpts.LockTarget = task.lockTarget
 		}
+		before, err := serializePOFile(task.poFile)
+		if err != nil {
+			return fmt.Errorf("serializing %s before translation: %w", task.poPath, err)
+		}
 
 		if err := Translate(ctx, task.poFile, taskOpts); err != nil {
 			if ctx.Err() != nil {
-				savePOFile(task.poFile, task.poPath, opts)
+				savePOFileIfChanged(task.poFile, task.poPath, opts, before)
 				return ctx.Err()
 			}
-			savePOFile(task.poFile, task.poPath, opts)
+			savePOFileIfChanged(task.poFile, task.poPath, opts, before)
 			opts.logError(i18n.T("Error translating %s: %v"), task.lang, err)
 			failedLangs = append(failedLangs, task.lang)
 			continue
 		}
 
-		savePOFile(task.poFile, task.poPath, opts)
+		savePOFileIfChanged(task.poFile, task.poPath, opts, before)
 	}
 	if len(failedLangs) > 0 {
 		return fmt.Errorf("%d language(s) failed: %s", len(failedLangs), strings.Join(failedLangs, ", "))
@@ -3223,6 +3227,26 @@ func savePOFile(poFile *po.File, poPath string, opts Options) {
 		total, translated, _, _ := poFile.Stats()
 		opts.logEvent(LogEventWrite, i18n.T("Saved %s (%d/%d translated)"), poPath, translated, total)
 	}
+}
+
+func savePOFileIfChanged(poFile *po.File, poPath string, opts Options, before []byte) {
+	after, err := serializePOFile(poFile)
+	if err != nil {
+		opts.logError(i18n.T("Error serializing %s: %v"), poPath, err)
+		return
+	}
+	if bytes.Equal(before, after) {
+		return
+	}
+	savePOFile(poFile, poPath, opts)
+}
+
+func serializePOFile(poFile *po.File) ([]byte, error) {
+	var out bytes.Buffer
+	if err := poFile.Write(&out); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }
 
 // escapeForPrompt prepares a string for inclusion in the AI prompt.

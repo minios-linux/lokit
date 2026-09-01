@@ -26,7 +26,7 @@ import (
 // list of .desktop / .nemo_action files found during the scan as a byproduct.
 // Callers receive the desktop file list for free, avoiding a second
 // FindSources walk when seeding PO files.
-func doExtract(proj *config.Project) ([]string, error) {
+func doExtract(proj *config.Project) (_ []string, retErr error) {
 	// If no source dirs configured, scan the project root
 	scanDirs := proj.SourceDirs
 	if len(scanDirs) == 0 {
@@ -113,6 +113,38 @@ func doExtract(proj *config.Project) ([]string, error) {
 	}
 
 	potFile := proj.POTFile
+	previousPOT, err := snapshotFile(potFile)
+	if err != nil {
+		return nil, fmt.Errorf(T("cannot snapshot POT template %s: %v"), potFile, err)
+	}
+	defer func() {
+		if retErr == nil {
+			if err := restorePOTCreationDateOnlyChange(potFile, previousPOT); err == nil {
+				if !previousPOT.exists {
+					return
+				}
+				if err := os.Chmod(potFile, previousPOT.mode); err == nil {
+					return
+				} else {
+					retErr = fmt.Errorf(T("cannot preserve POT template permissions %s: %v"), potFile, err)
+				}
+			} else {
+				retErr = fmt.Errorf(T("cannot preserve unchanged POT template %s: %v"), potFile, err)
+			}
+		}
+		var restoreErr error
+		if previousPOT.exists {
+			restoreErr = restoreFileSnapshot(potFile, previousPOT)
+		} else {
+			restoreErr = os.Remove(potFile)
+			if os.IsNotExist(restoreErr) {
+				restoreErr = nil
+			}
+		}
+		if restoreErr != nil {
+			retErr = fmt.Errorf("%w; restoring POT template: %v", retErr, restoreErr)
+		}
+	}()
 	var finalPOT string
 
 	// Helper: extract Go files using the appropriate tool.
@@ -120,7 +152,11 @@ func doExtract(proj *config.Project) ([]string, error) {
 	// wrapper functions like T(), N()). Otherwise use xgotext (handles direct
 	// gotext.Get() calls).
 	extractGo := func(goFiles []string, outPotFile string) (*extract.ExtractResult, error) {
-		// Collect unique directories containing Go files
+		if len(proj.Keywords) > 0 {
+			logInfo(T("Extracting from %d Go files (AST, keywords: %s)..."),
+				len(goFiles), strings.Join(proj.Keywords, ", "))
+			return extract.RunGoExtract(goFiles, outPotFile, proj.Name, proj.Keywords, baseDir)
+		}
 		goDirSet := make(map[string]bool)
 		for _, f := range goFiles {
 			goDirSet[filepath.Dir(f)] = true
@@ -128,12 +164,6 @@ func doExtract(proj *config.Project) ([]string, error) {
 		var goDirs []string
 		for d := range goDirSet {
 			goDirs = append(goDirs, d)
-		}
-
-		if len(proj.Keywords) > 0 {
-			logInfo(T("Extracting from %d Go files (AST, keywords: %s)..."),
-				len(goFiles), strings.Join(proj.Keywords, ", "))
-			return extract.RunGoExtract(goDirs, outPotFile, proj.Name, proj.Keywords, baseDir)
 		}
 		logInfo(T("Extracting from %d Go files with xgotext..."), len(goFiles))
 		return extract.RunXgotext(goDirs, outPotFile, proj.Name)
@@ -156,10 +186,7 @@ func doExtract(proj *config.Project) ([]string, error) {
 
 		goResult, err := extractGo(goFiles, goPotFile)
 		if err != nil {
-			logError(T("Go extraction failed: %v"), err)
-			logInfo(T("Continuing with xgettext results only"))
-			finalPOT = xgettextResult.POTFile
-			break
+			return desktopFiles, fmt.Errorf(T("Go extraction failed: %w"), err)
 		}
 		_ = goResult
 
