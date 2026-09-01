@@ -519,6 +519,11 @@ func makeHTTPClient(proxyURL string, timeout time.Duration) *http.Client {
 
 type apiFormat int
 
+type providerMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
 const (
 	formatOpenAIChat      apiFormat = iota // OpenAI chat/completions
 	formatGeminiNative                     // Google Gemini generateContent
@@ -532,21 +537,21 @@ const (
 // ---------------------------------------------------------------------------
 
 func buildOpenAIChatRequest(model, systemPrompt, userPrompt string, temperature float64) ([]byte, error) {
-	type msg struct {
-		Role    string `json:"role"`
-		Content string `json:"content"`
-	}
+	return buildOpenAIChatMessagesRequest(model, []providerMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: userPrompt},
+	}, temperature)
+}
+
+func buildOpenAIChatMessagesRequest(model string, messages []providerMessage, temperature float64) ([]byte, error) {
 	req := struct {
-		Model       string  `json:"model"`
-		Messages    []msg   `json:"messages"`
-		Temperature float64 `json:"temperature"`
-		Stream      bool    `json:"stream"`
+		Model       string            `json:"model"`
+		Messages    []providerMessage `json:"messages"`
+		Temperature float64           `json:"temperature"`
+		Stream      bool              `json:"stream"`
 	}{
-		Model: model,
-		Messages: []msg{
-			{Role: "system", Content: systemPrompt},
-			{Role: "user", Content: userPrompt},
-		},
+		Model:       model,
+		Messages:    messages,
 		Temperature: temperature,
 		Stream:      false,
 	}
@@ -872,6 +877,35 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 		// Fallback: treat as OpenAI-compatible
 		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
 	}
+}
+
+func callProviderConversation(ctx context.Context, prov Provider, messages []providerMessage, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
+	if prov.ID == ProviderGitHubCopilot {
+		return callCopilotMessages(ctx, prov, messages, rl, maxRetries, verbose)
+	}
+	if len(messages) == 2 && messages[0].Role == "system" && messages[1].Role == "user" {
+		return callProvider(ctx, prov, messages[0].Content, messages[1].Content, rl, maxRetries, verbose)
+	}
+	systemPrompt := ""
+	var prompt strings.Builder
+	for _, message := range messages {
+		if message.Role == "system" && systemPrompt == "" {
+			systemPrompt = message.Content
+			continue
+		}
+		prompt.WriteString("\n\n")
+		prompt.WriteString(strings.ToUpper(message.Role))
+		prompt.WriteString(":\n")
+		prompt.WriteString(message.Content)
+	}
+	return callProvider(ctx, prov, systemPrompt, strings.TrimSpace(prompt.String()), rl, maxRetries, verbose)
+}
+
+func appendRejectedResponse(messages []providerMessage, response string, err error) []providerMessage {
+	return append(messages,
+		providerMessage{Role: "assistant", Content: response},
+		providerMessage{Role: "user", Content: fmt.Sprintf("Your previous response was rejected: %v\nCorrect the reported problem and return the complete response again using exactly the required IDs and JSON shape.", err)},
+	)
 }
 
 func callOpenAI(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
@@ -1290,6 +1324,13 @@ func callGeminiViaOpenCode(ctx context.Context, prov Provider, systemPrompt, use
 // callCopilot authenticates with GitHub Copilot and calls the API.
 // Uses the OpenAI chat completions format against api.githubcopilot.com.
 func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
+	return callCopilotMessages(ctx, prov, []providerMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: userPrompt},
+	}, rl, maxRetries, verbose)
+}
+
+func callCopilotMessages(ctx context.Context, prov Provider, messages []providerMessage, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
 	// Ensure we have a valid token (will prompt for auth if needed)
 	accessToken, err := copilot.EnsureAuth(ctx)
 	if err != nil {
@@ -1297,7 +1338,7 @@ func callCopilot(ctx context.Context, prov Provider, systemPrompt, userPrompt st
 	}
 
 	// Build OpenAI chat completions request body
-	body, err := buildOpenAIChatRequest(prov.Model, systemPrompt, userPrompt, providerTemperature(prov))
+	body, err := buildOpenAIChatMessagesRequest(prov.Model, messages, providerTemperature(prov))
 	if err != nil {
 		return "", fmt.Errorf("building request: %w", err)
 	}
@@ -1870,12 +1911,12 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 
 	maxRetries := opts.effectiveMaxRetries()
 	var lastErr error
+	conversation := []providerMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: basePrompt},
+	}
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		prompt := basePrompt
-		if lastErr != nil {
-			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
-		}
-		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -1894,6 +1935,7 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		}
 		lastErr = err
 		if attempt < maxRetries {
+			conversation = appendRejectedResponse(conversation, text, err)
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
@@ -2516,12 +2558,12 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 
 	maxRetries := opts.effectiveMaxRetries()
 	var lastErr error
+	conversation := []providerMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: basePrompt},
+	}
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		prompt := basePrompt
-		if lastErr != nil {
-			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
-		}
-		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -2546,6 +2588,7 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		}
 		lastErr = err
 		if attempt < maxRetries {
+			conversation = appendRejectedResponse(conversation, text, err)
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err

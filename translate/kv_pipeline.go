@@ -429,12 +429,12 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 	maxRetries := opts.effectiveMaxRetries()
 	var translations []string
 	var lastErr error
+	conversation := []providerMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: userPrompt},
+	}
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		prompt := userPrompt
-		if lastErr != nil {
-			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required IDs and JSON shape.", lastErr)
-		}
-		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -460,6 +460,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		}
 		lastErr = err
 		if attempt < maxRetries {
+			conversation = appendRejectedResponse(conversation, text, err)
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
@@ -779,12 +780,12 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	basePrompt := appendTerminologyPrompt(userMsg.String(), terminologyPrompt)
 	maxRetries := opts.effectiveMaxRetries()
 	var lastErr error
+	conversation := []providerMessage{
+		{Role: "system", Content: systemPrompt},
+		{Role: "user", Content: basePrompt},
+	}
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		prompt := basePrompt
-		if lastErr != nil {
-			prompt += fmt.Sprintf("\n\nYour previous response was rejected: %v\nReturn a corrected complete response using the required ID and JSON shape.", lastErr)
-		}
-		text, err := callProvider(ctx, opts.Provider, systemPrompt, prompt, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -811,6 +812,7 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 		}
 		lastErr = err
 		if attempt < maxRetries {
+			conversation = appendRejectedResponse(conversation, text, err)
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err

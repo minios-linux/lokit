@@ -100,6 +100,9 @@ func maskPreservedTerms(text string, rules []terminology.TermMatch, namespace st
 			continue
 		}
 		for _, span := range rule.SourceSpans(text) {
+			if preserveSpanCoveredByTranslatedTerm(rule, span, text, rules) {
+				continue
+			}
 			spans = append(spans, preservedTermSpan{start: span.Start, end: span.End})
 		}
 	}
@@ -141,6 +144,30 @@ func maskPreservedTerms(text string, rules []terminology.TermMatch, namespace st
 	}
 	out.WriteString(string(runes[end:]))
 	return out.String(), values
+}
+
+func preserveSpanCoveredByTranslatedTerm(preserve terminology.TermMatch, span terminology.TermSpan, text string, rules []terminology.TermMatch) bool {
+	for _, rule := range rules {
+		if rule.Preserve {
+			continue
+		}
+		containsPreservedForm := false
+		for _, expected := range rule.Expected() {
+			if preserve.MatchesSource(expected) {
+				containsPreservedForm = true
+				break
+			}
+		}
+		if !containsPreservedForm {
+			continue
+		}
+		for _, translatedSpan := range rule.SourceSpans(text) {
+			if translatedSpan.Start <= span.Start && translatedSpan.End >= span.End {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func restorePreservedTerms(text string, values map[string]string, namespace string) (string, error) {

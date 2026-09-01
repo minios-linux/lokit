@@ -2,8 +2,10 @@
 package translate
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -255,6 +257,104 @@ func TestPreservedTermMaskMergesCrossingSpans(t *testing.T) {
 	}
 	if restored != "Open Code Assistant" {
 		t.Fatalf("restored crossing terms = %q", restored)
+	}
+}
+
+func TestPreservedTermMaskSkipsBrandInsideTranslatedTerm(t *testing.T) {
+	rules := []terminology.TermMatch{
+		{ID: "brand.minios", Source: "MiniOS", Match: terminology.MatchWord, Preserve: true},
+		{ID: "app.installer", Source: "MiniOS Installer", Match: terminology.MatchWord, Preferred: "Instalador de MiniOS"},
+	}
+	namespace := preservedTermNamespace([]string{"MiniOS works with MiniOS Installer"})
+	masked, values := maskPreservedTerms("MiniOS works with MiniOS Installer", rules, namespace, 0)
+	if len(values) != 1 {
+		t.Fatalf("preserved values = %v, want only the standalone brand", values)
+	}
+	if !strings.Contains(masked, "MiniOS Installer") {
+		t.Fatalf("translated compound term was masked: %s", masked)
+	}
+	if strings.Count(masked, namespace) != 1 {
+		t.Fatalf("masked text has unexpected tokens: %s", masked)
+	}
+}
+
+func TestRejectedResponseBuildsConversationHistory(t *testing.T) {
+	messages := []providerMessage{
+		{Role: "system", Content: "rules"},
+		{Role: "user", Content: "translate"},
+	}
+	messages = appendRejectedResponse(messages, `[{"id":"kv-1","translation":"MiniOS MiniOS"}]`, fmt.Errorf("expected one MiniOS"))
+	body, err := buildOpenAIChatMessagesRequest("gpt-4.1", messages, 0)
+	if err != nil {
+		t.Fatalf("buildOpenAIChatMessagesRequest: %v", err)
+	}
+	var request struct {
+		Messages []providerMessage `json:"messages"`
+	}
+	if err := json.Unmarshal(body, &request); err != nil {
+		t.Fatalf("unmarshal request: %v", err)
+	}
+	roles := []string{"system", "user", "assistant", "user"}
+	if len(request.Messages) != len(roles) {
+		t.Fatalf("conversation messages = %#v", request.Messages)
+	}
+	for i, role := range roles {
+		if request.Messages[i].Role != role {
+			t.Fatalf("message %d role = %q, want %q", i, request.Messages[i].Role, role)
+		}
+	}
+	if !strings.Contains(request.Messages[3].Content, "expected one MiniOS") {
+		t.Fatalf("correction message does not include validation feedback: %s", request.Messages[3].Content)
+	}
+}
+
+func TestKVTerminologyRetryIncludesRejectedResponseAndRecovers(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: hardware.ram
+    source: RAM
+    preserve: true
+`)
+	attempt := 0
+	var token string
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Fatalf("read request: %v", err)
+		}
+		attempt++
+		if attempt == 1 {
+			token = preservedTermTokenFromBody(t, body)
+			_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"memory"}, []string{token + " RAM"})))
+			return
+		}
+		if !bytes.Contains(body, []byte("ASSISTANT:")) ||
+			!bytes.Contains(body, []byte(token+" RAM")) ||
+			!bytes.Contains(body, []byte("expected 1 occurrence(s), found 2")) {
+			t.Fatalf("correction request lacks conversation context: %s", body)
+		}
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"memory"}, []string{token})))
+	}))
+	defer ts.Close()
+
+	file := newTestKVFile([]string{"memory"}, map[string]string{"memory": ""})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang:         "de",
+		LangName:     "German",
+		FilePath:     "de.json",
+		File:         file,
+		SourceValues: map[string]string{"memory": "RAM"},
+	}}, Options{
+		Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test-model"},
+		ParallelMode: ParallelSequential,
+		Terminology:  catalog,
+	}, DefaultKVChunkTranslator())
+	if err != nil {
+		t.Fatalf("TranslateAllKV: %v", err)
+	}
+	if attempt != 2 || file.Value("memory") != "RAM" {
+		t.Fatalf("attempts=%d translation=%q", attempt, file.Value("memory"))
 	}
 }
 
