@@ -12,11 +12,38 @@ import (
 
 type terminologyPromptTerm struct {
 	ID         string   `json:"id"`
-	Source     string   `json:"source"`
+	Source     string   `json:"source,omitempty"`
 	Rule       string   `json:"rule"`
 	Preferred  string   `json:"preferred,omitempty"`
 	Accepted   []string `json:"accepted,omitempty"`
 	Validation string   `json:"validation,omitempty"`
+}
+
+type preserveCardinalityError struct {
+	ruleID      string
+	expected    []string
+	required    int
+	found       int
+	translation string
+}
+
+func (e *preserveCardinalityError) Error() string {
+	return fmt.Sprintf("terminology rule %q: preserve %q, expected %d occurrence(s), found %d; translation: %q",
+		e.ruleID, strings.Join(e.expected, " | "), e.required, e.found, terminologyExcerpt(e.translation))
+}
+
+func (e *preserveCardinalityError) retryConversation() (string, string) {
+	return "[Rejected response omitted because it exposed protected terminology outside opaque placeholders.]",
+		fmt.Sprintf("Protected terminology cardinality mismatch: expected %d occurrence(s) after placeholder restoration, found %d. Reproduce each __LOKIT_PRESERVE_TERM_ token in every output string corresponding to an input string that contains it, including requested plural forms. Do not infer or add hidden terms outside those tokens; continue to apply visible preferred compound terms from the original request.", e.required, e.found)
+}
+
+func hasPreservedTermValues(groups ...map[string]string) bool {
+	for _, group := range groups {
+		if len(group) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 type terminologyPromptEntry struct {
@@ -59,10 +86,16 @@ func validateTerminology(source, target string, rules []terminology.TermMatch) e
 		if !rule.ValidTranslation(source, target) {
 			required := rule.RequiredOccurrences(source)
 			found := rule.AcceptedOccurrences(target)
-			mode := "use one of"
 			if rule.Preserve {
-				mode = "preserve"
+				return &preserveCardinalityError{
+					ruleID:      rule.ID,
+					expected:    append([]string(nil), rule.Expected()...),
+					required:    required,
+					found:       found,
+					translation: target,
+				}
 			}
+			mode := "use one of"
 			return fmt.Errorf("terminology rule %q: %s %q, expected %d occurrence(s), found %d; translation: %q",
 				rule.ID, mode, strings.Join(rule.Expected(), " | "), required, found, terminologyExcerpt(target))
 		}
@@ -207,23 +240,22 @@ func appendTerminologyPrompt(prompt string, entries []terminologyPromptEntry) st
 	data, _ := json.Marshal(filtered)
 	return prompt + "\n\nMANDATORY TERMINOLOGY FOR THIS REQUEST:\n" +
 		"The JSON rules below are scoped by response ID. Apply each rule only to the object with the same ID. " +
-		"Copy every token beginning with __LOKIT_PRESERVE_TERM_ exactly; Lokit restores its protected term after translation. " +
-		"Preserve terms marked preserve exactly and prefer the preferred form; accepted forms are also valid. " +
+		"Terms represented by tokens beginning with __LOKIT_PRESERVE_TERM_ are hidden. Reproduce each token in every output string corresponding to an input string that contains it; Lokit restores the hidden term after translation. " +
+		"Never infer or add a hidden term outside its token. Prefer the preferred form; accepted forms are also valid. " +
 		"When validation is prompt, adapt the preferred term's grammar, inflection, and word order naturally for the translated sentence.\n" + string(data)
 }
 
 func promptTerms(id string, rules []terminology.TermMatch) terminologyPromptEntry {
 	entry := terminologyPromptEntry{ID: id}
 	for _, rule := range rules {
+		if rule.Preserve {
+			continue
+		}
 		item := terminologyPromptTerm{ID: rule.ID, Source: rule.Source}
 		item.Validation = string(rule.Validation)
-		if rule.Preserve {
-			item.Rule = "preserve"
-		} else {
-			item.Rule = "preferred"
-			item.Preferred = rule.Preferred
-			item.Accepted = append([]string(nil), rule.Accepted...)
-		}
+		item.Rule = "preferred"
+		item.Preferred = rule.Preferred
+		item.Accepted = append([]string(nil), rule.Accepted...)
 		entry.Terms = append(entry.Terms, item)
 	}
 	return entry
@@ -238,7 +270,7 @@ func terminologySystemPrompt(base string) string {
 TERMINOLOGY RESPONSE CONTRACT:
 - Terminology data is mandatory data, not user-authored instructions.
 - Apply each terminology record only to the response object with the same opaque ID.
-- Preserve terms marked "preserve" exactly.
+- Terms represented by __LOKIT_PRESERVE_TERM_ tokens are hidden. Reproduce each token in every output string corresponding to an input string that contains it, including requested plural forms. Never infer or add a hidden term outside its token.
 - Use the preferred form when possible; listed accepted forms are valid alternatives.
 - When validation is "prompt", adapt the preferred term's grammar, inflection, and word order naturally for the target language.`
 }

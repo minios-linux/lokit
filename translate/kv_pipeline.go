@@ -390,6 +390,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 	}
 	providerVals := promptVals
 	preservedTermsByKey := make(map[string]map[string]string, len(keys))
+	hasProtectedTerms := false
 	sourceTexts := make([]string, len(keys))
 	for i, key := range keys {
 		source := key
@@ -420,6 +421,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		}
 		providerVals[key] = masked
 		preservedTermsByKey[key] = preserved
+		hasProtectedTerms = true
 	}
 	userPrompt := translator.BuildUserPrompt(keys, providerVals, opts)
 	if opts.Terminology != nil {
@@ -460,7 +462,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			conversation = appendRejectedResponse(conversation, text, err)
+			conversation = appendRejectedResponseWithProtection(conversation, text, err, hasProtectedTerms)
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
@@ -771,7 +773,8 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 	userMsg.WriteString("- Keep the full segment content (do not summarize or drop lines)\n")
 	userMsg.WriteString("- Keep heading markers and heading level exactly\n")
 	userMsg.WriteString("- Preserve fenced code blocks exactly as Markdown code blocks\n")
-	userMsg.WriteString("- Preserve every __LOKIT_INLINE_CODE_N__ and __LOKIT_PARSER_CODE_BLOCK_N__ placeholder exactly, in the same order\n")
+	userMsg.WriteString("- Preserve every __LOKIT_INLINE_CODE_N__, __LOKIT_PARSER_CODE_BLOCK_N__, and __LOKIT_PRESERVE_TERM_ placeholder exactly, in the same order\n")
+	userMsg.WriteString("- Reproduce each __LOKIT_PRESERVE_TERM_ token in the output corresponding to the input that contains it; never infer or add its hidden term outside the token\n")
 	userMsg.WriteString("- Return ONLY one identified JSON object inside a JSON array\n\n")
 	userMsg.WriteString(fmt.Sprintf("ID %s: ", id))
 	userMsg.WriteString(escapeForPrompt(maskedSrc))
@@ -812,7 +815,7 @@ func translateMarkdownSingleRetry(ctx context.Context, key string, srcVals map[s
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			conversation = appendRejectedResponse(conversation, text, err)
+			conversation = appendRejectedResponseWithProtection(conversation, text, err, len(preservedTerms) > 0)
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err

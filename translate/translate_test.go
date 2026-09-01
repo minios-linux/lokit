@@ -309,7 +309,28 @@ func TestRejectedResponseBuildsConversationHistory(t *testing.T) {
 	}
 }
 
-func TestKVTerminologyRetryIncludesRejectedResponseAndRecovers(t *testing.T) {
+func TestPreserveCardinalityRetryHidesProtectedTerm(t *testing.T) {
+	rules := []terminology.TermMatch{{
+		ID: "brand.minios", Source: "MiniOS", Match: terminology.MatchWord,
+		CaseSensitive: true, Preserve: true,
+	}}
+	err := validateTerminology("MiniOS runs MiniOS", "MiniOS MiniOS MiniOS", rules)
+	if err == nil {
+		t.Fatal("expected preserve cardinality error")
+	}
+	messages := appendRejectedResponse([]providerMessage{
+		{Role: "system", Content: "rules"},
+		{Role: "user", Content: "translate opaque placeholders"},
+	}, `[{"id":"kv-1","translation":"MiniOS MiniOS MiniOS"}]`, fmt.Errorf("path: %w", err))
+	if strings.Contains(messages[2].Content, "MiniOS") || strings.Contains(messages[3].Content, "MiniOS") {
+		t.Fatalf("retry conversation exposed protected term: %#v", messages)
+	}
+	if !strings.Contains(messages[2].Content, "omitted") || !strings.Contains(messages[3].Content, "corresponding to an input") {
+		t.Fatalf("retry conversation lacks safe correction guidance: %#v", messages)
+	}
+}
+
+func TestKVTerminologyRetryHidesRejectedProtectedTermAndRecovers(t *testing.T) {
 	catalog := loadTestTerminology(t, `version: 1
 terms:
   - id: hardware.ram
@@ -331,9 +352,10 @@ terms:
 			return
 		}
 		if !bytes.Contains(body, []byte("ASSISTANT:")) ||
-			!bytes.Contains(body, []byte(token+" RAM")) ||
-			!bytes.Contains(body, []byte("expected 1 occurrence(s), found 2")) {
-			t.Fatalf("correction request lacks conversation context: %s", body)
+			!bytes.Contains(body, []byte("Rejected response omitted")) ||
+			!bytes.Contains(body, []byte("expected 1 occurrence(s) after placeholder restoration, found 2")) ||
+			bytes.Contains(body, []byte("RAM")) {
+			t.Fatalf("correction request exposes protected terminology or lacks safe context: %s", body)
 		}
 		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"memory"}, []string{token})))
 	}))
@@ -406,6 +428,9 @@ terms:
 		token := preservedTermTokenFromBody(t, body)
 		if !strings.Contains(string(body), token+" settings") {
 			t.Errorf("PO provider prompt does not mask preserved term: %s", body)
+		}
+		if strings.Contains(string(body), "MiniOS") || strings.Contains(string(body), "brand.minios") {
+			t.Errorf("PO provider prompt exposes protected terminology metadata: %s", body)
 		}
 		value, _ := json.Marshal(token + "-Einstellungen")
 		content, _ := json.Marshal([]identifiedTranslation{{ID: id, Translation: value}})
@@ -1519,14 +1544,20 @@ terms:
 		requests++
 		defer r.Body.Close()
 		body, _ := io.ReadAll(r.Body)
-		token := preservedTermTokenFromBody(t, body)
-		if !strings.Contains(string(body), "### "+token+" Settings") {
+		tokens := preservedTermTokenPattern.FindAllString(string(body), -1)
+		if len(tokens) != 3 || !strings.Contains(string(body), "### "+strings.Join(tokens, " ")+" Settings") {
 			t.Errorf("Markdown retry prompt does not mask preserved term: %s", body)
 		}
+		if strings.Contains(string(body), "MiniOS") || strings.Contains(string(body), "brand.minios") {
+			t.Errorf("Markdown retry prompt exposes protected term: %s", body)
+		}
+		if !strings.Contains(string(body), "corresponding to an input") || !strings.Contains(string(body), "never infer") {
+			t.Errorf("Markdown retry prompt lacks protected-token contract: %s", body)
+		}
 		w.Header().Set("Content-Type", "application/json")
-		translation := "### MiniOS-Einstellungen"
+		translation := "## " + strings.Join(tokens, " ") + " MiniOS MiniOS Settings"
 		if requests > 1 {
-			translation = "### " + token + "-Einstellungen"
+			translation = "### " + strings.Join(tokens, " ") + " Einstellungen"
 		}
 		_, _ = w.Write([]byte(identifiedKVProviderResponse(
 			[]string{"sec:0"},
@@ -1538,7 +1569,7 @@ terms:
 	translations, err := translateMarkdownSingleRetry(
 		context.Background(),
 		"sec:0",
-		map[string]string{"sec:0": "### MiniOS Settings"},
+		map[string]string{"sec:0": "### MiniOS MiniOS MiniOS Settings"},
 		DefaultSystemPrompt,
 		Options{
 			Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
@@ -1553,11 +1584,11 @@ terms:
 	if err != nil {
 		t.Fatalf("translateMarkdownSingleRetry: %v", err)
 	}
-	if len(translations) != 1 || translations[0] != "### MiniOS-Einstellungen" {
+	if len(translations) != 1 || translations[0] != "### MiniOS MiniOS MiniOS Einstellungen" {
 		t.Fatalf("translations = %v", translations)
 	}
-	if requests != 1 {
-		t.Fatalf("provider requests = %d, want 1", requests)
+	if requests != 2 {
+		t.Fatalf("provider requests = %d, want 2", requests)
 	}
 }
 

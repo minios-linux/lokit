@@ -10,6 +10,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -902,9 +903,21 @@ func callProviderConversation(ctx context.Context, prov Provider, messages []pro
 }
 
 func appendRejectedResponse(messages []providerMessage, response string, err error) []providerMessage {
+	return appendRejectedResponseWithProtection(messages, response, err, false)
+}
+
+func appendRejectedResponseWithProtection(messages []providerMessage, response string, err error, protected bool) []providerMessage {
+	feedback := fmt.Sprintf("Your previous response was rejected: %v\nCorrect the reported problem and return the complete response again using exactly the required IDs and JSON shape.", err)
+	var cardinalityErr *preserveCardinalityError
+	if errors.As(err, &cardinalityErr) {
+		response, feedback = cardinalityErr.retryConversation()
+	} else if protected {
+		response = "[Rejected response omitted because this request contains protected terminology placeholders.]"
+		feedback = "Your previous response was invalid and was omitted to avoid repeating protected terminology. Re-read every requirement in the original request, return the complete response with exactly the required IDs and JSON shape, preserve structure and ordinary placeholders, and reproduce each __LOKIT_PRESERVE_TERM_ token in the output corresponding to the input that contains it without adding hidden terms."
+	}
 	return append(messages,
 		providerMessage{Role: "assistant", Content: response},
-		providerMessage{Role: "user", Content: fmt.Sprintf("Your previous response was rejected: %v\nCorrect the reported problem and return the complete response again using exactly the required IDs and JSON shape.", err)},
+		providerMessage{Role: "user", Content: feedback},
 	)
 }
 
@@ -1935,7 +1948,8 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			conversation = appendRejectedResponse(conversation, text, err)
+			conversation = appendRejectedResponseWithProtection(conversation, text, err,
+				hasPreservedTermValues(preservedSingular...) || hasPreservedTermValues(preservedPlural...))
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
@@ -2588,7 +2602,7 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		}
 		lastErr = err
 		if attempt < maxRetries {
-			conversation = appendRejectedResponse(conversation, text, err)
+			conversation = appendRejectedResponseWithProtection(conversation, text, err, hasPreservedTermValues(preservedTerms...))
 			opts.logEvent(LogEventRetry, i18n.T("  Invalid translation response, retrying (%d/%d): %v"), attempt+1, maxRetries, err)
 			if err := waitBeforeParseRetry(ctx, attempt); err != nil {
 				return nil, err
