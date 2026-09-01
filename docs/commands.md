@@ -55,12 +55,13 @@ lokit init --lang ru,de
 
 **Desktop seeding (gettext):** when `.desktop` or `.nemo_action` files are present in
 `from`, `lokit init` copies existing inline translations (`Name[de]=`, `Comment[de]=`,
-etc.) directly into the PO files. This means strings already translated in the desktop
-file do not require an AI translation pass.
+etc.) into empty or fuzzy PO entries. Complete non-fuzzy PO translations are preserved.
+This means strings translated only in the desktop file do not require an AI translation
+pass, while curated PO translations remain authoritative.
 
 **Note:** the same desktop seeding step also runs automatically at the start of
 `lokit translate` for gettext targets (during the pre-extract phase), so PO files are
-always up to date with the latest inline translations before AI translation begins.
+seeded from inline translations before AI translation begins.
 
 ---
 

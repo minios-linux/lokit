@@ -57,6 +57,11 @@ Keywords=configure;settings;
 			MsgID:      "Other string",
 			MsgStr:     "Andere",
 		},
+		{
+			References: []string{"share/applications/myapp.desktop:4"},
+			MsgID:      "My Application",
+			MsgStr:     "Curated application name",
+		},
 	}
 
 	n, err := SeedPO(poFile, "de", dir, []string{desktopPath})
@@ -77,5 +82,8 @@ Keywords=configure;settings;
 	}
 	if got := poFile.Entries[2].MsgStr; got != "Andere" {
 		t.Fatalf("non-desktop entry changed: %q", got)
+	}
+	if got := poFile.Entries[3].MsgStr; got != "Curated application name" {
+		t.Fatalf("completed desktop translation changed: %q", got)
 	}
 }

@@ -14,9 +14,8 @@ func DesktopLocale(lang string) string {
 	return strings.ReplaceAll(lang, "-", "_")
 }
 
-// SeedPO fills PO translations from inline .desktop localized fields.
-// Desktop inline translations are the source of truth for Name, Comment,
-// GenericName, and Keywords entries referenced from .desktop files.
+// SeedPO fills empty or fuzzy PO translations from inline .desktop localized
+// fields. Complete PO translations remain authoritative.
 // Returns the number of entries updated.
 //
 // Known limitations:
@@ -78,6 +77,9 @@ func SeedPO(poFile *po.File, lang, rootDir string, desktopPaths []string) (int, 
 		// MsgCtxt entries are also not matched here — if a project uses contextual
 		// desktop strings, extend the index key to include MsgCtxt.
 		if e.MsgID == "" || e.Obsolete || e.MsgIDPlural != "" {
+			continue
+		}
+		if e.MsgStr != "" && !e.IsFuzzy() {
 			continue
 		}
 		for _, ref := range e.References {
