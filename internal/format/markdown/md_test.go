@@ -357,3 +357,46 @@ Text B übersetzt.
 		t.Fatalf("Section B translation was not preserved: %q", value)
 	}
 }
+
+func TestCodeFenceAllowsBackticksInsideContent(t *testing.T) {
+	source := []byte("## Tree\n\n```text\n|-- item\n`-- log/\n```\n\nAfter.\n")
+	file, err := Parse(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	value, ok := file.Get("sec:0")
+	if !ok {
+		t.Fatal("missing Markdown section")
+	}
+	if strings.Contains(value, "`-- log/") || !strings.Contains(value, "<!-- lokit:code-block:0 -->") {
+		t.Fatalf("fenced code content was exposed as translatable text: %q", value)
+	}
+	rendered, err := file.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(rendered), "`-- log/") {
+		t.Fatalf("fenced code block was not restored: %q", rendered)
+	}
+}
+
+func TestCodeFenceCommonMarkForms(t *testing.T) {
+	for _, source := range []string{
+		"## H\n\n````text\n# not a heading\n```\n````\n\nAfter.\n",
+		"## H\n\n   ~~~~\n---\n   ~~~~\n\nAfter.\n",
+		"## H\r\n\r\n```text\r\n# not a heading\r\n```\r\n\r\nAfter.\r\n",
+		"## H\n\n```text\n# open until EOF",
+	} {
+		file, err := Parse([]byte(source))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(file.Keys()) != 1 {
+			t.Fatalf("fence content split into sections: source=%q keys=%v", source, file.Keys())
+		}
+		value, _ := file.Get("sec:0")
+		if strings.Contains(value, "# not a heading") || strings.Contains(value, "---") {
+			t.Fatalf("fence content exposed: %q", value)
+		}
+	}
+}

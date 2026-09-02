@@ -63,6 +63,23 @@ func preservedTermTokenFromBody(t *testing.T, body []byte) string {
 	return string(token)
 }
 
+func preservedTermTokensFromBody(t *testing.T, body []byte) []string {
+	t.Helper()
+	seen := make(map[string]bool)
+	var tokens []string
+	for _, match := range preservedTermTokenPattern.FindAll(body, -1) {
+		token := string(match)
+		if !seen[token] {
+			seen[token] = true
+			tokens = append(tokens, token)
+		}
+	}
+	if len(tokens) == 0 {
+		t.Fatalf("provider prompt does not contain preserved terminology tokens: %s", body)
+	}
+	return tokens
+}
+
 func loadTestTerminology(t *testing.T, content string) *terminology.Catalog {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "terminology.yaml")
@@ -215,18 +232,12 @@ func TestPreservedTermMaskRoundTrip(t *testing.T) {
 		t.Fatalf("restored source = %q, want %q", restored, source)
 	}
 	direct, err := restorePreservedTerms("MiniOS and minios, but not MiniOSX", values, namespace)
-	if err != nil {
-		t.Fatalf("direct preserved terms were rejected: %v", err)
-	}
-	if err := validateTerminology(source, direct, rules); err != nil {
-		t.Fatalf("direct preserved terms failed terminology validation: %v", err)
+	if err == nil || direct != "" || !strings.Contains(err.Error(), "outside its opaque placeholder") {
+		t.Fatalf("direct preserved terms were not rejected safely: direct=%q err=%v", direct, err)
 	}
 	missing, err := restorePreservedTerms("missing terms", values, namespace)
-	if err != nil {
-		t.Fatalf("missing tokens should defer to terminology validation: %v", err)
-	}
-	if err := validateTerminology(source, missing, rules); err == nil {
-		t.Fatal("missing preserved terms passed terminology validation")
+	if err == nil || missing != "" {
+		t.Fatalf("missing preserved terms were not rejected: missing=%q err=%v", missing, err)
 	}
 	var firstToken string
 	for token := range values {
@@ -234,8 +245,8 @@ func TestPreservedTermMaskRoundTrip(t *testing.T) {
 		break
 	}
 	duplicated := strings.Replace(masked, firstToken, firstToken+" "+firstToken, 1)
-	if _, err := restorePreservedTerms(duplicated, values, namespace); err != nil {
-		t.Fatalf("duplicated expected token should defer to terminology validation: %v", err)
+	if _, err := restorePreservedTerms(duplicated, values, namespace); err == nil {
+		t.Fatal("duplicated expected token was accepted")
 	}
 	if _, err := restorePreservedTerms(namespace+"9_0__", nil, namespace); err == nil {
 		t.Fatal("unexpected cross-entry terminology token was accepted")
@@ -261,21 +272,127 @@ func TestPreservedTermMaskMergesCrossingSpans(t *testing.T) {
 	}
 }
 
-func TestPreservedTermMaskSkipsBrandInsideTranslatedTerm(t *testing.T) {
+func TestRawPreservedTermsUseRuleMatchingSemantics(t *testing.T) {
+	namespace := preservedTermNamespace([]string{"MiniOS and .sb"})
+	values := map[string]string{
+		namespace + "0_0__": "MiniOS",
+		namespace + "0_1__": ".sb",
+	}
+	rules := []terminology.TermMatch{
+		{Source: "MiniOS", Match: terminology.MatchWord, CaseSensitive: false, Preserve: true},
+		{Source: ".sb", Match: terminology.MatchSubstring, CaseSensitive: true, Preserve: true},
+	}
+	for _, response := range []string{
+		namespace + "0_0__ " + namespace + "0_1__ minios",
+		namespace + "0_0__ " + namespace + "0_1__ file.sb2",
+	} {
+		if err := validateRawPreservedTerms(response, values, rules); err == nil {
+			t.Fatalf("raw protected term was accepted: %q", response)
+		}
+	}
+	forged := namespace + "0_0__ " + namespace + "0_1__ __LOKIT_PRESERVE_TERM_deadbeef_9_9__"
+	if _, err := restorePreservedTerms(forged, values, namespace); err == nil {
+		t.Fatal("forged preserved placeholder was accepted")
+	}
+}
+
+func TestProtectedCompoundBindsOnlyItsProtectedBrand(t *testing.T) {
+	rules := []terminology.TermMatch{
+		{ID: "brand.minios", Source: "MiniOS", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+		{ID: "brand.lokit", Source: "Lokit", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+		{ID: "app.installer", Source: "MiniOS Installer", Match: terminology.MatchWord, CaseSensitive: true, Preferred: "Instalador de MiniOS"},
+	}
+	source := "MiniOS Installer and Lokit Installer"
+	namespace := preservedTermNamespace([]string{source})
+	masked, values := maskPreservedTerms(source, rules, namespace, 0)
+	prompt := bindProtectedCompoundTerms(promptTerms("item", rules), []string{masked}, values)
+	if len(prompt.Terms) != 1 {
+		t.Fatalf("bound terms = %#v, want one MiniOS compound", prompt.Terms)
+	}
+	if !strings.Contains(prompt.Terms[0].Source, valuesTokenFor(t, values, "MiniOS")) || strings.Contains(prompt.Terms[0].Source, valuesTokenFor(t, values, "Lokit")) {
+		t.Fatalf("compound bound to wrong protected brand: %#v", prompt.Terms[0])
+	}
+}
+
+func TestProtectedCompoundBindingFailsClosedForMergedTerms(t *testing.T) {
+	rules := []terminology.TermMatch{
+		{Source: "Open Code", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+		{Source: "Code Assistant", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+		{Source: "Open Code Assistant Plugin", Match: terminology.MatchWord, CaseSensitive: true, Preferred: "Plugin Open Code Assistant"},
+	}
+	source := "Open Code Assistant Plugin"
+	namespace := preservedTermNamespace([]string{source})
+	masked, values := maskPreservedTerms(source, rules, namespace, 0)
+	prompt := bindProtectedCompoundTerms(promptTerms("item", rules), []string{masked}, values)
+	if len(prompt.Terms) != 0 {
+		t.Fatalf("ambiguous merged protected compound was exposed: %#v", prompt.Terms)
+	}
+}
+
+func TestProtectedCompoundBindingPreservesPunctuationBoundaries(t *testing.T) {
+	rules := []terminology.TermMatch{
+		{Source: ".NET", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+		{Source: ".NET Framework", Match: terminology.MatchWord, CaseSensitive: true, Preferred: "Framework .NET"},
+	}
+	source := "Use .NET Framework"
+	namespace := preservedTermNamespace([]string{source})
+	masked, values := maskPreservedTerms(source, rules, namespace, 0)
+	prompt := bindProtectedCompoundTerms(promptTerms("item", rules), []string{masked}, values)
+	if len(prompt.Terms) != 1 {
+		t.Fatalf("punctuation-prefixed protected compound was not bound: masked=%q terms=%#v", masked, prompt.Terms)
+	}
+}
+
+func TestProtectedCompoundMarkerNeverReachesProvider(t *testing.T) {
+	rules := []terminology.TermMatch{
+		{Source: "MiniOS", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true},
+		{Source: "Installer", Match: terminology.MatchWord, CaseSensitive: true, Preferred: "MiniOS Installer"},
+	}
+	source := "MiniOS and Installer"
+	namespace := preservedTermNamespace([]string{source})
+	masked, values := maskPreservedTerms(source, rules, namespace, 0)
+	prompt := bindProtectedCompoundTerms(promptTerms("item", rules), []string{masked}, values)
+	data, _ := json.Marshal(prompt)
+	if strings.Contains(string(data), "__LOKIT_PROTECTED_TERM__") {
+		t.Fatalf("unbound protected compound marker reached prompt: %s", data)
+	}
+	if err := validateRawPreservedTerms("__LOKIT_PROTECTED_TERM__", values, rules); err == nil {
+		t.Fatal("provider-authored internal compound marker was accepted")
+	}
+}
+
+func valuesTokenFor(t *testing.T, values map[string]string, want string) string {
+	t.Helper()
+	for token, value := range values {
+		if value == want {
+			return token
+		}
+	}
+	t.Fatalf("no token for %q in %#v", want, values)
+	return ""
+}
+
+func TestPreservedTermMaskIncludesBrandInsideTranslatedTerm(t *testing.T) {
 	rules := []terminology.TermMatch{
 		{ID: "brand.minios", Source: "MiniOS", Match: terminology.MatchWord, Preserve: true},
 		{ID: "app.installer", Source: "MiniOS Installer", Match: terminology.MatchWord, Preferred: "Instalador de MiniOS"},
 	}
 	namespace := preservedTermNamespace([]string{"MiniOS works with MiniOS Installer"})
 	masked, values := maskPreservedTerms("MiniOS works with MiniOS Installer", rules, namespace, 0)
-	if len(values) != 1 {
-		t.Fatalf("preserved values = %v, want only the standalone brand", values)
+	if len(values) != 2 {
+		t.Fatalf("preserved values = %v, want both brand occurrences", values)
 	}
-	if !strings.Contains(masked, "MiniOS Installer") {
-		t.Fatalf("translated compound term was masked: %s", masked)
+	if strings.Contains(masked, "MiniOS") || !strings.Contains(masked, namespace+"0_1__ Installer") {
+		t.Fatalf("brand inside translated compound was not masked: %s", masked)
 	}
-	if strings.Count(masked, namespace) != 1 {
+	if strings.Count(masked, namespace) != 2 {
 		t.Fatalf("masked text has unexpected tokens: %s", masked)
+	}
+	prompt := bindProtectedCompoundTerms(promptTerms("item-1", rules), []string{masked}, values)
+	if len(prompt.Terms) != 1 || prompt.Terms[0].ID != "protected-compound-0-0" ||
+		prompt.Terms[0].Source != namespace+"0_1__ Installer" ||
+		prompt.Terms[0].Preferred != "Instalador de "+namespace+"0_1__" {
+		t.Fatalf("provider prompt does not safely template translated compound: %#v", prompt.Terms)
 	}
 }
 
@@ -348,12 +465,11 @@ terms:
 		attempt++
 		if attempt == 1 {
 			token = preservedTermTokenFromBody(t, body)
-			_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"memory"}, []string{token + " RAM"})))
+			_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"memory"}, []string{token + " " + token + " RAM"})))
 			return
 		}
 		if !bytes.Contains(body, []byte("ASSISTANT:")) ||
 			!bytes.Contains(body, []byte("Rejected response omitted")) ||
-			!bytes.Contains(body, []byte("expected 1 occurrence(s) after placeholder restoration, found 2")) ||
 			bytes.Contains(body, []byte("RAM")) {
 			t.Fatalf("correction request exposes protected terminology or lacks safe context: %s", body)
 		}
@@ -378,6 +494,90 @@ terms:
 	}
 	if attempt != 2 || file.Value("memory") != "RAM" {
 		t.Fatalf("attempts=%d translation=%q", attempt, file.Value("memory"))
+	}
+}
+
+func TestKVRejectsProtectedLiteralMovedAcrossEntries(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+    when:
+      key: brand
+`)
+	attempt := 0
+	var tokens []string
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		body, _ := io.ReadAll(r.Body)
+		attempt++
+		if attempt == 1 {
+			if bytes.Contains(body, []byte("MiniOS")) {
+				t.Fatalf("selector-scoped source exposed protected literal: %s", body)
+			}
+			tokens = preservedTermTokensFromBody(t, body)
+			if len(tokens) != 2 {
+				t.Fatalf("preserved token count = %d, want 2", len(tokens))
+			}
+			_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"brand", "generic"}, []string{tokens[0], tokens[1] + " MiniOS"})))
+			return
+		}
+		if bytes.Contains(body, []byte("MiniOS")) {
+			t.Fatalf("retry exposed protected literal: %s", body)
+		}
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"brand", "generic"}, []string{tokens[0], tokens[1] + " allgemein"})))
+	}))
+	defer ts.Close()
+
+	file := newTestKVFile([]string{"brand", "generic"}, map[string]string{"brand": "", "generic": ""})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang: "de", LangName: "German", FilePath: "de.json", File: file,
+		SourceValues: map[string]string{"brand": "MiniOS", "generic": "MiniOS general"},
+	}}, Options{
+		Provider: Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"}, ParallelMode: ParallelSequential, Terminology: catalog,
+	}, DefaultKVChunkTranslator())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attempt != 2 || file.Value("generic") != "MiniOS allgemein" {
+		t.Fatalf("attempts=%d generic=%q", attempt, file.Value("generic"))
+	}
+}
+
+func TestSourceBackedI18NextMasksProtectedValue(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+    when:
+      key: title
+`)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		body, _ := io.ReadAll(r.Body)
+		if bytes.Contains(body, []byte("MiniOS")) {
+			t.Fatalf("source-backed I18Next exposed protected value: %s", body)
+		}
+		token := preservedTermTokenFromBody(t, body)
+		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"title"}, []string{token + " Einstellungen"})))
+	}))
+	defer ts.Close()
+	file := newTestKVFile([]string{"title"}, map[string]string{"title": ""})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang: "de", LangName: "German", FilePath: "de.js", File: file,
+		SourceValues: map[string]string{"title": "MiniOS settings"},
+	}}, Options{
+		Provider: Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"}, ParallelMode: ParallelSequential, Terminology: catalog,
+	}, I18NextChunkTranslator())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := file.Value("title"); got != "MiniOS Einstellungen" {
+		t.Fatalf("translation = %q", got)
 	}
 }
 
@@ -458,6 +658,61 @@ terms:
 	}
 }
 
+func TestPORejectsProtectedLiteralMovedAcrossEntries(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+    when:
+      key: "MiniOS settings"
+`)
+	entries := []*po.Entry{{MsgID: "MiniOS settings"}, {MsgID: "MiniOS general settings"}}
+	ids := entryTranslationIDs(entries)
+	attempt := 0
+	var tokens []string
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		body, _ := io.ReadAll(r.Body)
+		attempt++
+		if attempt == 1 {
+			if bytes.Contains(body, []byte("MiniOS")) {
+				t.Fatalf("selector-scoped PO source exposed protected literal: %s", body)
+			}
+			tokens = preservedTermTokensFromBody(t, body)
+			if len(tokens) != 2 {
+				t.Fatalf("PO preserved token count = %d, want 2", len(tokens))
+			}
+		}
+		values := []string{tokens[0] + "-Einstellungen", tokens[1] + " Allgemein"}
+		if attempt == 1 {
+			values[1] += " MiniOS"
+		} else if bytes.Contains(body, []byte("MiniOS")) {
+			t.Fatalf("PO retry exposed protected literal: %s", body)
+		}
+		items := make([]identifiedTranslation, len(ids))
+		for i := range ids {
+			encoded, _ := json.Marshal(values[i])
+			items[i] = identifiedTranslation{ID: ids[i], Translation: encoded}
+		}
+		content, _ := json.Marshal(items)
+		response, _ := json.Marshal(map[string]any{"choices": []any{map[string]any{"message": map[string]string{"content": string(content)}}}})
+		_, _ = w.Write(response)
+	}))
+	defer ts.Close()
+
+	translations, err := translateChunk(context.Background(), entries, DefaultSystemPrompt, Options{
+		Provider: Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"}, Language: "de", LanguageName: "German", Terminology: catalog,
+	}, &rateLimitState{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attempt != 2 || translations[1] != "MiniOS Allgemein" {
+		t.Fatalf("attempts=%d translations=%#v", attempt, translations)
+	}
+}
+
 func TestRestorePOPluralRejectsCrossFormToken(t *testing.T) {
 	rules := []terminology.TermMatch{{
 		Source:        "MiniOS",
@@ -474,6 +729,7 @@ func TestRestorePOPluralRejectsCrossFormToken(t *testing.T) {
 		translations,
 		[]map[string]string{singular},
 		[]map[string]string{plural},
+		[][]terminology.TermMatch{rules},
 		namespace,
 	)
 	if err == nil {
@@ -579,7 +835,7 @@ exact:
       path: docs/guide.md
     translations: {de: Öffnen}
 `)
-	file := newTestKVFile([]string{"title"}, map[string]string{"title": ""})
+	file := newTestKVFile([]string{"title"}, map[string]string{"title": "Stale translation"})
 	err := TranslateAllKV(context.Background(), []KVLangTask{{
 		Lang:         "de",
 		FilePath:     filepath.Join(t.TempDir(), "de.json"),
@@ -592,6 +848,26 @@ exact:
 	}
 	if got := file.Value("title"); got != "Öffnen" {
 		t.Fatalf("path-scoped exact translation = %q", got)
+	}
+}
+
+func TestMarkdownWholeSectionExactRuleFailsPreflight(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+exact:
+  - id: docs.structured
+    source: Read [MiniOS Installer](/install).
+    translations: {de: "Lesen Sie [MiniOS Installer](/install)."}
+`)
+	file := newTestKVFile([]string{"sec:0"}, map[string]string{"sec:0": ""})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang:         "de",
+		FilePath:     filepath.Join(t.TempDir(), "de.md"),
+		File:         file,
+		SourceValues: map[string]string{"sec:0": "Read [MiniOS Installer](/install)."},
+		SourcePath:   "docs/guide.md",
+	}}, Options{TargetName: "docs", Format: "markdown", Terminology: catalog}, MarkdownKVChunkTranslator())
+	if err == nil || !strings.Contains(err.Error(), "spans host-owned Markdown structure") {
+		t.Fatalf("structured exact rule error = %v", err)
 	}
 }
 
@@ -626,28 +902,6 @@ func TestMarkdownValidationPreservesParserCodePlaceholders(t *testing.T) {
 	}
 	if !isMarkdownTranslationLikelyValid(source, "Übersetzung\n\n<!-- lokit:code-block:0 -->\n") {
 		t.Fatal("preserved parser code placeholder was rejected")
-	}
-}
-
-func TestMarkdownParserCodePlaceholderMaskRoundTrip(t *testing.T) {
-	source := "Before\n\n<!-- lokit:code-block:12 -->\n\nAfter"
-	masked, placeholders := maskMarkdownParserPlaceholders(source)
-	if !strings.Contains(masked, "__LOKIT_PARSER_CODE_BLOCK_12__") {
-		t.Fatalf("placeholder was not masked: %q", masked)
-	}
-	if restored := restoreMarkdownParserPlaceholders(masked, placeholders); restored != source {
-		t.Fatalf("round trip = %q", restored)
-	}
-}
-
-func TestMarkdownInlineCodeMaskRoundTrip(t *testing.T) {
-	source := "Run `lokit status` and keep ``literal`` unchanged."
-	masked, values := maskMarkdownInlineCode(source)
-	if !strings.Contains(masked, "__LOKIT_INLINE_CODE_0__") || !strings.Contains(masked, "__LOKIT_INLINE_CODE_1__") {
-		t.Fatalf("inline code was not masked: %q", masked)
-	}
-	if restored := restoreMarkdownInlineCode(masked, values); restored != source {
-		t.Fatalf("round trip = %q", restored)
 	}
 }
 
@@ -1421,117 +1675,7 @@ func TestIsMarkdownTranslationLikelyValid_ValidStructure(t *testing.T) {
 	}
 }
 
-func TestMaskAndRestoreMarkdownCodeBlocks(t *testing.T) {
-	src := "### H\n\n```mermaid\ngraph TD\nA-->B\n```\n\nText"
-	masked, blocks := maskMarkdownCodeBlocks(src)
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 code block, got %d", len(blocks))
-	}
-	if !strings.Contains(masked, "__LOKIT_CODE_BLOCK_0__") {
-		t.Fatalf("expected placeholder in masked text, got %q", masked)
-	}
-	restored := restoreMarkdownCodeBlocks(masked, blocks)
-	if restored != src {
-		t.Fatalf("restored text mismatch\nwant: %q\ngot:  %q", src, restored)
-	}
-}
-
-func TestMaskAndRestoreMarkdownCodeBlocks_WithInlineBackticks(t *testing.T) {
-	src := "### H\n\n```python\nx = \"`hello`\"\n```\n\nText"
-	masked, blocks := maskMarkdownCodeBlocks(src)
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 code block, got %d", len(blocks))
-	}
-	if !strings.Contains(masked, "__LOKIT_CODE_BLOCK_0__") {
-		t.Fatalf("expected placeholder in masked text, got %q", masked)
-	}
-	restored := restoreMarkdownCodeBlocks(masked, blocks)
-	if restored != src {
-		t.Fatalf("restored text mismatch\nwant: %q\ngot:  %q", src, restored)
-	}
-}
-
-func TestTranslateMarkdownSingleRetry_RestoresMaskedCodeBlocks(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/chat/completions" {
-			t.Fatalf("unexpected path: %s", r.URL.Path)
-		}
-		_, _ = io.Copy(io.Discard, r.Body)
-		_ = r.Body.Close()
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"sec:0"}, []string{"### H\n\n__LOKIT_CODE_BLOCK_0__\n\nPerevod gotov"})))
-	}))
-	defer ts.Close()
-
-	opts := Options{
-		Provider: Provider{
-			ID:      ProviderCustomOpenAI,
-			BaseURL: ts.URL,
-			Model:   "test-model",
-		},
-		LanguageName: "Russian",
-	}
-
-	src := "### H\n\n```python\nx = \"`hello`\"\n```\n\nText"
-	translations, err := translateMarkdownSingleRetry(
-		context.Background(),
-		"sec:0",
-		map[string]string{"sec:0": src},
-		opts.resolvedPrompt(),
-		opts,
-		&rateLimitState{},
-	)
-	if err != nil {
-		t.Fatalf("translateMarkdownSingleRetry error: %v", err)
-	}
-	if len(translations) != 1 {
-		t.Fatalf("expected 1 translation, got %d", len(translations))
-	}
-	if strings.Contains(translations[0], "__LOKIT_CODE_BLOCK_0__") {
-		t.Fatalf("placeholder was not restored: %q", translations[0])
-	}
-	if !strings.Contains(translations[0], "```python") || !strings.Contains(translations[0], "`hello`") {
-		t.Fatalf("expected restored fenced code block in translation, got %q", translations[0])
-	}
-}
-
-func TestTranslateMarkdownSingleRetryRejectsTerminologyViolation(t *testing.T) {
-	catalog := loadTestTerminology(t, `version: 1
-terms:
-  - id: brand.minios
-    source: MiniOS
-    preserve: true
-`)
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-		_, _ = io.Copy(io.Discard, r.Body)
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(identifiedKVProviderResponse([]string{"sec:0"}, []string{"### Einstellungen"})))
-	}))
-	defer ts.Close()
-
-	opts := Options{
-		Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
-		Language:     "de",
-		LanguageName: "German",
-		TargetName:   "docs",
-		Format:       "markdown",
-		Terminology:  catalog,
-	}
-	_, err := translateMarkdownSingleRetry(
-		context.Background(),
-		"sec:0",
-		map[string]string{"sec:0": "### MiniOS Settings"},
-		opts.resolvedPrompt(),
-		opts,
-		&rateLimitState{},
-	)
-	if err == nil {
-		t.Fatal("expected Markdown retry terminology violation")
-	}
-}
-
-func TestTranslateMarkdownSingleRetryMasksPreservedTerminology(t *testing.T) {
+func TestMarkdownPatchPipelineKeepsResourcesHostOwned(t *testing.T) {
 	catalog := loadTestTerminology(t, `version: 1
 terms:
   - id: brand.minios
@@ -1539,91 +1683,468 @@ terms:
     preserve: true
     case_sensitive: true
 `)
+	source := "See [MiniOS Configurator](/docs/Preconfiguring-MiniOS \"Guide\") and <https://example.test/MiniOS>.\n\n[ref]: /private/MiniOS"
 	requests := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requests++
 		defer r.Body.Close()
-		body, _ := io.ReadAll(r.Body)
-		tokens := preservedTermTokenPattern.FindAllString(string(body), -1)
-		if len(tokens) != 3 || !strings.Contains(string(body), "### "+strings.Join(tokens, " ")+" Settings") {
-			t.Errorf("Markdown retry prompt does not mask preserved term: %s", body)
+		var request struct {
+			Messages []struct {
+				Content string `json:"content"`
+			} `json:"messages"`
 		}
-		if strings.Contains(string(body), "MiniOS") || strings.Contains(string(body), "brand.minios") {
-			t.Errorf("Markdown retry prompt exposes protected term: %s", body)
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			t.Fatal(err)
 		}
-		if !strings.Contains(string(body), "corresponding to an input") || !strings.Contains(string(body), "never infer") {
-			t.Errorf("Markdown retry prompt lacks protected-token contract: %s", body)
+		body, _ := json.Marshal(request)
+		for _, hidden := range []string{"/docs/Preconfiguring-MiniOS", "example.test/MiniOS", "/private/MiniOS", "__LOKIT_LINK_DESTINATION_", "MiniOS"} {
+			if bytes.Contains(body, []byte(hidden)) {
+				t.Errorf("provider request exposes host-owned data %q: %s", hidden, body)
+			}
 		}
+		if !bytes.Contains(body, []byte("Preserve every __LOKIT_PRESERVE_TERM_")) || !bytes.Contains(body, []byte("same field")) {
+			t.Errorf("provider request lacks field-owned terminology contract: %s", body)
+		}
+		prompt := request.Messages[len(request.Messages)-1].Content
+		array, ok := firstJSONArray(prompt)
+		if !ok {
+			t.Fatalf("Markdown patch prompt has no JSON view: %q", prompt)
+		}
+		var units []struct {
+			ID     string `json:"id"`
+			Fields []struct {
+				ID     string `json:"id"`
+				Source string `json:"source"`
+				Kind   string `json:"kind"`
+			} `json:"fields"`
+		}
+		if err := json.Unmarshal([]byte(array), &units); err != nil {
+			t.Fatalf("decode provider view: %v\n%s", err, array)
+		}
+		response := make([]map[string]any, len(units))
+		for i, unit := range units {
+			values := make(map[string]string)
+			ownedToken := ""
+			for _, field := range unit.Fields {
+				if token := preservedTermTokenPattern.FindString(field.Source); token != "" {
+					ownedToken = token
+					break
+				}
+			}
+			for _, field := range unit.Fields {
+				value := field.Source
+				if token := preservedTermTokenPattern.FindString(value); token != "" {
+					value = "Конфигураторе " + token
+				} else if value == "See " {
+					value = "Подробнее см. в "
+				} else if strings.HasPrefix(value, " and ") {
+					value = " и " + strings.TrimPrefix(value, " and ")
+				}
+				values[field.ID] = value
+			}
+			if requests <= 2 && ownedToken != "" && len(unit.Fields) > 0 {
+				for _, field := range unit.Fields {
+					values[field.ID] = strings.ReplaceAll(values[field.ID], ownedToken, "")
+				}
+				values[unit.Fields[0].ID] += " " + ownedToken
+			}
+			if requests >= 3 && len(unit.Fields) != 1 {
+				t.Errorf("field repair exposed %d fields, want one", len(unit.Fields))
+			}
+			response[i] = map[string]any{"id": unit.ID, "values": values}
+		}
+		content, _ := json.Marshal(response)
+		envelope, _ := json.Marshal(map[string]any{"choices": []any{map[string]any{"message": map[string]string{"content": string(content)}}}})
 		w.Header().Set("Content-Type", "application/json")
-		translation := "## " + strings.Join(tokens, " ") + " MiniOS MiniOS Settings"
-		if requests > 1 {
-			translation = "### " + strings.Join(tokens, " ") + " Einstellungen"
-		}
-		_, _ = w.Write([]byte(identifiedKVProviderResponse(
-			[]string{"sec:0"},
-			[]string{translation},
-		)))
+		_, _ = w.Write(envelope)
 	}))
 	defer ts.Close()
 
-	translations, err := translateMarkdownSingleRetry(
+	file := newTestKVFile([]string{"sec:3"}, map[string]string{"sec:3": ""})
+	tasks := []KVLangTask{{
+		Lang:         "ru",
+		LangName:     "Russian",
+		FilePath:     "ru.md",
+		File:         file,
+		SourceValues: map[string]string{"sec:3": source},
+	}}
+	opts := Options{
+		Provider:           Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
+		SourceLanguage:     "en",
+		SourceLanguageName: "English",
+		Language:           "ru",
+		LanguageName:       "Russian",
+		TargetName:         "docs",
+		Format:             "markdown",
+		Terminology:        catalog,
+		ParallelMode:       ParallelSequential,
+	}
+	if err := TranslateAllKV(context.Background(), tasks, opts, MarkdownKVChunkTranslator()); err != nil {
+		t.Fatalf("TranslateAllKV: %v", err)
+	}
+	got := file.Value("sec:3")
+	if !strings.Contains(got, "[Конфигураторе MiniOS](/docs/Preconfiguring-MiniOS \"Guide\")") ||
+		!strings.Contains(got, "<https://example.test/MiniOS>") || !strings.Contains(got, "[ref]: /private/MiniOS") {
+		t.Fatalf("host-owned resources or translated label changed: %q", got)
+	}
+	if requests != 4 {
+		t.Fatalf("provider requests = %d, want two invalid plan patches and two isolated field repairs", requests)
+	}
+}
+
+func TestMarkdownPatchResponseRequiresExactFields(t *testing.T) {
+	prepared, err := prepareMarkdownPlans(
+		[]string{"sec:0"},
+		map[string]string{"sec:0": "Text [label](/safe)."},
+		Options{Language: "de", LanguageName: "German", Format: "markdown"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan := &prepared[0]
+	if len(plan.fields) == 0 {
+		t.Fatal("prepared plan has no fields")
+	}
+	duplicate := fmt.Sprintf(`[{"id":%q,"values":{%q:"one",%q:"two"}}]`, plan.id, plan.fields[0].id, plan.fields[0].id)
+	if _, err := parseMarkdownPatchResponse(duplicate, []*preparedMarkdownPlan{plan}); err == nil {
+		t.Fatal("duplicate Markdown patch field was accepted")
+	}
+	unknown := fmt.Sprintf(`[{"id":%q,"values":{"unknown":"text"}}]`, plan.id)
+	if _, err := parseMarkdownPatchResponse(unknown, []*preparedMarkdownPlan{plan}); err == nil {
+		t.Fatal("unknown Markdown patch field was accepted")
+	}
+}
+
+func TestMarkdownPlanGroupsBoundFallbackWithoutSplittingContext(t *testing.T) {
+	plan := &preparedMarkdownPlan{id: "unit", fieldByID: make(map[string]preparedMarkdownField)}
+	for i := 0; i < 100; i++ {
+		field := preparedMarkdownField{id: fmt.Sprintf("f%d", i), context: fmt.Sprintf("c%d", i)}
+		plan.fields = append(plan.fields, field)
+		plan.fieldByID[field.id] = field
+	}
+	groups := markdownPlanGroups(plan, 40)
+	if len(groups) != 3 {
+		t.Fatalf("bounded group count = %d, want 3", len(groups))
+	}
+	if len(groups[0].fields) != 40 || len(groups[1].fields) != 40 || len(groups[2].fields) != 20 {
+		t.Fatalf("bounded groups = %#v", []int{len(groups[0].fields), len(groups[1].fields), len(groups[2].fields)})
+	}
+
+	plan = &preparedMarkdownPlan{id: "unit", fieldByID: make(map[string]preparedMarkdownField)}
+	for i := 0; i < 45; i++ {
+		field := preparedMarkdownField{id: fmt.Sprintf("f%d", i), context: "one-table-cell"}
+		plan.fields = append(plan.fields, field)
+		plan.fieldByID[field.id] = field
+	}
+	groups = markdownPlanGroups(plan, 40)
+	if len(groups) != 1 || len(groups[0].fields) != 45 {
+		t.Fatalf("shared context was split across %d groups", len(groups))
+	}
+}
+
+func TestInvalidMarkdownPatchFieldsIncludesHostRenderFailures(t *testing.T) {
+	prepared, err := prepareMarkdownPlans(
+		[]string{"sec:0"},
+		map[string]string{"sec:0": "Before [label](/safe) after."},
+		Options{Language: "de", LanguageName: "German", Format: "markdown"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan := &prepared[0]
+	patches := make(map[string]string, len(plan.fieldByID))
+	for id, field := range plan.fieldByID {
+		patches[id] = field.source
+	}
+	var badID string
+	for _, field := range plan.fields {
+		if field.source == "Before " {
+			badID = field.id
+			patches[field.id] = "1. Schritt"
+			break
+		}
+	}
+	if badID == "" {
+		t.Fatal("line-leading field was not found")
+	}
+	if _, err := renderMarkdownPatch(plan, patches); err == nil {
+		t.Fatal("ordered-list structure change passed full render")
+	}
+	invalid := invalidMarkdownPatchFields(plan, patches)
+	if len(invalid) != 1 || invalid[0].id != badID {
+		t.Fatalf("invalid render fields = %#v, want %q", invalid, badID)
+	}
+}
+
+func TestCollectProtectedRulesRejectsCrossEntryLiteral(t *testing.T) {
+	rule := terminology.TermMatch{Source: "MiniOS", Match: terminology.MatchWord, CaseSensitive: true, Preserve: true}
+	protected := collectProtectedRules([][]terminology.TermMatch{{rule}, nil})
+	if err := validateRawPreservedTerms("MiniOS added elsewhere", nil, protected); err == nil {
+		t.Fatal("request-wide protected literal was accepted in another KV or PO entry")
+	}
+}
+
+func TestMarkdownMasksProtectedLiteralOutsideSelectorContext(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+terms:
+  - id: scoped.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+    when:
+      context: "Paragraph:0"
+`)
+	prepared, err := prepareMarkdownPlans(
+		[]string{"sec:0"},
+		map[string]string{"sec:0": "MiniOS first.\n\nMiniOS second."},
+		Options{Language: "de", LanguageName: "German", Format: "markdown", Terminology: catalog},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tokens := 0
+	for _, field := range prepared[0].fields {
+		if strings.Contains(field.masked, "MiniOS") {
+			t.Fatalf("field %s exposed selector-scoped protected literal: %q", field.id, field.masked)
+		}
+		tokens += len(field.preserved)
+	}
+	if tokens != 2 {
+		t.Fatalf("owned Markdown token count = %d, want 2", tokens)
+	}
+}
+
+func TestMarkdownPatchFrontmatterResourcesAreHostOwned(t *testing.T) {
+	prepared, err := prepareMarkdownPlans(
+		[]string{"fm:hero.text", "fm:hero.image.src", "fm:hero.actions.0.link", "fm:updated"},
+		map[string]string{
+			"fm:hero.text":           "Fast. Simple. Reliable.",
+			"fm:hero.image.src":      "/minios-hero.svg",
+			"fm:hero.actions.0.link": "/getting-started/Quick-Start",
+			"fm:updated":             "2026-08-31",
+		},
+		Options{Language: "ru", LanguageName: "Russian", Format: "markdown"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prepared[0].fields) != 1 {
+		t.Fatalf("translatable frontmatter text fields = %#v", prepared[0].fields)
+	}
+	for i := 1; i < len(prepared); i++ {
+		if len(prepared[i].fields) != 0 {
+			t.Fatalf("frontmatter resource %q became provider-owned: %#v", prepared[i].key, prepared[i].fields)
+		}
+	}
+	prompt := buildMarkdownPatchPrompt([]*preparedMarkdownPlan{&prepared[0]}, Options{SourceLanguageName: "English", LanguageName: "Russian"})
+	if strings.Contains(prompt, "/minios-hero.svg") || strings.Contains(prompt, "Quick-Start") || !strings.Contains(markdownPatchSystemPrompt(""), "Preserve every __LOKIT_PRESERVE_TERM_") {
+		t.Fatalf("frontmatter resources exposed or protected-term contract missing: %q", prompt)
+	}
+}
+
+func TestMarkdownPatchUnknownTextFrontmatterTranslatesByDefault(t *testing.T) {
+	prepared, err := prepareMarkdownPlans(
+		[]string{"fm:subtitle"},
+		map[string]string{"fm:subtitle": "Portable Linux for everyday work"},
+		Options{Language: "de", LanguageName: "German", Format: "markdown"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prepared[0].fieldByID) != 1 {
+		t.Fatalf("custom textual frontmatter was not provider-owned: %#v", prepared[0])
+	}
+}
+
+func TestMarkdownHostOwnedFrontmatterRepairsExistingValue(t *testing.T) {
+	file := newTestKVFile([]string{"fm:link"}, map[string]string{"fm:link": "/stale-route"})
+	err := TranslateAllKV(context.Background(), []KVLangTask{{
+		Lang:         "de",
+		FilePath:     filepath.Join(t.TempDir(), "de.md"),
+		File:         file,
+		SourceValues: map[string]string{"fm:link": "/source-route"},
+	}}, Options{Format: "markdown"}, MarkdownKVChunkTranslator())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := file.Value("fm:link"); got != "/source-route" {
+		t.Fatalf("host-owned frontmatter = %q, want source value", got)
+	}
+}
+
+func TestMarkdownFrontmatterMachineValuesStayHostOwned(t *testing.T) {
+	for key, value := range map[string]string{
+		"fm:slug":   "quick-start",
+		"fm:asset":  "hero.svg",
+		"fm:locale": "pt-BR",
+		"fm:mode":   "0x1f",
+	} {
+		if !markdownFrontmatterHostField(key, value) {
+			t.Fatalf("machine frontmatter was treated as prose: %s=%q", key, value)
+		}
+	}
+	if markdownFrontmatterHostField("fm:subtitle", "Portable Linux for everyday work") {
+		t.Fatal("unknown prose frontmatter was treated as a resource")
+	}
+	for key, value := range map[string]string{"fm:badge": "new", "fm:cta": "go"} {
+		if markdownFrontmatterHostField(key, value) {
+			t.Fatalf("short prose frontmatter was treated as a locale: %s=%q", key, value)
+		}
+	}
+	if !markdownFrontmatterHostField("fm:locale", "new") {
+		t.Fatal("locale key was not host-owned")
+	}
+}
+
+func TestMarkdownPatchFrontmatterExcerptUsesResourcePlan(t *testing.T) {
+	prepared, err := prepareMarkdownPlans(
+		[]string{"fm:excerpt"},
+		map[string]string{"fm:excerpt": "Read [the documentation](https://minios.dev/docs) before continuing."},
+		Options{Language: "ru", LanguageName: "Russian", Format: "markdown"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prepared[0].fields) == 0 {
+		t.Fatal("frontmatter excerpt has no mutable fields")
+	}
+	prompt := buildMarkdownPatchPrompt([]*preparedMarkdownPlan{&prepared[0]}, Options{SourceLanguageName: "English", LanguageName: "Russian"})
+	if strings.Contains(prompt, "https://minios.dev/docs") {
+		t.Fatalf("excerpt URL exposed to provider: %q", prompt)
+	}
+	patches := make(map[string]string)
+	for _, field := range prepared[0].fields {
+		patches[field.id] = field.masked
+	}
+	rendered, err := renderMarkdownPatch(&prepared[0], patches)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rendered != prepared[0].source {
+		t.Fatalf("excerpt identity render = %q, want %q", rendered, prepared[0].source)
+	}
+}
+
+func TestMarkdownPatchExactTranslationUsesOwnedProtectedSlot(t *testing.T) {
+	catalog := loadTestTerminology(t, `version: 1
+exact:
+  - id: app.minios-installer
+    source: MiniOS Installer
+    translations: {ru: Установщик MiniOS}
+terms:
+  - id: brand.minios
+    source: MiniOS
+    preserve: true
+    case_sensitive: true
+`)
+	prepared, err := prepareMarkdownPlans(
+		[]string{"sec:0"},
+		map[string]string{"sec:0": "# MiniOS Installer"},
+		Options{Language: "ru", LanguageName: "Russian", Format: "markdown", Terminology: catalog},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prepared[0].fieldByID) != 0 {
+		t.Fatalf("exact field was sent to provider: %#v", prepared[0].fieldByID)
+	}
+	rendered, err := renderMarkdownPatch(&prepared[0], nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rendered != "# Установщик MiniOS" {
+		t.Fatalf("exact protected render = %q", rendered)
+	}
+}
+
+func TestMarkdownPatchRejectsAllEmptyContext(t *testing.T) {
+	prepared, err := prepareMarkdownPlans(
+		[]string{"sec:0"},
+		map[string]string{"sec:0": "Read `code` carefully."},
+		Options{Language: "de", LanguageName: "German", Format: "markdown"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	patches := make(map[string]string)
+	for _, field := range prepared[0].fields {
+		patches[field.id] = ""
+	}
+	if _, err := renderMarkdownPatch(&prepared[0], patches); err == nil {
+		t.Fatal("all-empty Markdown context was accepted")
+	}
+}
+
+func TestMarkdownMalformedBatchFallsBackToSingletonPlans(t *testing.T) {
+	requests := 0
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		defer r.Body.Close()
+		var request struct {
+			Messages []struct {
+				Content string `json:"content"`
+			} `json:"messages"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			t.Fatal(err)
+		}
+		patchPrompt := ""
+		for _, message := range request.Messages {
+			if strings.Contains(message.Content, "Translate the mutable Markdown text fields") {
+				patchPrompt = message.Content
+				break
+			}
+		}
+		var units []struct {
+			ID     string `json:"id"`
+			Fields []struct {
+				ID     string `json:"id"`
+				Source string `json:"source"`
+			} `json:"fields"`
+		}
+		array, ok := firstJSONArray(patchPrompt)
+		if !ok || json.Unmarshal([]byte(array), &units) != nil {
+			t.Fatalf("invalid patch request: %#v", request.Messages)
+		}
+		var content []byte
+		if len(units) > 1 {
+			content = []byte(`[{"id":"malformed","values":{}}]`)
+		} else {
+			values := make(map[string]string)
+			for _, field := range units[0].Fields {
+				values[field.ID] = "Перевод " + field.Source
+			}
+			content, _ = json.Marshal([]map[string]any{{"id": units[0].ID, "values": values}})
+		}
+		envelope, _ := json.Marshal(map[string]any{"choices": []any{map[string]any{"message": map[string]string{"content": string(content)}}}})
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(envelope)
+	}))
+	defer ts.Close()
+
+	translations, err := translateMarkdownPatchChunk(
 		context.Background(),
-		"sec:0",
-		map[string]string{"sec:0": "### MiniOS MiniOS MiniOS Settings"},
+		[]string{"sec:0", "sec:1"},
+		map[string]string{"sec:0": "First paragraph.", "sec:1": "Second paragraph."},
 		DefaultSystemPrompt,
 		Options{
-			Provider:     Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
-			Language:     "de",
-			LanguageName: "German",
-			TargetName:   "docs",
-			Format:       "markdown",
-			Terminology:  catalog,
+			Provider:           Provider{ID: ProviderCustomOpenAI, BaseURL: ts.URL, Model: "test"},
+			SourceLanguageName: "English",
+			Language:           "ru",
+			LanguageName:       "Russian",
+			Format:             "markdown",
+			MaxRetries:         1,
 		},
 		&rateLimitState{},
 	)
 	if err != nil {
-		t.Fatalf("translateMarkdownSingleRetry: %v", err)
+		t.Fatalf("translateMarkdownPatchChunk: %v", err)
 	}
-	if len(translations) != 1 || translations[0] != "### MiniOS MiniOS MiniOS Einstellungen" {
-		t.Fatalf("translations = %v", translations)
+	if len(translations) != 2 || !strings.HasPrefix(translations[0], "Перевод ") || !strings.HasPrefix(translations[1], "Перевод ") {
+		t.Fatalf("singleton translations = %#v", translations)
 	}
-	if requests != 2 {
-		t.Fatalf("provider requests = %d, want 2", requests)
-	}
-}
-
-func TestTranslateMarkdownSingleRetry_RejectsRawResponseWithoutID(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/chat/completions" {
-			t.Fatalf("unexpected path: %s", r.URL.Path)
-		}
-		_, _ = io.Copy(io.Discard, r.Body)
-		_ = r.Body.Close()
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":"Perevod __LOKIT_CODE_BLOCK_0__ gotov"}}]}`))
-	}))
-	defer ts.Close()
-
-	opts := Options{
-		Provider: Provider{
-			ID:      ProviderCustomOpenAI,
-			BaseURL: ts.URL,
-			Model:   "test-model",
-		},
-		LanguageName: "Russian",
-	}
-
-	src := "### H\n\n```python\nx = \"`hello`\"\n```\n\nText"
-	_, err := translateMarkdownSingleRetry(
-		context.Background(),
-		"sec:0",
-		map[string]string{"sec:0": src},
-		opts.resolvedPrompt(),
-		opts,
-		&rateLimitState{},
-	)
-	if err == nil {
-		t.Fatal("expected raw Markdown response without an ID to be rejected")
+	if requests != 4 {
+		t.Fatalf("provider requests = %d, want 2 malformed batch attempts and 2 singleton attempts", requests)
 	}
 }
 

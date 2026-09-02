@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	formatfile "github.com/minios-linux/lokit/internal/format"
+	mdformat "github.com/minios-linux/lokit/internal/format/markdown"
 	"github.com/minios-linux/lokit/lockfile"
 	"github.com/minios-linux/lokit/terminology"
 )
@@ -38,6 +39,22 @@ func prepareKVWork(file formatfile.KVFile, sourceValues map[string]string, lockK
 			}
 			continue
 		}
+		if isMarkdownTranslator(translator) && strings.HasPrefix(key, "fm:") {
+			if source, ok := sourceValues[key]; ok && markdownFrontmatterHostField(key, source) {
+				current, _ := file.Get(key)
+				if current != source && applyDirect {
+					if !file.Set(key, source) {
+						return nil, nil, fmt.Errorf("copying host-owned frontmatter key %q from source", key)
+					}
+					direct = append(direct, key)
+				}
+				if applyDirect && opts.LockFile != nil {
+					lockTarget := lockfile.LockTargetKey(opts.LockTarget, opts.Language)
+					opts.LockFile.Remove(lockTarget, scopedLockKey(lockKeyPrefix, key))
+				}
+				continue
+			}
+		}
 		if isKeyLocked(key, opts) {
 			continue
 		}
@@ -46,6 +63,7 @@ func prepareKVWork(file formatfile.KVFile, sourceValues map[string]string, lockK
 			continue
 		}
 		selector := terminologySelector(opts, key, "", opts.SourcePath)
+		markdownFieldExact := false
 		terms, resolveTermsErr := resolveTerminologyTerms(source, opts, selector)
 		if resolveTermsErr != nil {
 			return nil, nil, resolveTermsErr
@@ -54,6 +72,21 @@ func prepareKVWork(file formatfile.KVFile, sourceValues map[string]string, lockK
 			exact, matched, resolveErr := opts.Terminology.ResolveExact(source, "", opts.Language, selector)
 			if resolveErr != nil {
 				return nil, nil, resolveErr
+			}
+			// Markdown exact replacements bypass the host-owned syntax plan. Keep
+			// plain single-field values in the field-level terminology path, and
+			// fail explicitly when a whole-section exact rule spans structure.
+			if matched && isMarkdownTranslator(translator) {
+				plan, planErr := mdformat.BuildPlan(opts.SourcePath, key, []byte(source))
+				if planErr != nil {
+					return nil, nil, fmt.Errorf("exact terminology rule %q: %w", exact.ID, planErr)
+				}
+				fields := plan.Fields()
+				if len(fields) != 1 || fields[0].Source != source {
+					return nil, nil, fmt.Errorf("exact terminology rule %q spans host-owned Markdown structure for key %q and cannot be projected safely", exact.ID, key)
+				}
+				matched = false
+				markdownFieldExact = true
 			}
 			if matched {
 				if len(exact.Translations) != 1 {
@@ -65,11 +98,6 @@ func prepareKVWork(file formatfile.KVFile, sourceValues map[string]string, lockK
 				}
 				if err := validateTerminology(source, value, terms); err != nil {
 					return nil, nil, fmt.Errorf("exact terminology rule %q: %w", exact.ID, err)
-				}
-				if isMarkdownTranslator(translator) {
-					if _, bad := firstInvalidMarkdownTranslation([]string{key}, []string{value}, map[string]string{key: source}); bad {
-						return nil, nil, fmt.Errorf("exact terminology rule %q breaks Markdown structure for key %q", exact.ID, key)
-					}
 				}
 				current, _ := file.Get(key)
 				if current != value {
@@ -84,7 +112,7 @@ func prepareKVWork(file formatfile.KVFile, sourceValues map[string]string, lockK
 
 		current, exists := file.Get(key)
 		translated := exists && strings.TrimSpace(current) != ""
-		selected := opts.RetranslateExisting || opts.ForceTranslate || !translated
+		selected := opts.RetranslateExisting || opts.ForceTranslate || !translated || markdownFieldExact
 		terminologyViolation := false
 		if translated && opts.Terminology != nil {
 			terminologyViolation = validateTerminology(source, current, terms) != nil

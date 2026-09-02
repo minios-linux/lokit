@@ -250,9 +250,13 @@ func validatePOPluralChunkTerminology(entries []*po.Entry, translations []plural
 	return nil
 }
 
-func restorePOPluralPreservedTerms(entries []*po.Entry, translations []pluralTranslation, singular, plural []map[string]string, namespace string) error {
+func restorePOPluralPreservedTerms(entries []*po.Entry, translations []pluralTranslation, singular, plural []map[string]string, rules [][]terminology.TermMatch, namespace string) error {
+	protectedRules := collectProtectedRules(rules)
 	for i, entry := range entries {
 		if entry.MsgIDPlural == "" {
+			if err := validateRawPreservedTerms(translations[i].singular, singular[i], protectedRules); err != nil {
+				return fmt.Errorf("entry %q: %w", entry.MsgID, err)
+			}
 			value, err := restorePreservedTerms(translations[i].singular, singular[i], namespace)
 			if err != nil {
 				return fmt.Errorf("entry %q: %w", entry.MsgID, err)
@@ -264,6 +268,9 @@ func restorePOPluralPreservedTerms(entries []*po.Entry, translations []pluralTra
 			preserved := plural[i]
 			if form == 0 {
 				preserved = singular[i]
+			}
+			if err := validateRawPreservedTerms(value, preserved, protectedRules); err != nil {
+				return fmt.Errorf("entry %q plural form %d: %w", entry.MsgID, form, err)
 			}
 			restored, err := restorePreservedTerms(value, preserved, namespace)
 			if err != nil {

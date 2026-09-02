@@ -59,9 +59,6 @@ type File struct {
 // Parsing
 // ---------------------------------------------------------------------------
 
-// codeBlockFence matches fenced code blocks (``` or ~~~).
-var codeBlockFence = regexp.MustCompile("(?s)```[^`]*?```|~~~[^~]*?~~~")
-
 // sectionSplitter matches headings and horizontal rules that delimit sections.
 // It is only applied OUTSIDE of fenced code blocks.
 var sectionSplitter = regexp.MustCompile(`(?m)^(#{1,6} .+|[-*_]{3,}\s*)$`)
@@ -104,17 +101,8 @@ func Parse(data []byte) (*File, error) {
 
 	// --- Split body into sections ---
 	text = f.maskCodeBlocks(text)
-	// Find code block ranges to exclude from delimiter search.
-	codeRanges := codeBlockFence.FindAllStringIndex(text, -1)
-
-	// Find all delimiter matches OUTSIDE code blocks.
 	allDelims := sectionSplitter.FindAllStringIndex(text, -1)
-	var delims [][]int
-	for _, loc := range allDelims {
-		if !insideRanges(loc[0], codeRanges) {
-			delims = append(delims, loc)
-		}
-	}
+	delims := allDelims
 
 	// Build list of [start, end] for each section body between delimiters.
 	// A section consists of: the delimiter line (heading/hr) + the text after it.
@@ -383,11 +371,88 @@ func SyncKeysMapped(src, target *File, moved map[string]string) {
 }
 
 func (f *File) maskCodeBlocks(text string) string {
-	return codeBlockFence.ReplaceAllStringFunc(text, func(block string) string {
+	ranges := markdownFenceRanges(text)
+	if len(ranges) == 0 {
+		return text
+	}
+	var out strings.Builder
+	cursor := 0
+	for _, span := range ranges {
+		out.WriteString(text[cursor:span[0]])
+		block := text[span[0]:span[1]]
 		key := fmt.Sprintf("<!-- lokit:code-block:%d -->", len(f.codeBlocks))
 		f.codeBlocks[key] = block
-		return key
-	})
+		out.WriteString(key)
+		cursor = span[1]
+	}
+	out.WriteString(text[cursor:])
+	return out.String()
+}
+
+func markdownFenceRanges(text string) [][2]int {
+	var ranges [][2]int
+	for lineStart := 0; lineStart < len(text); {
+		lineEnd, nextLine := markdownLineBounds(text, lineStart)
+		marker, length, ok := markdownFenceLine(text[lineStart:lineEnd], 0, 0)
+		if !ok {
+			lineStart = nextLine
+			continue
+		}
+		blockEnd := len(text)
+		for closeStart := nextLine; closeStart < len(text); {
+			closeEnd, afterClose := markdownLineBounds(text, closeStart)
+			if _, _, closes := markdownFenceLine(text[closeStart:closeEnd], marker, length); closes {
+				blockEnd = closeEnd
+				break
+			}
+			closeStart = afterClose
+		}
+		ranges = append(ranges, [2]int{lineStart, blockEnd})
+		_, lineStart = markdownLineBounds(text, blockEnd)
+	}
+	return ranges
+}
+
+func markdownLineBounds(text string, start int) (int, int) {
+	if start >= len(text) {
+		return len(text), len(text)
+	}
+	newline := strings.IndexByte(text[start:], '\n')
+	if newline < 0 {
+		return len(text), len(text)
+	}
+	end := start + newline
+	return end, end + 1
+}
+
+func markdownFenceLine(line string, closingMarker byte, minimumLength int) (byte, int, bool) {
+	line = strings.TrimSuffix(line, "\r")
+	indent := 0
+	for indent < len(line) && indent < 4 && line[indent] == ' ' {
+		indent++
+	}
+	if indent > 3 || indent >= len(line) {
+		return 0, 0, false
+	}
+	marker := line[indent]
+	if marker != '`' && marker != '~' || closingMarker != 0 && marker != closingMarker {
+		return 0, 0, false
+	}
+	length := 0
+	for indent+length < len(line) && line[indent+length] == marker {
+		length++
+	}
+	if length < 3 || length < minimumLength {
+		return 0, 0, false
+	}
+	rest := line[indent+length:]
+	if closingMarker != 0 {
+		return marker, length, strings.Trim(rest, " \t") == ""
+	}
+	if marker == '`' && strings.ContainsRune(rest, '`') {
+		return 0, 0, false
+	}
+	return marker, length, true
 }
 
 func (f *File) restoreCodeBlocks(text string) string {
