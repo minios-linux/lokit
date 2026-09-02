@@ -210,6 +210,98 @@ func TestFindPolkitITSUsesXDGDataDirs(t *testing.T) {
 	}
 }
 
+func TestPolkitExtractionSourceOmitsLocalizedMessages(t *testing.T) {
+	input := []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<policyconfig>
+  <action id="org.example.install">
+    <description>Install MiniOS</description>
+    <description xml:lang="de">MiniOS installieren</description>
+    <message>Authentication is required</message>
+    <message xml:lang="ru">Требуется аутентификация</message>
+    <defaults><allow_active>auth_admin_keep</allow_active></defaults>
+  </action>
+</policyconfig>`)
+	output, err := polkitExtractionSource(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(output)
+	for _, want := range []string{"Install MiniOS", "Authentication is required", "auth_admin_keep"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("extraction source lost %q: %s", want, text)
+		}
+	}
+	for _, unwanted := range []string{"MiniOS installieren", "Требуется аутентификация", "xml:lang"} {
+		if strings.Contains(text, unwanted) {
+			t.Fatalf("extraction source retained %q: %s", unwanted, text)
+		}
+	}
+}
+
+func TestRunXgettextPolkitIgnoresInlineTranslations(t *testing.T) {
+	if _, err := exec.LookPath("xgettext"); err != nil {
+		t.Skip("xgettext not installed")
+	}
+	tmp := t.TempDir()
+	itsPath := filepath.Join(tmp, "gettext", "its", "polkit.its")
+	if err := os.MkdirAll(filepath.Dir(itsPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	its := `<?xml version="1.0"?>
+<its:rules xmlns:its="http://www.w3.org/2005/11/its" version="2.0">
+  <its:translateRule selector="//*" translate="no"/>
+  <its:translateRule selector="//action/description | //action/message" translate="yes"/>
+</its:rules>`
+	if err := os.WriteFile(itsPath, []byte(its), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	policyDir := filepath.Join(tmp, "policy files")
+	if err := os.MkdirAll(policyDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	policyPath := filepath.Join(policyDir, "org.example.install.policy")
+	policy := `<policyconfig><action id="org.example.install">
+<description>Install MiniOS</description>
+<description xml:lang="de">
+MiniOS installieren
+</description>
+<message>Authentication is required</message>
+<message xml:lang="ru">Требуется аутентификация</message>
+</action></policyconfig>`
+	if err := os.WriteFile(policyPath, []byte(policy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	temporaryDir := filepath.Join(tmp, "temporary files")
+	if err := os.MkdirAll(temporaryDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("TMPDIR", temporaryDir)
+	t.Setenv("XDG_DATA_DIRS", tmp)
+	potPath := filepath.Join(tmp, "messages.pot")
+	if _, err := RunXgettext([]string{policyPath}, potPath, "", "", "", nil, tmp); err != nil {
+		t.Fatal(err)
+	}
+	pot, err := os.ReadFile(potPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(pot)
+	for _, want := range []string{`msgid "Install MiniOS"`, `msgid "Authentication is required"`} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("POT lost %s: %s", want, text)
+		}
+	}
+	for _, unwanted := range []string{"MiniOS installieren", "Требуется аутентификация"} {
+		if strings.Contains(text, unwanted) {
+			t.Fatalf("POT contains inline translation %q: %s", unwanted, text)
+		}
+	}
+	if strings.Contains(text, "lokit-polkit-") || !strings.Contains(text, "\u2068policy files/org.example.install.policy\u2069:2") ||
+		!strings.Contains(text, "\u2068policy files/org.example.install.policy\u2069:6") {
+		t.Fatalf("POT contains a temporary reference instead of the policy source: %s", text)
+	}
+}
+
 func TestFindSourcesPolkitTemplate(t *testing.T) {
 	t.Parallel()
 

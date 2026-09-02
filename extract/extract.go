@@ -8,7 +8,10 @@ package extract
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -504,7 +507,7 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 	if len(groups.polkit) > 0 {
 		itsFile := findPolkitITS()
 		if itsFile == "" {
-			return nil, fmt.Errorf("polkit ITS rules not found; install polkit or gettext >= 0.19.8")
+			return nil, fmt.Errorf("polkit ITS rules not found; install libpolkit-gobject-1-dev on Debian/Ubuntu or the package providing polkit.its")
 		} else {
 			tmpDir, err := os.MkdirTemp("", "lokit-polkit-*")
 			if err != nil {
@@ -513,38 +516,44 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 			defer os.RemoveAll(tmpDir)
 
 			var resolvedPolkit []string
+			polkitReferences := make(map[string]string)
 			for i, f := range groups.polkit {
-				if strings.HasSuffix(f, ".policy.template") {
-					// Resolve relative paths against workDir so os.ReadFile works
-					// regardless of the process working directory.
-					absF := f
-					if !filepath.IsAbs(f) && workDir != "" {
-						absF = filepath.Join(workDir, f)
-					}
-					// Copy to temp dir as a plain .policy file.
-					// Prefix with the loop index to prevent silent overwrites when
-					// two .policy.template files share the same basename in different
-					// source directories (e.g. share/polkit/org.foo.policy.template
-					// and data/org.foo.policy.template both → org.foo.policy).
-					base := filepath.Base(strings.TrimSuffix(f, ".template"))
-					dst := filepath.Join(tmpDir, fmt.Sprintf("%d_%s", i, base))
-					data, err := os.ReadFile(absF)
-					if err != nil {
-						return nil, fmt.Errorf("reading %s: %w", absF, err)
-					}
-					if err := os.WriteFile(dst, data, 0644); err != nil {
-						return nil, fmt.Errorf("writing temp polkit file: %w", err)
-					}
-					resolvedPolkit = append(resolvedPolkit, dst)
-				} else {
-					resolvedPolkit = append(resolvedPolkit, f)
+				absF := f
+				if !filepath.IsAbs(f) && workDir != "" {
+					absF = filepath.Join(workDir, f)
 				}
+				data, err := os.ReadFile(absF)
+				if err != nil {
+					return nil, fmt.Errorf("reading %s: %w", absF, err)
+				}
+				data, err = polkitExtractionSource(data)
+				if err != nil {
+					return nil, fmt.Errorf("preparing %s for extraction: %w", absF, err)
+				}
+				// xgettext selects the ITS handler from the .policy extension.
+				// Numbered names avoid collisions between equal basenames.
+				base := filepath.Base(strings.TrimSuffix(f, ".template"))
+				dst := filepath.Join(tmpDir, fmt.Sprintf("%d_%s", i, base))
+				if err := os.WriteFile(dst, data, 0644); err != nil {
+					return nil, fmt.Errorf("writing temp polkit file: %w", err)
+				}
+				resolvedPolkit = append(resolvedPolkit, dst)
+				reference := f
+				if filepath.IsAbs(reference) && workDir != "" {
+					if relative, err := filepath.Rel(workDir, reference); err == nil && relative != ".." && !strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+						reference = relative
+					}
+				}
+				polkitReferences[dst] = polkitReferencePath(reference)
 			}
 
 			args := baseArgs(true)
 			args = append(args, "--its="+itsFile)
 			if err := runPass(args, resolvedPolkit); err != nil {
 				return nil, fmt.Errorf("polkit extraction failed: %w", err)
+			}
+			if err := rewritePolkitReferences(potFile, polkitReferences); err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -571,6 +580,65 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 		Languages:   DetectedLanguages(files),
 		POTFile:     potFile,
 	}, nil
+}
+
+func rewritePolkitReferences(potFile string, references map[string]string) error {
+	data, err := os.ReadFile(potFile)
+	if err != nil {
+		return fmt.Errorf("reading extracted polkit references: %w", err)
+	}
+	text := string(data)
+	for temporary, source := range references {
+		text = strings.ReplaceAll(text, "\u2068"+temporary+"\u2069", source)
+		text = strings.ReplaceAll(text, temporary, source)
+	}
+	if err := os.WriteFile(potFile, []byte(text), 0o644); err != nil {
+		return fmt.Errorf("writing extracted polkit references: %w", err)
+	}
+	return nil
+}
+
+func polkitReferencePath(path string) string {
+	if strings.ContainsAny(path, " \t") {
+		return "\u2068" + path + "\u2069"
+	}
+	return path
+}
+
+func polkitExtractionSource(data []byte) ([]byte, error) {
+	decoder := xml.NewDecoder(bytes.NewReader(data))
+	output := append([]byte(nil), data...)
+	for {
+		startOffset := decoder.InputOffset()
+		token, err := decoder.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		if start, ok := token.(xml.StartElement); ok && (start.Name.Local == "description" || start.Name.Local == "message") && polkitElementHasLanguage(start) {
+			if err := decoder.Skip(); err != nil {
+				return nil, err
+			}
+			for i := startOffset; i < decoder.InputOffset(); i++ {
+				if output[i] != '\r' && output[i] != '\n' {
+					output[i] = ' '
+				}
+			}
+			continue
+		}
+	}
+	return output, nil
+}
+
+func polkitElementHasLanguage(start xml.StartElement) bool {
+	for _, attr := range start.Attr {
+		if attr.Name.Local == "lang" {
+			return true
+		}
+	}
+	return false
 }
 
 // RunXgotext runs xgotext on Go source directories to produce a .pot file.
