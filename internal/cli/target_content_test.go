@@ -352,6 +352,47 @@ func TestTranslateJSKVTargetDryRunCountsMissingSourceKeys(t *testing.T) {
 	}
 }
 
+func TestTranslateI18NextTargetDryRunCountsSynchronizedSourceKeys(t *testing.T) {
+	dir := t.TempDir()
+	translationsDir := filepath.Join(dir, "translations")
+	if err := os.MkdirAll(translationsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(translationsDir, "en.json"), []byte(`{"translations":{"existing":"Existing","new":"New"}}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(translationsDir, "de.json"), []byte(`{"translations":{"existing":"Vorhanden"}}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rt := config.ResolvedTarget{
+		Target: config.Target{
+			Name: "web", Type: config.TargetTypeI18Next, Format: config.TargetTypeI18Next,
+			Dir: "translations", Pattern: "{lang}.json", SourceLang: "en",
+		},
+		AbsRoot: dir,
+	}
+	for _, tc := range []struct {
+		name string
+		args translateArgs
+		want string
+	}{
+		{name: "missing", args: translateArgs{dryRun: true}, want: "1 strings to translate"},
+		{name: "retranslate", args: translateArgs{dryRun: true, retranslate: true}, want: "2 strings to translate"},
+		{name: "force", args: translateArgs{dryRun: true, force: true}, want: "2 strings to translate"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			output := captureStderr(t, func() {
+				if err := translateI18NextTarget(context.Background(), rt, translate.Provider{}, tc.args, []string{"de"}); err != nil {
+					t.Fatal(err)
+				}
+			})
+			if !strings.Contains(output, tc.want) {
+				t.Fatalf("dry-run output missing %q:\n%s", tc.want, output)
+			}
+		})
+	}
+}
+
 func TestTranslateDesktopTargetDryRunDoesNotMutate(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "app.desktop")

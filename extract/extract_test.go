@@ -134,7 +134,7 @@ func TestGroupFilesForXgettext(t *testing.T) {
 		"policy/org.example.policy.template",
 	}
 
-	groups := groupFilesForXgettext(files)
+	groups := groupFilesForXgettext(files, "")
 
 	wantRegular := []string{"src/main.py"}
 	wantShell := []string{"scripts/update"}
@@ -156,6 +156,53 @@ func TestGroupFilesForXgettext(t *testing.T) {
 	}
 	if !reflect.DeepEqual(groups.polkit, wantPolkit) {
 		t.Fatalf("polkit = %#v, want %#v", groups.polkit, wantPolkit)
+	}
+}
+
+func TestGroupFilesForXgettextUsesExtensionlessShebangs(t *testing.T) {
+	tmp := t.TempDir()
+	files := map[string]string{
+		"python-tool": "#!/usr/bin/env python3\n",
+		"perl-tool":   "#!/usr/bin/perl\n",
+		"ruby-tool":   "#!/usr/bin/env ruby\n",
+		"shell-tool":  "#!/bin/sh\n",
+	}
+	for name, content := range files {
+		if err := os.WriteFile(filepath.Join(tmp, name), []byte(content), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	groups := groupFilesForXgettext([]string{"python-tool", "perl-tool", "ruby-tool", "shell-tool"}, tmp)
+	if !reflect.DeepEqual(groups.python, []string{"python-tool"}) ||
+		!reflect.DeepEqual(groups.perl, []string{"perl-tool"}) ||
+		!reflect.DeepEqual(groups.ruby, []string{"ruby-tool"}) ||
+		!reflect.DeepEqual(groups.shell, []string{"shell-tool"}) {
+		t.Fatalf("extensionless shebang groups = %#v", groups)
+	}
+}
+
+func TestRunXgettextExtensionlessPythonUsesShebangLanguage(t *testing.T) {
+	if _, err := exec.LookPath("xgettext"); err != nil {
+		t.Skip("xgettext not installed")
+	}
+
+	tmp := t.TempDir()
+	src := filepath.Join(tmp, "minios-helper")
+	pot := filepath.Join(tmp, "messages.pot")
+	content := "#!/usr/bin/python3\n_(\"Extensionless Python message\")\n"
+	if err := os.WriteFile(src, []byte(content), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := RunXgettext([]string{src}, pot, "", "", "", nil, tmp); err != nil {
+		t.Fatalf("RunXgettext: %v", err)
+	}
+	data, err := os.ReadFile(pot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), `msgid "Extensionless Python message"`) {
+		t.Fatalf("POT missing Python message: %s", data)
 	}
 }
 

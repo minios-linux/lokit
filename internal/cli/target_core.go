@@ -577,9 +577,14 @@ func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov
 				logInfo(T("%s (%s): %d strings to translate (file will be auto-created)"), lang, langName, len(srcKeys))
 				continue
 			}
-			count := len(file.UntranslatedKeys())
+			count := 0
+			for _, key := range srcKeys {
+				if value, exists := file.Translations[key]; !exists || strings.TrimSpace(value) == "" {
+					count++
+				}
+			}
 			if a.retranslate || a.force {
-				count = len(file.Keys())
+				count = len(srcKeys)
 			}
 			langName := i18next.ResolveMeta(lang).Name
 			logInfo(T("%s (%s): %d strings to translate"), lang, langName, count)

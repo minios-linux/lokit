@@ -332,13 +332,16 @@ type xgettextPass struct {
 type xgettextFileGroups struct {
 	regular []string
 	shell   []string
+	python  []string
+	perl    []string
+	ruby    []string
 	glade   []string
 	desktop []string
 	polkit  []string
 }
 
 // groupFilesForXgettext splits files into the pass groups RunXgettext uses.
-func groupFilesForXgettext(files []string) xgettextFileGroups {
+func groupFilesForXgettext(files []string, workDir string) xgettextFileGroups {
 	var groups xgettextFileGroups
 	for _, f := range files {
 		if strings.HasSuffix(f, ".policy.template") {
@@ -354,7 +357,22 @@ func groupFilesForXgettext(files []string) xgettextFileGroups {
 		case ".policy":
 			groups.polkit = append(groups.polkit, f)
 		case "":
-			groups.shell = append(groups.shell, f)
+			// Extensionless sources need an explicit language: xgettext
+			// cannot infer Python/Perl/Ruby from a shebang by itself.
+			probe := f
+			if workDir != "" && !filepath.IsAbs(probe) {
+				probe = filepath.Join(workDir, probe)
+			}
+			switch FileLanguage(probe) {
+			case "Python":
+				groups.python = append(groups.python, f)
+			case "Perl":
+				groups.perl = append(groups.perl, f)
+			case "Ruby":
+				groups.ruby = append(groups.ruby, f)
+			default:
+				groups.shell = append(groups.shell, f)
+			}
 		default:
 			groups.regular = append(groups.regular, f)
 		}
@@ -370,7 +388,7 @@ func groupFilesForXgettext(files []string) xgettextFileGroups {
 //
 // Pass order:
 //  1. Auto-detected languages (Python, C, C++, Shell, etc.) — no --language flag
-//  2. Shell scripts without extension (detected via shebang) — --language=Shell
+//  2. Extensionless scripts (Shell/Python/Perl/Ruby) — explicit --language
 //  3. Glade .ui / .glade — --language=Glade
 //  4. Desktop .desktop / .nemo_action — --language=Desktop
 //  5. Polkit .policy / .policy.template — via ITS rules
@@ -412,7 +430,7 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 		kws = keywords
 	}
 
-	groups := groupFilesForXgettext(files)
+	groups := groupFilesForXgettext(files, workDir)
 
 	potCreated := false
 
@@ -473,15 +491,18 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 		return nil
 	}
 
-	// Passes 1–4: standard language groups processed with a unified loop.
+	// Standard language groups are processed with a unified loop.
 	// potCreated is false initially, so the first non-empty pass will not
 	// receive --join-existing even though we always pass joinExisting=true to
 	// baseArgs — that flag is gated on potCreated inside baseArgs.
 	for _, p := range []xgettextPass{
 		{language: "", files: groups.regular},        // Pass 1: auto-detected
-		{language: "Shell", files: groups.shell},     // Pass 2: extensionless scripts
-		{language: "Glade", files: groups.glade},     // Pass 3: Glade / GTK Builder
-		{language: "Desktop", files: groups.desktop}, // Pass 4: desktop entries
+		{language: "Shell", files: groups.shell},     // Extensionless shell scripts
+		{language: "Python", files: groups.python},   // Extensionless Python scripts
+		{language: "Perl", files: groups.perl},       // Extensionless Perl scripts
+		{language: "Ruby", files: groups.ruby},       // Extensionless Ruby scripts
+		{language: "Glade", files: groups.glade},     // Glade / GTK Builder
+		{language: "Desktop", files: groups.desktop}, // Desktop entries
 	} {
 		if len(p.files) == 0 {
 			continue
@@ -495,7 +516,7 @@ func RunXgettext(files []string, potFile, pkgName, pkgVersion, bugsEmail string,
 		}
 	}
 
-	// Pass 5: Polkit policy files.
+	// Polkit policy files are processed separately via ITS rules.
 	// xgettext supports polkit XML via ITS (Internationalization Tag Set) rules
 	// shipped with polkit or gettext >= 0.19.8. Without ITS rules we cannot
 	// produce meaningful output — running --language=C on XML would be noise —
