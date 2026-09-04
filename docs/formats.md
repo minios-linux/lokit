@@ -118,6 +118,8 @@ locales/
 **Notes:**
 - `to` must contain `{lang}` — lokit replaces it with each target language code
 - `lokit init` creates empty JSON files for missing languages
+- Source-language values are sent for translation, so keys may be stable IDs such as `hero.title`
+- Empty source values fall back to the key itself for legacy natural-text-key catalogs
 - Nested keys are preserved as-is
 
 ---

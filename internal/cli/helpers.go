@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -146,6 +147,7 @@ func doExtract(proj *config.Project) (_ []string, retErr error) {
 		}
 	}()
 	var finalPOT string
+	packageName, packageVersion := gettextPackageMetadata(baseDir, proj.Name)
 
 	// Helper: extract Go files using the appropriate tool.
 	// If project has keywords configured, use AST-based extraction (handles
@@ -173,7 +175,9 @@ func doExtract(proj *config.Project) (_ []string, retErr error) {
 	case len(otherFiles) > 0 && len(goFiles) > 0:
 		// Both Go and non-Go files: extract separately, then merge
 		logInfo(T("Extracting from %d non-Go files with xgettext..."), len(otherFiles))
-		xgettextResult, err := extract.RunXgettext(otherFilesForXgettext, potFile, "", "", "", proj.Keywords, baseDir)
+		xgettextResult, err := extract.RunXgettext(
+			otherFilesForXgettext, potFile, packageName, packageVersion, "",
+			proj.Keywords, baseDir)
 		if err != nil {
 			// Return desktopFiles even on failure: the scan succeeded and callers
 			// can still seed existing PO files from inline .desktop translations.
@@ -199,7 +203,9 @@ func doExtract(proj *config.Project) (_ []string, retErr error) {
 
 	case len(otherFiles) > 0:
 		// Only non-Go files
-		result, err := extract.RunXgettext(otherFilesForXgettext, potFile, "", "", "", proj.Keywords, baseDir)
+		result, err := extract.RunXgettext(
+			otherFilesForXgettext, potFile, packageName, packageVersion, "",
+			proj.Keywords, baseDir)
 		if err != nil {
 			return desktopFiles, fmt.Errorf(T("extraction failed: %w"), err)
 		}
@@ -216,6 +222,19 @@ func doExtract(proj *config.Project) (_ []string, retErr error) {
 
 	if finalPOT != "" {
 		if potPO, err := po.ParseFile(finalPOT); err == nil {
+			if packageVersion != "" {
+				potPO.SetHeaderField("Project-Id-Version", packageName+" "+packageVersion)
+			} else {
+				projectID := "PACKAGE VERSION"
+				if previousPOT.exists {
+					if oldPOT, parseErr := po.Parse(bytes.NewReader(previousPOT.data)); parseErr == nil {
+						if oldID := oldPOT.HeaderField("Project-Id-Version"); validProjectID(oldID) {
+							projectID = oldID
+						}
+					}
+				}
+				potPO.SetHeaderField("Project-Id-Version", projectID)
+			}
 			potPO.ClearTranslationsForPOT()
 			if err := potPO.WriteFile(finalPOT); err != nil {
 				return desktopFiles, fmt.Errorf(T("normalizing POT template %s: %w"), finalPOT, err)
@@ -238,6 +257,57 @@ func doExtract(proj *config.Project) (_ []string, retErr error) {
 	}
 
 	return desktopFiles, nil
+}
+
+func gettextPackageMetadata(baseDir, fallbackName string) (string, string) {
+	dir := filepath.Clean(baseDir)
+	for {
+		data, err := os.ReadFile(filepath.Join(dir, "debian", "changelog"))
+		if err == nil {
+			line := strings.SplitN(string(data), "\n", 2)[0]
+			open := strings.IndexByte(line, '(')
+			close := strings.IndexByte(line, ')')
+			if open > 0 && close > open+1 {
+				name := strings.TrimSpace(line[:open])
+				version := strings.TrimSpace(line[open+1 : close])
+				if name != "" && version != "" {
+					return name, version
+				}
+			}
+			return fallbackName, ""
+		}
+		if _, err := os.Lstat(filepath.Join(dir, ".git")); err == nil {
+			return fallbackName, ""
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return fallbackName, ""
+		}
+		dir = parent
+	}
+}
+
+func applyPOTProjectID(dst, potFile *po.File) {
+	if projectID := potFile.HeaderField("Project-Id-Version"); validProjectID(projectID) {
+		dst.SetHeaderField("Project-Id-Version", projectID)
+	}
+}
+
+func validProjectID(value string) bool {
+	fields := strings.Fields(value)
+	if len(fields) < 2 || strings.HasPrefix(strings.ToUpper(value), "PACKAGE VERSION") {
+		return false
+	}
+	return strings.IndexFunc(fields[len(fields)-1], func(r rune) bool { return r >= '0' && r <= '9' }) >= 0
+}
+
+func po4aCommandArgs(cfgPath, fallbackName string, options ...string) []string {
+	args := append([]string(nil), options...)
+	name, version := gettextPackageMetadata(filepath.Dir(cfgPath), fallbackName)
+	if version != "" {
+		args = append(args, "--package-name", name, "--package-version", version)
+	}
+	return append(args, cfgPath)
 }
 
 func filterSourcePaths(files []string, root string, patterns []string) []string {
@@ -306,6 +376,10 @@ func createPOFromPOT(proj *config.Project, lang, poPath, root string, desktopFil
 
 	newPO := po.NewFile()
 	newPO.Header = po.MakeHeader(proj.Name, proj.Version, proj.BugsEmail, proj.CopyrightHolder, lang)
+	if proj.Version == "" {
+		newPO.SetHeaderField("Project-Id-Version", "PACKAGE VERSION")
+	}
+	applyPOTProjectID(newPO, potPO)
 	newPO.SetHeaderField("Plural-Forms", po.PluralFormsForLang(lang))
 
 	for _, e := range potPO.Entries {

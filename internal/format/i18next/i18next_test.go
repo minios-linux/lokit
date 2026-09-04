@@ -74,6 +74,40 @@ func TestGetDistinguishesEmptyAndMissingValues(t *testing.T) {
 	}
 }
 
+func TestSourceValues_PrefersValuesWithLegacyFallback(t *testing.T) {
+	f, err := Parse([]byte(`{"translations":{"hero.title":"Thank you for choosing MiniOS.","Legacy English key":""}}`))
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+
+	values := f.SourceValues()
+	if got := values["hero.title"]; got != "Thank you for choosing MiniOS." {
+		t.Fatalf("stable key source value = %q", got)
+	}
+	if got := values["Legacy English key"]; got != "Legacy English key" {
+		t.Fatalf("legacy key fallback = %q", got)
+	}
+}
+
+func TestKeys_AppendsKeysAddedAfterParsing(t *testing.T) {
+	f, err := Parse([]byte(`{"translations":{"first":"One","second":"Two"}}`))
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+
+	f.Translations["support.telegram.title"] = ""
+	keys := f.Keys()
+	want := []string{"first", "second", "support.telegram.title"}
+	if len(keys) != len(want) {
+		t.Fatalf("Keys() = %v", keys)
+	}
+	for i := range want {
+		if keys[i] != want[i] {
+			t.Fatalf("Keys() = %v, want %v", keys, want)
+		}
+	}
+}
+
 func TestResolveMeta_NormalizationAndFallback(t *testing.T) {
 	m := ResolveMeta("pt_br")
 	if m.Name == "" || m.Flag == "" {

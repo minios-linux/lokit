@@ -10,8 +10,9 @@
 //	    }
 //	}
 //
-// Keys are natural English text. Empty string values mean untranslated
-// (i18next falls back to the key itself as the English text).
+// Source-language values are the text sent for translation, so keys may be
+// stable IDs. Empty source values fall back to the key for legacy catalogs
+// that store the natural English source text directly in the key.
 package i18next
 
 import (
@@ -133,19 +134,32 @@ func parseOrderedStringMap(data []byte) (*orderedMap, error) {
 	return om, nil
 }
 
-// Keys returns the translation keys in their original order.
+// Keys returns the translation keys in their original order. Keys added after
+// parsing are appended in sorted order so synchronization can safely extend an
+// existing catalog without losing the preserved order.
 func (f *File) Keys() []string {
-	if len(f.keys) > 0 {
-		return f.keys
+	if len(f.keys) == 0 {
+		keys := make([]string, 0, len(f.Translations))
+		for k := range f.Translations {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		return keys
 	}
 
-	// Fallback: sorted keys.
-	keys := make([]string, 0, len(f.Translations))
-	for k := range f.Translations {
-		keys = append(keys, k)
+	keys := append([]string(nil), f.keys...)
+	seen := make(map[string]struct{}, len(keys))
+	for _, key := range keys {
+		seen[key] = struct{}{}
 	}
-	sort.Strings(keys)
-	return keys
+	var added []string
+	for key := range f.Translations {
+		if _, ok := seen[key]; !ok {
+			added = append(added, key)
+		}
+	}
+	sort.Strings(added)
+	return append(keys, added...)
 }
 
 // UntranslatedKeys returns keys that have empty translations.
@@ -189,11 +203,16 @@ func (f *File) Stats() (total, translated int, pct float64) {
 }
 
 // SourceValues returns key -> source string mapping.
-// In i18next files keys are natural English source strings.
+// Prefer the source-language value so i18next files can use stable IDs as
+// keys. Empty values fall back to the key for legacy catalogs whose English
+// source text is stored directly in the key.
 func (f *File) SourceValues() map[string]string {
 	m := make(map[string]string, len(f.Translations))
-	for k := range f.Translations {
-		m[k] = k
+	for k, v := range f.Translations {
+		if v == "" {
+			v = k
+		}
+		m[k] = v
 	}
 	return m
 }

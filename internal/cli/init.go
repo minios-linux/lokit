@@ -487,7 +487,7 @@ func doPo4aInit(proj *config.Project) error {
 	}
 
 	logInfo(T("Running po4a --no-translations %s ..."), proj.Po4aConfig)
-	cmd := exec.Command("po4a", "--no-translations", proj.Po4aConfig)
+	cmd := exec.Command("po4a", po4aCommandArgs(proj.Po4aConfig, proj.Name, "--no-translations")...)
 	cmd.Dir = filepath.Dir(proj.Po4aConfig)
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
@@ -495,7 +495,6 @@ func doPo4aInit(proj *config.Project) error {
 		return fmt.Errorf(T("po4a failed: %v"), err)
 	}
 	logSuccess(T("po4a updated POT and PO files"))
-
 	// Re-scan languages from PO files after po4a ran (it may have created new ones)
 	poDir := proj.PODir
 	if poDir != "" {
@@ -562,6 +561,10 @@ func runInitCode(proj *config.Project) {
 		if _, err := os.Stat(poPath); os.IsNotExist(err) {
 			newPO := po.NewFile()
 			newPO.Header = po.MakeHeader(proj.Name, proj.Version, proj.BugsEmail, proj.CopyrightHolder, lang)
+			if proj.Version == "" {
+				newPO.SetHeaderField("Project-Id-Version", "PACKAGE VERSION")
+			}
+			applyPOTProjectID(newPO, potPO)
 			newPO.SetHeaderField("Plural-Forms", po.PluralFormsForLang(lang))
 
 			for _, e := range potPO.Entries {

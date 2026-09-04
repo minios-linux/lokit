@@ -348,7 +348,7 @@ func translatePo4aTarget(ctx context.Context, rt config.ResolvedTarget, prov tra
 	}
 
 	logInfo(T("Rendering translated documents with po4a..."))
-	cmd := exec.Command("po4a", cfgPath)
+	cmd := exec.Command("po4a", po4aCommandArgs(cfgPath, rt.Target.Name)...)
 	cmd.Dir = cfgDir
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
@@ -630,13 +630,24 @@ func translateJSONLikeTarget(ctx context.Context, rt config.ResolvedTarget, prov
 	for _, lang := range langs {
 		filePath := rt.TranslationPath(lang)
 		file, err := i18next.ParseFile(filePath)
-		if err != nil {
+		created := err != nil
+		if created {
 			meta := i18next.ResolveMeta(lang)
 			file = &i18next.File{Meta: meta, Translations: make(map[string]string)}
-			for _, key := range srcKeys {
-				file.Translations[key] = ""
+		}
+
+		added := 0
+		for _, key := range srcKeys {
+			if _, exists := file.Translations[key]; exists {
+				continue
 			}
+			file.Translations[key] = ""
+			added++
+		}
+		if created {
 			logInfo(T("Auto-creating %s with %d keys"), filePath, len(srcKeys))
+		} else if added > 0 {
+			logInfo(T("Adding %d new source keys to %s"), added, filePath)
 		}
 
 		langTasks = append(langTasks, translate.KVLangTask{

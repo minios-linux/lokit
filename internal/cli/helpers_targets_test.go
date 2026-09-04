@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/minios-linux/lokit/config"
+	po "github.com/minios-linux/lokit/internal/format/po"
 )
 
 func TestFilterResolvedTargetsByNames(t *testing.T) {
@@ -65,6 +66,88 @@ func TestFilterResolvedTargetsByNames(t *testing.T) {
 			t.Fatal("expected error for unknown target")
 		}
 	})
+}
+
+func TestGettextPackageMetadataFromDebianChangelog(t *testing.T) {
+	root := t.TempDir()
+	debian := filepath.Join(root, "debian")
+	if err := os.Mkdir(debian, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	changelog := "example-app (1.2.3-1) unstable; urgency=medium\n"
+	if err := os.WriteFile(filepath.Join(debian, "changelog"), []byte(changelog), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	name, version := gettextPackageMetadata(root, "fallback")
+	if name != "example-app" || version != "1.2.3-1" {
+		t.Fatalf("metadata = %q, %q", name, version)
+	}
+
+	name, version = gettextPackageMetadata(filepath.Join(root, "docs", "manpages"), "fallback")
+	if name != "example-app" || version != "1.2.3-1" {
+		t.Fatalf("nested metadata = %q, %q", name, version)
+	}
+
+	name, version = gettextPackageMetadata(t.TempDir(), "fallback")
+	if name != "fallback" || version != "" {
+		t.Fatalf("fallback metadata = %q, %q", name, version)
+	}
+
+	parent := t.TempDir()
+	if err := os.Mkdir(filepath.Join(parent, "debian"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(parent, "debian", "changelog"), []byte(changelog), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	repo := filepath.Join(parent, "nested-repo")
+	if err := os.MkdirAll(filepath.Join(repo, ".git"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	name, version = gettextPackageMetadata(repo, "nested")
+	if name != "nested" || version != "" {
+		t.Fatalf("cross-repository metadata = %q, %q", name, version)
+	}
+}
+
+func TestApplyPOTProjectID(t *testing.T) {
+	potFile := po.NewFile()
+	potFile.SetHeaderField("Project-Id-Version", "example-app 1.2.3")
+	poFile := po.NewFile()
+	poFile.SetHeaderField("Project-Id-Version", "old 1.0")
+
+	applyPOTProjectID(poFile, potFile)
+	if got := poFile.HeaderField("Project-Id-Version"); got != "example-app 1.2.3" {
+		t.Fatalf("Project-Id-Version = %q", got)
+	}
+
+	potFile.SetHeaderField("Project-Id-Version", "PACKAGE VERSION")
+	applyPOTProjectID(poFile, potFile)
+	if got := poFile.HeaderField("Project-Id-Version"); got != "example-app 1.2.3" {
+		t.Fatalf("placeholder replaced Project-Id-Version: %q", got)
+	}
+
+	potFile.SetHeaderField("Project-Id-Version", "Main application")
+	applyPOTProjectID(poFile, potFile)
+	if got := poFile.HeaderField("Project-Id-Version"); got != "example-app 1.2.3" {
+		t.Fatalf("unversioned name replaced Project-Id-Version: %q", got)
+	}
+}
+
+func TestPo4aCommandArgsUsesDebianMetadata(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "debian"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "debian", "changelog"), []byte("example-app (2.0) unstable; urgency=medium\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cfgPath := filepath.Join(root, "docs", "po4a.cfg")
+	want := []string{"--no-translations", "--package-name", "example-app", "--package-version", "2.0", cfgPath}
+	if got := po4aCommandArgs(cfgPath, "fallback", "--no-translations"); !reflect.DeepEqual(got, want) {
+		t.Fatalf("po4a args = %#v, want %#v", got, want)
+	}
 }
 
 func TestResolveTargetsForSelectionSkipsInactiveSources(t *testing.T) {

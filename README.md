@@ -217,7 +217,7 @@ targets:
 
 **po4a** — For documentation (manpages, AsciiDoc). Works with `po4a.cfg` and its PO directory.
 
-**i18next** — Flat JSON key/value translations with optional `_meta` and `translations` sections.
+**i18next** — Flat JSON key/value translations with optional `_meta` and `translations` sections. Source-language values are translated, so keys can be stable IDs; empty source values fall back to natural-text keys for legacy catalogs.
 
 **vue-i18n** — For Vue applications with nested JSON locale files (for example `buttons.save: "Save"` in JSON object form).
 

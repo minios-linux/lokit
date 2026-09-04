@@ -4,6 +4,7 @@ package merge
 
 import (
 	"sort"
+	"strings"
 
 	po "github.com/minios-linux/lokit/internal/format/po"
 )
@@ -26,12 +27,17 @@ func poKey(msgID, msgCtxt string) string {
 func Merge(poFile, potFile *po.File) *po.File {
 	result := po.NewFile()
 
-	// Keep the PO file's header, update POT-Creation-Date
+	// Keep translator-owned PO metadata while syncing template-owned fields.
 	result.Header = poFile.Header
 	if potFile.Header != nil {
-		potCreationDate := potFile.HeaderField("POT-Creation-Date")
-		if potCreationDate != "" {
-			result.SetHeaderField("POT-Creation-Date", potCreationDate)
+		for _, field := range []string{"POT-Creation-Date"} {
+			value := potFile.HeaderField(field)
+			if value != "" {
+				result.SetHeaderField(field, value)
+			}
+		}
+		if projectID := potFile.HeaderField("Project-Id-Version"); validProjectID(projectID) {
+			result.SetHeaderField("Project-Id-Version", projectID)
 		}
 	}
 
@@ -126,6 +132,14 @@ func Merge(poFile, potFile *po.File) *po.File {
 	}
 
 	return result
+}
+
+func validProjectID(value string) bool {
+	fields := strings.Fields(value)
+	if len(fields) < 2 || strings.HasPrefix(strings.ToUpper(value), "PACKAGE VERSION") {
+		return false
+	}
+	return strings.IndexFunc(fields[len(fields)-1], func(r rune) bool { return r >= '0' && r <= '9' }) >= 0
 }
 
 // mergeFlags combines flags from PO and POT, preferring POT format flags

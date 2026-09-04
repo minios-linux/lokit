@@ -29,7 +29,7 @@ func TestMergeKeepNewObsoleteAndHeaderUpdate(t *testing.T) {
 	}
 
 	potFile := po.NewFile()
-	potFile.Header.MsgStr = "POT-Creation-Date: new\n"
+	potFile.Header.MsgStr = "Project-Id-Version: lokit 2\nPOT-Creation-Date: new\n"
 	potFile.Entries = []*po.Entry{
 		{
 			MsgID:             "keep",
@@ -45,6 +45,9 @@ func TestMergeKeepNewObsoleteAndHeaderUpdate(t *testing.T) {
 
 	if got := merged.HeaderField("POT-Creation-Date"); got != "new" {
 		t.Fatalf("POT-Creation-Date = %q, want new", got)
+	}
+	if got := merged.HeaderField("Project-Id-Version"); got != "lokit 2" {
+		t.Fatalf("Project-Id-Version = %q, want lokit 2", got)
 	}
 	if got := merged.HeaderField("Language"); got != "ru" {
 		t.Fatalf("Language header lost: got %q", got)
@@ -91,6 +94,42 @@ func TestMergeKeepNewObsoleteAndHeaderUpdate(t *testing.T) {
 	}
 	if obsolete.References != nil {
 		t.Fatalf("obsolete references should be cleared, got %v", obsolete.References)
+	}
+}
+
+func TestMergeDoesNotReplaceProjectIDWithPlaceholder(t *testing.T) {
+	poFile := po.NewFile()
+	poFile.SetHeaderField("Project-Id-Version", "lokit 2")
+	potFile := po.NewFile()
+	potFile.SetHeaderField("Project-Id-Version", "PACKAGE VERSION")
+
+	merged := Merge(poFile, potFile)
+	if got := merged.HeaderField("Project-Id-Version"); got != "lokit 2" {
+		t.Fatalf("Project-Id-Version = %q, want lokit 2", got)
+	}
+}
+
+func TestMergeDoesNotTreatMultiwordNameAsVersionedProjectID(t *testing.T) {
+	poFile := po.NewFile()
+	poFile.SetHeaderField("Project-Id-Version", "lokit 2")
+	potFile := po.NewFile()
+	potFile.SetHeaderField("Project-Id-Version", "Main application")
+
+	merged := Merge(poFile, potFile)
+	if got := merged.HeaderField("Project-Id-Version"); got != "lokit 2" {
+		t.Fatalf("Project-Id-Version = %q, want lokit 2", got)
+	}
+}
+
+func TestMergeDoesNotReplaceProjectIDWithExtendedPlaceholder(t *testing.T) {
+	poFile := po.NewFile()
+	poFile.SetHeaderField("Project-Id-Version", "lokit 2")
+	potFile := po.NewFile()
+	potFile.SetHeaderField("Project-Id-Version", "PACKAGE VERSION 2")
+
+	merged := Merge(poFile, potFile)
+	if got := merged.HeaderField("Project-Id-Version"); got != "lokit 2" {
+		t.Fatalf("Project-Id-Version = %q, want lokit 2", got)
 	}
 }
 

@@ -2172,7 +2172,7 @@ func TestI18NextFile_SetAndSourceValues(t *testing.T) {
 	}
 
 	sourceValues := f.SourceValues()
-	if sourceValues["Save"] != "Save" || sourceValues["Cancel"] != "Cancel" {
+	if sourceValues["Save"] != "Сохранить" || sourceValues["Cancel"] != "Cancel" {
 		t.Fatalf("unexpected source values: %#v", sourceValues)
 	}
 }
