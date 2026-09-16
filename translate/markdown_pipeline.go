@@ -8,6 +8,8 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	mdformat "github.com/minios-linux/lokit/internal/format/markdown"
 	"github.com/minios-linux/lokit/terminology"
@@ -476,6 +478,20 @@ func renderMarkdownPatch(plan *preparedMarkdownPlan, patches map[string]string) 
 	return string(rendered), nil
 }
 
+func normalizeMarkdownFieldTrailingWhitespace(source, value string) string {
+	sourceBase := strings.TrimRight(source, " \t")
+	sourceSuffix := source[len(sourceBase):]
+	valueBase := strings.TrimRight(value, " \t")
+	valueSuffix := value[len(valueBase):]
+	if sourceSuffix == "" || valueSuffix == "" {
+		return valueBase
+	}
+	if last, _ := utf8.DecodeLastRuneInString(valueBase); unicode.IsSpace(last) {
+		return valueBase
+	}
+	return valueBase + sourceSuffix
+}
+
 func validateMarkdownFieldPatch(plan *preparedMarkdownPlan, field preparedMarkdownField, value string) (string, error) {
 	if err := validateRawPreservedTerms(value, field.preserved, plan.protectedRules); err != nil {
 		return "", err
@@ -484,6 +500,7 @@ func validateMarkdownFieldPatch(plan *preparedMarkdownPlan, field preparedMarkdo
 	if err != nil {
 		return "", err
 	}
+	restored = normalizeMarkdownFieldTrailingWhitespace(field.source, restored)
 	if (field.kind == string(mdformat.FieldLinkLabel) || field.kind == string(mdformat.FieldImageAlt)) &&
 		strings.TrimSpace(field.source) != "" && strings.TrimSpace(restored) == "" {
 		return "", fmt.Errorf("link or image label is empty")

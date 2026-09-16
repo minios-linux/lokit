@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/minios-linux/lokit/i18n"
 	formatfile "github.com/minios-linux/lokit/internal/format"
@@ -457,6 +459,31 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 
 var kvBracePlaceholder = regexp.MustCompile(`\{\{[A-Za-z_][A-Za-z0-9_]*\}\}|\{[A-Za-z_][A-Za-z0-9_]*(?:![rsa])?(?::[^{}]*)?\}`)
 
+func kvPrintfPlaceholders(text string) []string {
+	indices := printfPlaceholder.FindAllStringIndex(text, -1)
+	placeholders := make([]string, 0, len(indices))
+	for _, match := range indices {
+		start, end := match[0], match[1]
+		// In ordinary prose a percentage followed by a word can look like a
+		// printf conversion with the space flag: "25% of" -> "% o" or
+		// "25 % de" -> "% d". A genuine conversion ends at its conversion
+		// rune, while these false matches continue into a word.
+		if start+1 < len(text) && text[start+1] == ' ' {
+			prefix := strings.TrimRightFunc(text[:start], unicode.IsSpace)
+			suffix := text[end:]
+			if prefix != "" && suffix != "" {
+				runes := []rune(prefix)
+				next, _ := utf8.DecodeRuneInString(suffix)
+				if unicode.IsDigit(runes[len(runes)-1]) && unicode.IsLetter(next) {
+					continue
+				}
+			}
+		}
+		placeholders = append(placeholders, text[start:end])
+	}
+	return placeholders
+}
+
 func validateKVTranslations(keys []string, srcVals map[string]string, translations []string) error {
 	if len(translations) != len(keys) {
 		return fmt.Errorf("got %d translations, expected %d", len(translations), len(keys))
@@ -466,8 +493,8 @@ func validateKVTranslations(keys []string, srcVals map[string]string, translatio
 		if value := srcVals[key]; value != "" {
 			source = value
 		}
-		sourcePlaceholders := append(printfPlaceholder.FindAllString(source, -1), kvBracePlaceholder.FindAllString(source, -1)...)
-		translatedPlaceholders := append(printfPlaceholder.FindAllString(translations[i], -1), kvBracePlaceholder.FindAllString(translations[i], -1)...)
+		sourcePlaceholders := append(kvPrintfPlaceholders(source), kvBracePlaceholder.FindAllString(source, -1)...)
+		translatedPlaceholders := append(kvPrintfPlaceholders(translations[i]), kvBracePlaceholder.FindAllString(translations[i], -1)...)
 		sort.Strings(sourcePlaceholders)
 		sort.Strings(translatedPlaceholders)
 		if !slicesEqual(sourcePlaceholders, translatedPlaceholders) {

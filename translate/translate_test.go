@@ -1642,6 +1642,47 @@ func TestValidateKVTranslationsAcceptsReorderedTextWithPlaceholders(t *testing.T
 	}
 }
 
+func TestValidateKVTranslationsIgnoresPercentageFollowedByWord(t *testing.T) {
+	keys := []string{"memory"}
+	sources := map[string]string{
+		"memory": "The driver uses about 25% of usable RAM.",
+	}
+	for _, translation := range []string{
+		"O driver usa cerca de 25% da RAM utilizável.",
+		"Le pilote utilise environ 25 % de la RAM utilisable.",
+		"Le pilote utilise environ 25\u00a0% de la RAM utilisable.",
+	} {
+		if err := validateKVTranslations(keys, sources, []string{translation}); err != nil {
+			t.Fatalf("plain percentage was mistaken for a printf placeholder: %v", err)
+		}
+	}
+}
+
+func TestValidateKVTranslationsStillChecksPrintfSpaceFlag(t *testing.T) {
+	for _, source := range []string{"Value: % d", "Status 25% d"} {
+		keys := []string{"value"}
+		sources := map[string]string{"value": source}
+		if err := validateKVTranslations(keys, sources, []string{"Wert: % s"}); err == nil {
+			t.Fatalf("expected genuine printf space-flag placeholder change to be rejected for %q", source)
+		}
+	}
+}
+
+func TestNormalizeMarkdownFieldTrailingWhitespace(t *testing.T) {
+	if got := normalizeMarkdownFieldTrailingWhitespace("plain", "translated "); got != "translated" {
+		t.Fatalf("unexpected trailing whitespace: %q", got)
+	}
+	if got := normalizeMarkdownFieldTrailingWhitespace("Read ", "Lesen   "); got != "Lesen " {
+		t.Fatalf("source separator whitespace was not preserved: %q", got)
+	}
+	if got := normalizeMarkdownFieldTrailingWhitespace("Read ", "参照"); got != "参照" {
+		t.Fatalf("source whitespace was imposed on target: %q", got)
+	}
+	if got := normalizeMarkdownFieldTrailingWhitespace("Read ", "Lire\u00a0 "); got != "Lire\u00a0" {
+		t.Fatalf("target non-breaking space was not preserved: %q", got)
+	}
+}
+
 func TestNormalizePOTranslationNewlines_RestoresGroffFontEscapes(t *testing.T) {
 	source := `\f[B]MENU_LANG\f[R]: \[lq]multilang\[rq]\fR`
 	translation := "\f[B]MENU_LANG\f[R]: \\[lq]multilang\\[rq]\fR"
