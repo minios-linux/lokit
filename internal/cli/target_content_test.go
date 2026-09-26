@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -28,7 +29,6 @@ func TestSyncMarkdownKeysMigratesShiftedChecksums(t *testing.T) {
 		lockKey := markdownLockKey("guide.md", key)
 		lf.Checksums[lockTarget][lockKey] = lockfile.Hash(lockfile.KVEntryContent(lockKey, value))
 	}
-
 	if !syncMarkdownKeys(newSource, target, lf, "docs", "de", "guide.md", true) {
 		t.Fatal("expected lock migration")
 	}
@@ -47,6 +47,108 @@ func TestSyncMarkdownKeysMigratesShiftedChecksums(t *testing.T) {
 		if lf.IsChanged(lockTarget, lockKey, lockfile.KVEntryContent(lockKey, value)) {
 			t.Fatalf("migrated checksum for %s is stale", key)
 		}
+	}
+}
+
+func TestSyncMarkdownKeysDoesNotShiftAlignedFileAgainAfterInterruptedLockSave(t *testing.T) {
+	oldSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Section A\n\nText A.\n\n## Section B\n\nText B.\n"))
+	newSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## New\n\nNew text.\n\n## Section A\n\nText A.\n\n## Section B\n\nText B.\n"))
+	target, _ := mdfile.Parse([]byte("# Titel\n\nEinleitung.\n\n## Abschnitt A\n\nText A übersetzt.\n\n## Abschnitt B\n\nText B übersetzt.\n"))
+	newOldLock := func() *lockfile.LockFile {
+		lockTarget := lockfile.LockTargetKey("docs", "de")
+		lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{lockTarget: {}}}
+		for key, value := range oldSource.SourceValues() {
+			lockKey := markdownLockKey("guide.md", key)
+			lf.Checksums[lockTarget][lockKey] = lockfile.Hash(lockfile.KVEntryContent(lockKey, value))
+		}
+		return lf
+	}
+	if !syncMarkdownKeys(newSource, target, newOldLock(), "docs", "de", "guide.md", true) {
+		t.Fatal("initial section migration was not recorded")
+	}
+	target.Set("sec:1", "## Neu\n\nNeuer Text.")
+	partial, err := target.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, err = mdfile.Parse(partial)
+	if err != nil {
+		t.Fatal(err)
+	}
+	staleLock := newOldLock() // interrupted before the migrated lock was saved
+	if !syncMarkdownKeys(newSource, target, staleLock, "docs", "de", "guide.md", true) {
+		t.Fatal("stale positional checksums were not retired")
+	}
+	if value, _ := target.Get("sec:1"); !strings.Contains(value, "Neuer Text") {
+		t.Fatalf("newly translated section was lost: %q", value)
+	}
+	for _, key := range []string{"sec:2", "sec:3"} {
+		if value, _ := target.Get(key); value != "" {
+			t.Fatalf("ambiguous shifted section %s was reused: %q", key, value)
+		}
+	}
+	for _, key := range []string{"sec:1", "sec:2"} {
+		if staleLock.Has("docs/de", markdownLockKey("guide.md", key)) {
+			t.Fatalf("stale checksum for %s still claims a translation", key)
+		}
+	}
+}
+
+func TestSyncMarkdownKeysClearsAmbiguousEqualCardinalityMove(t *testing.T) {
+	oldSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Section A\n\nText A.\n\n## Section B\n\nText B.\n"))
+	newSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## New\n\nNew text.\n\n## Section A\n\nText A.\n"))
+	target, _ := mdfile.Parse([]byte("# Titel\n\nEinleitung.\n\n## Neu\n\nNeuer Text.\n\n## Abschnitt A\n\nText A übersetzt.\n"))
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{lockTarget: {}}}
+	for key, value := range oldSource.SourceValues() {
+		lockKey := markdownLockKey("guide.md", key)
+		lf.Checksums[lockTarget][lockKey] = lockfile.Hash(lockfile.KVEntryContent(lockKey, value))
+	}
+	lf.Checksums[lockTarget][markdownLockKey("guide.md", "sec:99")] = "stale"
+	lf.Checksums[lockTarget]["guide.md:sec:notes:sec:0"] = "other-file"
+
+	if !syncMarkdownKeys(newSource, target, lf, "docs", "de", "guide.md", true) {
+		t.Fatal("ambiguous positional checksums were not retired")
+	}
+	if value, _ := target.Get("sec:0"); !strings.Contains(value, "Einleitung") {
+		t.Fatalf("unchanged section was lost: %q", value)
+	}
+	for _, key := range []string{"sec:1", "sec:2"} {
+		if value, _ := target.Get(key); value != "" {
+			t.Fatalf("ambiguous section %s was reused: %q", key, value)
+		}
+		if lf.Has(lockTarget, markdownLockKey("guide.md", key)) {
+			t.Fatalf("ambiguous checksum for %s was retained", key)
+		}
+	}
+	if lf.Has(lockTarget, markdownLockKey("guide.md", "sec:99")) {
+		t.Fatal("obsolete historical section checksum was retained")
+	}
+	if !lf.Has(lockTarget, "guide.md:sec:notes:sec:0") {
+		t.Fatal("section-like key from another file was removed")
+	}
+}
+
+func TestSyncMarkdownKeysAndWriteRestoresLockOnWriteFailure(t *testing.T) {
+	oldSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Section A\n\nText A.\n"))
+	newSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## New\n\nNew text.\n\n## Section A\n\nText A.\n"))
+	target, _ := mdfile.Parse([]byte("# Titel\n\nEinleitung.\n\n## Abschnitt A\n\nText A übersetzt.\n"))
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{lockTarget: {}}}
+	for key, value := range oldSource.SourceValues() {
+		lockKey := markdownLockKey("guide.md", key)
+		lf.Checksums[lockTarget][lockKey] = lockfile.Hash(lockfile.KVEntryContent(lockKey, value))
+	}
+	want := make(map[string]string, len(lf.Checksums[lockTarget]))
+	for key, checksum := range lf.Checksums[lockTarget] {
+		want[key] = checksum
+	}
+
+	if _, err := syncMarkdownKeysAndWrite(newSource, target, lf, "docs", "de", "guide.md", t.TempDir()); err == nil {
+		t.Fatal("expected writing to a directory to fail")
+	}
+	if !reflect.DeepEqual(lf.Checksums[lockTarget], want) {
+		t.Fatalf("lock changed after failed target write: got %#v, want %#v", lf.Checksums[lockTarget], want)
 	}
 }
 

@@ -581,12 +581,13 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string, lockF *lockfile.L
 					logError(T("Reading %s: %v"), targetPath, err)
 					continue
 				}
-				if syncMarkdownKeys(srcFile, targetFile, lockF, rt.Target.Name, lang, filepath.ToSlash(relPath), true) {
-					lockChanged = true
-				}
-				if err := targetFile.WriteFile(targetPath); err != nil {
+				migrated, err := syncMarkdownKeysAndWrite(srcFile, targetFile, lockF, rt.Target.Name, lang, filepath.ToSlash(relPath), targetPath)
+				if err != nil {
 					logError(T("Writing %s: %v"), targetPath, err)
 					continue
+				}
+				if migrated {
+					lockChanged = true
 				}
 				logSuccess(T("Updated: %s"), targetPath)
 				updated++
@@ -600,8 +601,8 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string, lockF *lockfile.L
 
 func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, targetName, lang, prefix string, migrate bool) bool {
 	moved := make(map[string]string)
+	lockTarget := lockfile.LockTargetKey(targetName, lang)
 	if lockF != nil {
-		lockTarget := lockfile.LockTargetKey(targetName, lang)
 		sourceValues := src.SourceValues()
 		usedSource := make(map[string]bool)
 		for _, oldKey := range target.Keys() {
@@ -623,12 +624,70 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 		}
 	}
 
+	// A previous run may have written the newly aligned Markdown file before
+	// saving its lock migration (for example when translation was interrupted).
+	// Remapping the old positional keys a second time would move Section A into
+	// Section B and duplicate headings. In that case retain only the translated
+	// content before the insertion, and retranslate the shifted sections rather
+	// than claiming that any ambiguous text still belongs to its source key.
+	if lockF != nil && len(moved) > 0 {
+		var existingSectionKeys []string
+		for _, key := range lockF.TargetKeys(lockTarget) {
+			if isMarkdownSectionLockKey(prefix, key) {
+				existingSectionKeys = append(existingSectionKeys, key)
+			}
+		}
+		sourceCount, targetCount := 0, 0
+		sourceLockKeys := make(map[string]bool)
+		for _, key := range src.Keys() {
+			if strings.HasPrefix(key, "sec:") {
+				sourceCount++
+				sourceLockKeys[markdownLockKey(prefix, key)] = true
+			}
+		}
+		for _, key := range target.Keys() {
+			if strings.HasPrefix(key, "sec:") {
+				targetCount++
+			}
+		}
+		if len(existingSectionKeys) > 0 && targetCount == sourceCount {
+			ambiguousEqualCount := len(existingSectionKeys) >= sourceCount
+			mdfile.SyncKeys(src, target)
+			stale := make(map[string]bool)
+			for _, key := range existingSectionKeys {
+				if !sourceLockKeys[key] {
+					stale[key] = true
+				}
+			}
+			for sourceKey, oldKey := range moved {
+				if sourceKey != oldKey {
+					target.Set(sourceKey, "")
+					stale[markdownLockKey(prefix, oldKey)] = true
+					if ambiguousEqualCount {
+						// Equal-cardinality edits are indistinguishable from an
+						// interrupted aligned write. Clear both sides rather than
+						// attach either translation to the wrong source section.
+						target.Set(oldKey, "")
+						stale[markdownLockKey(prefix, sourceKey)] = true
+					}
+				}
+			}
+			staleKeys := make([]string, 0, len(stale))
+			for key := range stale {
+				staleKeys = append(staleKeys, key)
+			}
+			if migrate && len(staleKeys) > 0 {
+				lockF.Reassign(lockTarget, staleKeys, nil)
+			}
+			return migrate && len(staleKeys) > 0
+		}
+	}
+
 	mdfile.SyncKeysMapped(src, target, moved)
 	if !migrate || lockF == nil {
 		return false
 	}
 
-	lockTarget := lockfile.LockTargetKey(targetName, lang)
 	sourceValues := src.SourceValues()
 	var oldKeys []string
 	newContent := make(map[string]string)
@@ -647,11 +706,47 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 	return true
 }
 
+func syncMarkdownKeysAndWrite(src, target *mdfile.File, lockF *lockfile.LockFile, targetName, lang, prefix, targetPath string) (bool, error) {
+	lockTarget := lockfile.LockTargetKey(targetName, lang)
+	var snapshot map[string]string
+	if lockF != nil && lockF.Checksums[lockTarget] != nil {
+		snapshot = make(map[string]string, len(lockF.Checksums[lockTarget]))
+		for key, checksum := range lockF.Checksums[lockTarget] {
+			snapshot[key] = checksum
+		}
+	}
+	migrated := syncMarkdownKeys(src, target, lockF, targetName, lang, prefix, true)
+	if err := target.WriteFile(targetPath); err != nil {
+		if lockF != nil {
+			if snapshot == nil {
+				delete(lockF.Checksums, lockTarget)
+			} else {
+				lockF.Checksums[lockTarget] = snapshot
+			}
+		}
+		return false, err
+	}
+	return migrated, nil
+}
+
 func markdownLockKey(prefix, key string) string {
 	if prefix == "" {
 		return key
 	}
 	return prefix + ":" + key
+}
+
+func isMarkdownSectionLockKey(prefix, key string) bool {
+	suffix := strings.TrimPrefix(key, markdownLockKey(prefix, "sec:"))
+	if suffix == key || suffix == "" {
+		return false
+	}
+	for _, r := range suffix {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov translate.Provider, a translateArgs, langs []string) error {
@@ -750,7 +845,10 @@ func translateMarkdownTarget(ctx context.Context, rt config.ResolvedTarget, prov
 					logError(T("Reading %s: %v"), targetPath, err)
 					continue
 				}
-				syncMarkdownKeys(srcFile, targetFile, a.lockFile, rt.Target.Name, lang, filepath.ToSlash(relPath), true)
+				if _, err := syncMarkdownKeysAndWrite(srcFile, targetFile, a.lockFile, rt.Target.Name, lang, filepath.ToSlash(relPath), targetPath); err != nil {
+					logError(T("Writing %s: %v"), targetPath, err)
+					continue
+				}
 			}
 
 			lockKeyPrefix := filepath.ToSlash(relPath)
