@@ -290,6 +290,32 @@ a:
 // NewTranslationFile / SyncKeys
 // ---------------------------------------------------------------------------
 
+func TestMissingSectionsSurviveMarkdownRoundTrips(t *testing.T) {
+	src, err := Parse([]byte("# Title\n\nIntro.\n\n## New\n\nNew content.\n\n## Existing\n\nExisting content.\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	target := NewTranslationFile(src, "ru")
+	target.Set("sec:0", "# Заголовок\n\nВступление.")
+	target.Set("sec:2", "## Существующий\n\nСуществующий текст.")
+	for i := 0; i < 2; i++ {
+		data, err := target.Marshal()
+		if err != nil {
+			t.Fatal(err)
+		}
+		target, err = Parse(data)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, _ := target.Get("sec:1"); got != "" {
+			t.Fatalf("untranslated section shifted after round trip %d: %q", i, got)
+		}
+		if got, _ := target.Get("sec:2"); !strings.Contains(got, "Существующий текст") {
+			t.Fatalf("existing translation shifted after round trip %d: %q", i, got)
+		}
+	}
+}
+
 func TestNewTranslationFile_ClearsValues(t *testing.T) {
 	src, _ := Parse([]byte("# Hello\n\nWorld.\n"))
 	target := NewTranslationFile(src, "ru")

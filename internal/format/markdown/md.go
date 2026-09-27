@@ -61,7 +61,9 @@ type File struct {
 
 // sectionSplitter matches headings and horizontal rules that delimit sections.
 // It is only applied OUTSIDE of fenced code blocks.
-var sectionSplitter = regexp.MustCompile(`(?m)^(#{1,6} .+|[-*_]{3,}\s*)$`)
+const untranslatedSection = "<!-- lokit:untranslated -->"
+
+var sectionSplitter = regexp.MustCompile(`(?m)^(#{1,6} .+|[-*_]{3,}\s*|<!-- lokit:untranslated -->)$`)
 
 // frontmatterBlock matches a YAML front matter block at the start of the file.
 var frontmatterBlock = regexp.MustCompile(`(?s)^---\r?\n(.*?)\r?\n---\r?\n?`)
@@ -150,6 +152,12 @@ func Parse(data []byte) (*File, error) {
 			}
 		}
 		val = strings.TrimSpace(val)
+		if val == untranslatedSection {
+			idx := len(f.segments)
+			f.segments = append(f.segments, Segment{Key: key})
+			f.index[key] = idx
+			continue
+		}
 		if val == "" {
 			continue
 		}
@@ -267,6 +275,8 @@ func (f *File) Marshal() ([]byte, error) {
 			continue
 		}
 		if seg.Value == "" {
+			buf.WriteString(untranslatedSection)
+			buf.WriteString("\n\n")
 			continue
 		}
 		buf.WriteString(strings.TrimSpace(f.restoreCodeBlocks(seg.Value)))

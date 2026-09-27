@@ -50,6 +50,35 @@ func TestSyncMarkdownKeysMigratesShiftedChecksums(t *testing.T) {
 	}
 }
 
+func TestSyncMarkdownKeysKeepsChangedSectionBetweenUnchangedNeighbours(t *testing.T) {
+	oldSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Options\n\nOptions.\n\n## Shortcuts\n\nShortcuts.\n\n## Customize\n\nCustomize.\n\n# Components\n\nOld components.\n\n# Files\n\nFiles.\n"))
+	newSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Options\n\nOptions.\n\n### Storage\n\nNew storage.\n\n## Shortcuts\n\nShortcuts.\n\n## Variables\n\nNew variables.\n\n## Customize\n\nCustomize.\n\n# Components\n\nOld components plus browser cache.\n\n# Files\n\nFiles.\n"))
+	target, _ := mdfile.Parse([]byte("# Titel\n\nEinleitung.\n\n## Optionen\n\nOptionen.\n\n## Kurzbefehle\n\nKurzbefehle.\n\n## Anpassen\n\nAnpassen.\n\n# Komponenten\n\nÜbersetzte Komponenten.\n\n# Dateien\n\nDateien.\n"))
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{lockTarget: {}}}
+	for key, value := range oldSource.SourceValues() {
+		lockKey := markdownLockKey("guide.md", key)
+		lf.Checksums[lockTarget][lockKey] = lockfile.Hash(lockfile.KVEntryContent(lockKey, value))
+	}
+	if !syncMarkdownKeys(newSource, target, lf, "docs", "de", "guide.md", true) {
+		t.Fatal("expected lock migration")
+	}
+	if got, _ := target.Get("sec:6"); !strings.Contains(got, "Übersetzte Komponenten") {
+		t.Fatalf("changed components section was lost: %q", got)
+	}
+	for _, key := range []string{"sec:2", "sec:4"} {
+		if got, _ := target.Get(key); got != "" {
+			t.Fatalf("new section %s inherited a translation: %q", key, got)
+		}
+	}
+	if lf.Has(lockTarget, "guide.md:sec:6") {
+		t.Fatal("changed section was incorrectly marked translated")
+	}
+	if lf.Has(lockTarget, "guide.md:sec:4") {
+		t.Fatal("old changed section checksum was not retired")
+	}
+}
+
 func TestSyncMarkdownKeysDoesNotShiftAlignedFileAgainAfterInterruptedLockSave(t *testing.T) {
 	oldSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Section A\n\nText A.\n\n## Section B\n\nText B.\n"))
 	newSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## New\n\nNew text.\n\n## Section A\n\nText A.\n\n## Section B\n\nText B.\n"))

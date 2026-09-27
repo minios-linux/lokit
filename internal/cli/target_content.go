@@ -623,6 +623,41 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 			}
 		}
 	}
+	// A changed section has no checksum match. If two unchanged neighbours
+	// enclose the same number of old and new sections, their positions still
+	// identify the translated section. Keep its old checksum stale so the
+	// changed content is translated again rather than silently marked current.
+	changedSections := make(map[string]bool)
+	sourceKeys, targetKeys := src.Keys(), target.Keys()
+	oldPositions := make(map[string]int)
+	for i, key := range targetKeys {
+		oldPositions[key] = i
+	}
+	for left := 0; left < len(sourceKeys); left++ {
+		oldLeft, ok := moved[sourceKeys[left]]
+		if !ok {
+			continue
+		}
+		leftPos := oldPositions[oldLeft]
+		for right := left + 1; right < len(sourceKeys); right++ {
+			oldRight, found := moved[sourceKeys[right]]
+			if !found {
+				continue
+			}
+			rightPos := oldPositions[oldRight]
+			if right-left > 1 && right-left == rightPos-leftPos && rightPos > leftPos {
+				for offset := 1; offset < right-left; offset++ {
+					sourceKey, oldKey := sourceKeys[left+offset], targetKeys[leftPos+offset]
+					if strings.HasPrefix(sourceKey, "sec:") && strings.HasPrefix(oldKey, "sec:") {
+						moved[sourceKey] = oldKey
+						changedSections[sourceKey] = true
+					}
+				}
+			}
+			left = right - 1
+			break
+		}
+	}
 
 	// A previous run may have written the newly aligned Markdown file before
 	// saving its lock migration (for example when translation was interrupted).
@@ -697,7 +732,9 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 		}
 		oldKeys = append(oldKeys, markdownLockKey(prefix, oldKey))
 		newLockKey := markdownLockKey(prefix, sourceKey)
-		newContent[newLockKey] = lockfile.KVEntryContent(newLockKey, sourceValues[sourceKey])
+		if !changedSections[sourceKey] {
+			newContent[newLockKey] = lockfile.KVEntryContent(newLockKey, sourceValues[sourceKey])
+		}
 	}
 	if len(oldKeys) == 0 {
 		return false
