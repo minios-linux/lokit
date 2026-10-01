@@ -896,12 +896,17 @@ exact:
 }
 
 func TestMarkdownValidationPreservesParserCodePlaceholders(t *testing.T) {
-	source := "Text\n\n<!-- lokit:code-block:0 -->\n"
-	if isMarkdownTranslationLikelyValid(source, "Text") {
-		t.Fatal("missing parser code placeholder was accepted")
-	}
-	if !isMarkdownTranslationLikelyValid(source, "Übersetzung\n\n<!-- lokit:code-block:0 -->\n") {
-		t.Fatal("preserved parser code placeholder was rejected")
+	for _, id := range []string{"0", strings.Repeat("ab", 32)} {
+		t.Run(id, func(t *testing.T) {
+			placeholder := "<!-- lokit:code-block:" + id + " -->"
+			source := "Text\n\n" + placeholder + "\n"
+			if isMarkdownTranslationLikelyValid(source, "Text") {
+				t.Fatal("missing parser code placeholder was accepted")
+			}
+			if !isMarkdownTranslationLikelyValid(source, "Übersetzung\n\n"+placeholder+"\n") {
+				t.Fatal("preserved parser code placeholder was rejected")
+			}
+		})
 	}
 }
 

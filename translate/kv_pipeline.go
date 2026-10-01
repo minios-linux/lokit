@@ -50,7 +50,7 @@ type markdownChunkTranslator struct{}
 
 var markdownFencedCode = regexp.MustCompile("(?ms)^```[^\n]*\n.*?^```[ \t]*$|^~~~[^\n]*\n.*?^~~~[ \t]*$")
 var markdownInlineCode = regexp.MustCompile("`+[^`\n]+`+")
-var markdownCodePlaceholder = regexp.MustCompile(`<!-- lokit:code-block:[0-9]+ -->`)
+var markdownCodePlaceholder = regexp.MustCompile(`<!-- lokit:code-block:(?:[0-9]+|[0-9a-f]{64}) -->`)
 
 func (markdownChunkTranslator) BuildUserPrompt(keys []string, srcVals map[string]string, opts Options) string {
 	return buildMarkdownUserPrompt(keys, srcVals, opts.SourceLanguageName, opts.LanguageName)

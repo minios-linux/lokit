@@ -601,9 +601,10 @@ func runInitMarkdown(rt config.ResolvedTarget, langs []string, lockF *lockfile.L
 
 func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, targetName, lang, prefix string, migrate bool) bool {
 	moved := make(map[string]string)
+	legacyMatched := make(map[string]bool)
+	sourceValues := src.SourceValues()
 	lockTarget := lockfile.LockTargetKey(targetName, lang)
 	if lockF != nil {
-		sourceValues := src.SourceValues()
 		usedSource := make(map[string]bool)
 		for _, oldKey := range target.Keys() {
 			if !strings.HasPrefix(oldKey, "sec:") {
@@ -615,8 +616,16 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 					continue
 				}
 				content := lockfile.KVEntryContent(oldLockKey, sourceValues[sourceKey])
-				if !lockF.IsChanged(lockTarget, oldLockKey, content) {
+				current := !lockF.IsChanged(lockTarget, oldLockKey, content)
+				legacy := false
+				if !current {
+					if oldValue, valid := src.LegacyCodeBlockValue(sourceValues[sourceKey], target); valid {
+						legacy = !lockF.IsChanged(lockTarget, oldLockKey, lockfile.KVEntryContent(oldLockKey, oldValue))
+					}
+				}
+				if current || legacy {
 					moved[sourceKey] = oldKey
+					legacyMatched[sourceKey] = legacy
 					usedSource[sourceKey] = true
 					break
 				}
@@ -688,6 +697,16 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 		if len(existingSectionKeys) > 0 && targetCount == sourceCount {
 			ambiguousEqualCount := len(existingSectionKeys) >= sourceCount
 			mdfile.SyncKeys(src, target)
+			legacyUpdated := false
+			if migrate {
+				for sourceKey, oldKey := range moved {
+					if sourceKey == oldKey && legacyMatched[sourceKey] {
+						lockKey := markdownLockKey(prefix, sourceKey)
+						lockF.Update(lockTarget, lockKey, lockfile.KVEntryContent(lockKey, sourceValues[sourceKey]))
+						legacyUpdated = true
+					}
+				}
+			}
 			stale := make(map[string]bool)
 			for _, key := range existingSectionKeys {
 				if !sourceLockKeys[key] {
@@ -714,7 +733,7 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 			if migrate && len(staleKeys) > 0 {
 				lockF.Reassign(lockTarget, staleKeys, nil)
 			}
-			return migrate && len(staleKeys) > 0
+			return migrate && (len(staleKeys) > 0 || legacyUpdated)
 		}
 	}
 
@@ -723,11 +742,16 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 		return false
 	}
 
-	sourceValues := src.SourceValues()
 	var oldKeys []string
 	newContent := make(map[string]string)
+	legacyUpdated := false
 	for sourceKey, oldKey := range moved {
 		if sourceKey == oldKey {
+			if legacyMatched[sourceKey] {
+				lockKey := markdownLockKey(prefix, sourceKey)
+				lockF.Update(lockTarget, lockKey, lockfile.KVEntryContent(lockKey, sourceValues[sourceKey]))
+				legacyUpdated = true
+			}
 			continue
 		}
 		oldKeys = append(oldKeys, markdownLockKey(prefix, oldKey))
@@ -737,7 +761,7 @@ func syncMarkdownKeys(src, target *mdfile.File, lockF *lockfile.LockFile, target
 		}
 	}
 	if len(oldKeys) == 0 {
-		return false
+		return legacyUpdated
 	}
 	lockF.Reassign(lockTarget, oldKeys, newContent)
 	return true

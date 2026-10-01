@@ -18,6 +18,7 @@ package markdown
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -53,6 +54,8 @@ type File struct {
 	fmNode *yaml.Node
 	// codeBlocks maps internal placeholders to original fenced code blocks.
 	codeBlocks map[string]string
+	// codeBlockOrder retains the order used by older positional placeholders.
+	codeBlockOrder []string
 }
 
 // ---------------------------------------------------------------------------
@@ -315,6 +318,7 @@ func NewTranslationFile(src *File, _ string) *File {
 		hasFrontmatter: src.hasFrontmatter,
 		fmKeys:         append([]string{}, src.fmKeys...),
 		codeBlocks:     copyStringMap(src.codeBlocks),
+		codeBlockOrder: append([]string(nil), src.codeBlockOrder...),
 	}
 
 	// Deep-copy fmNode.
@@ -360,7 +364,9 @@ func SyncKeysMapped(src, target *File, moved map[string]string) {
 	for _, source := range src.segments {
 		if oldKey, ok := moved[source.Key]; ok {
 			if value, exists := targetVals[oldKey]; exists {
-				rebuilt.Set(source.Key, value)
+				if matchingCodeBlocks(source.Value, value) {
+					rebuilt.Set(source.Key, value)
+				}
 			}
 			continue
 		}
@@ -368,7 +374,9 @@ func SyncKeysMapped(src, target *File, moved map[string]string) {
 			continue
 		}
 		if value, exists := targetVals[source.Key]; exists {
-			rebuilt.Set(source.Key, value)
+			if matchingCodeBlocks(source.Value, value) {
+				rebuilt.Set(source.Key, value)
+			}
 		}
 	}
 
@@ -377,7 +385,49 @@ func SyncKeysMapped(src, target *File, moved map[string]string) {
 	target.fmKeys = rebuilt.fmKeys
 	target.fmNode = rebuilt.fmNode
 	target.codeBlocks = rebuilt.codeBlocks
+	target.codeBlockOrder = rebuilt.codeBlockOrder
 	target.hasFrontmatter = rebuilt.hasFrontmatter
+}
+
+// LegacyCodeBlockValue reconstructs the positional placeholders used before
+// content-addressed placeholders. It is only used to migrate old lock hashes.
+func (f *File) LegacyCodeBlockValue(value string, oldTarget *File) (string, bool) {
+	positions := make(map[string]int)
+	ambiguous := make(map[string]bool)
+	for i, block := range oldTarget.codeBlockOrder {
+		key := fmt.Sprintf("<!-- lokit:code-block:%x -->", sha256.Sum256([]byte(block)))
+		if _, exists := positions[key]; exists {
+			ambiguous[key] = true
+		} else {
+			positions[key] = i
+		}
+	}
+	valid := true
+	legacy := codeBlockPlaceholder.ReplaceAllStringFunc(value, func(key string) string {
+		position, exists := positions[key]
+		if !exists || ambiguous[key] {
+			valid = false
+			return key
+		}
+		return fmt.Sprintf("<!-- lokit:code-block:%d -->", position)
+	})
+	return legacy, valid
+}
+
+var codeBlockPlaceholder = regexp.MustCompile(`<!-- lokit:code-block:[0-9a-f]{64} -->`)
+
+func matchingCodeBlocks(source, translation string) bool {
+	original := codeBlockPlaceholder.FindAllString(source, -1)
+	localized := codeBlockPlaceholder.FindAllString(translation, -1)
+	if len(original) != len(localized) {
+		return false
+	}
+	for i, placeholder := range original {
+		if placeholder != localized[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func (f *File) maskCodeBlocks(text string) string {
@@ -390,8 +440,9 @@ func (f *File) maskCodeBlocks(text string) string {
 	for _, span := range ranges {
 		out.WriteString(text[cursor:span[0]])
 		block := text[span[0]:span[1]]
-		key := fmt.Sprintf("<!-- lokit:code-block:%d -->", len(f.codeBlocks))
+		key := fmt.Sprintf("<!-- lokit:code-block:%x -->", sha256.Sum256([]byte(block)))
 		f.codeBlocks[key] = block
+		f.codeBlockOrder = append(f.codeBlockOrder, block)
 		out.WriteString(key)
 		cursor = span[1]
 	}

@@ -134,6 +134,46 @@ func TestParse_CodeBlockNotSplit(t *testing.T) {
 	}
 }
 
+func TestSyncKeysKeepsCodeBlocksInTheirSectionsAfterInsertion(t *testing.T) {
+	source, err := Parse([]byte("# Intro\n\n```bash\necho new\n```\n\n## List\n\n```bash\nsb list\n```\n\n## Boot\n\n```bash\nsb next-boot\n```\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, err := Parse([]byte("# Einleitung\n\n## Liste\n\n```bash\nsb list\n```\n\n## Start\n\n```bash\nsb next-boot\n```\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	SyncKeysMapped(source, target, map[string]string{"sec:1": "sec:1", "sec:2": "sec:2"})
+	out, err := target.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(out), "echo new") || !strings.Contains(string(out), "## Liste\n\n```bash\nsb list\n```") || !strings.Contains(string(out), "## Start\n\n```bash\nsb next-boot\n```") {
+		t.Fatalf("code blocks moved between translated sections:\n%s", out)
+	}
+	if value, _ := target.Get("sec:0"); value != "" {
+		t.Fatalf("changed intro must be translated again, got %q", value)
+	}
+}
+
+func TestSyncKeysClearsMismatchedCodeBlock(t *testing.T) {
+	source, _ := Parse([]byte("# List\n\n```bash\nsb list\n```\n"))
+	target, _ := Parse([]byte("# Liste\n\n```bash\nsb next-boot\n```\n"))
+	SyncKeys(source, target)
+	if value, _ := target.Get("sec:0"); value != "" {
+		t.Fatalf("wrong command was retained: %q", value)
+	}
+}
+
+func TestSyncKeysClearsReorderedCodeBlocks(t *testing.T) {
+	source, _ := Parse([]byte("# Commands\n\n```bash\nsb list\n```\n\n```bash\nsb next-boot\n```\n"))
+	target, _ := Parse([]byte("# Befehle\n\n```bash\nsb next-boot\n```\n\n```bash\nsb list\n```\n"))
+	SyncKeys(source, target)
+	if value, _ := target.Get("sec:0"); value != "" {
+		t.Fatalf("reordered commands were retained: %q", value)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Stats / UntranslatedKeys
 // ---------------------------------------------------------------------------
@@ -394,7 +434,7 @@ func TestCodeFenceAllowsBackticksInsideContent(t *testing.T) {
 	if !ok {
 		t.Fatal("missing Markdown section")
 	}
-	if strings.Contains(value, "`-- log/") || !strings.Contains(value, "<!-- lokit:code-block:0 -->") {
+	if strings.Contains(value, "`-- log/") || !codeBlockPlaceholder.MatchString(value) {
 		t.Fatalf("fenced code content was exposed as translatable text: %q", value)
 	}
 	rendered, err := file.Marshal()

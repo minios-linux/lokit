@@ -50,6 +50,63 @@ func TestSyncMarkdownKeysMigratesShiftedChecksums(t *testing.T) {
 	}
 }
 
+func TestSyncMarkdownKeysMigratesLegacyCodeBlockPositions(t *testing.T) {
+	oldSource, _ := mdfile.Parse([]byte("# Intro\n\nText.\n\n## List\n\n```bash\nsb list\n```\n\n## Boot\n\n```bash\nsb next-boot\n```\n"))
+	newSource, _ := mdfile.Parse([]byte("# Intro\n\nText.\n\n```bash\necho new\n```\n\n## List\n\n```bash\nsb list\n```\n\n## Boot\n\n```bash\nsb next-boot\n```\n"))
+	target, _ := mdfile.Parse([]byte("# Einleitung\n\nText.\n\n## Liste\n\n```bash\nsb list\n```\n\n## Start\n\n```bash\nsb next-boot\n```\n"))
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{lockTarget: {}}}
+	for key, value := range oldSource.SourceValues() {
+		lockKey := markdownLockKey("guide.md", key)
+		legacy, valid := oldSource.LegacyCodeBlockValue(value, target)
+		if !valid {
+			t.Fatalf("cannot make legacy value for %s", key)
+		}
+		lf.Checksums[lockTarget][lockKey] = lockfile.Hash(lockfile.KVEntryContent(lockKey, legacy))
+	}
+	if !syncMarkdownKeys(newSource, target, lf, "docs", "de", "guide.md", true) {
+		t.Fatal("expected checksum migration")
+	}
+	for _, key := range []string{"sec:1", "sec:2"} {
+		value, _ := target.Get(key)
+		if value == "" {
+			t.Fatalf("unchanged translation %s was cleared", key)
+		}
+		lockKey := markdownLockKey("guide.md", key)
+		sourceValue, _ := newSource.Get(key)
+		if lf.IsChanged(lockTarget, lockKey, lockfile.KVEntryContent(lockKey, sourceValue)) {
+			t.Fatalf("legacy checksum for %s was not migrated", key)
+		}
+	}
+	if value, _ := target.Get("sec:0"); value != "" {
+		t.Fatalf("changed section was retained: %q", value)
+	}
+}
+
+func TestSyncMarkdownKeysReportsLegacyUpdateWithAppendedSection(t *testing.T) {
+	oldSource, _ := mdfile.Parse([]byte("# List\n\n```bash\nsb list\n```\n"))
+	newSource, _ := mdfile.Parse([]byte("# List\n\n```bash\nsb list\n```\n\n## New\n\nNew text.\n"))
+	target, _ := mdfile.Parse([]byte("# Liste\n\n```bash\nsb list\n```\n"))
+	lockTarget := lockfile.LockTargetKey("docs", "de")
+	lf := &lockfile.LockFile{Version: lockfile.Version, Checksums: map[string]map[string]string{lockTarget: {}}}
+	lockKey := markdownLockKey("guide.md", "sec:0")
+	value, _ := oldSource.Get("sec:0")
+	legacy, valid := oldSource.LegacyCodeBlockValue(value, target)
+	if !valid {
+		t.Fatal("cannot make legacy value")
+	}
+	lf.Update(lockTarget, lockKey, lockfile.KVEntryContent(lockKey, legacy))
+	if !syncMarkdownKeys(newSource, target, lf, "docs", "de", "guide.md", true) {
+		t.Fatal("legacy checksum update was not reported for persistence")
+	}
+	if lf.IsChanged(lockTarget, lockKey, lockfile.KVEntryContent(lockKey, value)) {
+		t.Fatal("legacy checksum was not upgraded")
+	}
+	if got, _ := target.Get("sec:0"); !strings.Contains(got, "Liste") {
+		t.Fatalf("existing translation was lost: %q", got)
+	}
+}
+
 func TestSyncMarkdownKeysKeepsChangedSectionBetweenUnchangedNeighbours(t *testing.T) {
 	oldSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Options\n\nOptions.\n\n## Shortcuts\n\nShortcuts.\n\n## Customize\n\nCustomize.\n\n# Components\n\nOld components.\n\n# Files\n\nFiles.\n"))
 	newSource, _ := mdfile.Parse([]byte("# Title\n\nIntro.\n\n## Options\n\nOptions.\n\n### Storage\n\nNew storage.\n\n## Shortcuts\n\nShortcuts.\n\n## Variables\n\nNew variables.\n\n## Customize\n\nCustomize.\n\n# Components\n\nOld components plus browser cache.\n\n# Files\n\nFiles.\n"))
