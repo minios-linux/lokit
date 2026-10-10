@@ -105,8 +105,8 @@ func (f *File) ClearTranslationsForPOT() {
 			continue
 		}
 		e.MsgStr = ""
-		if len(e.MsgStrPlural) > 0 {
-			e.MsgStrPlural = make(map[int]string)
+		for index := range e.MsgStrPlural {
+			e.MsgStrPlural[index] = ""
 		}
 	}
 }

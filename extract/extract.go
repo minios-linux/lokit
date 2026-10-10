@@ -237,6 +237,11 @@ func FindSources(dirs []string) ([]string, error) {
 				return nil
 			}
 			ext := filepath.Ext(path)
+			if strings.HasSuffix(path, ".desktop.in") || strings.HasSuffix(path, ".desktop.in.in") {
+				seen[path] = true
+				files = append(files, path)
+				return nil
+			}
 			if _, ok := SupportedExtensions[ext]; ok {
 				if polkitExtensions[ext] {
 					// Prefer .policy.template over .policy when available.
@@ -283,6 +288,9 @@ func FindSources(dirs []string) ([]string, error) {
 // checking the extension first and falling back to shebang detection.
 // .policy.template files are treated as Polkit XML sources (extracted via ITS).
 func FileLanguage(path string) string {
+	if strings.HasSuffix(path, ".desktop.in") || strings.HasSuffix(path, ".desktop.in.in") {
+		return "Desktop"
+	}
 	if strings.HasSuffix(path, ".policy.template") {
 		return "xml/polkit"
 	}
@@ -344,6 +352,10 @@ type xgettextFileGroups struct {
 func groupFilesForXgettext(files []string, workDir string) xgettextFileGroups {
 	var groups xgettextFileGroups
 	for _, f := range files {
+		if strings.HasSuffix(f, ".desktop.in") || strings.HasSuffix(f, ".desktop.in.in") {
+			groups.desktop = append(groups.desktop, f)
+			continue
+		}
 		if strings.HasSuffix(f, ".policy.template") {
 			groups.polkit = append(groups.polkit, f)
 			continue
