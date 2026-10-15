@@ -19,10 +19,10 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/minios-linux/lokit/settings"
@@ -93,13 +93,6 @@ func TokenStatus() string {
 		}
 	}
 	return status
-}
-
-// IsOAuthModel returns true if the model is supported by OpenAI OAuth/device
-// code authentication (ChatGPT Codex endpoint). Currently GPT-5 and Codex
-// model families are supported.
-func IsOAuthModel(model string) bool {
-	return strings.HasPrefix(model, "gpt-5") || strings.Contains(model, "codex")
 }
 
 type tokenResponse struct {
@@ -298,6 +291,19 @@ func DeviceCodeFlow(ctx context.Context, onPrompt func(verificationURI, userCode
 
 // RefreshAccessToken refreshes an expired OpenAI OAuth token in-place.
 func RefreshAccessToken(ctx context.Context, info *settings.Info) error {
+	authMu.Lock()
+	defer authMu.Unlock()
+	// Another worker may already have rotated this refresh token after a 401.
+	if latest := LoadToken(); info != nil && latest != nil && latest.Access != info.Access && !IsExpired(latest) {
+		*info = *latest
+		return nil
+	}
+	return refreshAccessToken(ctx, info)
+}
+
+var authMu sync.Mutex
+
+func refreshAccessToken(ctx context.Context, info *settings.Info) error {
 	if info == nil || info.Refresh == "" {
 		return fmt.Errorf("no refresh token available, re-login required")
 	}
@@ -348,43 +354,24 @@ func RefreshAccessToken(ctx context.Context, info *settings.Info) error {
 	return SaveToken(info.Access, info.Refresh, info.Expires, info.AccountID)
 }
 
-// EnsureAuth returns a valid OpenAI OAuth token, refreshing or re-authing if needed.
+// EnsureAuth returns a valid token without starting an interactive login from
+// translation workers. Explicit login belongs to the auth command.
 func EnsureAuth(ctx context.Context) (*settings.Info, error) {
+	authMu.Lock()
+	defer authMu.Unlock()
 	info := LoadToken()
 	if info != nil && !IsExpired(info) {
 		return info, nil
 	}
 
 	if info != nil && IsExpired(info) && info.Refresh != "" {
-		fmt.Fprintln(os.Stderr, "OpenAI access token expired, refreshing...")
-		if err := RefreshAccessToken(ctx, info); err == nil {
-			fmt.Fprintln(os.Stderr, "Token refreshed successfully!")
+		if err := refreshAccessToken(ctx, info); err == nil {
 			return info, nil
 		} else {
-			fmt.Fprintf(os.Stderr, "Token refresh failed: %v\n", err)
-			fmt.Fprintln(os.Stderr, "Starting new authentication flow...")
+			return nil, fmt.Errorf("refreshing OpenAI authentication: %w; run lokit auth login --provider openai", err)
 		}
 	}
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, "OpenAI authentication required.")
-	fmt.Fprintln(os.Stderr, "A browser window will open for you to sign in to ChatGPT.")
-	fmt.Fprintln(os.Stderr)
-
-	_, err := BrowserOAuthFlow(ctx, func(authURL string) {
-		fmt.Fprintln(os.Stderr, "  If the browser doesn't open automatically, visit:")
-		fmt.Fprintf(os.Stderr, "  %s\n\n", authURL)
-		fmt.Fprintln(os.Stderr, "  Waiting for authorization...")
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	info = LoadToken()
-	if info == nil {
-		return nil, fmt.Errorf("token was saved but cannot be loaded")
-	}
-	return info, nil
+	return nil, fmt.Errorf("OpenAI authentication required; run lokit auth login --provider openai")
 }
 
 func generateCodeVerifier() (string, error) {

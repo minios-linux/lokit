@@ -196,13 +196,37 @@ lokit auth login --provider openai --auth-method api-key
 lokit translate --provider openai --model MODEL_NAME
 ```
 
-OAuth/device auth uses the ChatGPT Codex endpoint, so choose a model supported by your OpenAI OAuth session. Use an API key for models that are not available via OAuth. The `openai` provider always uses the fixed OpenAI API endpoint; for custom endpoints use `custom-openai`.
+OAuth/device auth uses the ChatGPT Codex Responses endpoint. Discover the models
+visible to your current account rather than guessing a model name:
+
+```bash
+lokit models --provider openai
+lokit models --provider openai --json
+```
+
+Lokit obtains the latest stable Codex version from the official
+`openai/codex` GitHub release and uses it for the OAuth catalog and Responses
+requests, because an older client version can hide newer models. A successful
+version lookup is shared across workers in that process. GitHub receives no
+OpenAI credentials. If lookup fails, Lokit reports the error instead of guessing
+a version or falling back to a review model. API-key authentication
+instead lists models from the public OpenAI API. Model availability depends on
+the account and endpoint; a listed model is not necessarily suitable for
+translation. Select a general text model deliberately. Lokit sends the exact
+requested model name, without prefix allowlists or automatic model substitution.
+An unavailable model is reported by the server; catalog failure does not silently
+select a review model or block an explicitly selected model.
+
+Translation workers never open a browser to log in. If credentials are missing or
+cannot be refreshed, run `lokit auth login --provider openai` explicitly. Token
+refreshes are serialized so parallel workers do not rotate the same token at once.
+The `openai` provider uses fixed official endpoints; use `custom-openai` for custom endpoints.
 
 **Config:**
 ```yaml
 provider:
   id: openai
-  model: gpt-5
+  model: MODEL_NAME
 ```
 
 **Environment variable:** `OPENAI_API_KEY`

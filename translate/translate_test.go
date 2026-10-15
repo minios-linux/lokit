@@ -2466,17 +2466,18 @@ func TestTranslateFullParallelMapsReorderedResponsesByID(t *testing.T) {
 	}
 }
 
-func TestCallOpenAI_RejectsNonOAuthModel(t *testing.T) {
+func TestCallOpenAI_DoesNotGuessOAuthModelSupport(t *testing.T) {
+	t.Setenv("XDG_DATA_HOME", t.TempDir())
 	prov := Provider{
 		ID:    ProviderOpenAI,
-		Model: "gpt-4o",
+		Model: "future-text-model",
 	}
 
 	_, err := callOpenAI(context.Background(), prov, "system", "user", nil, 0, false)
 	if err == nil {
-		t.Fatal("expected error for non-OAuth model without API key")
+		t.Fatal("expected authentication error without credentials")
 	}
-	if !strings.Contains(err.Error(), "OAuth-compatible OpenAI model") {
+	if !strings.Contains(err.Error(), "lokit auth login --provider openai") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }

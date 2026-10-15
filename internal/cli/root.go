@@ -399,6 +399,7 @@ AI Providers:
 		newTranslateCmd(),
 		newLockCmd(),
 		newAuthCmd(),
+		newModelsCmd(),
 		newVersionCmd(),
 	)
 

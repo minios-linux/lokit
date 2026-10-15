@@ -776,11 +776,7 @@ func extractStreamingResponseText(body []byte) (string, error) {
 
 		var raw map[string]any
 		if err := json.Unmarshal([]byte(data), &raw); err != nil {
-			continue
-		}
-		if delta, ok := raw["delta"].(string); ok {
-			out.WriteString(delta)
-			continue
+			return "", fmt.Errorf("invalid OpenAI response stream event: %w", err)
 		}
 		if raw["type"] == "response.output_text.delta" {
 			if delta, ok := raw["delta"].(string); ok {
@@ -788,8 +784,19 @@ func extractStreamingResponseText(body []byte) (string, error) {
 			}
 			continue
 		}
+		switch raw["type"] {
+		case "error", "response.failed", "response.incomplete":
+			return "", fmt.Errorf("OpenAI response stream ended with %v", raw["type"])
+		}
 		if raw["type"] == "response.completed" {
 			if resp, ok := raw["response"]; ok {
+				response, ok := resp.(map[string]any)
+				if !ok || response["status"] != "completed" {
+					return "", fmt.Errorf("OpenAI response is missing completed status")
+				}
+				if text := out.String(); text != "" {
+					return text, nil
+				}
 				respBody, err := json.Marshal(resp)
 				if err == nil {
 					text, err := extractResponseText(respBody)
@@ -803,10 +810,7 @@ func extractStreamingResponseText(body []byte) (string, error) {
 	if err := scanner.Err(); err != nil {
 		return "", fmt.Errorf("reading streaming response: %w", err)
 	}
-	if text := out.String(); text != "" {
-		return text, nil
-	}
-	return "", fmt.Errorf("could not extract text from streaming response: %s", truncate(string(body), 500))
+	return "", fmt.Errorf("OpenAI response stream ended without completed text")
 }
 
 // ---------------------------------------------------------------------------
@@ -926,9 +930,6 @@ func appendRejectedResponseWithProtection(messages []providerMessage, response s
 
 func callOpenAI(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
 	if prov.APIKey == "" {
-		if !openai.IsOAuthModel(prov.Model) {
-			return "", fmt.Errorf("OpenAI OAuth/device auth does not support model %q in this mode; choose an OAuth-compatible OpenAI model or use an API key", prov.Model)
-		}
 		return callOpenAIOAuth(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
 	}
 
@@ -959,6 +960,11 @@ func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 
 	client := makeHTTPClient(prov.Proxy, prov.Timeout)
 
+	clientVersion, err := openai.LatestCodexVersion(ctx, client)
+	if err != nil {
+		return "", err
+	}
+	authRetried := false
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		if rl != nil {
 			if err := rl.waitIfPaused(ctx); err != nil {
@@ -976,11 +982,9 @@ func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 		if err != nil {
 			return "", fmt.Errorf("creating request: %w", err)
 		}
+		openai.SetOAuthHeaders(req, info, clientVersion)
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer "+info.Access)
-		if info.AccountID != "" {
-			req.Header.Set("ChatGPT-Account-Id", info.AccountID)
-		}
+		req.Header.Set("Accept", "text/event-stream")
 
 		if verbose {
 			log.Printf(i18n.T("[DEBUG] %s attempt %d: POST %s"), prov.Name, attempt+1, openai.CodexResponsesEndpoint)
@@ -1000,13 +1004,19 @@ func callOpenAIOAuth(ctx context.Context, prov Provider, systemPrompt, userPromp
 			return "", fmt.Errorf("API request failed: %w", err)
 		}
 
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, readErr := io.ReadAll(resp.Body)
 		resp.Body.Close()
+		if readErr != nil {
+			return "", fmt.Errorf("reading OpenAI response: %w", readErr)
+		}
 
-		if resp.StatusCode == http.StatusUnauthorized && attempt == 0 {
-			if err := openai.RefreshAccessToken(ctx, info); err == nil {
-				continue
+		if resp.StatusCode == http.StatusUnauthorized && !authRetried {
+			authRetried = true
+			if err := openai.RefreshAccessToken(ctx, info); err != nil {
+				return "", fmt.Errorf("refreshing OpenAI authentication: %w", err)
 			}
+			attempt-- // Authentication recovery does not consume HTTP retries.
+			continue
 		}
 
 		if resp.StatusCode == http.StatusTooManyRequests {

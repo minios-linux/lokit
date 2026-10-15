@@ -580,13 +580,6 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 				"  --api-key YOUR_KEY or export OPENAI_API_KEY=YOUR_KEY\n\n" +
 				"Get an API key from: https://platform.openai.com/api-keys"))
 		}
-		if apiKey == "" && openai.LoadToken() != nil &&
-			!openai.IsOAuthModel(prov.Model) {
-			return fmt.Errorf(T("provider 'openai' via OAuth/device auth only supports OpenAI models available through the OAuth Responses API\n\n" +
-				"How to fix:\n" +
-				"  - Choose a model supported by your OpenAI OAuth session, or\n" +
-				"  - Use an OpenAI API key for models that are not available via OAuth."))
-		}
 
 	case translate.ProviderOpenCode:
 		// OpenCode can work without API key for some models
