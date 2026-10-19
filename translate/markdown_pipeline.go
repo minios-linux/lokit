@@ -260,6 +260,7 @@ MARKDOWN TEXT PATCH CONTRACT:
 - Each field value must be a string. An explicitly empty string is allowed when wording moves to another field in the same context.
 - Read all fields of a context together and translate them naturally, including link-label grammar, while keeping their order.
 - Field values are plain text, not Markdown. Do not add Markdown syntax, URLs, code, links, images, HTML, or opaque IDs.
+- Do not Markdown-escape or HTML-entity-encode field values. Preserve source literals such as ${BUILD_DIR} without adding backslashes; apply JSON encoding only. Lokit renders the Markdown and HTML syntax.
 - Preserve every __LOKIT_PRESERVE_TERM_ token from a source field exactly once in that same field. These required source placeholders are the only opaque IDs allowed in values.
 - Never infer, spell, or add the hidden protected term outside its source placeholder, and never move a protected placeholder between fields.
 - Terminology records inside a field apply only to the value with that exact field ID.
@@ -298,7 +299,7 @@ func requestMarkdownPatches(ctx context.Context, plans []*preparedMarkdownPlan, 
 	protected := markdownProtectedValues(plans)
 	var lastErr error
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, &opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}

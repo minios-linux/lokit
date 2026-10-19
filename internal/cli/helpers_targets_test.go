@@ -6,10 +6,23 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/minios-linux/lokit/config"
 	po "github.com/minios-linux/lokit/internal/format/po"
+	"github.com/minios-linux/lokit/translate"
 )
+
+func TestOpenCodeGoRejectsCustomEndpoint(t *testing.T) {
+	prov := resolveProvider("opencode-go", "https://example.com/inference/go", "go-key", "glm-5.3-flash", "", time.Minute)
+	if err := validateProvider(prov, prov.APIKey); err == nil || !strings.Contains(err.Error(), "fixed OpenCode Go endpoints") {
+		t.Fatalf("custom endpoint accepted: %v", err)
+	}
+	prov = resolveProvider("opencode-go", "", "go-key", "glm-5.3-flash", "", time.Minute)
+	if prov.ID != translate.ProviderOpenCodeGo || validateProvider(prov, prov.APIKey) != nil {
+		t.Fatalf("official Go provider was rejected: %#v", prov)
+	}
+}
 
 func TestFilterResolvedTargetsByNames(t *testing.T) {
 	includeByDefault := false

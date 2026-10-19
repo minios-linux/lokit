@@ -105,9 +105,9 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVar(&provider, "provider", "", T("AI provider: google, gemini, groq, opencode, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)"))
+	cmd.Flags().StringVar(&provider, "provider", "", T("AI provider: google, gemini, groq, opencode, opencode-go, github-copilot, openai, ollama, custom-openai (or use lokit.yaml provider.id)"))
 	cmd.Flags().StringVar(&model, "model", "", T("Model name (or use lokit.yaml provider.model)"))
-	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY)"))
+	cmd.Flags().StringVar(&apiKey, "api-key", "", T("API key (or provider env var: GOOGLE_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, CUSTOM_OPENAI_API_KEY, OPENCODE_API_KEY, OPENCODE_GO_API_KEY)"))
 	cmd.Flags().StringVar(&baseURL, "base-url", "", T("Custom API base URL"))
 
 	cmd.Flags().StringVarP(&langs, "lang", "l", "", T("Languages to translate (comma-separated, default: all with untranslated)"))
@@ -133,7 +133,8 @@ Examples:
 			"google\t" + T("Google AI (Gemini) — API key required"),
 			"gemini\t" + T("Gemini CLI — browser OAuth"),
 			"groq\t" + T("Groq — API key required"),
-			"opencode\t" + T("OpenCode — optional API key"),
+			"opencode\t" + T("OpenCode Console — optional API key"),
+			"opencode-go\t" + T("OpenCode Go — API key required"),
 			"github-copilot\t" + T("GitHub Copilot — native OAuth"),
 			"openai\t" + T("OpenAI — OAuth, device code, or API key"),
 			"ollama\t" + T("Ollama local server"),
@@ -148,7 +149,7 @@ Examples:
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "groq":
 			return nil, cobra.ShellCompDirectiveNoFileComp
-		case "opencode":
+		case "opencode", "opencode-go":
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		case "github-copilot", "copilot":
 			return nil, cobra.ShellCompDirectiveNoFileComp

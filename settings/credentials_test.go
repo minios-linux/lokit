@@ -108,6 +108,7 @@ func TestEnvVarForProviderAndMaskKey(t *testing.T) {
 		"google":         "GOOGLE_API_KEY",
 		"groq":           "GROQ_API_KEY",
 		"opencode":       "OPENCODE_API_KEY",
+		"opencode-go":    "OPENCODE_GO_API_KEY",
 		"openai":         "OPENAI_API_KEY",
 		"custom-openai":  "CUSTOM_OPENAI_API_KEY",
 		"github-copilot": "",
@@ -130,6 +131,28 @@ func TestEnvVarForProviderAndMaskKey(t *testing.T) {
 	}
 	if got := MaskKey("123456789"); got != "1234...6789" {
 		t.Fatalf("MaskKey(9 chars) = %q, want 1234...6789", got)
+	}
+}
+
+func TestOpenCodeGoKeyIsSeparateFromZen(t *testing.T) {
+	t.Setenv("XDG_DATA_HOME", t.TempDir())
+	t.Setenv("OPENCODE_API_KEY", "zen-env")
+	t.Setenv("OPENCODE_GO_API_KEY", "")
+	if got := ResolveAPIKey("opencode-go", ""); got != "" {
+		t.Fatalf("Go reused Zen key: %q", got)
+	}
+	if err := SetAPIKey("opencode-go", "go-stored"); err != nil {
+		t.Fatal(err)
+	}
+	if got := ResolveAPIKey("opencode-go", ""); got != "go-stored" {
+		t.Fatalf("Go stored key = %q", got)
+	}
+	t.Setenv("OPENCODE_GO_API_KEY", "go-env")
+	if got := ResolveAPIKey("opencode-go", ""); got != "go-env" {
+		t.Fatalf("Go env key = %q", got)
+	}
+	if got := ResolveAPIKey("opencode", ""); got != "zen-env" {
+		t.Fatalf("Zen env key = %q", got)
 	}
 }
 

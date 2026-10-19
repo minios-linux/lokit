@@ -9,6 +9,16 @@ import (
 	"testing"
 )
 
+func TestOpenCodeGoProviderConfig(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "lokit.yaml")
+	if err := validateProviderConfig(path, &ProviderConfig{ID: "opencode-go", Model: "glm-5.3-flash"}); err != nil {
+		t.Fatalf("Go provider is not accepted: %v", err)
+	}
+	if err := validateProviderConfig(path, &ProviderConfig{ID: "opencode-go", Model: "glm-5.3-flash", BaseURL: "http://localhost:1234"}); err == nil {
+		t.Fatal("Go provider unexpectedly accepts a custom endpoint")
+	}
+}
+
 func TestProjectPOPathAndPOTResolution(t *testing.T) {
 	t.Run("flat structure", func(t *testing.T) {
 		p := &Project{PODir: "/tmp/po", POStructure: POStructureFlat}

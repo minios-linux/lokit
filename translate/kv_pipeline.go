@@ -409,7 +409,7 @@ func translateKVChunk(ctx context.Context, keys []string, srcVals map[string]str
 		{Role: "user", Content: userPrompt},
 	}
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, &opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -568,6 +568,7 @@ func buildMarkdownUserPrompt(keys []string, srcVals map[string]string, sourceLan
 		userMsg.WriteString(fmt.Sprintf("Translate these text segments to %s.\n", langName))
 	}
 	userMsg.WriteString("For Markdown segments, preserve all formatting, headings, code blocks, and inline markup.\n")
+	userMsg.WriteString("Preserve existing escapes and technical literals such as ${BUILD_DIR} exactly; do not add Markdown or shell escaping. Apply JSON encoding only.\n")
 	userMsg.WriteString("Preserve every __LOKIT_INLINE_CODE_N__, __LOKIT_PARSER_CODE_BLOCK_N__, and __LOKIT_LINK_DESTINATION_N__ placeholder exactly, in the same order.\n")
 	userMsg.WriteString("Do not omit content, do not summarize, and keep the same heading levels (#, ##, ###) and fenced code blocks.\n")
 	userMsg.WriteString("Return one identified JSON object for every segment.\n\n")

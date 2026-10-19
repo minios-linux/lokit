@@ -1,6 +1,6 @@
 # Providers Guide
 
-lokit supports 8 AI providers for translation. This page covers authentication, environment variables, and usage for each.
+lokit supports 9 AI providers for translation. This page covers authentication, environment variables, and usage for each.
 
 ## Quick comparison
 
@@ -10,7 +10,8 @@ lokit supports 8 AI providers for translation. This page covers authentication, 
 | Gemini CLI (OAuth) | OAuth (browser) | Requires a GCP project ID; quotas depend on plan | OAuth setup; good default |
 | Google AI (Gemini) | API key | Paid API (limited free quota may apply) | API-based access to Gemini models |
 | Groq | API key | Paid API (free plan limits may apply) | Fast inference |
-| OpenCode (Zen) | API key | Paid API (some models may be $0) | One key for multiple model families |
+| OpenCode Console | API key | Pay-as-you-go (some models may be $0) | One key for multiple model families |
+| OpenCode Go | API key | Go subscription and separate endpoints | Go models on your subscription |
 | OpenAI | Browser OAuth, device code, or API key | ChatGPT auth or official API key | Official OpenAI access |
 | Ollama | None (local) | Local compute (free) | Privacy, offline use |
 | Custom OpenAI | API key | Depends on endpoint | Any OpenAI-compatible endpoint |
@@ -25,7 +26,8 @@ Pricing, quotas, and eligibility can change. Always refer to the provider’s of
 - [Groq rate limits](https://console.groq.com/docs/rate-limits)
 - [Groq pricing](https://groq.com/pricing)
 - [OpenAI API pricing](https://platform.openai.com/docs/pricing)
-- [OpenCode Zen docs](https://dev.opencode.ai/docs/zen)
+- [OpenCode Console models](https://opencode.ai/console/models)
+- [OpenCode Go](https://opencode.ai/console/go)
 
 ## Credential lookup order
 
@@ -138,9 +140,9 @@ lokit translate --provider groq --model MODEL_NAME
 
 ---
 
-## OpenCode
+## OpenCode Console (`opencode`)
 
-OpenCode Zen endpoint (`https://opencode.ai/zen/v1`). Zen is a paid API, and OpenCode also lists some models with $0 pricing.
+OpenCode Console pay-as-you-go provider (previously called Zen). The existing `opencode` integration uses the legacy Zen endpoint (`https://opencode.ai/zen/v1`); `opencode-go` is a separate provider using the Go endpoints.
 
 **Auth:**
 ```bash
@@ -156,9 +158,35 @@ lokit auth login --provider opencode
 lokit translate --provider opencode --model <model>
 ```
 
-**Pricing/models:** See OpenCode Zen docs and pricing.
+**Pricing/models:** See OpenCode Console models and pricing.
 
 **Environment variable:** `OPENCODE_API_KEY`
+
+---
+
+## OpenCode Go (`opencode-go`)
+
+Uses the separate OpenCode Go subscription endpoints. Sign up for Go or Go Plus and copy your Go API key from the [OpenCode Console](https://opencode.ai/console). In Lokit, `opencode` is Console and `opencode-go` is Go. Credentials are stored separately; no key is reused between them automatically.
+
+```bash
+lokit auth login --provider opencode-go
+# Or set OPENCODE_GO_API_KEY / pass --api-key.
+lokit translate --provider opencode-go --model glm-5.3-flash
+```
+
+In `lokit.yaml`:
+
+```yaml
+provider:
+  id: opencode-go
+  model: glm-5.3-flash
+```
+
+The provider uses the [documented Go endpoints](https://opencode.ai/console/go#endpoints) for chat, Responses, Anthropic and Gemini models and sends an `x-opencode-session` header. Only model IDs with a verified endpoint mapping are accepted. Update Lokit when Go adds a new model or changes its wire protocol.
+
+OpenCode Go is designed primarily for coding-agent traffic; verify that your translation workload is suitable for your subscription. Without a Go API key, Lokit can check routing locally but cannot verify account access or translation quality.
+
+**Environment variable:** `OPENCODE_GO_API_KEY`
 
 ---
 
@@ -304,5 +332,6 @@ provider:
 | `OPENAI_API_KEY` | OpenAI |
 | `CUSTOM_OPENAI_API_KEY` | Custom OpenAI |
 | `OPENCODE_API_KEY` | OpenCode |
+| `OPENCODE_GO_API_KEY` | OpenCode Go |
 
 GitHub Copilot and Gemini CLI use OAuth only. OpenAI supports both OAuth and API keys.

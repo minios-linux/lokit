@@ -33,7 +33,8 @@ Multi-method providers:
 API key providers (paste your key):
   google        Google AI Studio (Gemini API key)
   groq          Groq Cloud
-  opencode      OpenCode Zen API
+  opencode      OpenCode Console API
+  opencode-go   OpenCode Go API
   custom-openai Custom OpenAI-compatible endpoint
 
 No auth required:
@@ -70,7 +71,8 @@ var allProviders = []struct {
 	{"gemini", "Google Gemini", "Gemini CLI OAuth", "oauth"},
 	{"google", "Google AI Studio", "Gemini API key", "api-key"},
 	{"groq", "Groq Cloud", "API key", "api-key"},
-	{"opencode", "OpenCode", "Zen endpoint", "api-key"},
+	{"opencode", "OpenCode Console", "Console endpoint", "api-key"},
+	{"opencode-go", "OpenCode Go", "Go subscription", "api-key"},
 	{"openai", "OpenAI", "browser OAuth, device code, or API key", "mixed"},
 	{"custom-openai", "Custom OpenAI", "any OpenAI-compatible endpoint", "api-key"},
 	{"ollama", "Ollama", "local server, no auth needed", "none"},
@@ -100,7 +102,8 @@ OAuth providers:
 API key providers:
   google        Paste your Google AI Studio API key
   groq          Paste your Groq API key
-  opencode      Paste your OpenCode API key
+  opencode      Paste your OpenCode Console API key
+  opencode-go   Paste your OpenCode Go API key
   custom-openai Paste your API key + endpoint URL`),
 		Run: func(cmd *cobra.Command, args []string) {
 			if headless {
@@ -165,7 +168,7 @@ API key providers:
 				authLoginWithInterrupt(authLoginGemini)
 			case "openai":
 				authLoginOpenAI(authMethod, apiKey)
-			case "google", "groq", "opencode":
+			case "google", "groq", "opencode", "opencode-go":
 				authLoginAPIKey(provider, apiKey)
 			case "custom-openai":
 				authLoginCustomOpenAI(apiKey, baseURL)
@@ -421,9 +424,14 @@ func authLoginAPIKey(providerID, providedKey string) {
 			example: "lokit translate --provider groq --model MODEL_NAME",
 		},
 		"opencode": {
-			name:    "OpenCode",
-			helpURL: "",
+			name:    "OpenCode Console",
+			helpURL: "https://opencode.ai/console",
 			example: "lokit translate --provider opencode --model MODEL_NAME",
+		},
+		"opencode-go": {
+			name:    "OpenCode Go",
+			helpURL: "https://opencode.ai/console/go",
+			example: "lokit translate --provider opencode-go --model MODEL_NAME",
 		},
 		"openai": {
 			name:    "OpenAI",
@@ -586,7 +594,7 @@ Examples:
 						os.Exit(1)
 					}
 					logSuccess(T("Gemini credentials removed"))
-				case "google", "groq", "opencode", "openai", "custom-openai":
+				case "google", "groq", "opencode", "opencode-go", "openai", "custom-openai":
 					if err := settings.Remove(provider); err != nil {
 						logError(T("Failed to remove %s credentials: %v"), provider, err)
 						os.Exit(1)
@@ -608,7 +616,7 @@ Examples:
 				logError(T("Failed to remove Gemini credentials: %v"), err)
 				errCount++
 			}
-			for _, pid := range []string{"google", "groq", "opencode", "openai", "custom-openai"} {
+			for _, pid := range []string{"google", "groq", "opencode", "opencode-go", "openai", "custom-openai"} {
 				if err := settings.Remove(pid); err != nil {
 					logError(T("Failed to remove %s credentials: %v"), pid, err)
 					errCount++
@@ -657,7 +665,8 @@ func newAuthListCmd() *cobra.Command {
 			}{
 				{"google", "Google AI Studio"},
 				{"groq", "Groq Cloud"},
-				{"opencode", "OpenCode"},
+				{"opencode", "OpenCode Console"},
+				{"opencode-go", "OpenCode Go"},
 				{"custom-openai", "Custom OpenAI"},
 			}
 			for _, p := range apiKeyProviders {
@@ -684,6 +693,7 @@ func newAuthListCmd() *cobra.Command {
 				{"google"},
 				{"groq"},
 				{"opencode"},
+				{"opencode-go"},
 				{"openai"},
 				{"custom-openai"},
 			}

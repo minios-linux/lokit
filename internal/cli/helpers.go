@@ -505,7 +505,8 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 			translate.ProviderGoogle:        T("choose a model available through Google AI Studio"),
 			translate.ProviderGemini:        T("choose a model available through Gemini CLI OAuth"),
 			translate.ProviderGroq:          T("choose a model available in your Groq account"),
-			translate.ProviderOpenCode:      T("choose a model available through OpenCode Zen"),
+			translate.ProviderOpenCode:      T("choose a model available through OpenCode Console"),
+			translate.ProviderOpenCodeGo:    T("choose a model listed at https://opencode.ai/console/go#endpoints"),
 			translate.ProviderGitHubCopilot: T("choose a model available in your GitHub Copilot plan"),
 			translate.ProviderOpenAI:        T("choose a model available through your OpenAI authentication method"),
 			translate.ProviderOllama:        T("choose a model installed on your Ollama server"),
@@ -583,6 +584,16 @@ func validateProvider(prov translate.Provider, apiKey string) error {
 
 	case translate.ProviderOpenCode:
 		// OpenCode can work without API key for some models
+	case translate.ProviderOpenCodeGo:
+		if strings.TrimRight(prov.BaseURL, "/") != translate.DefaultProviders()[translate.ProviderOpenCodeGo].BaseURL {
+			return fmt.Errorf(T("provider 'opencode-go' uses fixed OpenCode Go endpoints; remove --base-url or provider.base_url"))
+		}
+		if apiKey == "" {
+			return fmt.Errorf(T("provider 'opencode-go' requires an OpenCode Go API key; run lokit auth login --provider opencode-go or set OPENCODE_GO_API_KEY"))
+		}
+		if err := translate.ValidateOpenCodeGoModel(prov.Model); err != nil {
+			return err
+		}
 
 	case translate.ProviderGitHubCopilot:
 		if copilot.LoadToken() == nil {

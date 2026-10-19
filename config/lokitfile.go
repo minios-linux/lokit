@@ -440,6 +440,7 @@ func validateProviderConfig(path string, provider *ProviderConfig) error {
 		"gemini":         {},
 		"groq":           {},
 		"opencode":       {},
+		"opencode-go":    {},
 		"github-copilot": {},
 		// Deprecated alias retained for existing configuration files.
 		"copilot":       {},

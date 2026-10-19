@@ -8,7 +8,9 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -50,6 +52,7 @@ const (
 	ProviderGemini        = "gemini"
 	ProviderGroq          = "groq"
 	ProviderOpenCode      = "opencode"
+	ProviderOpenCodeGo    = "opencode-go"
 	ProviderGitHubCopilot = "github-copilot"
 	// ProviderCopilot is kept as a source-compatible alias.
 	// Deprecated: use ProviderGitHubCopilot.
@@ -92,8 +95,18 @@ func getPrompt(promptType string) string {
 }
 
 // ---------------------------------------------------------------------------
-// Default system prompt (matches the admin panel's defaultPrompt)
+// Shared preservation rules for decoded translation text and its JSON transport.
 // ---------------------------------------------------------------------------
+
+const literalPreservationPrompt = `
+
+LITERAL TEXT AND JSON ENCODING:
+- Translate prose only. Preserve variable references, placeholders, commands, paths, URLs, and source escape sequences exactly, including their backslash counts.
+- Do not add shell, Markdown, XML, PO, POD, or roff escaping to the translated text. Lokit handles file serialization; your response uses JSON encoding only.
+- In decoded translation text, ${BUILD_DIR} must remain ${BUILD_DIR}, not \${BUILD_DIR}. Likewise preserve $HOME, $(command), %1$s, %(name)s, {name}, and {{name}} when present. Never expand or evaluate them.
+- JSON encoding is a transport layer, not a change to the source syntax: source ${BUILD_DIR}/bin is encoded as "${BUILD_DIR}/bin"; an existing literal backslash in source \${BUILD_DIR} is encoded as "\\${BUILD_DIR}". Do not add or remove that literal backslash.
+- Encode existing backslashes and double quotes once for JSON. Encode actual newlines and tabs as \n and \t; encode a literal backslash followed by n as \\n. After JSON decoding, the source's technical literals and whitespace must be unchanged.
+`
 
 const DefaultSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating UI strings for a software application.
 
@@ -113,16 +126,16 @@ IMPORTANT TRANSLATION PRINCIPLES:
 - Maintain the original tone and intent, but express it naturally in {{targetLang}}
 
 TECHNICAL REQUIREMENTS:
-- Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
+- Return only the JSON response structure requested for this batch, preserving all supplied IDs and plural-form requirements.
 - Preserve all format specifiers exactly as-is (%s, %d, %%(name)s, etc.).
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
 - Keep brand names and proper nouns unchanged.
 - Do NOT translate technical terms that are standard in English (unless they have established translations).
-- Return ONLY the JSON array, no explanations or markdown code blocks.`
+- Return ONLY the JSON array, no explanations or markdown code blocks.` + literalPreservationPrompt
 
 // DocsSystemPrompt is the system prompt for translating documentation PO files
-// (man pages via po4a) that contain groff/roff markup.
-const DocsSystemPrompt = `You are a professional translator specializing in technical documentation for software systems. You are translating documentation that uses groff/roff markup via the po4a (PO for anything) framework.
+// (including man pages via po4a) in their source markup dialect.
+const DocsSystemPrompt = `You are a professional translator specializing in technical documentation for software systems. You are translating documentation extracted by po4a (PO for anything). po4a supports multiple source formats; preserve the syntax actually present in each entry instead of converting it to another format.
 
 CONTEXT AWARENESS:
 - The source text comes from software documentation and man pages
@@ -139,16 +152,18 @@ IMPORTANT TRANSLATION PRINCIPLES:
 - Maintain the formal register typical of technical documentation
 
 CRITICAL MARKUP PRESERVATION RULES:
-- Preserve ALL groff/roff inline markup exactly as-is:
+- POD-style formatting codes (also used in po4a's normalized man strings) are not raw groff/roff escape syntax. When present, preserve their delimiters and nesting:
   - B<...> (bold) — translate content inside, keep B<> wrapper, except technical identifiers
   - I<...> (italic) — translate content inside, keep I<> wrapper
   - C<...> (code/constant) — do NOT translate content inside
-  - L<...> (link) — do NOT translate
-- Preserve ALL groff macros and directives:
+  - L<...> (link) — preserve the destination; translate an explicit display label only
+  - E<...> (escape) — preserve exactly; retain extended delimiters such as B<< ... >>
+- Raw roff/groff escapes, when present, must remain unchanged: \fB, \f[B], \fR, \fP, \[dq], \(em, \&, \e, and \- are syntax, not prose.
+- Preserve roff macro names, control characters, quoting, argument boundaries, and line structure. Translate only human-readable arguments, not the entire directive as an opaque string:
   - .SH, .SS, .TP, .IP, .PP, .RS, .RE — keep as-is
   - .B, .I, .BR, .IR — keep as-is
 - Do NOT translate:
-  - Command names, option flags (--option, -f)
+  - Command names, option flags (--option, -f), shell expansions (${BUILD_DIR}, $HOME, $(command)), and backslash-newline continuations
   - File paths (/etc/, /usr/share/, etc.)
   - Environment variable names
   - Package names, program names
@@ -161,12 +176,13 @@ CRITICAL MARKUP PRESERVATION RULES:
   - Option descriptions (the explanation part, not the option itself)
 
 TECHNICAL REQUIREMENTS:
-- Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
+- Return only the JSON response structure requested for this batch, preserving all supplied IDs and plural-form requirements.
 - Preserve all format specifiers exactly as-is (%s, %d, etc.).
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
 - Keep brand names and proper nouns unchanged.
-- CRITICAL: Properly escape ALL backslashes in JSON strings. Groff sequences like \[dq], \f[B], and \fR MUST be escaped as \\[dq], \\f[B], and \\fR in JSON.
-- Return ONLY the JSON array, no explanations or markdown code blocks.`
+- Do not introduce roff escapes before shell variables: adding a backslash before ${BUILD_DIR} changes its meaning to groff. Do not convert POD-style codes into raw roff or vice versa.
+- Existing roff sequences \[dq], \f[B], and \fR are encoded as \\[dq], \\f[B], and \\fR inside JSON strings, then decode back to the original single-backslash sequences.
+- Return ONLY the JSON array, no explanations or markdown code blocks.` + literalPreservationPrompt
 
 // ---------------------------------------------------------------------------
 // Provider configuration
@@ -190,6 +206,8 @@ type Provider struct {
 	Timeout time.Duration
 	// Temperature controls randomness (0..2). If 0, default is used.
 	Temperature float64
+	// SessionID identifies one OpenCode Go conversation across HTTP and validation retries.
+	SessionID string
 }
 
 func providerTemperature(prov Provider) float64 {
@@ -227,9 +245,15 @@ func DefaultProviders() map[string]Provider {
 		},
 		ProviderOpenCode: {
 			ID:      ProviderOpenCode,
-			Name:    "OpenCode",
+			Name:    "OpenCode Console",
 			BaseURL: "https://opencode.ai/zen/v1",
 			Model:   "",
+			Timeout: 120 * time.Second,
+		},
+		ProviderOpenCodeGo: {
+			ID:      ProviderOpenCodeGo,
+			Name:    "OpenCode Go",
+			BaseURL: "https://opencode.ai/inference/go",
 			Timeout: 120 * time.Second,
 		},
 		ProviderGitHubCopilot: {
@@ -870,6 +894,8 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 		return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, formatOpenAIChat, rl, maxRetries, verbose)
 	case ProviderOpenCode:
 		return callOpenCode(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
+	case ProviderOpenCodeGo:
+		return callOpenCodeGo(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
 	case ProviderGitHubCopilot:
 		return callCopilot(ctx, prov, systemPrompt, userPrompt, rl, maxRetries, verbose)
 	case ProviderOpenAI:
@@ -884,12 +910,15 @@ func callProvider(ctx context.Context, prov Provider, systemPrompt, userPrompt s
 	}
 }
 
-func callProviderConversation(ctx context.Context, prov Provider, messages []providerMessage, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
+func callProviderConversation(ctx context.Context, prov *Provider, messages []providerMessage, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
+	if err := ensureOpenCodeGoSession(prov); err != nil {
+		return "", err
+	}
 	if prov.ID == ProviderGitHubCopilot {
-		return callCopilotMessages(ctx, prov, messages, rl, maxRetries, verbose)
+		return callCopilotMessages(ctx, *prov, messages, rl, maxRetries, verbose)
 	}
 	if len(messages) == 2 && messages[0].Role == "system" && messages[1].Role == "user" {
-		return callProvider(ctx, prov, messages[0].Content, messages[1].Content, rl, maxRetries, verbose)
+		return callProvider(ctx, *prov, messages[0].Content, messages[1].Content, rl, maxRetries, verbose)
 	}
 	systemPrompt := ""
 	var prompt strings.Builder
@@ -903,7 +932,7 @@ func callProviderConversation(ctx context.Context, prov Provider, messages []pro
 		prompt.WriteString(":\n")
 		prompt.WriteString(message.Content)
 	}
-	return callProvider(ctx, prov, systemPrompt, strings.TrimSpace(prompt.String()), rl, maxRetries, verbose)
+	return callProvider(ctx, *prov, systemPrompt, strings.TrimSpace(prompt.String()), rl, maxRetries, verbose)
 }
 
 func appendRejectedResponse(messages []providerMessage, response string, err error) []providerMessage {
@@ -1178,8 +1207,10 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 	switch format {
 	case formatGeminiNative:
 		// Google AI: POST /v1beta/models/{model}:generateContent
-		endpoint = fmt.Sprintf("%s/v1beta/models/%s:generateContent",
-			strings.TrimRight(prov.BaseURL, "/"), prov.Model)
+		endpoint = fmt.Sprintf("%s/v1beta/models/%s:generateContent", strings.TrimRight(prov.BaseURL, "/"), prov.Model)
+		if prov.ID == ProviderOpenCodeGo {
+			endpoint = fmt.Sprintf("%s/google/v1beta/models/%s:generateContent", strings.TrimRight(prov.BaseURL, "/"), prov.Model)
+		}
 		if prov.APIKey != "" {
 			headers["x-goog-api-key"] = prov.APIKey
 		}
@@ -1187,6 +1218,9 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 
 	case formatAnthropic:
 		endpoint = strings.TrimRight(prov.BaseURL, "/") + "/messages"
+		if prov.ID == ProviderOpenCodeGo {
+			endpoint = strings.TrimRight(prov.BaseURL, "/") + "/anthropic/v1/messages"
+		}
 		if prov.APIKey != "" {
 			headers["x-api-key"] = prov.APIKey
 		}
@@ -1195,6 +1229,9 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 
 	case formatOpenAIResponses:
 		endpoint = strings.TrimRight(prov.BaseURL, "/") + "/responses"
+		if prov.ID == ProviderOpenCodeGo {
+			endpoint = strings.TrimRight(prov.BaseURL, "/") + "/openai/v1/responses"
+		}
 		if prov.APIKey != "" {
 			headers["Authorization"] = "Bearer " + prov.APIKey
 		}
@@ -1206,6 +1243,9 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 
 	default: // formatOpenAIChat
 		baseURL := strings.TrimRight(prov.BaseURL, "/")
+		if prov.ID == ProviderOpenCodeGo {
+			baseURL += "/openai/v1"
+		}
 		if !strings.HasSuffix(baseURL, "/chat/completions") {
 			endpoint = baseURL + "/chat/completions"
 		} else {
@@ -1220,12 +1260,68 @@ func buildHTTPRequest(prov Provider, systemPrompt, userPrompt string, format api
 	if err != nil {
 		return "", nil, nil, err
 	}
+	if prov.ID == ProviderOpenCodeGo {
+		headers["User-Agent"] = "lokit/1.0"
+		headers["x-opencode-session"] = prov.SessionID
+	}
 	return endpoint, headers, body, nil
 }
 
 // ---------------------------------------------------------------------------
 // OpenCode provider (multi-format dispatch based on model prefix)
 // ---------------------------------------------------------------------------
+
+// ValidateOpenCodeGoModel rejects undocumented models instead of guessing an
+// endpoint from their names.
+func ValidateOpenCodeGoModel(model string) error {
+	_, err := openCodeGoFormat(model)
+	return err
+}
+
+// Go model names alone do not reliably identify their wire protocol. Keep
+// this list aligned with https://opencode.ai/console/go#endpoints.
+func openCodeGoFormat(model string) (apiFormat, error) {
+	switch model {
+	case "grok-4.7", "gpt-6-luna", "gpt-5.6-luna", "muse-spark-1.3-contributor", "muse-spark-1.2-contributor":
+		return formatOpenAIResponses, nil
+	case "claude-haiku-5-5", "minimax-m3", "qwen3.8-max", "qwen3.8-flash", "qwen3.7-plus":
+		return formatAnthropic, nil
+	case "gemini-4-argon-contributor":
+		return formatGeminiNative, nil
+	case "glm-5.3-flash", "glm-5.3", "glm-5.2", "kimi-k3", "kimi-k2.7-code",
+		"longcat-2.0", "deepseek-v4.1-flash", "deepseek-v4-pro", "mimo-v2.6-flash", "mimo-v2.6-pro",
+		"mimo-v2.5", "mimo-v2.5-pro", "hy4-preview", "hy3", "space-bunny",
+		"longcat-2.5-preview-free", "step-5-preview", "beam-free":
+		return formatOpenAIChat, nil
+	default:
+		return 0, fmt.Errorf("OpenCode Go model %q has no known API format; check https://opencode.ai/console/go#endpoints", model)
+	}
+}
+
+func callOpenCodeGo(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
+	if prov.APIKey == "" {
+		return "", fmt.Errorf("OpenCode Go requires an API key; run lokit auth login --provider opencode-go")
+	}
+	format, err := openCodeGoFormat(prov.Model)
+	if err != nil {
+		return "", err
+	}
+	if err := ensureOpenCodeGoSession(&prov); err != nil {
+		return "", err
+	}
+	return callHTTPProvider(ctx, prov, systemPrompt, userPrompt, format, rl, maxRetries, verbose)
+}
+
+func ensureOpenCodeGoSession(prov *Provider) error {
+	if prov.ID == ProviderOpenCodeGo && prov.SessionID == "" {
+		var id [32]byte
+		if _, err := rand.Read(id[:]); err != nil {
+			return fmt.Errorf("creating OpenCode Go session ID: %w", err)
+		}
+		prov.SessionID = "ses_" + hex.EncodeToString(id[:])
+	}
+	return nil
+}
 
 func callOpenCode(ctx context.Context, prov Provider, systemPrompt, userPrompt string, rl *rateLimitState, maxRetries int, verbose bool) (string, error) {
 	// Determine API format based on model prefix
@@ -1944,7 +2040,7 @@ func translateChunkWithPlurals(ctx context.Context, entries []*po.Entry, systemP
 		{Role: "user", Content: basePrompt},
 	}
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, &opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -2594,7 +2690,7 @@ func translateChunk(ctx context.Context, entries []*po.Entry, systemPrompt strin
 		{Role: "user", Content: basePrompt},
 	}
 	for attempt := 0; attempt <= maxRetries; attempt++ {
-		text, err := callProviderConversation(ctx, opts.Provider, conversation, rl, maxRetries, opts.Verbose)
+		text, err := callProviderConversation(ctx, &opts.Provider, conversation, rl, maxRetries, opts.Verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -3186,12 +3282,12 @@ func TranslateAll(ctx context.Context, langTasks []LangTask, opts Options) error
 // ---------------------------------------------------------------------------
 
 // I18NextSystemPrompt is the system prompt for translating i18next JSON UI strings.
-const I18NextSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating UI strings for a web application built with React and i18next.
+const I18NextSystemPrompt = `You are a professional translator specializing in software and product localization. You are translating UI strings using i18next.
 
 CONTEXT AWARENESS:
-- The application is a web application using React and i18next for internationalization
+- Follow the supplied application context; do not assume a specific UI framework
 - The audience is web application users
-- Keys are natural {{sourceLang}} text; you translate them to {{targetLang}}
+- Translate the supplied source values from {{sourceLang}} to {{targetLang}}; keys and response IDs are identifiers, not text to translate
 - Tone: professional yet approachable, clear and concise
 - Use IT/software terminology that is standard in {{targetLang}} tech community
 
@@ -3204,12 +3300,13 @@ IMPORTANT TRANSLATION PRINCIPLES:
 - Maintain the original tone and intent, but express it naturally in {{targetLang}}
 
 TECHNICAL REQUIREMENTS:
-- Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
+- Return only the JSON response structure requested for this batch, preserving all supplied IDs and plural-form requirements.
 - Preserve all interpolation variables exactly as-is (e.g. {{count}}, {{name}}, etc.).
+- Preserve interpolation options ({{value, number}}, {{- value}}), nesting references ($t(key)), and markup tags and attributes when present; translate only visible prose.
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
 - Keep brand names and proper nouns unchanged.
 - Do NOT translate technical terms that are standard in English (unless they have established translations).
-- Return ONLY the JSON array, no explanations or markdown code blocks.`
+- Return ONLY the JSON array, no explanations or markdown code blocks.` + literalPreservationPrompt
 
 // JSONLangTask is a language translation task for i18next JSON files.
 type JSONLangTask struct {
@@ -3287,9 +3384,8 @@ func serializePOFile(poFile *po.File) ([]byte, error) {
 
 // escapeForPrompt prepares a string for inclusion in the AI prompt.
 func escapeForPrompt(s string) string {
-	s = strings.ReplaceAll(s, "\n", "\\n")
-	s = strings.ReplaceAll(s, "\t", "\\t")
-	return fmt.Sprintf(`"%s"`, s)
+	encoded, _ := json.Marshal(s)
+	return string(encoded)
 }
 
 // truncate truncates a string to maxLen characters.
@@ -3332,12 +3428,13 @@ IMPORTANT TRANSLATION PRINCIPLES:
 - Follow platform-specific conventions for {{targetLang}} on Android (button labels, menu items, etc.)
 
 TECHNICAL REQUIREMENTS:
-- Return ONLY a JSON array of translated strings, one for each input entry, in the same order.
+- Return only the JSON response structure requested for this batch, preserving all supplied IDs and plural-form requirements.
 - Preserve all Android format specifiers exactly as-is (%s, %d, %1$s, %1$d, %2$d, %2$s, etc.).
+- Preserve resource references and existing inline markup. Do not add XML entities or Android apostrophe escaping to decoded text; the serializer handles those layers.
 - Preserve leading/trailing whitespace, newlines, and punctuation patterns.
 - Keep brand names and proper nouns unchanged.
 - Do NOT translate technical terms that are standard in English (unless they have established translations).
-- Return ONLY the JSON array, no explanations or markdown code blocks.`
+- Return ONLY the JSON array, no explanations or markdown code blocks.` + literalPreservationPrompt
 
 // AndroidLangTask is a language translation task for Android strings.xml files.
 type AndroidLangTask struct {

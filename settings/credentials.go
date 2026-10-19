@@ -303,6 +303,8 @@ func EnvVarForProvider(providerID string) string {
 		return "GROQ_API_KEY"
 	case "opencode":
 		return "OPENCODE_API_KEY"
+	case "opencode-go":
+		return "OPENCODE_GO_API_KEY"
 	case "openai":
 		return "OPENAI_API_KEY"
 	case "custom-openai":
